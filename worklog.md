@@ -112,3 +112,5 @@ Files:
 - `test/hiraeth_web/live/public_catalog_live_test.exs`
 
 T4 commit: 83aa994 — test(covers): specify cached public cover preference
+
+T4 finalized commit after amend: 52380b6 — test(covers): specify cached public cover preference
