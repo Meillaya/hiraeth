@@ -4,6 +4,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
   import Phoenix.LiveViewTest
 
   alias Hiraeth.RealCatalog.Dataset
+  alias HiraethWeb.CatalogComponents
   alias HiraethWeb.PublicCatalog
 
   @immigrant_slug "deep-vellum-immigrant-paperback-9781646054541"
@@ -153,6 +154,26 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
              ~s|a#book-storefront-cta[href="https://archipelagobooks.org/book/bob-and-hilbert/"]|,
              "Publisher page"
            )
+  end
+
+  test "book cover component prefers cached public URL over remote source URL" do
+    html =
+      render_component(&CatalogComponents.book_cover/1,
+        book: %{
+          slug: "cached-cover-book",
+          title: "Cached Cover Book",
+          publisher: "Fixture Press",
+          cover: %{
+            source_url: "https://covers.example.test/cached-cover-book.jpg",
+            public_url: "/covers/cache/cached-cover-book.jpg",
+            provider: "fixture-covers",
+            attribution_text: "Fixture cover provider"
+          }
+        }
+      )
+
+    assert html =~ ~s|src="/covers/cache/cached-cover-book.jpg"|
+    refute html =~ ~s|src="https://covers.example.test/cached-cover-book.jpg"|
   end
 
   defp clear_catalog! do

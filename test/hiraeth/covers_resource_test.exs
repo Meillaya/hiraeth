@@ -74,6 +74,71 @@ defmodule Hiraeth.CoversResourceTest do
     assert cached.cached_file_path == "priv/static/covers/cache-allowed.jpg"
   end
 
+  test "public resolver prefers locally cached cover paths when cache rights permit", %{
+    admin: admin,
+    edition: edition
+  } do
+    cached =
+      cover_asset!(admin, %{
+        source_url: "https://covers.example.test/cache-preferred.jpg",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed",
+        cached_file_path: "priv/static/covers/cache/cache-preferred.jpg"
+      })
+
+    assignment!(admin, edition, cached)
+
+    assert Covers.public_cover_asset?(cached)
+
+    assert %{
+             source_url: "https://covers.example.test/cache-preferred.jpg",
+             cached_file_path: "priv/static/covers/cache/cache-preferred.jpg",
+             public_url: "/covers/cache/cache-preferred.jpg"
+           } = Covers.public_cover_for_edition(edition.id)
+  end
+
+  test "public resolver still allows link-only remote covers when no local cache exists", %{
+    admin: admin,
+    edition: edition
+  } do
+    remote =
+      cover_asset!(admin, %{
+        source_url: "https://covers.example.test/link-only-fallback.jpg",
+        rights_basis: "provider_link_allowed",
+        cache_policy: "link_only",
+        cached_file_path: nil
+      })
+
+    assignment!(admin, edition, remote)
+
+    assert Covers.public_cover_asset?(remote)
+
+    assert %{
+             source_url: "https://covers.example.test/link-only-fallback.jpg",
+             cached_file_path: nil,
+             public_url: "https://covers.example.test/link-only-fallback.jpg"
+           } = Covers.public_cover_for_edition(edition.id)
+  end
+
+  test "takedown hides cached covers and does not expose stale local paths", %{
+    admin: admin,
+    edition: edition
+  } do
+    hidden_cached =
+      cover_asset!(admin, %{
+        source_url: "https://covers.example.test/hidden-cache.jpg",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed",
+        cached_file_path: "priv/static/covers/cache/hidden-cache.jpg",
+        takedown_state: "hidden"
+      })
+
+    assignment!(admin, edition, hidden_cached)
+
+    refute Covers.public_cover_asset?(hidden_cached)
+    assert Covers.public_cover_for_edition(edition.id) == Covers.fallback_cover()
+  end
+
   test "provenance audit writes zero invalid public covers", %{admin: admin, edition: edition} do
     cover = cover_asset!(admin, %{source_url: "https://covers.example.test/visible.jpg"})
     assignment!(admin, edition, cover)

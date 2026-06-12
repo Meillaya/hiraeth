@@ -92,3 +92,23 @@ Files:
 T3 commit: 7abe353 — test(metadata): specify public prose and storefront display
 
 T3 finalized commit after amend: caba940 — test(metadata): specify public prose and storefront display
+
+## 2026-06-12 — T4 RED cover cache contract
+
+Scope: add failing tests for public cached-cover eligibility, public cover URL projection, link-only fallback, takedown hiding of cached covers, and component preference for cached `public_url` over remote `source_url`.
+
+Commands:
+- `MIX_ENV=test mix test test/hiraeth/covers_resource_test.exs --trace`
+- `MIX_ENV=test mix test test/hiraeth_web/live/public_catalog_live_test.exs:159 --trace`
+
+Result: expected RED — failures are current cover policy/projection/component behavior.
+
+Evidence:
+- `.omo/evidence/task-4-red-cover-cache-tests.txt`
+- Independent verifier: Verifier the 59th confirmed the T4 RED contract and scoped failures.
+
+Files:
+- `test/hiraeth/covers_resource_test.exs`
+- `test/hiraeth_web/live/public_catalog_live_test.exs`
+
+T4 commit: 83aa994 — test(covers): specify cached public cover preference
