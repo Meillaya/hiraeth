@@ -1,0 +1,24 @@
+# OMX/OMO runtime and planning artifacts
+.omo/
+.omx/
+
+# Generated QA artifacts
+artifacts/
+
+# Elixir/Phoenix build artifacts
+/_build/
+/deps/
+/.elixir_ls/
+/cover/
+/priv/static/assets/
+/priv/static/cache_manifest.json
+
+# Node assets if Phoenix generator creates asset tooling
+/assets/node_modules/
+/assets/npm-debug.log*
+
+# Local environment
+.env
+.env.*
+!.env.example
+.DS_Store
