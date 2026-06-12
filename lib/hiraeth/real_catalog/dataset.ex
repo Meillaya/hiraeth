@@ -55,9 +55,11 @@ defmodule Hiraeth.RealCatalog.Dataset do
   defp atomize(value), do: value
 
   @known_keys ~w(
-    provider retrieved_at license_note records file source_uri source_product_id source_sku
-    publisher imprint work title subtitle original_title publication_state edition format
-    published_on isbn_13 contributors name role cover source_url rights_basis attribution_text
+    provider retrieved_at license_note records prose_curation scope updated_at records_with_prose
+    file source_uri source_product_id source_sku
+    publisher imprint work title subtitle original_title publication_state description synopsis
+    storefront_url editorial_praise quote source source_uri edition format published_on isbn_13
+    contributors name role cover source_url rights_basis attribution_text
     attribution_url cache_policy no_cover_reason cover_fallback_reason displayed_fields curation status
     notes file_path file_checksum
   )

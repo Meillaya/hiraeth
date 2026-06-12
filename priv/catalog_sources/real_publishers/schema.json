@@ -1,5 +1,395 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Hiraeth real publisher dataset",
-  "type": "object"
+  "type": "object",
+  "required": [
+    "provider",
+    "retrieved_at",
+    "license_note",
+    "records"
+  ],
+  "properties": {
+    "provider": {
+      "type": "string"
+    },
+    "retrieved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "license_note": {
+      "type": "string"
+    },
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "source_uri",
+          "source_product_id",
+          "publisher",
+          "work",
+          "edition",
+          "contributors",
+          "displayed_fields",
+          "curation"
+        ],
+        "properties": {
+          "source_uri": {
+            "type": "string",
+            "format": "uri"
+          },
+          "source_product_id": {
+            "type": "string"
+          },
+          "source_sku": {
+            "type": "string"
+          },
+          "publisher": {
+            "type": "string"
+          },
+          "imprint": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "work": {
+            "$ref": "#/$defs/work"
+          },
+          "edition": {
+            "$ref": "#/$defs/edition"
+          },
+          "contributors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/contributor"
+            },
+            "minItems": 1
+          },
+          "cover": {
+            "$ref": "#/$defs/cover"
+          },
+          "no_cover_reason": {
+            "type": "string"
+          },
+          "cover_fallback_reason": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "synopsis": {
+            "type": "string"
+          },
+          "storefront_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "editorial_praise": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/editorial_praise"
+            }
+          },
+          "displayed_fields": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "title",
+                "subtitle",
+                "contributors",
+                "publisher",
+                "imprint",
+                "format",
+                "published_on",
+                "isbn_13",
+                "cover",
+                "source_url",
+                "description",
+                "synopsis",
+                "editorial_praise",
+                "storefront_url"
+              ]
+            }
+          },
+          "curation": {
+            "$ref": "#/$defs/curation"
+          }
+        },
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "price"
+              ]
+            },
+            {
+              "required": [
+                "inventory"
+              ]
+            },
+            {
+              "required": [
+                "availability"
+              ]
+            },
+            {
+              "required": [
+                "cart"
+              ]
+            },
+            {
+              "required": [
+                "checkout"
+              ]
+            },
+            {
+              "required": [
+                "account"
+              ]
+            },
+            {
+              "required": [
+                "body_html"
+              ]
+            },
+            {
+              "required": [
+                "content"
+              ]
+            },
+            {
+              "required": [
+                "excerpt"
+              ]
+            },
+            {
+              "required": [
+                "html"
+              ]
+            },
+            {
+              "required": [
+                "rendered_html"
+              ]
+            },
+            {
+              "required": [
+                "blurb"
+              ]
+            },
+            {
+              "required": [
+                "bio"
+              ]
+            },
+            {
+              "required": [
+                "author_bio"
+              ]
+            },
+            {
+              "required": [
+                "review"
+              ]
+            },
+            {
+              "required": [
+                "reviews"
+              ]
+            },
+            {
+              "required": [
+                "user_review"
+              ]
+            },
+            {
+              "required": [
+                "user_reviews"
+              ]
+            },
+            {
+              "required": [
+                "jacket_copy"
+              ]
+            }
+          ]
+        },
+        "additionalProperties": false
+      }
+    },
+    "prose_curation": {
+      "$ref": "#/$defs/prose_curation"
+    }
+  },
+  "$defs": {
+    "work": {
+      "type": "object",
+      "required": [
+        "title",
+        "publication_state"
+      ],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "original_title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "publication_state": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "edition": {
+      "type": "object",
+      "required": [
+        "title",
+        "format",
+        "isbn_13"
+      ],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "format": {
+          "enum": [
+            "paperback",
+            "hardcover",
+            "ebook",
+            "audiobook"
+          ]
+        },
+        "published_on": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "isbn_13": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "contributor": {
+      "type": "object",
+      "required": [
+        "name",
+        "role"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "cover": {
+      "type": "object",
+      "properties": {
+        "source_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "rights_basis": {
+          "type": "string"
+        },
+        "attribution_text": {
+          "type": "string"
+        },
+        "attribution_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "cache_policy": {
+          "const": "link_only"
+        }
+      },
+      "additionalProperties": false
+    },
+    "editorial_praise": {
+      "type": "object",
+      "required": [
+        "quote",
+        "source",
+        "source_uri"
+      ],
+      "properties": {
+        "quote": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "source_uri": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "additionalProperties": false
+    },
+    "curation": {
+      "type": "object",
+      "required": [
+        "status",
+        "notes"
+      ],
+      "properties": {
+        "status": {
+          "const": "approved"
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "prose_curation": {
+      "type": "object",
+      "required": [
+        "scope",
+        "updated_at",
+        "records_with_prose"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "scope": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "records_with_prose": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  },
+  "additionalProperties": false
 }

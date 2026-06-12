@@ -10,11 +10,11 @@ This directory contains Hiraeth's first curated real-book pilot dataset: 50 fact
 
 ## Included metadata
 
-Only factual bibliographic/display metadata is stored: title, contributor names and roles, publisher/imprint, edition format, publication date when structured, ISBN-13, source URL, and link-only cover provenance.
+Only factual bibliographic/display metadata is stored by default: title, contributor names and roles, publisher/imprint, edition format, publication date when structured, ISBN-13, source URL, and link-only cover provenance. The schema also permits public prose fields (`description`, `synopsis`, `editorial_praise`, and `storefront_url`) only when they are explicitly sourced to the same allowlisted official source URI and covered by the dataset license note. The tracked publisher records currently omit prose unless a curated source payload supplies it; do not fabricate missing descriptions or add user reviews.
 
 ## Excluded content
 
-The dataset intentionally excludes jacket copy, marketing descriptions, blurbs, author bios, reviews, prices, inventory status, availability, cart/checkout/account data, and long rendered product prose.
+The dataset intentionally excludes unsourced jacket copy, blurbs, author bios, user reviews, prices, inventory status, availability, cart/checkout/account data, raw HTML, rendered content dumps, and any long unapproved prose fields.
 
 ## Cover and rights assumptions
 
@@ -34,4 +34,4 @@ Run:
 MIX_ENV=test mix test test/hiraeth/real_catalog_dataset_test.exs --trace
 ```
 
-The validator requires exactly 50 approved records per provider, valid ISBN-13 values, approved formats, HTTPS allowlisted cover hosts, no duplicate ISBNs, no non-book formats/SKUs, and no long copied prose fields.
+The validator requires exactly 50 approved records per provider, valid ISBN-13 values, approved formats, HTTPS allowlisted source/cover hosts, no duplicate ISBNs, no non-book formats/SKUs, no commerce state, no raw HTML/content dumps, and provenance for every approved public prose field.

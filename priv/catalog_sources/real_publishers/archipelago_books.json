@@ -1,7 +1,7 @@
 {
   "provider": "archipelago_books_official_store",
   "retrieved_at": "2026-06-12T00:00:00Z",
-  "license_note": "Official public publisher/store metadata; factual metadata only; cover display link-only pending explicit cache rights.",
+  "license_note": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display link-only pending explicit cache rights.",
   "records": [
     {
       "source_uri": "https://archipelagobooks.org/book/bob-and-hilbert/",
@@ -47,12 +47,16 @@
         "format",
         "published_on",
         "isbn_13",
-        "cover"
+        "cover",
+        "description",
+        "storefront_url"
       ],
       "curation": {
         "status": "approved",
-        "notes": "Manual source review completed. No jacket copy imported."
-      }
+        "notes": "Manual source review completed. No jacket copy imported. Prose snippet curated from Archipelago Books official product page."
+      },
+      "description": "A tender kid’s picture book about a goofy rabbit and dog who discover they can both achieve their goals if they depend on one another.",
+      "storefront_url": "https://archipelagobooks.org/book/bob-and-hilbert/"
     },
     {
       "source_uri": "https://archipelagobooks.org/book/bob-and-hilbert/",
@@ -98,12 +102,16 @@
         "format",
         "published_on",
         "isbn_13",
-        "cover"
+        "cover",
+        "description",
+        "storefront_url"
       ],
       "curation": {
         "status": "approved",
-        "notes": "Manual source review completed. No jacket copy imported."
-      }
+        "notes": "Manual source review completed. No jacket copy imported. Prose snippet curated from Archipelago Books official product page."
+      },
+      "description": "A tender kid’s picture book about a goofy rabbit and dog who discover they can both achieve their goals if they depend on one another.",
+      "storefront_url": "https://archipelagobooks.org/book/bob-and-hilbert/"
     },
     {
       "source_uri": "https://archipelagobooks.org/book/the-river/",
@@ -2593,5 +2601,10 @@
         "notes": "Manual source review completed. No jacket copy imported."
       }
     }
-  ]
+  ],
+  "prose_curation": {
+    "scope": "Short official product-page prose snippets only; no raw HTML, author bios, commerce state, or user reviews.",
+    "updated_at": "2026-06-12T00:00:00Z",
+    "records_with_prose": 2
+  }
 }

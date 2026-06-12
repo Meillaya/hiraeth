@@ -10,8 +10,11 @@ defmodule Hiraeth.RealCatalog.Validator do
     defstruct [:provider, :file, :source_uri, :isbn_13, :reason]
   end
 
-  @allowed_displayed_fields ~w(title subtitle contributors publisher imprint format published_on isbn_13 cover source_url)
-  @disallowed_keys ~w(description blurb bio author_bio review reviews jacket_copy price inventory availability body_html content excerpt)
+  @allowed_displayed_fields ~w(title subtitle contributors publisher imprint format published_on isbn_13 cover source_url description synopsis editorial_praise storefront_url)
+  @canonical_prose_fields ~w(description synopsis editorial_praise storefront_url)
+  @commerce_state_keys ~w(price inventory availability cart checkout account)
+  @raw_content_keys ~w(body_html content excerpt html rendered_html)
+  @disallowed_prose_keys ~w(blurb bio author_bio review reviews user_review user_reviews jacket_copy)
   @disallowed_formats ~w(bundle subscription gift_card merch shirt supporter_only)
 
   def validate_dir(dir) do
@@ -70,6 +73,7 @@ defmodule Hiraeth.RealCatalog.Validator do
     |> add_curation_finding(dataset, record)
     |> Kernel.++(cover_findings(dataset, record))
     |> Kernel.++(displayed_field_findings(dataset, record))
+    |> Kernel.++(prose_provenance_findings(dataset, record))
     |> Kernel.++(copy_risk_findings(dataset, record))
     |> Kernel.++(provider_mismatch_findings(provider, dataset, record))
   end
@@ -211,11 +215,121 @@ defmodule Hiraeth.RealCatalog.Validator do
   end
 
   defp displayed_field_value(record, "source_url"), do: get_in(record, [:cover, :source_url])
+
+  defp displayed_field_value(record, "description"),
+    do: Map.get(record, :description) || get_in(record, [:work, :description])
+
+  defp displayed_field_value(record, "synopsis"),
+    do: Map.get(record, :synopsis) || get_in(record, [:work, :synopsis])
+
+  defp displayed_field_value(record, "storefront_url"),
+    do: Map.get(record, :storefront_url) || Map.get(record, :source_uri)
+
+  defp displayed_field_value(record, "editorial_praise"), do: Map.get(record, :editorial_praise)
   defp displayed_field_value(record, "contributors"), do: Map.get(record, :contributors)
   defp displayed_field_value(record, "publisher"), do: Map.get(record, :publisher)
   defp displayed_field_value(record, "imprint"), do: Map.get(record, :imprint)
   defp displayed_field_value(record, "cover"), do: Map.get(record, :cover)
   defp displayed_field_value(_record, _field), do: nil
+
+  defp prose_provenance_findings(dataset, record) do
+    if public_prose_present?(record) do
+      findings =
+        []
+        |> add_blank(
+          dataset,
+          record,
+          record[:source_uri],
+          "public prose requires source provenance"
+        )
+        |> add_blank(
+          dataset,
+          record,
+          dataset[:license_note],
+          "public prose requires source provenance"
+        )
+        |> add_storefront_url_finding(dataset, record)
+
+      praise_provenance_findings(findings, dataset, record)
+    else
+      []
+    end
+  end
+
+  defp add_storefront_url_finding(findings, dataset, record) do
+    storefront_url = Map.get(record, :storefront_url)
+    uri = parse_uri(storefront_url)
+
+    findings
+    |> add_if(
+      present?(storefront_url) and uri.scheme != "https",
+      dataset,
+      record,
+      "public prose requires source provenance"
+    )
+    |> add_if(
+      present?(storefront_url) and uri.scheme == "https" and
+        not SourcePolicy.source_host_allowed?(dataset.provider, uri.host),
+      dataset,
+      record,
+      "public prose requires source provenance"
+    )
+  end
+
+  defp praise_provenance_findings(findings, dataset, record) do
+    record
+    |> Map.get(:editorial_praise, [])
+    |> List.wrap()
+    |> Enum.reduce(findings, fn praise, acc ->
+      source_uri = map_value(praise, :source_uri)
+      uri = parse_uri(source_uri)
+
+      acc
+      |> add_blank(
+        dataset,
+        record,
+        map_value(praise, :quote),
+        "public prose requires source provenance"
+      )
+      |> add_blank(
+        dataset,
+        record,
+        map_value(praise, :source),
+        "public prose requires source provenance"
+      )
+      |> add_blank(dataset, record, source_uri, "public prose requires source provenance")
+      |> add_if(
+        present?(source_uri) and uri.scheme != "https",
+        dataset,
+        record,
+        "public prose requires source provenance"
+      )
+      |> add_if(
+        present?(source_uri) and uri.scheme == "https" and
+          not SourcePolicy.source_host_allowed?(dataset.provider, uri.host),
+        dataset,
+        record,
+        "public prose requires source provenance"
+      )
+    end)
+    |> Enum.uniq_by(&{&1.source_uri, &1.reason})
+  end
+
+  defp public_prose_present?(record) do
+    canonical_values_present? =
+      not blank?(Map.get(record, :description)) or not blank?(Map.get(record, :synopsis)) or
+        not blank?(Map.get(record, :storefront_url)) or
+        not blank?(Map.get(record, :editorial_praise)) or
+        not blank?(get_in(record, [:work, :description])) or
+        not blank?(get_in(record, [:work, :synopsis]))
+
+    displayed_prose? =
+      record
+      |> Map.get(:displayed_fields, [])
+      |> Enum.any?(&(&1 in @canonical_prose_fields))
+
+    canonical_values_present? or displayed_prose?
+  end
 
   defp copy_risk_findings(dataset, record) do
     record
@@ -224,7 +338,19 @@ defmodule Hiraeth.RealCatalog.Validator do
       key = String.downcase(to_string(key))
 
       cond do
-        key in @disallowed_keys ->
+        key in @commerce_state_keys ->
+          [finding(dataset, record, "commerce state is not public catalog metadata")]
+
+        key in @raw_content_keys or executable_html?(value) ->
+          [
+            finding(
+              dataset,
+              record,
+              "raw HTML or executable content is not allowed in public prose"
+            )
+          ]
+
+        key in @disallowed_prose_keys ->
           [finding(dataset, record, "long copied text or disallowed prose field is present")]
 
         is_binary(value) and String.length(value) > 280 and not safe_long_value_key?(key) ->
@@ -323,7 +449,28 @@ defmodule Hiraeth.RealCatalog.Validator do
   defp safe_long_value_key?(key),
     do:
       String.ends_with?(key, "url") or
-        key in ~w(source_uri source_url attribution_url license_note)
+        key in ~w(source_uri source_url attribution_url storefront_url license_note description synopsis quote)
+
+  defp executable_html?(value) when is_binary(value),
+    do:
+      value
+      |> String.downcase()
+      |> String.contains?([
+        "<p",
+        "<br",
+        "<div",
+        "<span",
+        "<section",
+        "<article",
+        "<script",
+        "javascript:",
+        "<iframe"
+      ])
+
+  defp executable_html?(_value), do: false
+
+  defp map_value(map, key) when is_map(map), do: Map.get(map, key) || Map.get(map, to_string(key))
+  defp map_value(_value, _key), do: nil
 
   defp present?(value), do: is_binary(value) and String.trim(value) != ""
   defp blank?(value), do: value in [nil, []] or (is_binary(value) and String.trim(value) == "")

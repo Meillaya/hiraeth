@@ -53,14 +53,10 @@ defmodule Hiraeth.RealCatalog.Importer do
         Work,
         :slug,
         work_slug,
-        %{
-          title: record.work.title,
-          subtitle: record.work.subtitle,
-          slug: work_slug,
-          publication_state: record.work.publication_state || "published"
-        },
+        work_attrs(record, work_slug),
         trusted_write_opts()
       )
+      |> sync_work_metadata!(record, trusted_write_opts())
 
     edition = find_or_create_edition!(record, publisher, imprint, work)
     ensure_identifier!(edition, normalized_isbn!(record), trusted_write_opts())
@@ -68,6 +64,68 @@ defmodule Hiraeth.RealCatalog.Importer do
     ensure_cover!(record, edition, trusted_write_opts())
     ensure_source_record!(dataset, record, import_run, trusted_write_opts())
   end
+
+  defp work_attrs(record, work_slug) do
+    %{
+      title: record.work.title,
+      subtitle: record.work.subtitle,
+      slug: work_slug,
+      publication_state: record.work.publication_state || "published"
+    }
+    |> Map.merge(work_metadata_attrs(record))
+  end
+
+  defp sync_work_metadata!(work, record, write_opts) do
+    updates =
+      record
+      |> work_metadata_attrs()
+      |> Enum.reject(fn {key, value} ->
+        blank_metadata?(value) or not blank_metadata?(Map.get(work, key))
+      end)
+      |> Map.new()
+
+    if updates == %{} do
+      work
+    else
+      work
+      |> Ash.Changeset.for_update(:update, updates)
+      |> Ash.update!(write_opts)
+    end
+  end
+
+  defp work_metadata_attrs(record) do
+    %{}
+    |> maybe_put_metadata(:description, prose_description(record))
+    |> maybe_put_metadata(:storefront_url, Map.get(record, :storefront_url))
+    |> maybe_put_metadata(:editorial_praise, editorial_praise(record))
+  end
+
+  defp prose_description(record),
+    do:
+      Map.get(record, :description) || Map.get(record, :synopsis) ||
+        get_in(record, [:work, :description]) || get_in(record, [:work, :synopsis])
+
+  defp editorial_praise(record) do
+    record
+    |> Map.get(:editorial_praise, [])
+    |> List.wrap()
+    |> Enum.map(fn praise ->
+      %{}
+      |> maybe_put_metadata("quote", map_value(praise, :quote))
+      |> maybe_put_metadata("source", map_value(praise, :source))
+      |> maybe_put_metadata("source_uri", map_value(praise, :source_uri))
+    end)
+    |> Enum.reject(&(&1 == %{}))
+  end
+
+  defp maybe_put_metadata(map, _key, value) when value in [nil, "", []], do: map
+
+  defp maybe_put_metadata(map, key, value) when is_binary(value),
+    do: Map.put(map, key, String.trim(value))
+
+  defp maybe_put_metadata(map, key, value), do: Map.put(map, key, value)
+
+  defp blank_metadata?(value), do: value in [nil, "", []]
 
   defp find_or_create_edition!(record, publisher, imprint, work) do
     isbn = normalized_isbn!(record)
@@ -206,7 +264,7 @@ defmodule Hiraeth.RealCatalog.Importer do
         source_record_id: source_record.id,
         event_type: "real_catalog_seeded",
         message:
-          "Seeded factual metadata for #{record.edition.title} from #{source_record.provider}.",
+          "Seeded public catalog metadata for #{record.edition.title} from #{source_record.provider}; raw payload is checksum-versioned and immutable.",
         occurred_at: DateTime.utc_now(:second)
       },
       write_opts
@@ -229,6 +287,9 @@ defmodule Hiraeth.RealCatalog.Importer do
       "contributors" => Enum.map(record.contributors, &Map.take(&1, [:name, :role])),
       "curation" => Map.take(record.curation, [:status, :notes])
     }
+    |> maybe_put_payload_value("description", prose_description(record))
+    |> maybe_put_payload_value("storefront_url", Map.get(record, :storefront_url))
+    |> maybe_put_payload_value("editorial_praise", editorial_praise(record))
     |> maybe_put_cover_payload(record)
     |> maybe_put_no_cover_reason(record)
   end
@@ -261,6 +322,12 @@ defmodule Hiraeth.RealCatalog.Importer do
       do: Map.put(payload, "no_cover_reason", no_cover_reason),
       else: payload
   end
+
+  defp maybe_put_payload_value(payload, _key, value) when value in [nil, "", []], do: payload
+  defp maybe_put_payload_value(payload, key, value), do: Map.put(payload, key, value)
+
+  defp map_value(map, key) when is_map(map), do: Map.get(map, key) || Map.get(map, to_string(key))
+  defp map_value(_value, _key), do: nil
 
   defp find_or_create!(resource, key, value, attrs, write_opts) do
     find_or_create_by!(resource, &(Map.get(&1, key) == value), attrs, write_opts)

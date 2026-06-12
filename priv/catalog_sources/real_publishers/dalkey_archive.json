@@ -1,7 +1,7 @@
 {
   "provider": "dalkey_archive_official_store",
   "retrieved_at": "2026-06-12T00:00:00Z",
-  "license_note": "Official public publisher/store metadata; factual metadata only; cover display link-only pending explicit cache rights.",
+  "license_note": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display link-only pending explicit cache rights.",
   "records": [
     {
       "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
@@ -43,12 +43,24 @@
         "format",
         "published_on",
         "isbn_13",
-        "cover"
+        "cover",
+        "description",
+        "storefront_url",
+        "editorial_praise"
       ],
       "curation": {
         "status": "approved",
-        "notes": "Manual source review completed. No jacket copy imported."
-      }
+        "notes": "Manual source review completed. No jacket copy imported. Prose snippet curated from Dalkey Archive official product page."
+      },
+      "description": "This gripping and deeply personal interrogation of fascism returns to print at last.",
+      "storefront_url": "https://dalkeyarchive.store/products/the-tunnel",
+      "editorial_praise": [
+        {
+          "quote": "A virtuoso performance.",
+          "source": "Kirkus",
+          "source_uri": "https://dalkeyarchive.store/products/the-tunnel"
+        }
+      ]
     },
     {
       "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
@@ -90,12 +102,24 @@
         "format",
         "published_on",
         "isbn_13",
-        "cover"
+        "cover",
+        "description",
+        "storefront_url",
+        "editorial_praise"
       ],
       "curation": {
         "status": "approved",
-        "notes": "Manual source review completed. No jacket copy imported."
-      }
+        "notes": "Manual source review completed. No jacket copy imported. Prose snippet curated from Dalkey Archive official product page."
+      },
+      "description": "This gripping and deeply personal interrogation of fascism returns to print at last.",
+      "storefront_url": "https://dalkeyarchive.store/products/the-tunnel",
+      "editorial_praise": [
+        {
+          "quote": "A virtuoso performance.",
+          "source": "Kirkus",
+          "source_uri": "https://dalkeyarchive.store/products/the-tunnel"
+        }
+      ]
     },
     {
       "source_uri": "https://dalkeyarchive.store/products/my-paris",
@@ -2424,5 +2448,10 @@
         "notes": "Manual source review completed. No jacket copy imported."
       }
     }
-  ]
+  ],
+  "prose_curation": {
+    "scope": "Short official product-page prose snippets only; no raw HTML, author bios, commerce state, or user reviews.",
+    "updated_at": "2026-06-12T00:00:00Z",
+    "records_with_prose": 2
+  }
 }

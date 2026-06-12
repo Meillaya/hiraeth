@@ -170,3 +170,35 @@ Files:
 T6 commit: 8c7ed41 — feat(metadata): add sourced public prose fields
 
 T6 finalized commit after post-verification amend: c9a973c — feat(metadata): add sourced public prose fields.
+
+## T7 — Sourced prose metadata validator/importer/fixtures
+
+Implemented the T7 prose metadata import contract.
+
+Changed:
+- Validator now allows only canonical public prose fields (`description`, `synopsis`, `editorial_praise`, `storefront_url`) and requires source/license provenance before those fields can be displayed.
+- Validator continues to reject commerce state, raw HTML/rendered content dumps, author bios, user reviews, unsupported prose keys, unsafe source hosts, and missing displayed values.
+- Dataset atomization/schema/docs now cover prose curation metadata and mirror the validator's unsafe-field contract.
+- Added short, curated official product-page prose snippets to the first available work records for Deep Vellum (`Immigrant`), Dalkey Archive (`The Tunnel`), and Archipelago Books (`Bob and Hilbert`); no raw HTML, author bios, commerce state, or user reviews were imported.
+- Importer now writes `Work.description`, `Work.storefront_url`, `Work.editorial_praise`, and source-record raw payload prose fields; existing non-blank work metadata is not overwritten by another format row.
+- SourceRecord remains immutable and checksum-versioned; re-import with changed fixture checksum creates new source records while updating missing work projections.
+
+Evidence:
+- `.omo/evidence/task-7-acceptance-final-after-review-fixes.txt` — 29 tests, 0 failures.
+- `.omo/evidence/task-7-format-after-review-fixes.txt` — format check passed.
+- `.omo/evidence/task-7-compile-after-review-fixes.txt` — compile with warnings-as-errors passed.
+- `.omo/evidence/task-7-real-import-summary-clean-after-review-fixes.txt` — clean seed imported 150 editions/source records.
+- `.omo/evidence/task-7-provenance-summary-clean-after-review-fixes.txt` — missing provenance, invalid covers, long copied text all empty.
+- `.omo/evidence/task-7-fixture-prose-summary.txt` — every publisher fixture has curated prose coverage.
+
+Reviewer loop:
+- First independent verifier returned `needs-fix` for schema parity, fixture prose evidence, and stale T7 evidence claim.
+- Fixed all three: schema parity/additionalProperties, real sourced prose snippets in tracked fixtures, and replaced stale `.omo/evidence/task-7-done-claim.json`.
+
+T7 commit: pending
+
+T7 reviewer fix: added a malformed-input regression proving raw HTML inside canonical prose (`description`) is rejected, then expanded the validator's HTML marker detection. Evidence:
+- `.omo/evidence/task-7-red-raw-html-prose.txt` — failed before validator fix.
+- `.omo/evidence/task-7-raw-html-prose-fix.txt` — focused regression passed.
+- `.omo/evidence/task-7-acceptance-final-after-raw-html-fix.txt` — 29 tests, 0 failures.
+- `.omo/evidence/task-7-provenance-summary-clean-after-raw-html-fix.txt` — clean provenance gate passed.

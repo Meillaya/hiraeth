@@ -38,14 +38,14 @@ defmodule Hiraeth.RealCatalogDatasetTest do
       assert summary.cover_findings == []
     end
 
-    test "loaded records contain only factual displayed fields" do
+    test "loaded records contain only approved display and prose fields" do
       assert {:ok, datasets} = Dataset.load_dir(@dataset_dir)
 
       rejected_keys =
-        ~w(description blurb bio author_bio review reviews jacket_copy price inventory availability body_html content excerpt)
+        ~w(blurb bio author_bio review reviews user_review user_reviews jacket_copy price inventory availability cart checkout account body_html content excerpt html rendered_html)
 
       allowed_displayed_fields =
-        ~w(title subtitle contributors publisher imprint format published_on isbn_13 cover source_url)
+        ~w(title subtitle contributors publisher imprint format published_on isbn_13 cover source_url description synopsis editorial_praise storefront_url)
 
       for dataset <- datasets,
           record <- dataset.records do
@@ -55,6 +55,48 @@ defmodule Hiraeth.RealCatalogDatasetTest do
         assert Enum.all?(record.displayed_fields, &(&1 in allowed_displayed_fields))
         assert record.curation.status == "approved"
       end
+    end
+
+    test "tracked publisher fixtures include curated prose where official snippets are available" do
+      assert {:ok, datasets} = Dataset.load_dir(@dataset_dir)
+
+      for dataset <- datasets do
+        prose_records = Enum.filter(dataset.records, &Map.has_key?(&1, :description))
+        assert length(prose_records) >= 1
+        assert get_in(dataset, [:prose_curation, :records_with_prose]) == length(prose_records)
+
+        for record <- prose_records do
+          assert record.description |> String.length() |> Kernel.>(20)
+          assert record.storefront_url == record.source_uri
+          assert "description" in record.displayed_fields
+          assert "storefront_url" in record.displayed_fields
+          assert String.contains?(record.curation.notes, "Prose snippet curated from")
+        end
+      end
+    end
+
+    test "schema mirrors validator unsafe field contract" do
+      schema =
+        @dataset_dir
+        |> Path.join("schema.json")
+        |> File.read!()
+        |> Jason.decode!()
+
+      forbidden_fields =
+        schema
+        |> get_in(["properties", "records", "items", "not", "anyOf"])
+        |> Enum.map(&get_in(&1, ["required"]))
+        |> List.flatten()
+        |> MapSet.new()
+
+      assert MapSet.subset?(
+               MapSet.new(
+                 ~w(price inventory availability cart checkout account body_html content excerpt html rendered_html blurb bio author_bio review reviews user_review user_reviews jacket_copy)
+               ),
+               forbidden_fields
+             )
+
+      assert get_in(schema, ["properties", "records", "items", "additionalProperties"]) == false
     end
 
     test "approved records may include sourced public prose, editorial praise, and storefront CTAs" do
@@ -145,8 +187,8 @@ defmodule Hiraeth.RealCatalogDatasetTest do
           "attribution_url" => "https://example.test/book",
           "cache_policy" => "link_only"
         },
-        "description" => String.duplicate("publisher marketing copy ", 20),
-        "displayed_fields" => ["title", "description", "cover"],
+        "jacket_copy" => String.duplicate("publisher marketing copy ", 20),
+        "displayed_fields" => ["title", "jacket_copy", "cover"],
         "curation" => %{"status" => "approved", "notes" => "bad"}
       }
 
@@ -175,6 +217,24 @@ defmodule Hiraeth.RealCatalogDatasetTest do
     test "still rejects commerce state and unsafe source content when prose metadata is allowed" do
       assert {:ok, [dataset | _datasets]} = Dataset.load_dir(@dataset_dir)
       [record | remaining_records] = dataset.records
+
+      raw_html_prose_record =
+        record
+        |> Map.put(:description, "<p>Raw source HTML should not be accepted.</p>")
+        |> Map.put(:storefront_url, record.source_uri)
+        |> Map.update!(:displayed_fields, fn fields ->
+          Enum.uniq(fields ++ ["description", "storefront_url"])
+        end)
+
+      assert {:error, raw_html_findings} =
+               Validator.validate_datasets([
+                 %{dataset | records: [raw_html_prose_record | remaining_records]}
+               ])
+
+      assert "raw HTML or executable content is not allowed in public prose" in Enum.map(
+               raw_html_findings,
+               & &1.reason
+             )
 
       unsafe_record =
         record

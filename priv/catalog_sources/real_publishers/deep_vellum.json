@@ -1,7 +1,7 @@
 {
   "provider": "deep_vellum_official_store",
   "retrieved_at": "2026-06-12T00:00:00Z",
-  "license_note": "Official public publisher/store metadata; factual metadata only; cover display link-only pending explicit cache rights.",
+  "license_note": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display link-only pending explicit cache rights.",
   "records": [
     {
       "source_uri": "https://store.deepvellum.org/products/immigrant",
@@ -47,12 +47,16 @@
         "format",
         "published_on",
         "isbn_13",
-        "cover"
+        "cover",
+        "description",
+        "storefront_url"
       ],
       "curation": {
         "status": "approved",
-        "notes": "Manual source review completed. No jacket copy imported."
-      }
+        "notes": "Manual source review completed. No jacket copy imported. Prose snippet curated from Deep Vellum official product page."
+      },
+      "description": "In a trilingual collection—presented in Nahuatl, Spanish, and English—Joaquín Zihuatenejo unflinchingly captures the duality of immigrant experiences in the United States.",
+      "storefront_url": "https://store.deepvellum.org/products/immigrant"
     },
     {
       "source_uri": "https://store.deepvellum.org/products/immigrant",
@@ -98,12 +102,16 @@
         "format",
         "published_on",
         "isbn_13",
-        "cover"
+        "cover",
+        "description",
+        "storefront_url"
       ],
       "curation": {
         "status": "approved",
-        "notes": "Manual source review completed. No jacket copy imported."
-      }
+        "notes": "Manual source review completed. No jacket copy imported. Prose snippet curated from Deep Vellum official product page."
+      },
+      "description": "In a trilingual collection—presented in Nahuatl, Spanish, and English—Joaquín Zihuatenejo unflinchingly captures the duality of immigrant experiences in the United States.",
+      "storefront_url": "https://store.deepvellum.org/products/immigrant"
     },
     {
       "source_uri": "https://store.deepvellum.org/products/the-robert-poems",
@@ -2529,5 +2537,10 @@
         "notes": "Manual source review completed. No jacket copy imported."
       }
     }
-  ]
+  ],
+  "prose_curation": {
+    "scope": "Short official product-page prose snippets only; no raw HTML, author bios, commerce state, or user reviews.",
+    "updated_at": "2026-06-12T00:00:00Z",
+    "records_with_prose": 2
+  }
 }
