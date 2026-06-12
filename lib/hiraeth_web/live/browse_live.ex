@@ -47,10 +47,13 @@ defmodule HiraethWeb.BrowseLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
-      <div id="browse-shell" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div id="browse-shell" class="grid grid-cols-1 gap-8 lg:grid-cols-12">
         <h1 class="sr-only">Browse Catalog</h1>
 
-        <aside id="catalog-filters" class="lg:col-span-3 space-y-6">
+        <aside
+          id="catalog-filters"
+          class="space-y-6 rounded-sm border border-[#E7E2D8] bg-[#F5F2EB]/45 p-4 dark:border-[#2E2A27] dark:bg-[#1C1917]/35 lg:col-span-3 lg:sticky lg:top-24 lg:self-start"
+        >
           <div class="border-b border-[#E7E2D8] dark:border-[#2E2A27] pb-3">
             <h2 class="font-serif text-lg font-medium">Filter Stacks</h2>
           </div>
@@ -63,13 +66,13 @@ defmodule HiraethWeb.BrowseLive do
               phx-debounce="250"
             />
           </.form>
-          <div class="rounded-sm border border-[#E7E2D8] dark:border-[#2E2A27] p-4 text-xs text-stone-700 dark:text-stone-300 space-y-2">
+          <div class="rounded-sm border border-[#D8CFC0] bg-[#FCFAF7]/70 p-4 text-xs text-stone-700 dark:border-[#2E2A27] dark:bg-[#12110F]/70 dark:text-stone-300 space-y-2">
             <p class="font-mono uppercase tracking-wider">Known fields only</p>
             <p>Dates, translators, dimensions, and page counts remain absent until sourced.</p>
           </div>
         </aside>
 
-        <section id="catalog-index" class="lg:col-span-5 space-y-6">
+        <section id="catalog-index" class="space-y-6 lg:col-span-5">
           <div class="border-b border-[#E7E2D8] dark:border-[#2E2A27] pb-3 flex justify-between items-center">
             <h2 class="font-serif text-lg font-medium">Catalog Index</h2>
             <span class="font-mono text-xs text-stone-600 dark:text-stone-400">{@pagination.total_count} books</span>
@@ -87,7 +90,7 @@ defmodule HiraethWeb.BrowseLive do
               />
             </div>
           <% else %>
-            <div id="catalog-grid" phx-update="stream" class="grid grid-cols-2 gap-4">
+            <div id="catalog-grid" phx-update="stream" class="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <CatalogComponents.edition_card
                 :for={{dom_id, book} <- @streams.books}
                 dom_id={dom_id}
@@ -104,13 +107,13 @@ defmodule HiraethWeb.BrowseLive do
           <% end %>
         </section>
 
-        <section id="book-reader" class="lg:col-span-4 space-y-6">
+        <section id="book-reader" class="space-y-6 lg:col-span-4">
           <div class="border-b border-[#E7E2D8] dark:border-[#2E2A27] pb-3">
             <h2 class="font-serif text-lg font-medium">Book Reader</h2>
           </div>
 
           <%= if @selected_book do %>
-            <div class="space-y-6 sticky top-24">
+            <div class="sticky top-24 space-y-6 rounded-sm border border-[#E7E2D8] bg-[#FCFAF7]/65 p-4 shadow-sm dark:border-[#2E2A27] dark:bg-[#12110F]/55">
               <CatalogComponents.metadata_table book={@selected_book} />
               <CatalogComponents.provenance_badge source={@selected_book.source} />
             </div>

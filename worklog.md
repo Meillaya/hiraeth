@@ -308,3 +308,29 @@ Evidence:
 - Independent verifier: Verifier the 73rd confirmed T11 after review fixes.
 
 T11 finalized commit: 3432a83 — feat(web): render grouped book catalog pages.
+
+## T12 — agy-guided grouped catalog UI polish
+
+Implemented a quiet editorial archive / marginalia-cabinet visual pass over the grouped catalog UI.
+
+Changed:
+- Ran `agy` in print mode before UI changes; the CLI exited successfully but produced empty stdout in this environment, so the prompt and fallback in-repo design brief are captured in evidence.
+- Polished grouped book cards with tactile hover states, focus-visible rings, description excerpts, and compact format/ISBN chips.
+- Polished book detail with an editorial dark reading panel, stronger source CTA, readable sourced prose, bordered format rows, improved metadata/provenance panels, and responsive no-overflow behavior.
+- Polished browse/search containers, filter rail, search table, empty states, pagination focus states, and mobile readability.
+- Fixed all visual QA contrast findings on the book detail page, including headings, micro-labels, metadata labels, and the back-link.
+
+Evidence:
+- `.omo/evidence/task-12-agy-ui-design.txt` — agy invocation log and fallback design brief.
+- `.omo/evidence/task-12-ui-tests.txt` — 12 LiveView UI tests, 0 failures.
+- `.omo/evidence/task-12-compile.txt`, `.omo/evidence/task-12-format.txt`, `.omo/evidence/task-12-diff-check.txt` — compile/format/diff-check gates passed.
+- `artifacts/qa/task-12-ui/{desktop,tablet,mobile}-{browse,book}.png` — browser screenshots.
+- `.omo/evidence/task-12-responsive-overflow.json` and `.omo/evidence/task-12-responsive-overflow-after-contrast.json` — no horizontal overflow across desktop/tablet/mobile.
+- `.omo/evidence/task-12-visual-diff-desktop-browse.json`, `.omo/evidence/task-12-visual-diff-mobile-book.json` — alpha/diff script evidence.
+- Visual QA pass B: Hubble the 73rd passed visual fidelity/CJK precision; no blocking findings.
+- Visual QA pass A: multiple strict contrast revisions were fixed; Plato the 73rd passed final contrast verification.
+
+Cleanup:
+- Stopped the temporary Phoenix server on port 4023 after screenshot capture.
+
+T12 commit: pending

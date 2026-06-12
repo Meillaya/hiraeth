@@ -16,7 +16,7 @@ defmodule HiraethWeb.CatalogComponents do
       <img
         src={@book.cover[:public_url] || @book.cover.source_url}
         alt={"Cover for #{@book.title}"}
-        class="aspect-[2/3] w-full rounded-sm border border-[#E7E2D8] object-cover shadow-sm dark:border-[#2E2A27]"
+        class="aspect-[2/3] w-full rounded-sm border border-[#D8CFC0] object-cover shadow-[0_18px_50px_-30px_rgba(28,25,23,0.75)] transition duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_28px_70px_-34px_rgba(28,25,23,0.9)] dark:border-[#3A332D]"
       />
       <figcaption
         id={"cover-attribution-#{@book.slug}"}
@@ -66,14 +66,17 @@ defmodule HiraethWeb.CatalogComponents do
   def edition_card(assigns) do
     ~H"""
     <article id={@dom_id || "#{@id_prefix}-#{@edition.slug}"} class="group space-y-3">
-      <.link navigate={~p"/books/#{@edition.slug}"} class="block">
+      <.link
+        navigate={~p"/books/#{@edition.slug}"}
+        class="block rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#8C2D19]"
+      >
         <.book_cover book={@edition} />
       </.link>
-      <div class="space-y-1 rounded-sm bg-[#FCFAF7]/95 dark:bg-[#12110F]/90 p-2 ring-1 ring-[#E7E2D8]/80 dark:ring-[#2E2A27]">
+      <div class="space-y-2 rounded-sm bg-[#FCFAF7]/95 p-3 ring-1 ring-[#E7E2D8]/80 transition duration-300 group-hover:-translate-y-0.5 group-hover:ring-[#8C2D19]/35 group-hover:shadow-[0_18px_45px_-32px_rgba(28,25,23,0.8)] dark:bg-[#12110F]/90 dark:ring-[#2E2A27]">
         <h4 class="font-serif text-base font-bold tracking-tight !text-stone-950 dark:!text-stone-50 leading-snug">
           <.link
             navigate={~p"/books/#{@edition.slug}"}
-            class="hover:text-[#8C2D19] dark:hover:text-[#E05A47]"
+            class="rounded-sm hover:text-[#8C2D19] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8C2D19] dark:hover:text-[#E05A47]"
           >
             {@edition.title}
           </.link>
@@ -89,15 +92,18 @@ defmodule HiraethWeb.CatalogComponents do
         </p>
         <p
           :if={@edition[:description]}
-          class="line-clamp-3 text-xs leading-relaxed text-stone-700 dark:text-stone-300"
+          class="line-clamp-3 border-l border-[#D8CFC0] pl-2 font-serif text-xs leading-relaxed text-stone-700 dark:border-[#3A332D] dark:text-stone-300"
         >
           {description_excerpt(@edition.description)}
         </p>
         <div
           :if={Enum.any?(@edition[:formats] || [])}
-          class="font-mono text-[10px] leading-relaxed text-stone-600 dark:text-stone-400"
+          class="flex flex-wrap gap-1.5 pt-1 font-mono text-[9px] leading-relaxed text-stone-600 dark:text-stone-400"
         >
-          <span :for={format <- @edition.formats} class="mr-2 whitespace-nowrap">
+          <span
+            :for={format <- @edition.formats}
+            class="rounded-full border border-[#D8CFC0] bg-[#F5F2EB]/70 px-2 py-0.5 uppercase tracking-wider dark:border-[#3A332D] dark:bg-[#1C1917]/80"
+          >
             {format.format} · {Enum.join(format.identifiers, ", ")}
           </span>
         </div>
@@ -119,7 +125,7 @@ defmodule HiraethWeb.CatalogComponents do
   def metadata_table(assigns) do
     ~H"""
     <div class="space-y-4">
-      <h3 class="font-serif text-lg font-medium border-b border-[#E7E2D8] dark:border-[#2E2A27] pb-2">
+      <h3 class="font-serif text-lg font-medium border-b border-[#E7E2D8] pb-2 text-stone-950 dark:border-[#2E2A27] dark:text-stone-50">
         Bibliographic Data
       </h3>
       <dl class="divide-y divide-[#E7E2D8]/60 dark:divide-[#2E2A27]/60 text-sm">
@@ -134,10 +140,10 @@ defmodule HiraethWeb.CatalogComponents do
         <.metadata_row :if={@book[:format]} label="Format" value={@book.format} />
         <.metadata_row :if={@book[:isbn]} label="ISBN" value={@book.isbn} mono />
         <div id="publication-date" class="grid grid-cols-3 py-3">
-          <dt class="font-mono text-xs uppercase tracking-wider text-stone-500 font-semibold">
+          <dt class="font-mono text-xs uppercase tracking-wider text-stone-600 font-bold dark:text-stone-300">
             Publication Date
           </dt>
-          <dd class="col-span-2 text-stone-800 dark:text-stone-200">
+          <dd class="col-span-2 font-medium text-stone-900 dark:text-stone-100">
             {if @book[:published_on],
               do: Calendar.strftime(@book.published_on, "%Y-%m-%d"),
               else: "Publication date unknown"}
@@ -156,11 +162,11 @@ defmodule HiraethWeb.CatalogComponents do
   def metadata_row(assigns) do
     ~H"""
     <div class="grid grid-cols-3 py-3">
-      <dt class="font-mono text-xs uppercase tracking-wider text-stone-500 font-semibold">
+      <dt class="font-mono text-xs uppercase tracking-wider text-stone-600 font-bold dark:text-stone-300">
         {@label}
       </dt>
       <dd class={[
-        "col-span-2 text-stone-800 dark:text-stone-200",
+        "col-span-2 break-words font-medium text-stone-900 dark:text-stone-100",
         @serif && "font-serif text-stone-900 dark:text-stone-100 font-medium",
         @mono && "font-mono text-xs"
       ]}>
@@ -176,9 +182,11 @@ defmodule HiraethWeb.CatalogComponents do
     ~H"""
     <div
       id="edition-provenance"
-      class="rounded-sm border border-[#E7E2D8] dark:border-[#2E2A27] bg-[#F5F2EB] dark:bg-[#1C1917] p-4 text-xs text-stone-700 dark:text-stone-300 space-y-1"
+      class="rounded-sm border border-[#D8CFC0] bg-[#F5F2EB] p-4 text-xs text-stone-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] dark:border-[#2E2A27] dark:bg-[#1C1917] dark:text-stone-200 space-y-1 break-words"
     >
-      <p class="font-mono uppercase tracking-wider text-stone-500">Source provenance</p>
+      <p class="font-mono uppercase tracking-wider text-stone-600 dark:text-stone-300">
+        Source provenance
+      </p>
       <%= if @source do %>
         <p>
           Provider:
@@ -190,7 +198,7 @@ defmodule HiraethWeb.CatalogComponents do
         </p>
         <p :if={@source[:source_uri]}>
           Source record:
-          <span class="font-mono text-stone-900 dark:text-stone-100">{@source.source_uri}</span>
+          <span class="font-mono text-stone-900 break-all dark:text-stone-100">{@source.source_uri}</span>
         </p>
         <p :if={@source[:imported_at]}>
           Imported:
@@ -225,7 +233,7 @@ defmodule HiraethWeb.CatalogComponents do
         :if={@has_previous}
         navigate={page_path(@base_path, @page - 1, @query)}
         id="catalog-prev-page"
-        class="text-[#8C2D19] dark:text-[#E05A47] hover:underline"
+        class="rounded-sm text-[#8C2D19] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8C2D19] dark:text-[#E05A47]"
       >
         ← Previous
       </.link>
@@ -235,7 +243,7 @@ defmodule HiraethWeb.CatalogComponents do
         :if={@has_next}
         navigate={page_path(@base_path, @page + 1, @query)}
         id="catalog-next-page"
-        class="text-[#8C2D19] dark:text-[#E05A47] hover:underline"
+        class="rounded-sm text-[#8C2D19] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8C2D19] dark:text-[#E05A47]"
       >
         Next →
       </.link>
@@ -274,7 +282,7 @@ defmodule HiraethWeb.CatalogComponents do
     ~H"""
     <div
       id={@id}
-      class="border border-dashed border-[#E7E2D8] dark:border-[#2E2A27] bg-[#FCFAF7]/80 dark:bg-[#12110F]/70 p-10 text-center max-w-lg mx-auto rounded-sm space-y-4 my-8"
+      class="border border-dashed border-[#D8CFC0] bg-[#FCFAF7]/85 p-10 text-center max-w-lg mx-auto rounded-sm space-y-4 my-8 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.45)] dark:border-[#2E2A27] dark:bg-[#12110F]/70"
     >
       <div class="flex justify-center">
         <span class="font-serif text-3xl text-stone-300 dark:text-stone-700">❧</span>
@@ -295,7 +303,7 @@ defmodule HiraethWeb.CatalogComponents do
       <.link
         :if={@action_label && @action_path}
         navigate={@action_path}
-        class="inline-flex rounded-sm border border-[#8C2D19] px-3 py-2 text-xs font-bold uppercase tracking-wider text-[#8C2D19] hover:bg-[#8C2D19] hover:text-white"
+        class="inline-flex rounded-sm border border-[#8C2D19] px-3 py-2 text-xs font-bold uppercase tracking-wider text-[#8C2D19] transition hover:bg-[#8C2D19] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8C2D19]"
       >
         {@action_label}
       </.link>

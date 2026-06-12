@@ -43,7 +43,7 @@ defmodule HiraethWeb.SearchLive do
           </p>
         </div>
 
-        <div class="bg-[#F5F2EB] dark:bg-[#1C1917] p-8 border border-[#E7E2D8] dark:border-[#2E2A27] rounded-sm shadow-sm">
+        <div class="bg-[#F5F2EB] p-8 border border-[#D8CFC0] dark:bg-[#1C1917] dark:border-[#2E2A27] rounded-sm shadow-[0_24px_70px_-55px_rgba(28,25,23,0.7)]">
           <.form for={@form} id="catalog-search-form" phx-change="search">
             <.input
               field={@form[:query]}
@@ -71,7 +71,7 @@ defmodule HiraethWeb.SearchLive do
               message={"No catalog entries match search term \"#{@query}\"."}
             />
           <% else %>
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto rounded-sm border border-[#E7E2D8] bg-[#FCFAF7]/65 dark:border-[#2E2A27] dark:bg-[#12110F]/50">
               <table class="w-full text-left text-sm border-collapse">
                 <thead>
                   <tr class="border-b border-[#E7E2D8] dark:border-[#2E2A27]">
@@ -97,13 +97,13 @@ defmodule HiraethWeb.SearchLive do
                   <tr
                     :for={{dom_id, book} <- @streams.results}
                     id={dom_id}
-                    class="group hover:bg-[#F5F2EB]/30 dark:hover:bg-[#1C1917]/30 transition-colors"
+                    class="group transition-colors hover:bg-[#F5F2EB]/70 dark:hover:bg-[#1C1917]"
                   >
                     <td class="py-4 pr-4">
                       <div class="font-serif font-medium text-stone-900 dark:text-stone-100">
                         <.link
                           navigate={~p"/books/#{book.slug}"}
-                          class="hover:text-[#8C2D19] dark:hover:text-[#E05A47]"
+                          class="rounded-sm hover:text-[#8C2D19] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8C2D19] dark:hover:text-[#E05A47]"
                         >
                           {book.title}
                         </.link>
