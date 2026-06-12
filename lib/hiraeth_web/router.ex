@@ -36,6 +36,7 @@ defmodule HiraethWeb.Router do
       live "/publishers/:slug", PublishersLive, :show
       live "/series", SeriesLive, :index
       live "/series/:slug", SeriesLive, :show
+      live "/books/:slug", BookLive, :show
       live "/editions/:slug", EditionLive, :show
     end
 

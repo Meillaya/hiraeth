@@ -283,3 +283,28 @@ Review-fix evidence:
 - `.omo/evidence/task-10-compile-after-review-fixes.txt`, `.omo/evidence/task-10-format-after-review-fixes.txt`, `.omo/evidence/task-10-diff-check-after-review-fixes.txt`.
 
 T10 finalized commit: e2c7029 — feat(catalog): group public books by work.
+
+## T11 — Grouped book LiveView routes and detail UI
+
+Implemented the T11 public book UI conversion.
+
+Changed:
+- Added canonical `/books/:slug` `BookLive` detail pages with description, editorial praise, source storefront CTA, source provenance, cover attribution, cached-cover preference, and nested format/ISBN rows.
+- Kept `/editions/:slug` compatibility by navigating known edition slugs to their containing `/books/:slug` page; unknown edition slugs still render the explicit not-found state.
+- Updated browse, search, and home surfaces to use grouped `PublicCatalog.books/0` and `PublicCatalog.search_books/1` projections instead of edition rows.
+- Book cards now link to `/books/:slug`, show short descriptions when sourced, and keep nested format/ISBN chips visible.
+- Replaced stale public “volume” labels with book/catalog language across the public UI.
+- Updated related route-shell, UI-state, and admin-cover tests for grouped book routes and edition redirect compatibility.
+- Expanded source lookup compatibility for existing demo fixtures that store ISBN under `raw_payload.identifier.isbn_13`.
+
+Evidence:
+- `.omo/evidence/task-11-book-live-tests.txt` — 7 public catalog LiveView tests, 0 failures.
+- `.omo/evidence/task-11-related-tests-final.txt` — public catalog/read-model/performance/search tests, 12 tests, 0 failures.
+- `.omo/evidence/task-11-live-tests-final.txt` — public catalog, route shell, UI state, and admin cover LiveView tests, 20 tests, 0 failures.
+- `.omo/evidence/task-11-book-live-dom.html` — rendered book detail DOM containing cached cover path, editorial praise, CTA, formats/ISBNs, and provenance.
+- `.omo/evidence/task-11-dom-proof.txt` — exact cached-cover/editorial-praise/CTA markers.
+- `.omo/evidence/task-11-volume-label-scan.txt` — no stale public Volume labels.
+- `.omo/evidence/task-11-compile-final.txt`, `.omo/evidence/task-11-format-final.txt`, `.omo/evidence/task-11-diff-check-final.txt` — compile/format/diff-check gates passed.
+- Independent verifier: Verifier the 73rd confirmed T11 after review fixes.
+
+T11 commit: pending

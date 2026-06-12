@@ -104,9 +104,9 @@ defmodule HiraethWeb.BrowseLive do
           <% end %>
         </section>
 
-        <section id="volume-reader" class="lg:col-span-4 space-y-6">
+        <section id="book-reader" class="lg:col-span-4 space-y-6">
           <div class="border-b border-[#E7E2D8] dark:border-[#2E2A27] pb-3">
-            <h2 class="font-serif text-lg font-medium">Volume Reader</h2>
+            <h2 class="font-serif text-lg font-medium">Book Reader</h2>
           </div>
 
           <%= if @selected_book do %>
@@ -116,9 +116,9 @@ defmodule HiraethWeb.BrowseLive do
             </div>
           <% else %>
             <CatalogComponents.empty_state
-              id="volume-reader-empty"
-              title="No volume selected"
-              message="Adjust or clear the current search to select a sourced volume for inspection."
+              id="book-reader-empty"
+              title="No book selected"
+              message="Adjust or clear the current search to select a sourced book for inspection."
               context={query_context(@query)}
               action_label="Clear search"
               action_path="/browse"

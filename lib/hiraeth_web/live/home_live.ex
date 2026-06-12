@@ -6,7 +6,7 @@ defmodule HiraethWeb.HomeLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    editions = PublicCatalog.editions()
+    editions = PublicCatalog.books()
     spotlight = List.first(editions)
     recent = Enum.slice(editions, 1, 4)
 
@@ -43,7 +43,7 @@ defmodule HiraethWeb.HomeLive do
 
             <div id="home-spotlight" class="md:col-span-7 space-y-6">
               <div>
-                <span class="font-mono text-xs uppercase tracking-wider text-stone-500">Spotlight Volume</span>
+                <span class="font-mono text-xs uppercase tracking-wider text-stone-500">Spotlight Book</span>
                 <h2 class="font-serif text-3xl font-medium tracking-tight mt-1 text-stone-900 dark:text-stone-100">
                   {@spotlight.title}
                 </h2>
@@ -74,10 +74,10 @@ defmodule HiraethWeb.HomeLive do
                   Examine Catalog →
                 </.link>
                 <.link
-                  navigate={~p"/editions/#{@spotlight.slug}"}
+                  navigate={~p"/books/#{@spotlight.slug}"}
                   class="inline-flex items-center gap-1 font-mono text-xs uppercase tracking-wider text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 hover:underline"
                 >
-                  Edition Detail →
+                  Book Detail →
                 </.link>
               </div>
             </div>
@@ -103,12 +103,12 @@ defmodule HiraethWeb.HomeLive do
             </.link>
           </div>
 
-          <div id="recent-editions" phx-update="stream" class="grid grid-cols-2 sm:grid-cols-4 gap-6">
+          <div id="recent-books" phx-update="stream" class="grid grid-cols-2 sm:grid-cols-4 gap-6">
             <CatalogComponents.edition_card
               :for={{dom_id, edition} <- @streams.recent}
               dom_id={dom_id}
               edition={edition}
-              id_prefix="recent-edition"
+              id_prefix="recent-book"
             />
           </div>
         </div>

@@ -4,7 +4,7 @@ defmodule HiraethWeb.UiStatesLiveTest do
   import Phoenix.LiveViewTest
 
   alias Hiraeth.Accounts.User
-  alias Hiraeth.Catalog.{Edition, Publisher, Series, SeriesMembership, Work}
+  alias Hiraeth.Catalog.{Edition, Identifier, Publisher, Series, SeriesMembership, Work}
   alias Hiraeth.Repo
   alias Hiraeth.Sources.SourceRecord
   alias Hiraeth.Imports.{ImportMapping, ImportRun, ReviewItem, StagedImportRow}
@@ -34,7 +34,7 @@ defmodule HiraethWeb.UiStatesLiveTest do
     {:ok, browse, _html} = live(conn, ~p"/browse?q=ghost&page=99")
     assert has_element?(browse, "#browse-empty", "No catalog entries match")
     assert has_element?(browse, "#browse-empty", "ghost")
-    assert has_element?(browse, "#volume-reader-empty", "Adjust or clear the current search")
+    assert has_element?(browse, "#book-reader-empty", "Adjust or clear the current search")
   end
 
   test "not-found and missing-cover states are explicit", %{conn: conn} do
@@ -44,9 +44,12 @@ defmodule HiraethWeb.UiStatesLiveTest do
     assert has_element?(publisher, "#publisher-not-found", "No publisher matches")
     assert has_element?(publisher, "a[href='/publishers']", "Back to publishers")
 
-    {:ok, edition, _html} = live(conn, ~p"/editions/the-orchard-of-minor-moons-paperback")
-    assert has_element?(edition, "#missing-cover-note", "No sourced cover asset")
-    assert has_element?(edition, "#missing-cover-the-orchard-of-minor-moons-paperback")
+    assert {:error, {:live_redirect, %{to: "/books/the-orchard-of-minor-moons-paperback"}}} =
+             live(conn, ~p"/editions/the-orchard-of-minor-moons-paperback")
+
+    {:ok, book, _html} = live(conn, ~p"/books/the-orchard-of-minor-moons-paperback")
+    assert has_element?(book, "#missing-cover-note", "No sourced cover asset")
+    assert has_element?(book, "#missing-cover-the-orchard-of-minor-moons-paperback")
 
     {:ok, missing, _html} = live(conn, ~p"/editions/not-an-edition")
     assert has_element?(missing, "#edition-not-found", "No edition matches")
@@ -83,13 +86,19 @@ defmodule HiraethWeb.UiStatesLiveTest do
     create!(SeriesMembership, %{series_id: series.id, work_id: work.id, position: nil}, admin)
 
     create!(
+      Identifier,
+      %{identifier_type: "isbn_13", value: "9780000001998", edition_id: edition.id},
+      admin
+    )
+
+    create!(
       SourceRecord,
       %{
         provider: "local_demo_fixture",
         source_type: "fixture",
         source_uri: "local_demo_fixture:edition:#{edition.slug}",
         license_note: "Local test fixture.",
-        raw_payload: %{"title" => "Loose Leaf Noon"},
+        raw_payload: %{"edition" => %{"isbn_13" => "9780000001998", "title" => "Loose Leaf Noon"}},
         imported_at: DateTime.utc_now(:second)
       },
       admin

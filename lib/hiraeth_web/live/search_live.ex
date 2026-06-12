@@ -6,7 +6,7 @@ defmodule HiraethWeb.SearchLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    books = PublicCatalog.editions()
+    books = PublicCatalog.books()
 
     {:ok,
      socket
@@ -20,7 +20,7 @@ defmodule HiraethWeb.SearchLive do
 
   @impl true
   def handle_event("search", %{"search" => %{"query" => query}}, socket) do
-    results = PublicCatalog.search_editions(query)
+    results = PublicCatalog.search_books(query)
 
     {:noreply,
      socket
@@ -102,7 +102,7 @@ defmodule HiraethWeb.SearchLive do
                     <td class="py-4 pr-4">
                       <div class="font-serif font-medium text-stone-900 dark:text-stone-100">
                         <.link
-                          navigate={~p"/editions/#{book.slug}"}
+                          navigate={~p"/books/#{book.slug}"}
                           class="hover:text-[#8C2D19] dark:hover:text-[#E05A47]"
                         >
                           {book.title}

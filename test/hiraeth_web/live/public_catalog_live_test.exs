@@ -3,6 +3,8 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
 
   import Phoenix.LiveViewTest
 
+  alias Hiraeth.Catalog.Edition
+  alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
   alias Hiraeth.RealCatalog.Dataset
   alias HiraethWeb.CatalogComponents
   alias HiraethWeb.PublicCatalog
@@ -22,15 +24,19 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert has_element?(home, "#home-shell")
     assert has_element?(home, "#home-spotlight")
     assert has_element?(home, "#recent-acquisitions")
+    refute render(home) =~ "Spotlight Volume"
 
     {:ok, browse, _html} = live(conn, ~p"/browse")
 
     assert has_element?(browse, "#browse-shell")
     assert has_element?(browse, "#catalog-index", "79 books")
     assert has_element?(browse, "#catalog-page-count", "Page 1 of 4")
+    assert has_element?(browse, "#book-reader")
+    refute render(browse) =~ "Volume Reader"
 
     {:ok, filtered, _html} = live(conn, ~p"/browse?q=Immigrant")
     assert has_element?(filtered, "#catalog-index h4", "Immigrant")
+    assert has_element?(filtered, "#catalog-index", "trilingual collection")
     refute has_element?(filtered, "#catalog-empty")
 
     {:ok, no_results, _html} = live(conn, ~p"/browse?q=not-a-seeded-title")
@@ -85,7 +91,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     {:ok, view, _html} = live(conn, ~p"/search")
 
     assert has_element?(view, "#search-shell")
-    assert has_element?(view, "#search-results", "150 matches")
+    assert has_element?(view, "#search-results", "79 matches")
 
     view
     |> form("#catalog-search-form", search: %{query: "Bob and Hilbert"})
@@ -115,26 +121,50 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert has_element?(publisher, "#publisher-editions", "Immigrant")
   end
 
-  test "edition detail shows real provenance, factual fields, and no jacket copy", %{conn: conn} do
-    {:ok, view, html} = live(conn, ~p"/editions/#{@immigrant_slug}")
+  test "edition route redirects to canonical book detail with provenance and formats", %{
+    conn: conn
+  } do
+    cache_cover_for_edition_slug!(
+      @immigrant_slug,
+      "deep_vellum_official_store",
+      "https://cdn.shopify.com/s/files/1/fixture-live-immigrant.jpg",
+      "live-test-immigrant.jpg",
+      "Cover via Deep Vellum official source"
+    )
 
-    assert has_element?(view, "#edition-detail-shell")
-    assert has_element?(view, "#edition-title", "Immigrant")
-    assert has_element?(view, "#edition-contributors", "Joaquín Zihuatanejo")
-    assert has_element?(view, "#edition-contributors", "David Bowles")
-    assert has_element?(view, "#edition-identifiers", "9781646054541")
+    assert {:error, {:live_redirect, %{to: "/books/deep-vellum-immigrant"}}} =
+             live(conn, ~p"/editions/#{@immigrant_slug}")
+
+    {:ok, view, html} = live(conn, ~p"/books/deep-vellum-immigrant")
+    File.mkdir_p!(".omo/evidence")
+    File.write!(".omo/evidence/task-11-book-live-dom.html", render(view))
+
+    assert has_element?(view, "#book-detail-shell")
+    assert has_element?(view, "#book-title", "Immigrant")
+    assert has_element?(view, "#book-contributors", "Joaquín Zihuatanejo")
+    assert has_element?(view, "#book-contributors", "David Bowles")
+    assert has_element?(view, "#book-identifiers", "9781646054541")
     assert has_element?(view, "#edition-provenance", "deep_vellum_official_store")
     assert has_element?(view, "#edition-provenance", "publisher_dataset")
 
     assert has_element?(
              view,
-             "#cover-attribution-deep-vellum-immigrant-paperback-9781646054541",
+             "#cover-attribution-deep-vellum-immigrant",
              "Cover via Deep Vellum official source"
            )
 
     assert has_element?(view, "#publication-date", "2027-02-16")
-
     assert has_element?(view, "#book-description", "trilingual collection")
+
+    assert has_element?(
+             view,
+             ~s|#public-cover-deep-vellum-immigrant img[src="/covers/cache/live-test-immigrant.jpg"]|
+           )
+
+    assert has_element?(view, "#book-formats", "Paperback")
+    assert has_element?(view, "#book-format-deep-vellum-immigrant-paperback-9781646054541")
+    assert has_element?(view, "#book-format-deep-vellum-immigrant-ebook-9781646054558")
+
     refute html =~ "jacket copy"
     refute html =~ "price"
     refute html =~ "inventory"
@@ -149,8 +179,20 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
 
     assert {:ok, _summary} = Hiraeth.RealCatalog.Importer.seed!(tmp)
 
-    {:ok, view, _html} =
-      live(conn, ~p"/editions/archipelago-books-bob-and-hilbert-hardcover-9781962770651")
+    cache_cover_for_edition_slug!(
+      "archipelago-books-bob-and-hilbert-hardcover-9781962770651",
+      "archipelago_books_official_store",
+      "https://archipelagobooks.org/fixture-live-bob-and-hilbert.jpg",
+      "live-test-bob-and-hilbert.jpg",
+      "Cover via Archipelago Books official source"
+    )
+
+    assert {:error, {:live_redirect, %{to: "/books/archipelago-books-bob-and-hilbert"}}} =
+             live(conn, ~p"/editions/archipelago-books-bob-and-hilbert-hardcover-9781962770651")
+
+    {:ok, view, _html} = live(conn, ~p"/books/archipelago-books-bob-and-hilbert")
+    File.mkdir_p!(".omo/evidence")
+    File.write!(".omo/evidence/task-11-book-live-dom.html", render(view))
 
     assert has_element?(view, "#book-description", "Sourced publisher synopsis")
     assert has_element?(view, "#book-editorial-praise", "Publisher official page")
@@ -180,6 +222,41 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
 
     assert html =~ ~s|src="/covers/cache/cached-cover-book.jpg"|
     refute html =~ ~s|src="https://covers.example.test/cached-cover-book.jpg"|
+  end
+
+  defp cache_cover_for_edition_slug!(slug, provider, source_url, filename, attribution_text) do
+    cached_path = Path.join("priv/static/covers/cache", filename)
+    File.mkdir_p!(Path.dirname(cached_path))
+    File.write!(cached_path, "live test cached cover bytes")
+    on_exit(fn -> File.rm(cached_path) end)
+
+    edition =
+      Edition
+      |> Ash.read!()
+      |> Enum.find(&(&1.slug == slug))
+
+    cover_asset =
+      CoverAsset
+      |> Ash.Changeset.for_create(:create, %{
+        source_url: source_url,
+        provider: provider,
+        rights_basis: "local_cache_permitted",
+        attribution_text: attribution_text,
+        cache_policy: "cache_allowed",
+        cached_file_path: cached_path,
+        cached_at: DateTime.utc_now(:second),
+        takedown_state: "visible"
+      })
+      |> Ash.create!(authorize?: false)
+
+    CoverAssignment
+    |> Ash.Changeset.for_create(:create, %{
+      edition_id: edition.id,
+      cover_asset_id: cover_asset.id,
+      position: -1,
+      visible?: true
+    })
+    |> Ash.create!(authorize?: false)
   end
 
   defp clear_catalog! do

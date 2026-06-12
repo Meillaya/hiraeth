@@ -64,7 +64,7 @@ defmodule HiraethWeb.PublishersLive do
             </div>
 
             <div class="border-t border-[#E7E2D8] dark:border-[#2E2A27] pt-4 flex justify-between items-center text-xs font-mono text-stone-500">
-              <span>{pub.editions_count} Cataloged Volumes</span>
+              <span>{pub.editions_count} Cataloged Books</span>
               <.link
                 navigate={~p"/publishers/#{pub.slug}"}
                 class="text-[#8C2D19] dark:text-[#E05A47] hover:underline font-bold"

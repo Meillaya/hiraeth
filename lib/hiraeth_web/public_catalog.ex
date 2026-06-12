@@ -274,9 +274,10 @@ defmodule HiraethWeb.PublicCatalog do
     {:ok, %{rows: rows}} =
       Hiraeth.Repo.query(
         """
-        select id, provider, source_type, source_uri, license_note, import_run_id, imported_at, raw_payload
+        select id, provider, source_type, source_uri, license_note, import_run_id, imported_at, raw_payload,
+               coalesce(raw_payload->'edition'->>'isbn_13', raw_payload->'identifier'->>'isbn_13') as isbn
         from source_records
-        where raw_payload->'edition'->>'isbn_13' = any($1::text[])
+        where coalesce(raw_payload->'edition'->>'isbn_13', raw_payload->'identifier'->>'isbn_13') = any($1::text[])
         """,
         [isbns]
       )
@@ -290,9 +291,12 @@ defmodule HiraethWeb.PublicCatalog do
                      license_note,
                      import_run_id,
                      imported_at,
-                     raw_payload
+                     raw_payload,
+                     isbn
                    ] ->
-      isbn = get_in(raw_payload || %{}, ["edition", "isbn_13"])
+      isbn =
+        isbn || get_in(raw_payload || %{}, ["edition", "isbn_13"]) ||
+          get_in(raw_payload || %{}, ["identifier", "isbn_13"])
 
       {isbn,
        %{

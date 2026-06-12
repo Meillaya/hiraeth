@@ -43,8 +43,11 @@ defmodule HiraethWeb.AdminCoversLiveTest do
              ~s|#preview-cover-#{assignment.id}[href="/editions/the-orchard-of-minor-moons-paperback"]|
            )
 
-    assert {:ok, public_before, public_html_before} =
+    assert {:error, {:live_redirect, %{to: "/books/the-orchard-of-minor-moons-paperback"}}} =
              live(conn, ~p"/editions/the-orchard-of-minor-moons-paperback")
+
+    assert {:ok, public_before, public_html_before} =
+             live(conn, ~p"/books/the-orchard-of-minor-moons-paperback")
 
     assert public_html_before =~ "https://covers.example.test/orchard-admin.jpg"
 
@@ -67,8 +70,11 @@ defmodule HiraethWeb.AdminCoversLiveTest do
              ~s|#preview-cover-#{assignment.id}[href="/editions/the-orchard-of-minor-moons-paperback"]|
            )
 
-    assert {:ok, public_after, public_html_after} =
+    assert {:error, {:live_redirect, %{to: "/books/the-orchard-of-minor-moons-paperback"}}} =
              live(conn, ~p"/editions/the-orchard-of-minor-moons-paperback")
+
+    assert {:ok, public_after, public_html_after} =
+             live(conn, ~p"/books/the-orchard-of-minor-moons-paperback")
 
     refute public_html_after =~ "https://covers.example.test/orchard-admin.jpg"
     assert has_element?(public_after, "#missing-cover-the-orchard-of-minor-moons-paperback")

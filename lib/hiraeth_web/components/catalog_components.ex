@@ -66,13 +66,13 @@ defmodule HiraethWeb.CatalogComponents do
   def edition_card(assigns) do
     ~H"""
     <article id={@dom_id || "#{@id_prefix}-#{@edition.slug}"} class="group space-y-3">
-      <.link navigate={~p"/editions/#{@edition.slug}"} class="block">
+      <.link navigate={~p"/books/#{@edition.slug}"} class="block">
         <.book_cover book={@edition} />
       </.link>
       <div class="space-y-1 rounded-sm bg-[#FCFAF7]/95 dark:bg-[#12110F]/90 p-2 ring-1 ring-[#E7E2D8]/80 dark:ring-[#2E2A27]">
         <h4 class="font-serif text-base font-bold tracking-tight !text-stone-950 dark:!text-stone-50 leading-snug">
           <.link
-            navigate={~p"/editions/#{@edition.slug}"}
+            navigate={~p"/books/#{@edition.slug}"}
             class="hover:text-[#8C2D19] dark:hover:text-[#E05A47]"
           >
             {@edition.title}
@@ -87,6 +87,12 @@ defmodule HiraethWeb.CatalogComponents do
         <p class="font-mono text-[11px] font-semibold uppercase tracking-wider !text-stone-700 dark:!text-stone-300 truncate">
           {@edition.publisher || "Publisher unknown"}
         </p>
+        <p
+          :if={@edition[:description]}
+          class="line-clamp-3 text-xs leading-relaxed text-stone-700 dark:text-stone-300"
+        >
+          {description_excerpt(@edition.description)}
+        </p>
         <div
           :if={Enum.any?(@edition[:formats] || [])}
           class="font-mono text-[10px] leading-relaxed text-stone-600 dark:text-stone-400"
@@ -99,6 +105,14 @@ defmodule HiraethWeb.CatalogComponents do
     </article>
     """
   end
+
+  defp description_excerpt(description) when is_binary(description) do
+    description
+    |> String.trim()
+    |> String.slice(0, 180)
+  end
+
+  defp description_excerpt(_description), do: nil
 
   attr :book, :map, required: true
 
@@ -248,7 +262,7 @@ defmodule HiraethWeb.CatalogComponents do
     """
   end
 
-  attr :message, :string, default: "No volumes found matching the current criteria."
+  attr :message, :string, default: "No books found matching the current criteria."
   attr :id, :string, default: "catalog-empty"
   attr :title, :string, default: "Nothing on this shelf yet"
   attr :eyebrow, :string, default: "Archive note"

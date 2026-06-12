@@ -21,19 +21,19 @@ defmodule HiraethWeb.RouteShellLiveTest do
     {:ok, view, _html} = live(conn, ~p"/browse")
 
     assert has_element?(view, "#browse-shell")
-    assert has_element?(view, "#catalog-index", "150 volumes")
-    assert has_element?(view, "#catalog-page-count", "Page 1 of 75")
+    assert has_element?(view, "#catalog-index", "79 books")
+    assert has_element?(view, "#catalog-page-count", "Page 1 of 4")
 
     {:ok, filtered, _html} = live(conn, ~p"/browse?q=Tunnel")
     assert has_element?(filtered, "#catalog-index h4", "The Tunnel")
-    assert has_element?(filtered, "#volume-reader dd", "William H. Gass")
+    assert has_element?(filtered, "#book-reader dd", "William H. Gass")
   end
 
   test "GET /search filters items dynamically", %{conn: conn} do
     {:ok, view, _html} = live(conn, ~p"/search")
 
     assert has_element?(view, "#search-shell")
-    assert has_element?(view, "#search-results", "150 matches")
+    assert has_element?(view, "#search-results", "79 matches")
 
     view
     |> form("#catalog-search-form", search: %{query: "Archipelago"})
