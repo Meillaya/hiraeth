@@ -90,3 +90,5 @@ Files:
 - `test/hiraeth_web/live/public_catalog_live_test.exs`
 
 T3 commit: 7abe353 — test(metadata): specify public prose and storefront display
+
+T3 finalized commit after amend: caba940 — test(metadata): specify public prose and storefront display
