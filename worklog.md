@@ -134,3 +134,5 @@ Files:
 - `test/hiraeth/browser_qa_contract_test.exs`
 
 T5 commit: f3b219e — test(perf): specify fast grouped catalog loading
+
+T5 finalized commit after amend: 2c18d3f — test(perf): specify fast grouped catalog loading
