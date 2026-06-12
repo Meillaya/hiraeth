@@ -1,0 +1,36 @@
+# GitHub language stats: this is intentionally an Elixir project.
+# Keep required Phoenix/static/support files tracked for cloning/running/building,
+# but exclude non-Elixir support/generated files from Linguist percentages.
+
+# Phoenix browser assets and static files
+assets/** linguist-vendored
+priv/static/** linguist-vendored
+
+# QA/build helper scripts are support tooling, not application language
+scripts/** linguist-vendored
+Makefile linguist-vendored
+compose.yaml linguist-vendored
+
+# Generated framework/data files
+priv/resource_snapshots/** linguist-generated
+priv/gettext/** linguist-generated
+mix.lock linguist-generated
+
+# Templates are part of the Phoenix/Elixir surface
+*.heex linguist-language=Elixir
+
+# Data/docs/support formats should not affect the language bar
+*.md linguist-documentation
+*.json linguist-generated
+*.csv linguist-generated
+*.yaml linguist-vendored
+*.yml linguist-vendored
+*.css linguist-vendored
+*.js linguist-vendored
+*.mjs linguist-vendored
+*.sh linguist-vendored
+*.svg linguist-vendored
+*.ico linguist-vendored
+*.po linguist-generated
+*.pot linguist-generated
+*.txt linguist-documentation

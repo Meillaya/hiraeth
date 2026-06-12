@@ -22,3 +22,14 @@ artifacts/
 .env.*
 !.env.example
 .DS_Store
+
+# Logs, crash dumps, and temp files
+/log/
+/tmp/
+*.log
+erl_crash.dump
+
+# Local editor/cache files
+/.cache/
+/.direnv/
+/.envrc
