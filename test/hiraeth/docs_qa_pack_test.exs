@@ -3,16 +3,19 @@ defmodule Hiraeth.DocsQaPackTest do
 
   @root Path.expand("../..", __DIR__)
 
-  test "README is an extremely brief project description" do
+  test "README briefly describes the project and documents local run/build commands" do
     readme = read!("README.md")
 
     assert readme =~ "# Hiraeth"
     assert readme =~ "Phoenix LiveView and Ash catalog"
     assert readme =~ "provenance-aware imports"
-    assert readme =~ "cover attribution"
-    assert readme =~ "admin review tools"
-    refute readme =~ "## Setup"
-    assert String.split(readme, "\n", trim: true) |> length() <= 3
+    assert readme =~ "## Run locally"
+    assert readme =~ "docker compose up -d postgres"
+    assert readme =~ "mix ash.migrate"
+    assert readme =~ "mix phx.server"
+    assert readme =~ "## Verify/build"
+    assert readme =~ "mix compile --warnings-as-errors"
+    assert readme =~ "make verify"
   end
 
   test "architecture docs explain Oban deferral and cover legal review boundary" do
