@@ -250,3 +250,5 @@ Evidence:
 - `.omo/evidence/task-9-format.txt`, `.omo/evidence/task-9-compile.txt` — format/compile gates passed.
 
 T9 commit: pending
+
+T9 finalized commit: 480d04c — perf(catalog): add public read indexes.
