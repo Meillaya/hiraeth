@@ -21,6 +21,14 @@ defmodule Hiraeth.BrowserQaContractTest do
     assert script_text =~ "cover_attribution_takedown=pass"
     assert script_text =~ "external_resource_references"
     assert script_text =~ "keyboard_navigation=pass"
+    assert script_text =~ "hiraeth.cache_covers"
+    assert script_text =~ "duplicate_book_cards=pass"
+    assert script_text =~ "cached_cover_paths=pass"
+    assert script_text =~ "remote_cover_dependencies=pass"
+    assert script_text =~ "curl_timing_ttfb_ms"
+    assert script_text =~ "curl_timing_total_ms"
+    assert script_text =~ "ttfb_budget_ms=300"
+    assert script_text =~ "total_budget_ms=800"
     assert File.exists?(focus_script)
     assert File.exists?(admin_script)
 

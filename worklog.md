@@ -114,3 +114,23 @@ Files:
 T4 commit: 83aa994 — test(covers): specify cached public cover preference
 
 T4 finalized commit after amend: 52380b6 — test(covers): specify cached public cover preference
+
+## 2026-06-12 — T5 RED performance/browser contract
+
+Scope: add failing tests for fast grouped public reads, duplicate work-card prevention, browser QA cover cache warmup, no duplicate cards, local cover paths, no remote cover dependency, and curl timing budgets.
+
+Commands:
+- `MIX_ENV=test mix test test/hiraeth_web/public_catalog_performance_test.exs --trace`
+- `MIX_ENV=test mix test test/hiraeth/browser_qa_contract_test.exs --trace`
+
+Result: expected RED — failures are missing `PublicCatalog.search_books/1` and missing browser QA cache/performance checks.
+
+Evidence:
+- `.omo/evidence/task-5-red-performance-contract.txt`
+- Independent verifier: Verifier the 60th confirmed the T5 RED contract and scoped failures.
+
+Files:
+- `test/hiraeth_web/public_catalog_performance_test.exs`
+- `test/hiraeth/browser_qa_contract_test.exs`
+
+T5 commit: f3b219e — test(perf): specify fast grouped catalog loading
