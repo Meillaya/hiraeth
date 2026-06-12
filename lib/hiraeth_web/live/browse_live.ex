@@ -31,7 +31,7 @@ defmodule HiraethWeb.BrowseLive do
   defp assign_catalog(socket, params) do
     query = Map.get(params, "q", "")
     page = Map.get(params, "page", "1")
-    results = PublicCatalog.search_editions(query)
+    results = PublicCatalog.search_books(query)
     pagination = PublicCatalog.paginate(results, page)
 
     socket
@@ -72,7 +72,7 @@ defmodule HiraethWeb.BrowseLive do
         <section id="catalog-index" class="lg:col-span-5 space-y-6">
           <div class="border-b border-[#E7E2D8] dark:border-[#2E2A27] pb-3 flex justify-between items-center">
             <h2 class="font-serif text-lg font-medium">Catalog Index</h2>
-            <span class="font-mono text-xs text-stone-600 dark:text-stone-400">{@pagination.total_count} volumes</span>
+            <span class="font-mono text-xs text-stone-600 dark:text-stone-400">{@pagination.total_count} books</span>
           </div>
 
           <%= if @pagination.total_count == 0 do %>

@@ -75,6 +75,41 @@ defmodule HiraethWeb.EditionLive do
                 {Enum.join(@edition.identifiers, " ")}
               </div>
 
+              <section
+                :if={@edition[:description]}
+                id="book-description"
+                class="prose prose-stone dark:prose-invert max-w-none"
+              >
+                <h2 class="font-serif text-xl font-medium">Description</h2>
+                <p>{@edition.description}</p>
+              </section>
+
+              <section
+                :if={Enum.any?(@edition[:editorial_praise] || [])}
+                id="book-editorial-praise"
+                class="space-y-3"
+              >
+                <h2 class="font-serif text-xl font-medium">Editorial praise</h2>
+                <blockquote
+                  :for={praise <- @edition.editorial_praise}
+                  class="border-l-2 border-[#8C2D19] pl-4 text-sm text-stone-700 dark:text-stone-300"
+                >
+                  <p>{praise["quote"] || praise[:quote]}</p>
+                  <footer class="mt-2 font-mono text-[10px] uppercase tracking-wider">
+                    {praise["source"] || praise[:source]}
+                  </footer>
+                </blockquote>
+              </section>
+
+              <.link
+                :if={@edition[:storefront_url]}
+                id="book-storefront-cta"
+                href={@edition.storefront_url}
+                class="inline-flex font-mono text-xs uppercase tracking-wider text-[#8C2D19] dark:text-[#E05A47] hover:underline font-bold"
+              >
+                Publisher page
+              </.link>
+
               <CatalogComponents.metadata_table book={@edition} />
               <CatalogComponents.provenance_badge source={@edition.source} />
             </section>

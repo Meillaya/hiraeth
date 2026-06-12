@@ -8,11 +8,28 @@ defmodule HiraethWeb.PublicCatalog do
 
   alias Hiraeth.Catalog.{Edition, Publisher, Series}
   alias Hiraeth.Covers
-  alias Hiraeth.Sources.SourceRecord
 
-  @page_size 2
+  @page_size 24
 
   def page_size, do: @page_size
+
+  def books do
+    editions()
+    |> Enum.group_by(& &1.work_id)
+    |> Enum.map(fn {_work_id, editions} -> book_projection(editions) end)
+    |> Enum.sort_by(&sort_key/1)
+  end
+
+  def search_books(query) do
+    books()
+    |> Enum.filter(&book_matches?(&1, query))
+  end
+
+  def book(slug) do
+    Enum.find(books(), fn book ->
+      book.slug == slug or Enum.any?(book.formats, &(&1.edition_slug == slug))
+    end)
+  end
 
   def editions do
     Edition
@@ -148,58 +165,149 @@ defmodule HiraethWeb.PublicCatalog do
       series_titles: series_titles(series_memberships),
       series_slug: first_series_slug(series_memberships),
       cover: cover_projection(cover_asset),
+      description: work && work.description,
+      editorial_praise: (work && work.editorial_praise) || [],
+      storefront_url: work && work.storefront_url,
       source: nil,
-      source_uri: "local_demo_fixture:edition:#{edition.slug}",
-      source_uri_candidates: [
-        "local_demo_fixture:edition:#{edition.slug}",
-        "local_csv_import:edition:#{edition.slug}"
-      ]
+      source_uri: nil
     }
   end
 
-  defp attach_sources(editions) do
-    source_records =
-      SourceRecord
-      |> Ash.Query.for_read(:read)
-      |> Ash.read!()
+  defp book_projection(editions) do
+    editions = Enum.sort_by(editions, &format_sort_key/1)
+    primary = List.first(editions)
 
-    source_by_uri = Map.new(source_records, &{&1.source_uri, source_projection(&1)})
-    source_by_isbn = source_by_isbn(source_records)
+    %{}
+    |> Map.merge(
+      Map.take(primary, [
+        :work_id,
+        :title,
+        :subtitle,
+        :publisher,
+        :publisher_slug,
+        :author,
+        :contributor_names,
+        :series_titles,
+        :series_slug,
+        :cover,
+        :source
+      ])
+    )
+    |> Map.put(:id, primary.work_id)
+    |> Map.put(:slug, work_slug(primary))
+    |> Map.put(:description, first_present(editions, :description))
+    |> Map.put(:editorial_praise, first_present(editions, :editorial_praise) || [])
+    |> Map.put(:praise, first_present(editions, :editorial_praise) || [])
+    |> Map.put(:storefront_url, first_present(editions, :storefront_url))
+    |> Map.put(:formats, Enum.map(editions, &format_projection/1))
+    |> Map.put(
+      :identifiers,
+      editions |> Enum.flat_map(& &1.identifiers) |> Enum.uniq() |> Enum.sort()
+    )
+    |> Map.put(:isbn, editions |> Enum.flat_map(& &1.identifiers) |> Enum.uniq() |> List.first())
+    |> Map.put(:sources, editions |> Enum.map(& &1.source) |> Enum.reject(&is_nil/1))
+    |> Map.put(:published_on, first_present(editions, :published_on))
+    |> Map.put(:year, primary.year)
+  end
+
+  defp format_projection(edition) do
+    %{
+      edition_slug: edition.slug,
+      format: edition.format,
+      format_label: format_label(edition.format),
+      identifiers: edition.identifiers,
+      published_on: edition.published_on
+    }
+  end
+
+  defp first_present(editions, key) do
+    editions
+    |> Enum.map(&Map.get(&1, key))
+    |> Enum.find(&(not blank?(&1)))
+  end
+
+  defp work_slug(edition) do
+    edition.slug
+    |> String.replace(~r/-(paperback|hardcover|ebook|audiobook)-[0-9xX-]+$/, "")
+  end
+
+  defp format_label(nil), do: "Unknown format"
+
+  defp format_label(format) do
+    format
+    |> to_string()
+    |> String.replace("_", " ")
+    |> String.split(" ")
+    |> Enum.map_join(" ", &String.capitalize/1)
+  end
+
+  defp format_sort_key(edition),
+    do: {format_rank(edition.format), edition.published_on || ~D[9999-12-31], edition.slug}
+
+  defp format_rank("paperback"), do: 0
+  defp format_rank("hardcover"), do: 1
+  defp format_rank("ebook"), do: 2
+  defp format_rank("audiobook"), do: 3
+  defp format_rank(_format), do: 9
+
+  defp attach_sources(editions) do
+    source_by_isbn =
+      editions
+      |> Enum.flat_map(& &1.identifiers)
+      |> Enum.uniq()
+      |> source_by_isbn()
 
     editions
     |> Enum.map(fn edition ->
-      source =
-        edition
-        |> Map.fetch!(:source_uri_candidates)
-        |> Enum.find_value(&Map.get(source_by_uri, &1)) ||
-          edition.identifiers
-          |> Enum.find_value(&Map.get(source_by_isbn, &1))
+      source = Enum.find_value(edition.identifiers, &Map.get(source_by_isbn, &1))
 
       edition
       |> Map.put(:source, source)
       |> Map.put(:source_uri, source && source.source_uri)
-      |> Map.delete(:source_uri_candidates)
     end)
     |> Enum.reject(&is_nil(&1.source))
   end
 
-  defp source_by_isbn(source_records) do
-    source_records
-    |> Enum.flat_map(fn source_record ->
-      isbn = get_in(source_record.raw_payload || %{}, ["edition", "isbn_13"])
-      if is_binary(isbn), do: [{isbn, source_projection(source_record)}], else: []
-    end)
-    |> Map.new()
-  end
+  defp source_by_isbn([]), do: %{}
 
-  defp source_projection(source_record) do
-    %{
-      provider: source_record.provider,
-      source_type: source_record.source_type,
-      source_uri: source_record.source_uri,
-      license_note: source_record.license_note,
-      imported_at: source_record.imported_at
-    }
+  defp source_by_isbn(isbns) do
+    {:ok, %{rows: rows}} =
+      Hiraeth.Repo.query(
+        """
+        select id, provider, source_type, source_uri, license_note, import_run_id, imported_at, raw_payload
+        from source_records
+        where raw_payload->'edition'->>'isbn_13' = any($1::text[])
+        """,
+        [isbns]
+      )
+
+    rows
+    |> Enum.map(fn [
+                     id,
+                     provider,
+                     source_type,
+                     source_uri,
+                     license_note,
+                     import_run_id,
+                     imported_at,
+                     raw_payload
+                   ] ->
+      isbn = get_in(raw_payload || %{}, ["edition", "isbn_13"])
+
+      {isbn,
+       %{
+         id: id,
+         source_record_id: id,
+         provider: provider,
+         source_type: source_type,
+         source_uri: source_uri,
+         license_note: license_note,
+         import_run_id: import_run_id,
+         imported_at: imported_at
+       }}
+    end)
+    |> Enum.reject(fn {isbn, _source} -> is_nil(isbn) end)
+    |> Map.new()
   end
 
   defp visible_cover_assignment(edition) do
@@ -219,6 +327,7 @@ defmodule HiraethWeb.PublicCatalog do
   defp cover_projection(asset) do
     %{
       source_url: asset.source_url,
+      public_url: cover_public_url(asset),
       provider: asset.provider,
       rights_basis: asset.rights_basis,
       attribution_text: asset.attribution_text,
@@ -227,6 +336,24 @@ defmodule HiraethWeb.PublicCatalog do
       takedown_state: asset.takedown_state
     }
   end
+
+  defp cover_public_url(asset) do
+    case asset.cache_policy do
+      "cache_allowed" -> static_cover_path(asset.cached_file_path) || asset.source_url
+      _ -> asset.source_url
+    end
+  end
+
+  defp static_cover_path(path) when is_binary(path) do
+    path = Path.expand(path)
+    static_root = Path.expand("priv/static")
+
+    if String.starts_with?(path, static_root <> "/") do
+      "/" <> Path.relative_to(path, static_root)
+    end
+  end
+
+  defp static_cover_path(_path), do: nil
 
   defp contributor_names(contributions) do
     contributions
@@ -268,6 +395,34 @@ defmodule HiraethWeb.PublicCatalog do
     |> Enum.reject(&is_nil/1)
     |> Enum.map(& &1.slug)
     |> List.first()
+  end
+
+  defp book_matches?(_book, nil), do: true
+  defp book_matches?(_book, ""), do: true
+
+  defp book_matches?(book, query) do
+    needle = normalize_text(query)
+    identifier_needle = normalize_identifier(query)
+
+    searchable_text =
+      [
+        book.title,
+        book.subtitle,
+        book.publisher,
+        book.author,
+        book.series_titles,
+        book.identifiers,
+        Enum.map(book.formats, & &1.format)
+      ]
+      |> List.flatten()
+      |> Enum.reject(&is_nil/1)
+      |> Enum.map_join(" ", &to_string/1)
+      |> normalize_text()
+
+    searchable_identifiers = Enum.map_join(book.identifiers, " ", &normalize_identifier/1)
+
+    String.contains?(searchable_text, needle) or
+      (identifier_needle != "" and String.contains?(searchable_identifiers, identifier_needle))
   end
 
   defp matches?(_edition, nil), do: true
@@ -317,6 +472,8 @@ defmodule HiraethWeb.PublicCatalog do
   end
 
   defp parse_page(_page), do: 1
+
+  defp blank?(value), do: value in [nil, [], ""]
 
   defp loaded_list(%Ash.NotLoaded{}), do: []
   defp loaded_list(nil), do: []

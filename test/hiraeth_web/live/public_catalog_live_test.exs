@@ -26,8 +26,8 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     {:ok, browse, _html} = live(conn, ~p"/browse")
 
     assert has_element?(browse, "#browse-shell")
-    assert has_element?(browse, "#catalog-index", "150 volumes")
-    assert has_element?(browse, "#catalog-page-count", "Page 1 of 75")
+    assert has_element?(browse, "#catalog-index", "79 books")
+    assert has_element?(browse, "#catalog-page-count", "Page 1 of 4")
 
     {:ok, filtered, _html} = live(conn, ~p"/browse?q=Immigrant")
     assert has_element?(filtered, "#catalog-index h4", "Immigrant")
@@ -64,6 +64,12 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
            } in formats
 
     assert Enum.sort(identifiers) == ["9781646054541", "9781646054558"]
+
+    assert [%{source_record_id: source_record_id, import_run_id: import_run_id} | _] =
+             books |> hd() |> Map.fetch!(:sources)
+
+    assert is_binary(source_record_id)
+    assert is_binary(import_run_id)
 
     {:ok, filtered, _html} = live(conn, ~p"/browse?q=Immigrant")
     document = filtered |> render() |> LazyHTML.from_fragment()
@@ -128,7 +134,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
 
     assert has_element?(view, "#publication-date", "2027-02-16")
 
-    refute html =~ "Description"
+    assert has_element?(view, "#book-description", "trilingual collection")
     refute html =~ "jacket copy"
     refute html =~ "price"
     refute html =~ "inventory"

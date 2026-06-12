@@ -87,6 +87,14 @@ defmodule HiraethWeb.CatalogComponents do
         <p class="font-mono text-[11px] font-semibold uppercase tracking-wider !text-stone-700 dark:!text-stone-300 truncate">
           {@edition.publisher || "Publisher unknown"}
         </p>
+        <div
+          :if={Enum.any?(@edition[:formats] || [])}
+          class="font-mono text-[10px] leading-relaxed text-stone-600 dark:text-stone-400"
+        >
+          <span :for={format <- @edition.formats} class="mr-2 whitespace-nowrap">
+            {format.format} · {Enum.join(format.identifiers, ", ")}
+          </span>
+        </div>
       </div>
     </article>
     """

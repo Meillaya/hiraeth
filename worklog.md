@@ -252,3 +252,32 @@ Evidence:
 T9 commit: pending
 
 T9 finalized commit: 480d04c — perf(catalog): add public read indexes.
+
+## T10 — Grouped public catalog read model
+
+Implemented work-centric public book projections in `HiraethWeb.PublicCatalog` while preserving compatibility wrappers for existing edition pages.
+
+Changed:
+- Added `books/0`, `search_books/1`, and `book/1` grouped by canonical `work_id`.
+- Book projections include work-level identity, publisher, contributors, series, descriptions, editorial praise, storefront URL, nested `formats`, identifier union, primary ISBN, cover projection including `public_url`, and source provenance list.
+- Browse now uses grouped books, so duplicate formats render as one public card with nested format/ISBN data.
+- Default page size increased to 24 for realistic browsing.
+- Existing `editions/0`, `search_editions/1`, and `edition/1` remain as compatibility APIs for legacy/admin/detail surfaces until T11 route/UI conversion.
+
+Evidence:
+- `.omo/evidence/task-10-grouped-read-model-tests.txt` — grouped Immigrant UI/read-model test passed.
+- `.omo/evidence/task-10-performance-search-tests.txt` — performance/search tests passed.
+- `.omo/evidence/task-10-compile.txt`, `.omo/evidence/task-10-format.txt` — compile/format gates passed.
+
+T10 commit: pending
+
+T10 reviewer fixes:
+- Full public catalog LiveView test now passes, not only the grouped line-filter test.
+- Browse count was updated to grouped books (`79 books`, page 1 of 4 with page size 24).
+- Edition detail minimally renders sourced `#book-description`, `#book-editorial-praise`, and `#book-storefront-cta` so T3/T10 evidence is not misleading before T11 UI polish.
+- SourceRecord lookup is now scoped to projected ISBNs via SQL over `raw_payload->'edition'->>'isbn_13' = any($1::text[])` instead of reading all source records.
+- Source projections now include `source_record_id` and `import_run_id` for grouped provenance traceability.
+
+Review-fix evidence:
+- `.omo/evidence/task-10-review-fixes-full-tests.txt` — 12 tests, 0 failures.
+- `.omo/evidence/task-10-compile-after-review-fixes.txt`, `.omo/evidence/task-10-format-after-review-fixes.txt`, `.omo/evidence/task-10-diff-check-after-review-fixes.txt`.
