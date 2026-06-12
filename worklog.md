@@ -64,3 +64,5 @@ Files:
 - `test/hiraeth_web/live/public_catalog_live_test.exs`
 
 T2 commit: fe1e900 — test(catalog): specify work-centric public grouping
+
+T2 finalized commit after amend: be89e4a — test(catalog): specify work-centric public grouping
