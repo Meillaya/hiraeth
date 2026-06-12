@@ -228,3 +228,25 @@ Evidence:
 T8 commit: pending
 
 T8 finalized commit: 185a439 — feat(covers): serve cached public cover assets.
+
+## T9 — Public catalog read indexes
+
+Implemented public catalog query/index foundations using AshPostgres `custom_indexes` rather than a hand-written Ecto migration. Ash codegen generated `priv/repo/migrations/20260612223749_add_public_catalog_indexes.exs` plus resource snapshots, keeping resources and migrations consistent.
+
+Indexes added:
+- `editions`: `work_id`, `publisher_id`, `imprint_id`
+- `identifiers`: `edition_id`, `value`
+- `cover_assignments`: `edition_id`, `cover_asset_id`
+- `contributions`: `work_id`, `edition_id`, `contributor_id`
+- `series_memberships`: `work_id`, `series_id`
+- `source_records`: `source_uri`, `(provider, source_type)`
+
+Evidence:
+- `.omo/evidence/task-9-red-index-migration-tests.txt` — index assertion failed before implementation.
+- `.omo/evidence/task-9-ash-codegen.txt` — AshPostgres generated migration/snapshots.
+- `.omo/evidence/task-9-ash-setup.txt` — test DB migrated.
+- `.omo/evidence/task-9-index-migration-tests.txt` — 3 tests, 0 failures.
+- `.omo/evidence/task-9-public-query-explain-specific.txt` — ISBN lookup uses `identifiers_public_catalog_value_index` and `cover_assignments_public_catalog_edition_id_index`.
+- `.omo/evidence/task-9-format.txt`, `.omo/evidence/task-9-compile.txt` — format/compile gates passed.
+
+T9 commit: pending

@@ -7,6 +7,12 @@ defmodule Hiraeth.Catalog.Contribution do
   postgres do
     table "contributions"
     repo Hiraeth.Repo
+
+    custom_indexes do
+      index :work_id, name: "contributions_public_catalog_work_id_index"
+      index :edition_id, name: "contributions_public_catalog_edition_id_index"
+      index :contributor_id, name: "contributions_public_catalog_contributor_id_index"
+    end
   end
 
   attributes do

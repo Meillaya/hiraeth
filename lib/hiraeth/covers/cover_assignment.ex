@@ -7,6 +7,11 @@ defmodule Hiraeth.Covers.CoverAssignment do
   postgres do
     table "cover_assignments"
     repo Hiraeth.Repo
+
+    custom_indexes do
+      index :edition_id, name: "cover_assignments_public_catalog_edition_id_index"
+      index :cover_asset_id, name: "cover_assignments_public_catalog_cover_asset_id_index"
+    end
   end
 
   attributes do

@@ -7,6 +7,12 @@ defmodule Hiraeth.Catalog.Edition do
   postgres do
     table "editions"
     repo Hiraeth.Repo
+
+    custom_indexes do
+      index :work_id, name: "editions_public_catalog_work_id_index"
+      index :publisher_id, name: "editions_public_catalog_publisher_id_index"
+      index :imprint_id, name: "editions_public_catalog_imprint_id_index"
+    end
   end
 
   attributes do

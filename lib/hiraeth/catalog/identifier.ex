@@ -7,6 +7,11 @@ defmodule Hiraeth.Catalog.Identifier do
   postgres do
     table "identifiers"
     repo Hiraeth.Repo
+
+    custom_indexes do
+      index :edition_id, name: "identifiers_public_catalog_edition_id_index"
+      index :value, name: "identifiers_public_catalog_value_index"
+    end
   end
 
   attributes do

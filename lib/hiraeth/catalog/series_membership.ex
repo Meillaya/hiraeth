@@ -7,6 +7,11 @@ defmodule Hiraeth.Catalog.SeriesMembership do
   postgres do
     table "series_memberships"
     repo Hiraeth.Repo
+
+    custom_indexes do
+      index :work_id, name: "series_memberships_public_catalog_work_id_index"
+      index :series_id, name: "series_memberships_public_catalog_series_id_index"
+    end
   end
 
   attributes do

@@ -1,6 +1,23 @@
 defmodule Hiraeth.AshPostgresMigrationTest do
   use Hiraeth.DataCase, async: true
 
+  @public_catalog_indexes ~w(
+    editions_public_catalog_work_id_index
+    editions_public_catalog_publisher_id_index
+    editions_public_catalog_imprint_id_index
+    identifiers_public_catalog_edition_id_index
+    identifiers_public_catalog_value_index
+    cover_assignments_public_catalog_edition_id_index
+    cover_assignments_public_catalog_cover_asset_id_index
+    contributions_public_catalog_work_id_index
+    contributions_public_catalog_edition_id_index
+    contributions_public_catalog_contributor_id_index
+    series_memberships_public_catalog_work_id_index
+    series_memberships_public_catalog_series_id_index
+    source_records_public_catalog_source_uri_index
+    source_records_public_catalog_provider_type_index
+  )
+
   @expected_tables ~w(
     users
     tokens
@@ -43,6 +60,24 @@ defmodule Hiraeth.AshPostgresMigrationTest do
     end
 
     refute "books" in table_names
+  end
+
+  test "public catalog read paths have explicit postgres indexes" do
+    assert {:ok, %{rows: rows}} =
+             Hiraeth.Repo.query(
+               """
+               select indexname
+               from pg_indexes
+               where schemaname = 'public'
+               """,
+               []
+             )
+
+    index_names = rows |> List.flatten() |> MapSet.new()
+
+    for index_name <- @public_catalog_indexes do
+      assert index_name in index_names
+    end
   end
 
   test "work and edition tables are distinct with edition foreign keys" do

@@ -7,6 +7,11 @@ defmodule Hiraeth.Sources.SourceRecord do
   postgres do
     table "source_records"
     repo Hiraeth.Repo
+
+    custom_indexes do
+      index :source_uri, name: "source_records_public_catalog_source_uri_index"
+      index [:provider, :source_type], name: "source_records_public_catalog_provider_type_index"
+    end
   end
 
   attributes do
