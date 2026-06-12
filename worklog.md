@@ -168,3 +168,5 @@ Files:
 - `test/hiraeth/catalog_resource_test.exs`
 
 T6 commit: 8c7ed41 — feat(metadata): add sourced public prose fields
+
+T6 finalized commit after post-verification amend: c9a973c — feat(metadata): add sourced public prose fields.
