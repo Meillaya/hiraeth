@@ -136,3 +136,35 @@ Files:
 T5 commit: f3b219e — test(perf): specify fast grouped catalog loading
 
 T5 finalized commit after amend: 2c18d3f — test(perf): specify fast grouped catalog loading
+
+## 2026-06-12 — T6 schema support for public prose metadata
+
+Scope: add Ash/Postgres schema support for Work-level `description`, `storefront_url`, and structured `editorial_praise` metadata.
+
+Commands:
+- `mix ash.codegen t6_public_prose_metadata --check`
+- `MIX_ENV=test mix ecto.drop --force`
+- `MIX_ENV=test mix ecto.create`
+- `MIX_ENV=test mix ash.setup`
+- `MIX_ENV=test mix test test/hiraeth/catalog_resource_test.exs --trace`
+- `mix compile --warnings-as-errors`
+- `mix format --check-formatted`
+
+Result: pass. Ash codegen was reconciled with an Ash-generated migration and Work snapshot.
+
+Evidence:
+- `.omo/evidence/task-6-current-evidence-manifest.txt`
+- `.omo/evidence/task-6-ash-codegen-check.txt`
+- `.omo/evidence/task-6-ash-setup.txt`
+- `.omo/evidence/task-6-schema-tests.txt`
+- `.omo/evidence/task-6-compile.txt`
+- `.omo/evidence/task-6-format.txt`
+- Independent verifier: Verifier the 62nd confirmed schema, migration, snapshot, and commands.
+
+Files:
+- `lib/hiraeth/catalog/work.ex`
+- `priv/repo/migrations/20260612215553_t6_public_prose_metadata.exs`
+- `priv/resource_snapshots/repo/works/20260612215554.json`
+- `test/hiraeth/catalog_resource_test.exs`
+
+T6 commit: 8c7ed41 — feat(metadata): add sourced public prose fields

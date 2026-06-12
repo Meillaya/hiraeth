@@ -31,6 +31,20 @@ defmodule Hiraeth.Catalog.Work do
       default "draft"
       public? true
     end
+
+    attribute :description, :string do
+      public? true
+    end
+
+    attribute :storefront_url, :string do
+      public? true
+    end
+
+    attribute :editorial_praise, {:array, :map} do
+      allow_nil? false
+      default []
+      public? true
+    end
   end
 
   relationships do
@@ -48,11 +62,28 @@ defmodule Hiraeth.Catalog.Work do
 
     create :create do
       primary? true
-      accept [:title, :subtitle, :slug, :publication_state]
+
+      accept [
+        :title,
+        :subtitle,
+        :slug,
+        :publication_state,
+        :description,
+        :storefront_url,
+        :editorial_praise
+      ]
     end
 
     update :update do
-      accept [:title, :subtitle, :slug, :publication_state]
+      accept [
+        :title,
+        :subtitle,
+        :slug,
+        :publication_state,
+        :description,
+        :storefront_url,
+        :editorial_praise
+      ]
     end
   end
 

@@ -69,6 +69,41 @@ defmodule Hiraeth.CatalogResourceTest do
     assert Exception.message(error) =~ "has already been taken"
   end
 
+  test "works store sourced public prose metadata for catalog display", %{admin: admin} do
+    work =
+      create!(
+        Work,
+        %{
+          title: "Sourced Prose Work",
+          slug: unique_slug("sourced-prose-work"),
+          description: "A sourced public synopsis.",
+          storefront_url: "https://archipelagobooks.org/book/sourced-prose-work/",
+          editorial_praise: [
+            %{
+              "quote" => "A precise sourced praise excerpt.",
+              "source" => "Publisher official page",
+              "source_uri" => "https://archipelagobooks.org/book/sourced-prose-work/"
+            }
+          ]
+        },
+        admin
+      )
+
+    assert work.description == "A sourced public synopsis."
+    assert work.storefront_url == "https://archipelagobooks.org/book/sourced-prose-work/"
+
+    assert [praise] = work.editorial_praise
+    assert praise["quote"] == "A precise sourced praise excerpt."
+    assert praise["source_uri"] == "https://archipelagobooks.org/book/sourced-prose-work/"
+
+    updated =
+      work
+      |> Ash.Changeset.for_update(:update, %{description: "Updated sourced synopsis."})
+      |> Ash.update!(actor: admin)
+
+    assert updated.description == "Updated sourced synopsis."
+  end
+
   test "contributors are assigned by contribution role", %{admin: admin} do
     publisher = create!(Publisher, %{name: "Role Press", slug: unique_slug("publisher")}, admin)
     work = create!(Work, %{title: "Translated Work", slug: unique_slug("work")}, admin)
