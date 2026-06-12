@@ -333,4 +333,4 @@ Evidence:
 Cleanup:
 - Stopped the temporary Phoenix server on port 4023 after screenshot capture.
 
-T12 commit: pending
+T12 finalized commit: 03ffac3 — style(web): polish grouped book catalog UI.
