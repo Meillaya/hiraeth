@@ -226,3 +226,5 @@ Evidence:
 - `.omo/evidence/task-8-cache-task-help-final.txt` — Mix task help available.
 
 T8 commit: pending
+
+T8 finalized commit: 185a439 — feat(covers): serve cached public cover assets.
