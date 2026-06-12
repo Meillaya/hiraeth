@@ -281,3 +281,5 @@ T10 reviewer fixes:
 Review-fix evidence:
 - `.omo/evidence/task-10-review-fixes-full-tests.txt` — 12 tests, 0 failures.
 - `.omo/evidence/task-10-compile-after-review-fixes.txt`, `.omo/evidence/task-10-format-after-review-fixes.txt`, `.omo/evidence/task-10-diff-check-after-review-fixes.txt`.
+
+T10 finalized commit: e2c7029 — feat(catalog): group public books by work.
