@@ -202,3 +202,5 @@ T7 reviewer fix: added a malformed-input regression proving raw HTML inside cano
 - `.omo/evidence/task-7-raw-html-prose-fix.txt` — focused regression passed.
 - `.omo/evidence/task-7-acceptance-final-after-raw-html-fix.txt` — 29 tests, 0 failures.
 - `.omo/evidence/task-7-provenance-summary-clean-after-raw-html-fix.txt` — clean provenance gate passed.
+
+T7 finalized commit: f2c69bd — feat(import): ingest sourced descriptions and praise.
