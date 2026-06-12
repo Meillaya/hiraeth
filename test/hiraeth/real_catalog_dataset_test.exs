@@ -56,6 +56,59 @@ defmodule Hiraeth.RealCatalogDatasetTest do
         assert record.curation.status == "approved"
       end
     end
+
+    test "approved records may include sourced public prose, editorial praise, and storefront CTAs" do
+      assert {:ok, [dataset | _datasets]} = Dataset.load_dir(@dataset_dir)
+      [record | remaining_records] = dataset.records
+
+      prose_record =
+        record
+        |> Map.put(:description, "A sourced publisher synopsis for public book detail display.")
+        |> Map.put(:storefront_url, record.source_uri)
+        |> Map.put(:editorial_praise, [
+          %{
+            "quote" => "A precise, source-attributed editorial praise excerpt.",
+            "source" => "Publisher official page",
+            "source_uri" => record.source_uri
+          }
+        ])
+        |> Map.update!(:displayed_fields, fn fields ->
+          Enum.uniq(fields ++ ["description", "editorial_praise", "storefront_url"])
+        end)
+
+      assert {:ok, _summary} =
+               Validator.validate_datasets([
+                 %{dataset | records: [prose_record | remaining_records]}
+               ])
+    end
+
+    test "rejects public prose when source provenance is missing" do
+      assert {:ok, [dataset | _datasets]} = Dataset.load_dir(@dataset_dir)
+      [record | remaining_records] = dataset.records
+
+      prose_without_provenance =
+        record
+        |> Map.put(:source_uri, "")
+        |> Map.put(:description, "A public synopsis without a source URI must not be accepted.")
+        |> Map.put(:storefront_url, "")
+        |> Map.put(:editorial_praise, [
+          %{"quote" => "Praise without field-level source evidence.", "source" => "Unknown"}
+        ])
+        |> Map.update!(:displayed_fields, fn fields ->
+          Enum.uniq(fields ++ ["description", "editorial_praise", "storefront_url"])
+        end)
+
+      assert {:error, findings} =
+               Validator.validate_datasets([
+                 %{
+                   dataset
+                   | license_note: "",
+                     records: [prose_without_provenance | remaining_records]
+                 }
+               ])
+
+      assert "public prose requires source provenance" in Enum.map(findings, & &1.reason)
+    end
   end
 
   describe "dataset validator rejects unsafe rows" do
@@ -117,6 +170,34 @@ defmodule Hiraeth.RealCatalogDatasetTest do
       assert "non-book format is not allowed" in reasons
       assert "long copied text or disallowed prose field is present" in reasons
       assert "displayed field is not factual metadata" in reasons
+    end
+
+    test "still rejects commerce state and unsafe source content when prose metadata is allowed" do
+      assert {:ok, [dataset | _datasets]} = Dataset.load_dir(@dataset_dir)
+      [record | remaining_records] = dataset.records
+
+      unsafe_record =
+        record
+        |> Map.put(:price, "$18.00")
+        |> Map.put(:inventory, "12")
+        |> Map.put(:availability, "in stock")
+        |> Map.put(:cart, "https://archipelagobooks.org/cart")
+        |> Map.put(:checkout, "https://archipelagobooks.org/checkout")
+        |> Map.put(:account, "https://archipelagobooks.org/account")
+        |> Map.put(:content, String.duplicate("unapproved content dump ", 20))
+        |> Map.put(:body_html, "<script>alert('xss')</script>")
+
+      assert {:error, findings} =
+               Validator.validate_datasets([
+                 %{dataset | records: [unsafe_record | remaining_records]}
+               ])
+
+      assert "commerce state is not public catalog metadata" in Enum.map(findings, & &1.reason)
+
+      assert "raw HTML or executable content is not allowed in public prose" in Enum.map(
+               findings,
+               & &1.reason
+             )
     end
 
     test "rejects HTTPS cover URLs from hosts outside the provider allowlist" do

@@ -66,3 +66,27 @@ Files:
 T2 commit: fe1e900 — test(catalog): specify work-centric public grouping
 
 T2 finalized commit after amend: be89e4a — test(catalog): specify work-centric public grouping
+
+## 2026-06-12 — T3 RED metadata/prose contract
+
+Scope: add failing tests for sourced descriptions, editorial praise, storefront/source CTAs, provenance requirements, importer persistence, public detail display, and continued rejection of commerce/raw HTML/content dumps.
+
+Commands:
+- `MIX_ENV=test mix test test/hiraeth/real_catalog_dataset_test.exs:60 --trace`
+- `MIX_ENV=test mix test test/hiraeth/real_catalog_dataset_test.exs:85 --trace`
+- `MIX_ENV=test mix test test/hiraeth/real_catalog_dataset_test.exs:175 --trace`
+- `MIX_ENV=test mix test test/hiraeth/real_catalog_importer_test.exs:116 --trace`
+- `MIX_ENV=test mix test test/hiraeth_web/live/public_catalog_live_test.exs:136 --trace`
+
+Result: expected RED — failures are current validator/importer/UI missing behavior.
+
+Evidence:
+- `.omo/evidence/task-3-red-metadata-tests.txt`
+- Independent verifier: Verifier the 58th confirmed the T3-only RED evidence and scoped test coverage.
+
+Files:
+- `test/hiraeth/real_catalog_dataset_test.exs`
+- `test/hiraeth/real_catalog_importer_test.exs`
+- `test/hiraeth_web/live/public_catalog_live_test.exs`
+
+T3 commit: 7abe353 — test(metadata): specify public prose and storefront display

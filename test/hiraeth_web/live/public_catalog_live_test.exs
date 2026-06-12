@@ -3,6 +3,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
 
   import Phoenix.LiveViewTest
 
+  alias Hiraeth.RealCatalog.Dataset
   alias HiraethWeb.PublicCatalog
 
   @immigrant_slug "deep-vellum-immigrant-paperback-9781646054541"
@@ -130,5 +131,85 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     refute html =~ "jacket copy"
     refute html =~ "price"
     refute html =~ "inventory"
+  end
+
+  test "book detail displays sourced prose, editorial praise, and publisher storefront CTA", %{
+    conn: conn
+  } do
+    clear_catalog!()
+    tmp = prose_dataset_dir!()
+    on_exit(fn -> File.rm_rf!(tmp) end)
+
+    assert {:ok, _summary} = Hiraeth.RealCatalog.Importer.seed!(tmp)
+
+    {:ok, view, _html} =
+      live(conn, ~p"/editions/archipelago-books-bob-and-hilbert-hardcover-9781962770651")
+
+    assert has_element?(view, "#book-description", "Sourced publisher synopsis")
+    assert has_element?(view, "#book-editorial-praise", "Publisher official page")
+
+    assert has_element?(
+             view,
+             ~s|a#book-storefront-cta[href="https://archipelagobooks.org/book/bob-and-hilbert/"]|,
+             "Publisher page"
+           )
+  end
+
+  defp clear_catalog! do
+    for resource <- [
+          Hiraeth.Sources.SourceLedgerEntry,
+          Hiraeth.Sources.SourceRecord,
+          Hiraeth.Imports.ImportRun,
+          Hiraeth.Covers.CoverAssignment,
+          Hiraeth.Covers.CoverAsset,
+          Hiraeth.Catalog.Identifier,
+          Hiraeth.Catalog.Contribution,
+          Hiraeth.Catalog.Edition,
+          Hiraeth.Catalog.Work,
+          Hiraeth.Catalog.Imprint,
+          Hiraeth.Catalog.Publisher
+        ] do
+      Hiraeth.Repo.delete_all(resource)
+    end
+  end
+
+  defp prose_dataset_dir! do
+    tmp =
+      Path.join(
+        System.tmp_dir!(),
+        "hiraeth-live-prose-catalog-#{System.unique_integer([:positive])}"
+      )
+
+    File.mkdir_p!(tmp)
+    File.cp!(Path.join(Dataset.default_dir(), "README.md"), Path.join(tmp, "README.md"))
+    File.cp!(Path.join(Dataset.default_dir(), "schema.json"), Path.join(tmp, "schema.json"))
+
+    {:ok, dataset} = Dataset.load_file(Path.join(Dataset.default_dir(), "archipelago_books.json"))
+    [record | remaining_records] = dataset.records
+
+    prose_record =
+      record
+      |> Map.put(:description, "Sourced publisher synopsis for Bob and Hilbert.")
+      |> Map.put(:storefront_url, record.source_uri)
+      |> Map.put(:editorial_praise, [
+        %{
+          quote: "A precise, source-attributed editorial praise excerpt.",
+          source: "Publisher official page",
+          source_uri: record.source_uri
+        }
+      ])
+      |> Map.update!(:displayed_fields, fn fields ->
+        Enum.uniq(fields ++ ["description", "editorial_praise", "storefront_url"])
+      end)
+
+    payload = %{
+      provider: dataset.provider,
+      retrieved_at: dataset.retrieved_at,
+      license_note: dataset.license_note,
+      records: [prose_record | remaining_records]
+    }
+
+    File.write!(Path.join(tmp, "archipelago_books.json"), Jason.encode!(payload, pretty: true))
+    tmp
   end
 end

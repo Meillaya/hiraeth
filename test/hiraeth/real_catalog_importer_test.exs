@@ -2,7 +2,7 @@ defmodule Hiraeth.RealCatalogImporterTest do
   use Hiraeth.DataCase, async: false
 
   alias Hiraeth.Accounts.User
-  alias Hiraeth.Catalog.{Edition, Identifier, Publisher}
+  alias Hiraeth.Catalog.{Edition, Identifier, Publisher, Work}
   alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
   alias Hiraeth.Imports.ImportRun
   alias Hiraeth.RealCatalog.Dataset
@@ -113,6 +113,34 @@ defmodule Hiraeth.RealCatalogImporterTest do
              "Official public source exposes no cover image."
   end
 
+  test "real catalog importer persists sourced prose and storefront CTA for public display" do
+    clear_catalog!()
+    tmp = prose_dataset_dir!()
+    on_exit(fn -> File.rm_rf!(tmp) end)
+
+    assert {:ok, _summary} = Hiraeth.RealCatalog.Importer.seed!(tmp)
+
+    work = Work |> Ash.read!(authorize?: false) |> Enum.find(&(&1.title == "Bob and Hilbert"))
+    assert work.description == "A sourced synopsis carried from the official publisher page."
+
+    source_record =
+      SourceRecord
+      |> Ash.read!(authorize?: false)
+      |> Enum.find(fn source_record ->
+        get_in(source_record.raw_payload || %{}, ["work", "title"]) == "Bob and Hilbert"
+      end)
+
+    assert source_record.raw_payload["description"] ==
+             "A sourced synopsis carried from the official publisher page."
+
+    assert source_record.raw_payload["storefront_url"] ==
+             "https://archipelagobooks.org/book/bob-and-hilbert/"
+
+    assert [praise] = source_record.raw_payload["editorial_praise"]
+    assert praise["quote"] == "A precise, source-attributed editorial praise excerpt."
+    assert praise["source_uri"] == "https://archipelagobooks.org/book/bob-and-hilbert/"
+  end
+
   defp clear_catalog! do
     for resource <- [
           SourceLedgerEntry,
@@ -165,4 +193,44 @@ defmodule Hiraeth.RealCatalogImporterTest do
 
   defp no_cover_shape(record, :delete_cover), do: Map.delete(record, :cover)
   defp no_cover_shape(record, :empty_cover), do: Map.put(record, :cover, %{})
+
+  defp prose_dataset_dir! do
+    tmp =
+      Path.join(
+        System.tmp_dir!(),
+        "hiraeth-prose-real-catalog-#{System.unique_integer([:positive])}"
+      )
+
+    File.mkdir_p!(tmp)
+    File.cp!(Path.join(Dataset.default_dir(), "README.md"), Path.join(tmp, "README.md"))
+    File.cp!(Path.join(Dataset.default_dir(), "schema.json"), Path.join(tmp, "schema.json"))
+
+    {:ok, dataset} = Dataset.load_file(Path.join(Dataset.default_dir(), "archipelago_books.json"))
+    [record | remaining_records] = dataset.records
+
+    prose_record =
+      record
+      |> Map.put(:description, "A sourced synopsis carried from the official publisher page.")
+      |> Map.put(:storefront_url, record.source_uri)
+      |> Map.put(:editorial_praise, [
+        %{
+          quote: "A precise, source-attributed editorial praise excerpt.",
+          source: "Publisher official page",
+          source_uri: record.source_uri
+        }
+      ])
+      |> Map.update!(:displayed_fields, fn fields ->
+        Enum.uniq(fields ++ ["description", "editorial_praise", "storefront_url"])
+      end)
+
+    payload = %{
+      provider: dataset.provider,
+      retrieved_at: dataset.retrieved_at,
+      license_note: dataset.license_note,
+      records: [prose_record | remaining_records]
+    }
+
+    File.write!(Path.join(tmp, "archipelago_books.json"), Jason.encode!(payload, pretty: true))
+    tmp
+  end
 end
