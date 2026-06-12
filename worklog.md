@@ -307,4 +307,4 @@ Evidence:
 - `.omo/evidence/task-11-compile-final.txt`, `.omo/evidence/task-11-format-final.txt`, `.omo/evidence/task-11-diff-check-final.txt` — compile/format/diff-check gates passed.
 - Independent verifier: Verifier the 73rd confirmed T11 after review fixes.
 
-T11 commit: pending
+T11 finalized commit: 3432a83 — feat(web): render grouped book catalog pages.
