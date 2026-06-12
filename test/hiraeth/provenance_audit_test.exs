@@ -1,14 +1,30 @@
 defmodule Hiraeth.ProvenanceAuditTest do
   use Hiraeth.DataCase, async: false
 
+  import Ecto.Query
+
   alias Hiraeth.Accounts.User
   alias Hiraeth.Audit.AuditEvent
-  alias Hiraeth.Catalog.{Edition, Publisher, Work}
+
+  alias Hiraeth.Catalog.{
+    Contribution,
+    Edition,
+    Identifier,
+    Imprint,
+    Publisher,
+    Series,
+    SeriesMembership,
+    Work
+  }
+
   alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
+  alias Hiraeth.Sources.{SourceLedgerEntry, SourceRecord}
 
   @password "correct horse battery staple"
 
   setup do
+    clear_catalog!()
+
     admin =
       User
       |> Ash.Changeset.for_create(:seed_admin, %{
@@ -27,7 +43,7 @@ defmodule Hiraeth.ProvenanceAuditTest do
   test "exports source ledger CSV with source, hash, and license columns for seeded data", %{
     output_dir: output_dir
   } do
-    Hiraeth.DemoFixtures.seed!()
+    Hiraeth.RealCatalogFixtures.seed!()
 
     audit = Hiraeth.ProvenanceAudit.run!(output_dir: output_dir, fail_on_error?: true)
 
@@ -45,15 +61,27 @@ defmodule Hiraeth.ProvenanceAuditTest do
     assert csv =~
              "entity,field,value_hash,source_record_id,source_uri,provider,source_type,license_or_rights_basis,import_run_id"
 
-    assert csv =~ "edition:the-orchard-of-minor-moons-paperback,edition.title,"
-    assert csv =~ "local_demo_fixture"
+    assert csv =~ "deep_vellum_official_store"
+    assert csv =~ "publisher_dataset"
+    assert csv =~ "9781646054541"
+
+    empty_hash = :crypto.hash(:sha256, "") |> Base.encode16(case: :lower)
+    real_catalog_rows = Enum.filter(audit.source_ledger, &(&1.source_type == "publisher_dataset"))
+
+    for field <- ~w(title format published_on isbn_13) do
+      rows = Enum.filter(real_catalog_rows, &(&1.field == field))
+      expected_minimum = if field == "published_on", do: 145, else: 150
+
+      assert length(rows) >= expected_minimum
+      refute Enum.any?(rows, &(&1.value_hash == empty_hash))
+    end
   end
 
   test "public cover missing rights basis fails the provenance gate", %{
     admin: admin,
     output_dir: output_dir
   } do
-    Hiraeth.DemoFixtures.seed!()
+    Hiraeth.RealCatalogFixtures.seed!()
     edition = edition!(admin)
 
     cover_id = Ash.UUID.generate()
@@ -88,11 +116,56 @@ defmodule Hiraeth.ProvenanceAuditTest do
     end
   end
 
+  test "public cover with unsafe URL policy fails the provenance gate", %{
+    admin: admin
+  } do
+    Hiraeth.RealCatalogFixtures.seed!()
+    edition = edition!(admin)
+
+    for {source_url, provider, cache_policy, reason_fragment} <- [
+          {
+            "http://cdn.shopify.com/s/files/1/0433/1651/0883/files/insecure.jpg",
+            "deep_vellum_official_store",
+            "link_only",
+            "HTTPS"
+          },
+          {
+            "https://evil.example.test/cover.jpg",
+            "deep_vellum_official_store",
+            "link_only",
+            "allowlisted"
+          },
+          {
+            "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/cached.jpg",
+            "deep_vellum_official_store",
+            "link_only",
+            "cache file path"
+          }
+        ] do
+      cover =
+        cover_asset!(admin, %{
+          source_url: source_url,
+          provider: provider,
+          cache_policy: cache_policy
+        })
+
+      maybe_set_unsafe_cached_file!(cover, reason_fragment)
+      assignment!(admin, edition, cover)
+
+      audit = Hiraeth.ProvenanceAudit.audit!()
+
+      assert Enum.any?(
+               audit.invalid_public_covers,
+               &(&1.cover_asset_id == cover.id and String.contains?(&1.reason, reason_fragment))
+             )
+    end
+  end
+
   test "takedown audit trail is exported and audit events are append-only", %{
     admin: admin,
     output_dir: output_dir
   } do
-    Hiraeth.DemoFixtures.seed!()
+    Hiraeth.RealCatalogFixtures.seed!()
     edition = edition!(admin)
 
     cover =
@@ -132,28 +205,11 @@ defmodule Hiraeth.ProvenanceAuditTest do
     refute Ash.Resource.Info.action(AuditEvent, :destroy)
   end
 
-  defp edition!(admin) do
-    publisher =
-      Publisher
-      |> Ash.Changeset.for_create(:create, %{
-        name: "Audit Press #{System.unique_integer([:positive])}",
-        slug: unique_slug("audit-press")
-      })
-      |> Ash.create!(actor: admin)
-
-    work =
-      Work
-      |> Ash.Changeset.for_create(:create, %{title: "Audit Work", slug: unique_slug("audit-work")})
-      |> Ash.create!(actor: admin)
-
+  defp edition!(_admin) do
     Edition
-    |> Ash.Changeset.for_create(:create, %{
-      title: "Audit Edition",
-      slug: unique_slug("audit-edition"),
-      work_id: work.id,
-      publisher_id: publisher.id
-    })
-    |> Ash.create!(actor: admin)
+    |> Ash.read!(authorize?: false)
+    |> Enum.find(&(&1.slug == "deep-vellum-immigrant-paperback-9781646054541")) ||
+      raise "real catalog edition missing; seed real catalog first"
   end
 
   defp cover_asset!(admin, attrs) do
@@ -186,10 +242,38 @@ defmodule Hiraeth.ProvenanceAuditTest do
     |> Ash.create!(actor: admin)
   end
 
+  defp maybe_set_unsafe_cached_file!(cover, "cache file path") do
+    Hiraeth.Repo.update_all(
+      from(c in CoverAsset, where: c.id == ^cover.id),
+      set: [cached_file_path: "priv/static/covers/unsafe.jpg"]
+    )
+  end
+
+  defp maybe_set_unsafe_cached_file!(_cover, _reason_fragment), do: :ok
+
   defp dump_uuid!(uuid) do
     {:ok, dumped} = Ecto.UUID.dump(uuid)
     dumped
   end
 
-  defp unique_slug(prefix), do: "#{prefix}-#{System.unique_integer([:positive])}"
+  defp clear_catalog! do
+    [
+      SourceLedgerEntry,
+      SourceRecord,
+      AuditEvent,
+      CoverAssignment,
+      CoverAsset,
+      Identifier,
+      Contribution,
+      Edition,
+      SeriesMembership,
+      Series,
+      Work,
+      Imprint,
+      Publisher
+    ]
+    |> Enum.each(fn resource ->
+      Hiraeth.Repo.delete_all(resource)
+    end)
+  end
 end

@@ -1,0 +1,37 @@
+# Real publisher catalog sources
+
+This directory contains Hiraeth's first curated real-book pilot dataset: 50 factual edition records each for Deep Vellum, Dalkey Archive, and Archipelago Books.
+
+## Source URLs
+
+- Deep Vellum: official Shopify product JSON and product pages under `https://store.deepvellum.org/products/...`; source probe: `https://store.deepvellum.org/products.json?limit=250`.
+- Dalkey Archive: official Shopify product JSON and product pages under `https://dalkeyarchive.store/products/...`; source probes: `https://dalkeyarchive.store/products.json?limit=250` and `https://dalkeyarchive.store/collections/dalkey-archive-essentials/products.json?limit=250`.
+- Archipelago Books: official WooCommerce/WordPress product data and product pages under `https://archipelagobooks.org/book/...`; source probe: `https://archipelagobooks.org/wp-json/wc/store/products?per_page=100&page=1`.
+
+## Included metadata
+
+Only factual bibliographic/display metadata is stored: title, contributor names and roles, publisher/imprint, edition format, publication date when structured, ISBN-13, source URL, and link-only cover provenance.
+
+## Excluded content
+
+The dataset intentionally excludes jacket copy, marketing descriptions, blurbs, author bios, reviews, prices, inventory status, availability, cart/checkout/account data, and long rendered product prose.
+
+## Cover and rights assumptions
+
+Covers are stored as source URLs only. `cache_policy` must remain `link_only`; local cover caching is not permitted by this dataset. Each cover carries provider, rights basis, attribution text/link, and is subject to takedown handling in the application.
+
+Archipelago's public permissions language requires written permission to reproduce material, so Archipelago cover records use a pending-permission link-only rights basis. Legal review is required before caching covers, monetizing cover display, or importing jacket copy/descriptions at scale.
+
+## Takedown/contact policy
+
+If a rights holder asks for removal or correction, hide the relevant cover assignment through the admin cover takedown flow first, then update or remove the dataset record in a follow-up commit with source notes preserved. Publisher/source links should remain auditable in source records unless legal removal requires otherwise.
+
+## Validation
+
+Run:
+
+```bash
+MIX_ENV=test mix test test/hiraeth/real_catalog_dataset_test.exs --trace
+```
+
+The validator requires exactly 50 approved records per provider, valid ISBN-13 values, approved formats, HTTPS allowlisted cover hosts, no duplicate ISBNs, no non-book formats/SKUs, and no long copied prose fields.

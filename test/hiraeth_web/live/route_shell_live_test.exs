@@ -5,7 +5,7 @@ defmodule HiraethWeb.RouteShellLiveTest do
   alias Hiraeth.Accounts.User
 
   setup do
-    Hiraeth.DemoFixtures.seed!()
+    Hiraeth.RealCatalogFixtures.seed!()
     :ok
   end
 
@@ -13,69 +13,55 @@ defmodule HiraethWeb.RouteShellLiveTest do
     {:ok, view, _html} = live(conn, ~p"/")
 
     assert has_element?(view, "#home-shell")
-    assert has_element?(view, "#home-spotlight h2", "The Orchard of Minor Moons")
+    assert has_element?(view, "#home-spotlight")
     assert has_element?(view, "#recent-acquisitions")
   end
 
-  test "GET /browse filters books and displays details on selection", %{conn: conn} do
+  test "GET /browse filters real books and displays details on selection", %{conn: conn} do
     {:ok, view, _html} = live(conn, ~p"/browse")
 
     assert has_element?(view, "#browse-shell")
-    assert has_element?(view, "#volume-reader dd", "The Orchard of Minor Moons")
-    assert has_element?(view, "#volume-reader dd", "Iris Vale")
-    assert has_element?(view, "#catalog-index h4", "Index of Borrowed Harbors")
-    refute has_element?(view, "#catalog-index h4", "Rooms for Unwritten Letters")
+    assert has_element?(view, "#catalog-index", "150 volumes")
+    assert has_element?(view, "#catalog-page-count", "Page 1 of 75")
 
-    assert has_element?(view, "#catalog-page-count", "Page 1 of 2")
-
-    {:ok, page_two, _html} = live(conn, ~p"/browse?page=2")
-    assert has_element?(page_two, "#catalog-index h4", "Rooms for Unwritten Letters")
-
-    {:ok, filtered, _html} = live(conn, ~p"/browse?q=Harbors")
-    refute has_element?(filtered, "#catalog-index h4", "The Orchard of Minor Moons")
-    assert has_element?(filtered, "#catalog-index h4", "Index of Borrowed Harbors")
+    {:ok, filtered, _html} = live(conn, ~p"/browse?q=Tunnel")
+    assert has_element?(filtered, "#catalog-index h4", "The Tunnel")
+    assert has_element?(filtered, "#volume-reader dd", "William H. Gass")
   end
 
   test "GET /search filters items dynamically", %{conn: conn} do
     {:ok, view, _html} = live(conn, ~p"/search")
 
     assert has_element?(view, "#search-shell")
-    assert has_element?(view, "#search-results td", "The Orchard of Minor Moons")
-    assert has_element?(view, "#search-results td", "Index of Borrowed Harbors")
-    assert has_element?(view, "#search-results td", "Rooms for Unwritten Letters")
+    assert has_element?(view, "#search-results", "150 matches")
 
     view
-    |> form("#catalog-search-form", search: %{query: "Harbors"})
+    |> form("#catalog-search-form", search: %{query: "Archipelago"})
     |> render_change()
 
-    assert has_element?(view, "#search-results td", "Index of Borrowed Harbors")
-    refute has_element?(view, "#search-results td", "The Orchard of Minor Moons")
+    assert has_element?(view, "#search-results td", "Archipelago Books")
 
     view
-    |> form("#catalog-search-form", search: %{query: "]['<>☃"})
+    |> form("#catalog-search-form", search: %{query: "][\'<>☃"})
     |> render_change()
 
-    assert has_element?(view, "#search-results", "No catalog entries match")
+    assert has_element?(view, "#search-empty", "No catalog entries match")
   end
 
-  test "GET /publishers renders the curated imprints directory", %{conn: conn} do
+  test "GET /publishers renders the real publisher directory", %{conn: conn} do
     {:ok, view, _html} = live(conn, ~p"/publishers")
 
     assert has_element?(view, "#publishers-shell")
-    assert has_element?(view, "#publisher-moth-house-editions")
-    assert has_element?(view, "#publisher-lantern-current-books")
-    assert has_element?(view, "#publisher-blue-thistle-archive")
-    assert has_element?(view, "#publisher-blue-thistle-archive")
+    assert has_element?(view, "#publisher-deep-vellum")
+    assert has_element?(view, "#publisher-dalkey-archive")
+    assert has_element?(view, "#publisher-archipelago-books")
   end
 
-  test "GET /series renders grouped collection shells", %{conn: conn} do
+  test "GET /series renders grouped collection shell even when pilot data has no series", %{
+    conn: conn
+  } do
     {:ok, view, _html} = live(conn, ~p"/series")
-
     assert has_element?(view, "#series-shell")
-    assert has_element?(view, "#series-pocket-weather-library")
-    assert has_element?(view, "#series-harbor-essays")
-    assert has_element?(view, "#series-recovered-rooms")
-    assert has_element?(view, "#series-recovered-rooms")
   end
 
   test "GET /admin renders the authenticated admin shell", %{conn: conn} do

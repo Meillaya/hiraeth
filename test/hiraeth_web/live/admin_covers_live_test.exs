@@ -19,8 +19,8 @@ defmodule HiraethWeb.AdminCoversLiveTest do
     |> form("#cover-assignment-form", %{
       "cover_assignment" => %{
         "edition_id" => edition.id,
-        "source_url" => "https://example.test/covers/orchard-admin.jpg",
-        "provider" => "local_admin_test",
+        "source_url" => "https://covers.example.test/orchard-admin.jpg",
+        "provider" => "fixture-covers",
         "rights_basis" => "link_permitted",
         "attribution_text" => "Admin test cover"
       }
@@ -32,11 +32,11 @@ defmodule HiraethWeb.AdminCoversLiveTest do
       |> Ash.read!(authorize?: false)
       |> Ash.load!(:cover_asset)
       |> Enum.find(
-        &(&1.cover_asset.source_url == "https://example.test/covers/orchard-admin.jpg")
+        &(&1.cover_asset.source_url == "https://covers.example.test/orchard-admin.jpg")
       )
 
     assert assignment.visible?
-    assert assignment.cover_asset.source_url == "https://example.test/covers/orchard-admin.jpg"
+    assert assignment.cover_asset.source_url == "https://covers.example.test/orchard-admin.jpg"
 
     assert has_element?(
              view,
@@ -46,8 +46,13 @@ defmodule HiraethWeb.AdminCoversLiveTest do
     assert {:ok, public_before, public_html_before} =
              live(conn, ~p"/editions/the-orchard-of-minor-moons-paperback")
 
-    assert public_html_before =~ "https://example.test/covers/orchard-admin.jpg"
-    assert has_element?(public_before, "#cover-attribution", "Admin test cover")
+    assert public_html_before =~ "https://covers.example.test/orchard-admin.jpg"
+
+    assert has_element?(
+             public_before,
+             "#cover-attribution-the-orchard-of-minor-moons-paperback",
+             "Admin test cover"
+           )
 
     view
     |> element("#hide-cover-#{assignment.id}")
@@ -65,7 +70,7 @@ defmodule HiraethWeb.AdminCoversLiveTest do
     assert {:ok, public_after, public_html_after} =
              live(conn, ~p"/editions/the-orchard-of-minor-moons-paperback")
 
-    refute public_html_after =~ "https://example.test/covers/orchard-admin.jpg"
+    refute public_html_after =~ "https://covers.example.test/orchard-admin.jpg"
     assert has_element?(public_after, "#missing-cover-the-orchard-of-minor-moons-paperback")
   end
 

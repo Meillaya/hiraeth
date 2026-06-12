@@ -7,6 +7,7 @@ defmodule Hiraeth.ProvenanceAudit do
   """
 
   alias Hiraeth.Audit.AuditEvent
+  alias Hiraeth.Covers
   alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
   alias Hiraeth.Sources.{SourceLedgerEntry, SourceRecord}
 
@@ -124,15 +125,26 @@ defmodule Hiraeth.ProvenanceAudit do
   defp displayed_fields(_source_record), do: []
 
   defp payload_value(payload, field) do
-    field
-    |> String.split(".")
-    |> Enum.reduce(payload, fn key, acc ->
-      case acc do
-        %{} -> Map.get(acc, key)
-        _ -> nil
-      end
-    end)
+    value =
+      field
+      |> String.split(".")
+      |> Enum.reduce(payload, fn key, acc ->
+        case acc do
+          %{} -> Map.get(acc, key)
+          _ -> nil
+        end
+      end)
+
+    if is_nil(value), do: payload_value_fallback(payload, field), else: value
   end
+
+  defp payload_value_fallback(payload, field)
+       when field in ["title", "subtitle", "format", "published_on", "isbn_13"] do
+    get_in(payload, ["edition", field]) || get_in(payload, ["work", field])
+  end
+
+  defp payload_value_fallback(payload, "source_url"), do: get_in(payload, ["cover", "source_url"])
+  defp payload_value_fallback(_payload, _field), do: nil
 
   defp entity_from_source_uri(source_uri) when is_binary(source_uri) do
     case String.split(source_uri, ":edition:", parts: 2) do
@@ -201,9 +213,7 @@ defmodule Hiraeth.ProvenanceAudit do
   defp valid_public_cover?(%CoverAssignment{} = assignment) do
     case loaded_or_nil(assignment.cover_asset) do
       %CoverAsset{} = asset ->
-        asset.takedown_state == "visible" and present?(asset.source_url) and
-          present?(asset.provider) and
-          present?(asset.rights_basis)
+        Covers.public_cover_asset?(asset)
 
       _ ->
         false
@@ -214,11 +224,7 @@ defmodule Hiraeth.ProvenanceAudit do
 
   defp invalid_cover_reason(%CoverAsset{} = asset) do
     cond do
-      asset.takedown_state != "visible" -> "cover is hidden or under takedown"
-      not present?(asset.source_url) -> "cover source URL is missing"
-      not present?(asset.provider) -> "cover provider is missing"
-      not present?(asset.rights_basis) -> "cover rights basis is missing"
-      true -> "cover provenance is incomplete"
+      true -> Covers.public_cover_rejection_reason(asset)
     end
   end
 
@@ -348,8 +354,30 @@ defmodule Hiraeth.ProvenanceAudit do
   end
 
   defp value_hash(value) do
-    :crypto.hash(:sha256, to_string(value || "")) |> Base.encode16(case: :lower)
+    :crypto.hash(:sha256, hashable_value(value)) |> Base.encode16(case: :lower)
   end
+
+  defp hashable_value(nil), do: ""
+  defp hashable_value(value) when is_binary(value), do: value
+  defp hashable_value(value) when is_boolean(value) or is_number(value), do: to_string(value)
+
+  defp hashable_value(value) do
+    value
+    |> normalize_for_hash()
+    |> inspect(charlists: :as_lists, limit: :infinity, printable_limit: :infinity)
+  end
+
+  defp normalize_for_hash(%_struct{} = struct),
+    do: struct |> Map.from_struct() |> normalize_for_hash()
+
+  defp normalize_for_hash(map) when is_map(map) do
+    map
+    |> Enum.sort_by(fn {key, _value} -> to_string(key) end)
+    |> Enum.map(fn {key, value} -> {to_string(key), normalize_for_hash(value)} end)
+  end
+
+  defp normalize_for_hash(list) when is_list(list), do: Enum.map(list, &normalize_for_hash/1)
+  defp normalize_for_hash(value), do: value
 
   defp present?(value), do: is_binary(value) and String.trim(value) != ""
 

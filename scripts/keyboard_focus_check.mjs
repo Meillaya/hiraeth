@@ -27,10 +27,16 @@ const chrome = spawn(chromeBin, [
 const stderr = [];
 chrome.stderr.on("data", chunk => stderr.push(chunk.toString()));
 
+const chromeExited = new Promise(resolve => chrome.once("exit", resolve));
+let cleanedUp = false;
+
 async function cleanup() {
-  if (!chrome.killed) chrome.kill("SIGTERM");
-  await new Promise(resolve => chrome.once("exit", resolve));
-  await rm(userDataDir, {recursive: true, force: true});
+  if (cleanedUp) return;
+  cleanedUp = true;
+
+  if (chrome.exitCode === null && !chrome.killed) chrome.kill("SIGTERM");
+  await Promise.race([chromeExited, delay(2000)]);
+  await rm(userDataDir, {recursive: true, force: true, maxRetries: 10, retryDelay: 100});
 }
 
 async function delay(ms) {
@@ -154,9 +160,12 @@ async function activeElement(client) {
   return result.result.value;
 }
 
+let exitCode = 0;
+let client;
+
 try {
   const pageWs = await waitForPageWebSocket();
-  const client = new CdpClient(pageWs);
+  client = new CdpClient(pageWs);
   await client.connect();
   await client.send("Page.enable");
   await client.send("Runtime.enable");
@@ -184,18 +193,19 @@ try {
     hasVisibleFocusEvidence
   }, null, 2));
 
-  await client.close();
-  await cleanup();
-
-  if (!passed) process.exit(1);
+  if (!passed) exitCode = 1;
 } catch (error) {
+  exitCode = 1;
   await writeFile(outputPath, JSON.stringify({
     passed: false,
     targetUrl,
     error: error.message,
     chromeStderrTail: stderr.join("").slice(-1200)
   }, null, 2));
-  await cleanup();
   console.error(error);
-  process.exit(1);
+} finally {
+  if (client) await client.close();
+  await cleanup();
 }
+
+if (exitCode !== 0) process.exit(exitCode);

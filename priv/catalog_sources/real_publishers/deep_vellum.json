@@ -1,0 +1,2533 @@
+{
+  "provider": "deep_vellum_official_store",
+  "retrieved_at": "2026-06-12T00:00:00Z",
+  "license_note": "Official public publisher/store metadata; factual metadata only; cover display link-only pending explicit cache rights.",
+  "records": [
+    {
+      "source_uri": "https://store.deepvellum.org/products/immigrant",
+      "source_product_id": "9249163935993",
+      "source_sku": "9781646054541",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "Immigrant",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Immigrant",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2027-02-16",
+        "isbn_13": "9781646054541"
+      },
+      "contributors": [
+        {
+          "name": "Joaquín Zihuatanejo",
+          "role": "author"
+        },
+        {
+          "name": "David Bowles",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054541_FC.jpg?v=1781276294",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/immigrant",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/immigrant",
+      "source_product_id": "9249163935993",
+      "source_sku": "9781646054558",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "Immigrant",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Immigrant",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2027-02-16",
+        "isbn_13": "9781646054558"
+      },
+      "contributors": [
+        {
+          "name": "Joaquín Zihuatanejo",
+          "role": "author"
+        },
+        {
+          "name": "David Bowles",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054541_FC.jpg?v=1781276294",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/immigrant",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/the-robert-poems",
+      "source_product_id": "9248550453497",
+      "source_sku": "9781646054503",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "The Robert Poems",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Robert Poems",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-11-17",
+        "isbn_13": "9781646054503"
+      },
+      "contributors": [
+        {
+          "name": "S. Yarberry",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054503_FC.jpg?v=1777385151",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/the-robert-poems",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/the-robert-poems",
+      "source_product_id": "9248550453497",
+      "source_sku": "9781646054510",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "The Robert Poems",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Robert Poems",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-11-17",
+        "isbn_13": "9781646054510"
+      },
+      "contributors": [
+        {
+          "name": "S. Yarberry",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054503_FC.jpg?v=1777385151",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/the-robert-poems",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/the-river-of-blessings",
+      "source_product_id": "9190699008249",
+      "source_sku": "9781646054626",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "The River of Blessings",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The River of Blessings",
+        "subtitle": null,
+        "format": "hardcover",
+        "published_on": "2026-09-15",
+        "isbn_13": "9781646054626"
+      },
+      "contributors": [
+        {
+          "name": "David Marquis",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054626_FC.jpg?v=1780934017",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/the-river-of-blessings",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/the-river-of-blessings",
+      "source_product_id": "9190699008249",
+      "source_sku": "9781646054633",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "The River of Blessings",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The River of Blessings",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-09-15",
+        "isbn_13": "9781646054633"
+      },
+      "contributors": [
+        {
+          "name": "David Marquis",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054626_FC.jpg?v=1780934017",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/the-river-of-blessings",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/theodoros",
+      "source_product_id": "8973340770553",
+      "source_sku": "9781646054459",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "Theodoros",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Theodoros",
+        "subtitle": null,
+        "format": "hardcover",
+        "published_on": "2027-10-26",
+        "isbn_13": "9781646054459"
+      },
+      "contributors": [
+        {
+          "name": "Mircea Cărtărescu",
+          "role": "author"
+        },
+        {
+          "name": "Sean Cotter",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/Theodoros_Placeholder_3.png?v=1759873264",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/theodoros",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/theodoros",
+      "source_product_id": "8973340770553",
+      "source_sku": "9781646054466",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "Theodoros",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Theodoros",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2027-10-26",
+        "isbn_13": "9781646054466"
+      },
+      "contributors": [
+        {
+          "name": "Mircea Cărtărescu",
+          "role": "author"
+        },
+        {
+          "name": "Sean Cotter",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/Theodoros_Placeholder_3.png?v=1759873264",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/theodoros",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/best-literary-translations-2026",
+      "source_product_id": "8916048871673",
+      "source_sku": "9781646054244",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "Best Literary Translations 2026",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Best Literary Translations 2026",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-04-14",
+        "isbn_13": "9781646054244"
+      },
+      "contributors": [
+        {
+          "name": "Noh Anothai",
+          "role": "author"
+        },
+        {
+          "name": "Wendy Call",
+          "role": "author"
+        },
+        {
+          "name": "Öykü Tekten & Kọ́lá Túbọ̀sún",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/2026-BLT-cover-rgb.jpg?v=1760128369",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/best-literary-translations-2026",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/best-literary-translations-2026",
+      "source_product_id": "8916048871673",
+      "source_sku": "9781646054251",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "Best Literary Translations 2026",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Best Literary Translations 2026",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-04-14",
+        "isbn_13": "9781646054251"
+      },
+      "contributors": [
+        {
+          "name": "Noh Anothai",
+          "role": "author"
+        },
+        {
+          "name": "Wendy Call",
+          "role": "author"
+        },
+        {
+          "name": "Öykü Tekten & Kọ́lá Túbọ̀sún",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/2026-BLT-cover-rgb.jpg?v=1760128369",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/best-literary-translations-2026",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/filth-eaters",
+      "source_product_id": "8916668514553",
+      "source_sku": "9781646054305",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "Filth Eaters",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Filth Eaters",
+        "subtitle": null,
+        "format": "hardcover",
+        "published_on": "2026-05-19",
+        "isbn_13": "9781646054305"
+      },
+      "contributors": [
+        {
+          "name": "Ito Romo",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054305_FC.jpg?v=1760647665",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/filth-eaters",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/filth-eaters",
+      "source_product_id": "8916668514553",
+      "source_sku": "9781646054312",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "Filth Eaters",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Filth Eaters",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-05-19",
+        "isbn_13": "9781646054312"
+      },
+      "contributors": [
+        {
+          "name": "Ito Romo",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054305_FC.jpg?v=1760647665",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/filth-eaters",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/the-blue-book-of-nebo-ya",
+      "source_product_id": "8916668547321",
+      "source_sku": "9781646054343",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "The Blue Book of Nebo (paperback edition)",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Blue Book of Nebo (paperback edition)",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-06-16",
+        "isbn_13": "9781646054343"
+      },
+      "contributors": [
+        {
+          "name": "Manon Steffan Ros",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054343_FC.jpg?v=1762799571",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/the-blue-book-of-nebo-ya",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/the-blue-book-of-nebo-ya",
+      "source_product_id": "8916668547321",
+      "source_sku": "9781646054442",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "The Blue Book of Nebo (paperback edition)",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Blue Book of Nebo (paperback edition)",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-06-16",
+        "isbn_13": "9781646054442"
+      },
+      "contributors": [
+        {
+          "name": "Manon Steffan Ros",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054343_FC.jpg?v=1762799571",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/the-blue-book-of-nebo-ya",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/the-book-of-homes",
+      "source_product_id": "8536534614265",
+      "source_sku": "9781646053810",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "The Book of Homes",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Book of Homes",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2025-08-05",
+        "isbn_13": "9781646053810"
+      },
+      "contributors": [
+        {
+          "name": "Andrea Bajani",
+          "role": "author"
+        },
+        {
+          "name": "Elizabeth Harris",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646053933_FC.jpg?v=1740501745",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/the-book-of-homes",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/the-book-of-homes",
+      "source_product_id": "8536534614265",
+      "source_sku": "9781646053933",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "The Book of Homes",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Book of Homes",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2025-08-05",
+        "isbn_13": "9781646053933"
+      },
+      "contributors": [
+        {
+          "name": "Andrea Bajani",
+          "role": "author"
+        },
+        {
+          "name": "Elizabeth Harris",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646053933_FC.jpg?v=1740501745",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/the-book-of-homes",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/beginnings",
+      "source_product_id": "8463450767609",
+      "source_sku": "9781646053957",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "The Beginnings",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Beginnings",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-06-23",
+        "isbn_13": "9781646053957"
+      },
+      "contributors": [
+        {
+          "name": "Antonio Moresco",
+          "role": "author"
+        },
+        {
+          "name": "Max Lawton",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/unnamed_cb3437ef-b187-4a4c-80a3-946627a21c5d.jpg?v=1765559799",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/beginnings",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/beginnings",
+      "source_product_id": "8463450767609",
+      "source_sku": "9781646053964",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "The Beginnings",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Beginnings",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-06-23",
+        "isbn_13": "9781646053964"
+      },
+      "contributors": [
+        {
+          "name": "Antonio Moresco",
+          "role": "author"
+        },
+        {
+          "name": "Max Lawton",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/unnamed_cb3437ef-b187-4a4c-80a3-946627a21c5d.jpg?v=1765559799",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/beginnings",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/woodwind-harmony-in-the-nighttime",
+      "source_product_id": "8768754417913",
+      "source_sku": "9781646054190",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "Woodwind Harmony in the Nighttime",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Woodwind Harmony in the Nighttime",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-03-17",
+        "isbn_13": "9781646054190"
+      },
+      "contributors": [
+        {
+          "name": "Reza Ghassemi",
+          "role": "author"
+        },
+        {
+          "name": "Michelle Quay",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054190_FC.jpg?v=1757006273",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/woodwind-harmony-in-the-nighttime",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/woodwind-harmony-in-the-nighttime",
+      "source_product_id": "8768754417913",
+      "source_sku": "9781646054206",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "Woodwind Harmony in the Nighttime",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Woodwind Harmony in the Nighttime",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-03-17",
+        "isbn_13": "9781646054206"
+      },
+      "contributors": [
+        {
+          "name": "Reza Ghassemi",
+          "role": "author"
+        },
+        {
+          "name": "Michelle Quay",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054190_FC.jpg?v=1757006273",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/woodwind-harmony-in-the-nighttime",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/slovenian-abcs",
+      "source_product_id": "8798615535865",
+      "source_sku": "9781646054176",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "Slovenian ABCs",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Slovenian ABCs",
+        "subtitle": null,
+        "format": "hardcover",
+        "published_on": "2026-03-10",
+        "isbn_13": "9781646054176"
+      },
+      "contributors": [
+        {
+          "name": "Alyssa Owens",
+          "role": "author"
+        },
+        {
+          "name": "Stephanie Owens",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054176_FC.jpg?v=1754411610",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/slovenian-abcs",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/slovenian-abcs",
+      "source_product_id": "8798615535865",
+      "source_sku": "9781646054183",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "Slovenian ABCs",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Slovenian ABCs",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-03-10",
+        "isbn_13": "9781646054183"
+      },
+      "contributors": [
+        {
+          "name": "Alyssa Owens",
+          "role": "author"
+        },
+        {
+          "name": "Stephanie Owens",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054176_FC.jpg?v=1754411610",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/slovenian-abcs",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/invisible-years",
+      "source_product_id": "8763705491705",
+      "source_sku": "9781646054152",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "The Invisible Years",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Invisible Years",
+        "subtitle": null,
+        "format": "hardcover",
+        "published_on": "2026-02-24",
+        "isbn_13": "9781646054152"
+      },
+      "contributors": [
+        {
+          "name": "Rodrigo Hasbún",
+          "role": "author"
+        },
+        {
+          "name": "Lily Meyer",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054152_FC.jpg?v=1750865905",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/invisible-years",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/invisible-years",
+      "source_product_id": "8763705491705",
+      "source_sku": "9781646054169",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "The Invisible Years",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Invisible Years",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-02-24",
+        "isbn_13": "9781646054169"
+      },
+      "contributors": [
+        {
+          "name": "Rodrigo Hasbún",
+          "role": "author"
+        },
+        {
+          "name": "Lily Meyer",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054152_FC.jpg?v=1750865905",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/invisible-years",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/invisible-years",
+      "source_product_id": "8763705491705",
+      "source_sku": "9781646054602",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "The Invisible Years",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Invisible Years",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-02-24",
+        "isbn_13": "9781646054602"
+      },
+      "contributors": [
+        {
+          "name": "Rodrigo Hasbún",
+          "role": "author"
+        },
+        {
+          "name": "Lily Meyer",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054152_FC.jpg?v=1750865905",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/invisible-years",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/the-slaughterhouse-of-dreams",
+      "source_product_id": "8763710669049",
+      "source_sku": "9781646054114",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "The Slaughterhouse of Dreams",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Slaughterhouse of Dreams",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2025-11-18",
+        "isbn_13": "9781646054114"
+      },
+      "contributors": [
+        {
+          "name": "Fiston Mwanza Mujila",
+          "role": "author"
+        },
+        {
+          "name": "J. Bret Maney",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/SOD-jacket-091725.pdf.jpg?v=1763580248",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/the-slaughterhouse-of-dreams",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/the-slaughterhouse-of-dreams",
+      "source_product_id": "8763710669049",
+      "source_sku": "9781646054121",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "The Slaughterhouse of Dreams",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Slaughterhouse of Dreams",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2025-11-18",
+        "isbn_13": "9781646054121"
+      },
+      "contributors": [
+        {
+          "name": "Fiston Mwanza Mujila",
+          "role": "author"
+        },
+        {
+          "name": "J. Bret Maney",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/SOD-jacket-091725.pdf.jpg?v=1763580248",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/the-slaughterhouse-of-dreams",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+      "source_product_id": "8768722698489",
+      "source_sku": "9781646054091",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "The Summer My Mother Had Green Eyes",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Summer My Mother Had Green Eyes",
+        "subtitle": null,
+        "format": "hardcover",
+        "published_on": "2026-01-27",
+        "isbn_13": "9781646054091"
+      },
+      "contributors": [
+        {
+          "name": "Tatiana Țîbuleac",
+          "role": "author"
+        },
+        {
+          "name": "Monica Cure",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054091_FC.jpg?v=1759422101",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+      "source_product_id": "8768722698489",
+      "source_sku": "9781646054107",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "The Summer My Mother Had Green Eyes",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Summer My Mother Had Green Eyes",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-01-27",
+        "isbn_13": "9781646054107"
+      },
+      "contributors": [
+        {
+          "name": "Tatiana Țîbuleac",
+          "role": "author"
+        },
+        {
+          "name": "Monica Cure",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054091_FC.jpg?v=1759422101",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+      "source_product_id": "8768722698489",
+      "source_sku": "9781646054619",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "The Summer My Mother Had Green Eyes",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Summer My Mother Had Green Eyes",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-01-27",
+        "isbn_13": "9781646054619"
+      },
+      "contributors": [
+        {
+          "name": "Tatiana Țîbuleac",
+          "role": "author"
+        },
+        {
+          "name": "Monica Cure",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054091_FC.jpg?v=1759422101",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/married-life",
+      "source_product_id": "8763707490553",
+      "source_sku": "9781646054077",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "Married Life",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Married Life",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2025-11-18",
+        "isbn_13": "9781646054077"
+      },
+      "contributors": [
+        {
+          "name": "Sergio Pitol",
+          "role": "author"
+        },
+        {
+          "name": "George Henson",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054077_FC_47e05fa3-5851-4bc6-b449-45e1b6f19aab.jpg?v=1763751843",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/married-life",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/married-life",
+      "source_product_id": "8763707490553",
+      "source_sku": "9781646054084",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "Married Life",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Married Life",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2025-11-18",
+        "isbn_13": "9781646054084"
+      },
+      "contributors": [
+        {
+          "name": "Sergio Pitol",
+          "role": "author"
+        },
+        {
+          "name": "George Henson",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054077_FC_47e05fa3-5851-4bc6-b449-45e1b6f19aab.jpg?v=1763751843",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/married-life",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/the-ruins",
+      "source_product_id": "8763708866809",
+      "source_sku": "9781646054053",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "The Ruins",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Ruins",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2025-11-11",
+        "isbn_13": "9781646054053"
+      },
+      "contributors": [
+        {
+          "name": "Ye Hui",
+          "role": "author"
+        },
+        {
+          "name": "Dong Li",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054053_FC.jpg?v=1752250083",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/the-ruins",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/the-ruins",
+      "source_product_id": "8763708866809",
+      "source_sku": "9781646054060",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "The Ruins",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Ruins",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2025-11-11",
+        "isbn_13": "9781646054060"
+      },
+      "contributors": [
+        {
+          "name": "Ye Hui",
+          "role": "author"
+        },
+        {
+          "name": "Dong Li",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054053_FC.jpg?v=1752250083",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/the-ruins",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/things-and-thoughts",
+      "source_product_id": "8798530306297",
+      "source_sku": "9781646054039",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "(Th)ings and (Th)oughts",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "(Th)ings and (Th)oughts",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2025-11-04",
+        "isbn_13": "9781646054039"
+      },
+      "contributors": [
+        {
+          "name": "Alla Gorbunova",
+          "role": "author"
+        },
+        {
+          "name": "Elina Alter",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054039_FC.jpg?v=1749657482",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/things-and-thoughts",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/things-and-thoughts",
+      "source_product_id": "8798530306297",
+      "source_sku": "9781646054046",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "(Th)ings and (Th)oughts",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "(Th)ings and (Th)oughts",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2025-11-04",
+        "isbn_13": "9781646054046"
+      },
+      "contributors": [
+        {
+          "name": "Alla Gorbunova",
+          "role": "author"
+        },
+        {
+          "name": "Elina Alter",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054039_FC.jpg?v=1749657482",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/things-and-thoughts",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/what-remains",
+      "source_product_id": "7850258170105",
+      "source_sku": "9781646054015",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "What Remains",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "What Remains",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2025-10-07",
+        "isbn_13": "9781646054015"
+      },
+      "contributors": [
+        {
+          "name": "Leylâ Erbil",
+          "role": "author"
+        },
+        {
+          "name": "Alev Ersan",
+          "role": "translator"
+        },
+        {
+          "name": "Amy Spangler",
+          "role": "translator"
+        },
+        {
+          "name": "and Mark Wyers",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054015_FC.jpg?v=1756153598",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/what-remains",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/what-remains",
+      "source_product_id": "7850258170105",
+      "source_sku": "9781646054022",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "What Remains",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "What Remains",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2025-10-07",
+        "isbn_13": "9781646054022"
+      },
+      "contributors": [
+        {
+          "name": "Leylâ Erbil",
+          "role": "author"
+        },
+        {
+          "name": "Alev Ersan",
+          "role": "translator"
+        },
+        {
+          "name": "Amy Spangler",
+          "role": "translator"
+        },
+        {
+          "name": "and Mark Wyers",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054015_FC.jpg?v=1756153598",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/what-remains",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/dreams-for-earth",
+      "source_product_id": "8760492228857",
+      "source_sku": "9781646053995",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "DREAMS FOR EARTH",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "DREAMS FOR EARTH",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2025-09-23",
+        "isbn_13": "9781646053995"
+      },
+      "contributors": [
+        {
+          "name": "Fatima-Ayan Malika Hirsi",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/Dreams_for_Earth_cover_web_resized.jpg?v=1746024464",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/dreams-for-earth",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/dreams-for-earth",
+      "source_product_id": "8760492228857",
+      "source_sku": "9781646054008",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "DREAMS FOR EARTH",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "DREAMS FOR EARTH",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2025-09-23",
+        "isbn_13": "9781646054008"
+      },
+      "contributors": [
+        {
+          "name": "Fatima-Ayan Malika Hirsi",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/Dreams_for_Earth_cover_web_resized.jpg?v=1746024464",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/dreams-for-earth",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/the-animal-on-the-rock",
+      "source_product_id": "8753097736441",
+      "source_sku": "9781646053971",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "The Animal on the Rock",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Animal on the Rock",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2025-09-09",
+        "isbn_13": "9781646053971"
+      },
+      "contributors": [
+        {
+          "name": "Daniela Tarazona",
+          "role": "author"
+        },
+        {
+          "name": "Lizzie Davis",
+          "role": "translator"
+        },
+        {
+          "name": "Kevin Gerry Dunn",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646053971_FC.jpg?v=1749580390",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/the-animal-on-the-rock",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/the-animal-on-the-rock",
+      "source_product_id": "8753097736441",
+      "source_sku": "9781646053988",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "The Animal on the Rock",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Animal on the Rock",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2025-09-09",
+        "isbn_13": "9781646053988"
+      },
+      "contributors": [
+        {
+          "name": "Daniela Tarazona",
+          "role": "author"
+        },
+        {
+          "name": "Lizzie Davis",
+          "role": "translator"
+        },
+        {
+          "name": "Kevin Gerry Dunn",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646053971_FC.jpg?v=1749580390",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/the-animal-on-the-rock",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/the-pawn",
+      "source_product_id": "8677771018489",
+      "source_sku": "9781646053780",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "The Pawn",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Pawn",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2025-06-10",
+        "isbn_13": "9781646053780"
+      },
+      "contributors": [
+        {
+          "name": "Paco Cerdà",
+          "role": "author"
+        },
+        {
+          "name": "Kevin Gerry Dunn",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646053780_FC.jpg?v=1742485191",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/the-pawn",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/juvenilia",
+      "source_product_id": "8602347110649",
+      "source_sku": "9781646053773",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "Juvenilia",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Juvenilia",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2025-06-03",
+        "isbn_13": "9781646053773"
+      },
+      "contributors": [
+        {
+          "name": "Hera Lindsay Bird",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646053773_FC_e1278a0b-9a19-4530-9b83-63411344b63f.jpg?v=1742311395",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/juvenilia",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/juvenilia",
+      "source_product_id": "8602347110649",
+      "source_sku": "9781646053902",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "Juvenilia",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Juvenilia",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2025-06-03",
+        "isbn_13": "9781646053902"
+      },
+      "contributors": [
+        {
+          "name": "Hera Lindsay Bird",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646053773_FC_e1278a0b-9a19-4530-9b83-63411344b63f.jpg?v=1742311395",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/juvenilia",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/what-good-does-it-do",
+      "source_product_id": "8679191576825",
+      "source_sku": "9781646053728",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "What good does it do for a person to wake up one morning this side of the new millennium",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "What good does it do for a person to wake up one morning this side of the new millennium",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2025-09-16",
+        "isbn_13": "9781646053728"
+      },
+      "contributors": [
+        {
+          "name": "Kim Simonsen",
+          "role": "author"
+        },
+        {
+          "name": "Randi Ward",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646053728_FC.jpg?v=1744900962",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/what-good-does-it-do",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/terror-counter",
+      "source_product_id": "8677789892857",
+      "source_sku": "9781646053797",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "TERROR COUNTER",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "TERROR COUNTER",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2025-06-24",
+        "isbn_13": "9781646053797"
+      },
+      "contributors": [
+        {
+          "name": "Fargo Nissim Tbakhi",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646053797_FC.jpg?v=1744137699",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/terror-counter",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/terror-counter",
+      "source_product_id": "8677789892857",
+      "source_sku": "9781646053926",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "TERROR COUNTER",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "TERROR COUNTER",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2025-06-24",
+        "isbn_13": "9781646053926"
+      },
+      "contributors": [
+        {
+          "name": "Fargo Nissim Tbakhi",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646053797_FC.jpg?v=1744137699",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/terror-counter",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/crocodiles-at-night",
+      "source_product_id": "8677437374713",
+      "source_sku": "9781646053766",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "Crocodiles at Night",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Crocodiles at Night",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2025-05-20",
+        "isbn_13": "9781646053766"
+      },
+      "contributors": [
+        {
+          "name": "Gisela Heffes",
+          "role": "author"
+        },
+        {
+          "name": "Grady C. Wray",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646053766_FC.jpg?v=1741877042",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/crocodiles-at-night",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://store.deepvellum.org/products/gamerover",
+      "source_product_id": "8677401755897",
+      "source_sku": "9781646053759",
+      "publisher": "Deep Vellum",
+      "imprint": null,
+      "work": {
+        "title": "[gamerover]",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "[gamerover]",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2025-05-13",
+        "isbn_13": "9781646053759"
+      },
+      "contributors": [
+        {
+          "name": "Giancarlo Huapaya",
+          "role": "author"
+        },
+        {
+          "name": "Ryan Greene",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/GameroverbyGiancarloHuapaya_RGB.jpg?v=1741714106",
+        "provider": "deep_vellum_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Deep Vellum official source",
+        "attribution_url": "https://store.deepvellum.org/products/gamerover",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    }
+  ]
+}

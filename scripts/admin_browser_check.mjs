@@ -8,8 +8,11 @@ const baseUrl = process.argv[2];
 const outputDir = process.argv[3];
 const chromeBin = process.env.CHROME_BIN || "chromium";
 const debugPort = Number.parseInt(process.env.CHROME_ADMIN_DEBUG_PORT || "9228", 10);
-const email = process.env.HIRAETH_BROWSER_ADMIN_EMAIL || "demo-fixtures-admin@example.test";
+const email = process.env.HIRAETH_BROWSER_ADMIN_EMAIL || "real-catalog-admin@example.test";
 const password = process.env.HIRAETH_BROWSER_ADMIN_PASSWORD || "correct horse battery staple";
+const editionSlug = "deep-vellum-immigrant-paperback-9781646054541";
+const expectedCoverAttribution = "Cover via Deep Vellum official source";
+const expectedCoverSource = "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054541_FC.jpg?v=1781276294";
 
 if (!baseUrl || !outputDir) {
   console.error("usage: admin_browser_check.mjs <base-url> <output-dir>");
@@ -163,12 +166,14 @@ try {
     client,
     outputDir,
     baseUrl,
-    "/editions/the-orchard-of-minor-moons-paperback",
+    `/editions/${editionSlug}`,
     "desktop-cover-attribution-before-takedown"
   );
   await navigate(client, `${baseUrl}/admin/covers`);
   const hideClicked = await evaluate(client, `(() => {
-    const button = document.querySelector('button[id^="hide-cover-"]');
+    const article = [...document.querySelectorAll('#cover-assignment-list article')]
+      .find(candidate => candidate.textContent.includes(${JSON.stringify(expectedCoverSource)}));
+    const button = article ? article.querySelector('button[id^="hide-cover-"]') : null;
     if (!button) return false;
     button.click();
     return true;
@@ -182,19 +187,20 @@ try {
     client,
     outputDir,
     baseUrl,
-    "/editions/the-orchard-of-minor-moons-paperback",
+    `/editions/${editionSlug}`,
     "desktop-cover-fallback-after-takedown"
   );
 
   const adminVisible = admin.html.includes("Catalog Administration") && admin.html.includes("Admin dashboard") && admin.html.includes(email);
   const importVisible = importsIndex.html.includes("CSV imports") && importsNew.html.includes("New CSV import");
   const reviewVisible = reviewIndex.html.includes("Review queue") && reviewIndex.html.includes("Browser QA missing ISBN review item") && reviewDetail.html.includes("Review detail");
-  const coverVisible = coversBefore.html.includes("Cover governance") && coversBefore.html.includes("Browser QA cover attribution");
-  const coverAttributionVisible = coverPublicBefore.html.includes('id="cover-attribution"') && coverPublicBefore.html.includes("Browser QA cover attribution");
-  const takedownVisible = hideClicked && coversAfterHtml.includes("hidden · hidden") && coverPublicAfter.html.includes("missing-cover-the-orchard-of-minor-moons-paperback") && !coverPublicAfter.html.includes("Browser QA cover attribution");
+  const coverVisible = coversBefore.html.includes("Cover governance") && coversBefore.html.includes(expectedCoverAttribution);
+  const coverAttributionVisible = coverPublicBefore.html.includes(`id="cover-attribution-${editionSlug}"`) && coverPublicBefore.html.includes(expectedCoverAttribution);
+  const takedownVisible = hideClicked && coversAfterHtml.includes("hidden · hidden") && coverPublicAfter.html.includes(`missing-cover-${editionSlug}`) && !coverPublicAfter.html.includes(expectedCoverAttribution);
+  const passed = adminVisible && importVisible && reviewVisible && coverVisible && coverAttributionVisible && takedownVisible;
 
   await writeFile(join(outputDir, "admin-authenticated.json"), JSON.stringify({
-    passed: adminVisible && importVisible && reviewVisible && coverVisible && coverAttributionVisible && takedownVisible,
+    passed,
     email,
     reviewDetailPath: reviewDetail.path,
     containsCatalogAdministration: admin.html.includes("Catalog Administration"),
@@ -209,12 +215,12 @@ try {
     containsCoverAttribution: coverAttributionVisible,
     clickedHideForTakedown: hideClicked,
     containsHiddenTakedown: coversAfterHtml.includes("hidden · hidden"),
-    publicCoverFallsBackAfterTakedown: coverPublicAfter.html.includes("missing-cover-the-orchard-of-minor-moons-paperback") && !coverPublicAfter.html.includes("Browser QA cover attribution")
+    publicCoverFallsBackAfterTakedown: coverPublicAfter.html.includes(`missing-cover-${editionSlug}`) && !coverPublicAfter.html.includes(expectedCoverAttribution)
   }, null, 2));
 
   await client.close();
   await cleanup();
-  if (!adminVisible) process.exit(1);
+  if (!passed) process.exit(1);
 } catch (error) {
   await writeFile(join(outputDir, "admin-authenticated.json"), JSON.stringify({
     passed: false,

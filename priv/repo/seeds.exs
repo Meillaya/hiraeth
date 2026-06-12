@@ -1,5 +1,5 @@
-# Seeds provenance-safe fictional demo fixtures for local development.
+# Seeds the curated real publisher pilot catalog for local development.
 # Run with: mix run priv/repo/seeds.exs
 
-Hiraeth.DemoFixtures.seed!()
-IO.puts("seeded local_demo_fixture catalog")
+{:ok, summary} = Hiraeth.RealCatalogFixtures.seed!()
+IO.puts("seeded real publisher catalog: #{summary.editions} editions")

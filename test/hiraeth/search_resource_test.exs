@@ -68,20 +68,20 @@ defmodule Hiraeth.SearchResourceTest do
        %{
          admin: admin
        } do
-    fixture_catalog(admin, title: "Zed Archive", isbn: "978-2-2222-2222-2")
-    fixture_catalog(admin, title: "Alpha Archive", isbn: "978-3-3333-3333-3")
+    fixture_catalog(admin, title: "000 Zed Archive", isbn: "978-2-2222-2222-2")
+    fixture_catalog(admin, title: "000 Alpha Archive", isbn: "978-3-3333-3333-3")
 
     empty_titles =
       ""
-      |> search_page(limit: 100)
+      |> search_page(limit: 1_000)
       |> Map.fetch!(:results)
       |> Enum.map(& &1.title)
 
-    assert "Alpha Archive" in empty_titles
-    assert "Zed Archive" in empty_titles
+    assert "000 Alpha Archive" in empty_titles
+    assert "000 Zed Archive" in empty_titles
 
-    assert Enum.find_index(empty_titles, &(&1 == "Alpha Archive")) <
-             Enum.find_index(empty_titles, &(&1 == "Zed Archive"))
+    assert Enum.find_index(empty_titles, &(&1 == "000 Alpha Archive")) <
+             Enum.find_index(empty_titles, &(&1 == "000 Zed Archive"))
 
     assert [] = search_results("not-present-anywhere")
   end

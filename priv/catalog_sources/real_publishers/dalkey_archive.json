@@ -1,0 +1,2428 @@
+{
+  "provider": "dalkey_archive_official_store",
+  "retrieved_at": "2026-06-12T00:00:00Z",
+  "license_note": "Official public publisher/store metadata; factual metadata only; cover display link-only pending explicit cache rights.",
+  "records": [
+    {
+      "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
+      "source_product_id": "9044629782683",
+      "source_sku": "9781628976366",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "The Tunnel",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Tunnel",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-04-07",
+        "isbn_13": "9781628976366"
+      },
+      "contributors": [
+        {
+          "name": "William H. Gass",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/thetunnel.jpg?v=1687906727",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/the-tunnel",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
+      "source_product_id": "9044629782683",
+      "source_sku": "9781628976373",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "The Tunnel",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Tunnel",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-04-07",
+        "isbn_13": "9781628976373"
+      },
+      "contributors": [
+        {
+          "name": "William H. Gass",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/thetunnel.jpg?v=1687906727",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/the-tunnel",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/my-paris",
+      "source_product_id": "8889806848155",
+      "source_sku": "9781628976830",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "My Paris",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "My Paris",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2027-03-09",
+        "isbn_13": "9781628976830"
+      },
+      "contributors": [
+        {
+          "name": "Gail Scott",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976830_FC.png?v=1779982959",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/my-paris",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/my-paris",
+      "source_product_id": "8889806848155",
+      "source_sku": "9781628976847",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "My Paris",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "My Paris",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2027-03-09",
+        "isbn_13": "9781628976847"
+      },
+      "contributors": [
+        {
+          "name": "Gail Scott",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976830_FC.png?v=1779982959",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/my-paris",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/a-hyphenated-childhood",
+      "source_product_id": "8889478545563",
+      "source_sku": "9781628976694",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "A Hyphenated Childhood",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "A Hyphenated Childhood",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-09-22",
+        "isbn_13": "9781628976694"
+      },
+      "contributors": [
+        {
+          "name": "Ralph Cusack",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976694_FC.jpg?v=1778773287",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/a-hyphenated-childhood",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/a-hyphenated-childhood",
+      "source_product_id": "8889478545563",
+      "source_sku": "9781628976700",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "A Hyphenated Childhood",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "A Hyphenated Childhood",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-09-22",
+        "isbn_13": "9781628976700"
+      },
+      "contributors": [
+        {
+          "name": "Ralph Cusack",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976694_FC.jpg?v=1778773287",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/a-hyphenated-childhood",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/the-house-of-ulysses",
+      "source_product_id": "8889800294555",
+      "source_sku": "9781628976793",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "The House of Ulysses",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The House of Ulysses",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2027-02-09",
+        "isbn_13": "9781628976793"
+      },
+      "contributors": [
+        {
+          "name": "Julián Rios",
+          "role": "author"
+        },
+        {
+          "name": "Nick Caistor",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/Ulysses_Rios.jpg?v=1777558056",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/the-house-of-ulysses",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/the-house-of-ulysses",
+      "source_product_id": "8889800294555",
+      "source_sku": "9781628976809",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "The House of Ulysses",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The House of Ulysses",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2027-02-09",
+        "isbn_13": "9781628976809"
+      },
+      "contributors": [
+        {
+          "name": "Julián Rios",
+          "role": "author"
+        },
+        {
+          "name": "Nick Caistor",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/Ulysses_Rios.jpg?v=1777558056",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/the-house-of-ulysses",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/b-moondocks",
+      "source_product_id": "8889791512731",
+      "source_sku": "9781628976816",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "B/Moondocks",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "B/Moondocks",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2027-02-23",
+        "isbn_13": "9781628976816"
+      },
+      "contributors": [
+        {
+          "name": "Arno Schmidt",
+          "role": "author"
+        },
+        {
+          "name": "John E. Woods",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976816_FC.png?v=1779982906",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/b-moondocks",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/b-moondocks",
+      "source_product_id": "8889791512731",
+      "source_sku": "9781628976823",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "B/Moondocks",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "B/Moondocks",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2027-02-23",
+        "isbn_13": "9781628976823"
+      },
+      "contributors": [
+        {
+          "name": "Arno Schmidt",
+          "role": "author"
+        },
+        {
+          "name": "John E. Woods",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976816_FC.png?v=1779982906",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/b-moondocks",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/the-stars",
+      "source_product_id": "8889787056283",
+      "source_sku": "9781628976854",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "The Stars",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Stars",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2027-03-16",
+        "isbn_13": "9781628976854"
+      },
+      "contributors": [
+        {
+          "name": "Carlos Maleno",
+          "role": "author"
+        },
+        {
+          "name": "Eric Kurtzke",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976854_FC.jpg?v=1775750429",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/the-stars",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/the-stars",
+      "source_product_id": "8889787056283",
+      "source_sku": "9781628976861",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "The Stars",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Stars",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2027-03-16",
+        "isbn_13": "9781628976861"
+      },
+      "contributors": [
+        {
+          "name": "Carlos Maleno",
+          "role": "author"
+        },
+        {
+          "name": "Eric Kurtzke",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976854_FC.jpg?v=1775750429",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/the-stars",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/imago-bird-essentials",
+      "source_product_id": "8889749110939",
+      "source_sku": "9781628976878",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Imago Bird",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Imago Bird",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2027-03-23",
+        "isbn_13": "9781628976878"
+      },
+      "contributors": [
+        {
+          "name": "Nicholas Mosley",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976878_FC.jpg?v=1777989643",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/imago-bird-essentials",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/imago-bird-essentials",
+      "source_product_id": "8889749110939",
+      "source_sku": "9781628976885",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Imago Bird",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Imago Bird",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2027-03-23",
+        "isbn_13": "9781628976885"
+      },
+      "contributors": [
+        {
+          "name": "Nicholas Mosley",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976878_FC.jpg?v=1777989643",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/imago-bird-essentials",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/tlooth",
+      "source_product_id": "8889567445147",
+      "source_sku": "9781628976755",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Tlooth",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Tlooth",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-11-17",
+        "isbn_13": "9781628976755"
+      },
+      "contributors": [
+        {
+          "name": "Harry Mathews",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/Addaheading.jpg?v=1755815372",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/tlooth",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/tlooth",
+      "source_product_id": "8889567445147",
+      "source_sku": "9781628976762",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Tlooth",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Tlooth",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-11-17",
+        "isbn_13": "9781628976762"
+      },
+      "contributors": [
+        {
+          "name": "Harry Mathews",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/Addaheading.jpg?v=1755815372",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/tlooth",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/hackenfellers-ape",
+      "source_product_id": "8889552502939",
+      "source_sku": "9781628976731",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Hackenfeller's Ape",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Hackenfeller's Ape",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-10-13",
+        "isbn_13": "9781628976731"
+      },
+      "contributors": [
+        {
+          "name": "Brigid Brophy",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976731_FC.jpg?v=1778091027",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/hackenfellers-ape",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/hackenfellers-ape",
+      "source_product_id": "8889552502939",
+      "source_sku": "9781628976748",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Hackenfeller's Ape",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Hackenfeller's Ape",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-10-13",
+        "isbn_13": "9781628976748"
+      },
+      "contributors": [
+        {
+          "name": "Brigid Brophy",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976731_FC.jpg?v=1778091027",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/hackenfellers-ape",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/in-transit-essentials",
+      "source_product_id": "8889502138523",
+      "source_sku": "9781628976717",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "In Transit",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "In Transit",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-10-13",
+        "isbn_13": "9781628976717"
+      },
+      "contributors": [
+        {
+          "name": "Brigid Brophy",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976717_FC.png?v=1779983021",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/in-transit-essentials",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/in-transit-essentials",
+      "source_product_id": "8889502138523",
+      "source_sku": "9781628976724",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "In Transit",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "In Transit",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-10-13",
+        "isbn_13": "9781628976724"
+      },
+      "contributors": [
+        {
+          "name": "Brigid Brophy",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976717_FC.png?v=1779983021",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/in-transit-essentials",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/the-terrible",
+      "source_product_id": "8889442009243",
+      "source_sku": "9781628976656",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "The Terrible",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Terrible",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2027-03-02",
+        "isbn_13": "9781628976656"
+      },
+      "contributors": [
+        {
+          "name": "Michael Bible",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976656_FC.jpg?v=1778174818",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/the-terrible",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/the-terrible",
+      "source_product_id": "8889442009243",
+      "source_sku": "9781628976663",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "The Terrible",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Terrible",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2027-03-02",
+        "isbn_13": "9781628976663"
+      },
+      "contributors": [
+        {
+          "name": "Michael Bible",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976656_FC.jpg?v=1778174818",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/the-terrible",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/cadenza-essentials",
+      "source_product_id": "8889403244699",
+      "source_sku": "9781628976670",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Cadenza",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Cadenza",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-09-22",
+        "isbn_13": "9781628976670"
+      },
+      "contributors": [
+        {
+          "name": "Ralph Cusack",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976670_FC.png?v=1779983065",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/cadenza-essentials",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/cadenza-essentials",
+      "source_product_id": "8889403244699",
+      "source_sku": "9781628976687",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Cadenza",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Cadenza",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-09-22",
+        "isbn_13": "9781628976687"
+      },
+      "contributors": [
+        {
+          "name": "Ralph Cusack",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976670_FC.png?v=1779983065",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/cadenza-essentials",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/paradise",
+      "source_product_id": "8762087866523",
+      "source_sku": "9781564784032",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Paradise",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Paradise",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": null,
+        "isbn_13": "9781564784032"
+      },
+      "contributors": [
+        {
+          "name": "Donald Barthelme",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781564784032_FC.jpg?v=1762983653",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/paradise",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/nellys-version",
+      "source_product_id": "8596196360347",
+      "source_sku": "9781628976618",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Nelly's Version",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Nelly's Version",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-08-16",
+        "isbn_13": "9781628976618"
+      },
+      "contributors": [
+        {
+          "name": "Eva Figes",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976618_FC.jpg?v=1761150057",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/nellys-version",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/nellys-version",
+      "source_product_id": "8596196360347",
+      "source_sku": "9781628976625",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Nelly's Version",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Nelly's Version",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-08-16",
+        "isbn_13": "9781628976625"
+      },
+      "contributors": [
+        {
+          "name": "Eva Figes",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976618_FC.jpg?v=1761150057",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/nellys-version",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/melancholy-i-ii",
+      "source_product_id": "8596185022619",
+      "source_sku": "9781628976571",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Melancholy I & II",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Melancholy I & II",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-07-28",
+        "isbn_13": "9781628976571"
+      },
+      "contributors": [
+        {
+          "name": "Jon Fosse",
+          "role": "author"
+        },
+        {
+          "name": "Grethe Kvernes",
+          "role": "translator"
+        },
+        {
+          "name": "Damion Searls",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976571_FC.jpg?v=1768508163",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/melancholy-i-ii",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/melancholy-i-ii",
+      "source_product_id": "8596185022619",
+      "source_sku": "9781628976588",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Melancholy I & II",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Melancholy I & II",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-07-28",
+        "isbn_13": "9781628976588"
+      },
+      "contributors": [
+        {
+          "name": "Jon Fosse",
+          "role": "author"
+        },
+        {
+          "name": "Grethe Kvernes",
+          "role": "translator"
+        },
+        {
+          "name": "Damion Searls",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976571_FC.jpg?v=1768508163",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/melancholy-i-ii",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/killoyle-1",
+      "source_product_id": "8591241937051",
+      "source_sku": "9781628976496",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Killoyle",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Killoyle",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-06-16",
+        "isbn_13": "9781628976496"
+      },
+      "contributors": [
+        {
+          "name": "Roger Boylan",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976502_FC.jpg?v=1774365960",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/killoyle-1",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/killoyle-1",
+      "source_product_id": "8591241937051",
+      "source_sku": "9781628976502",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Killoyle",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Killoyle",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-06-16",
+        "isbn_13": "9781628976502"
+      },
+      "contributors": [
+        {
+          "name": "Roger Boylan",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976502_FC.jpg?v=1774365960",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/killoyle-1",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/singular-pleasures",
+      "source_product_id": "8575919882395",
+      "source_sku": "9781628976472",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Singular Pleasures",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Singular Pleasures",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-08-04",
+        "isbn_13": "9781628976472"
+      },
+      "contributors": [
+        {
+          "name": "Harry Mathews",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976472_FC.jpg?v=1768601890",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/singular-pleasures",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/singular-pleasures",
+      "source_product_id": "8575919882395",
+      "source_sku": "9781628976489",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Singular Pleasures",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Singular Pleasures",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-08-04",
+        "isbn_13": "9781628976489"
+      },
+      "contributors": [
+        {
+          "name": "Harry Mathews",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976472_FC.jpg?v=1768601890",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/singular-pleasures",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/self-control-copy",
+      "source_product_id": "8596178567323",
+      "source_sku": "9781628976533",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Self-Control",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Self-Control",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-07-14",
+        "isbn_13": "9781628976533"
+      },
+      "contributors": [
+        {
+          "name": "Stig Sæterbakken",
+          "role": "author"
+        },
+        {
+          "name": "Seán Kinsella",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976533_FC.jpg?v=1760987468",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/self-control-copy",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/self-control-copy",
+      "source_product_id": "8596178567323",
+      "source_sku": "9781628976540",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Self-Control",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Self-Control",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-07-14",
+        "isbn_13": "9781628976540"
+      },
+      "contributors": [
+        {
+          "name": "Stig Sæterbakken",
+          "role": "author"
+        },
+        {
+          "name": "Seán Kinsella",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976533_FC.jpg?v=1760987468",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/self-control-copy",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/the-fountain-of-youth",
+      "source_product_id": "8596176011419",
+      "source_sku": "9781628976519",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "The Fountain of Youth",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Fountain of Youth",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-07-07",
+        "isbn_13": "9781628976519"
+      },
+      "contributors": [
+        {
+          "name": "John Kinsella",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628975703_FC.jpg?v=1757445906",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/the-fountain-of-youth",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/the-fountain-of-youth",
+      "source_product_id": "8596176011419",
+      "source_sku": "9781628976526",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "The Fountain of Youth",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Fountain of Youth",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-07-07",
+        "isbn_13": "9781628976526"
+      },
+      "contributors": [
+        {
+          "name": "John Kinsella",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628975703_FC.jpg?v=1757445906",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/the-fountain-of-youth",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/dead-as-doornails",
+      "source_product_id": "7440214196379",
+      "source_sku": "9781628976434",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Dead as Doornails",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Dead as Doornails",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-05-12",
+        "isbn_13": "9781628976434"
+      },
+      "contributors": [
+        {
+          "name": "Anthony Cronin",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976434_FC_dffb7e42-4635-4d6f-abd7-29838a1f4fde.jpg?v=1778599791",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/dead-as-doornails",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/dead-as-doornails",
+      "source_product_id": "7440214196379",
+      "source_sku": "9781628976441",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Dead as Doornails",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Dead as Doornails",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-05-12",
+        "isbn_13": "9781628976441"
+      },
+      "contributors": [
+        {
+          "name": "Anthony Cronin",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976434_FC_dffb7e42-4635-4d6f-abd7-29838a1f4fde.jpg?v=1778599791",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/dead-as-doornails",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/the-trick-is-to-keep-breathing-1",
+      "source_product_id": "8575905759387",
+      "source_sku": "9781628976458",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "The Trick Is To Keep Breathing",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Trick Is To Keep Breathing",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-05-26",
+        "isbn_13": "9781628976458"
+      },
+      "contributors": [
+        {
+          "name": "Janice Galloway",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976458_FC.jpg?v=1766424618",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/the-trick-is-to-keep-breathing-1",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/the-trick-is-to-keep-breathing-1",
+      "source_product_id": "8575905759387",
+      "source_sku": "9781628976465",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "The Trick Is To Keep Breathing",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Trick Is To Keep Breathing",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-05-26",
+        "isbn_13": "9781628976465"
+      },
+      "contributors": [
+        {
+          "name": "Janice Galloway",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976458_FC.jpg?v=1766424618",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/the-trick-is-to-keep-breathing-1",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/the-ginger-man-letters",
+      "source_product_id": "7440203645083",
+      "source_sku": "9781628976410",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "The Ginger Man Letters",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Ginger Man Letters",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-05-05",
+        "isbn_13": "9781628976410"
+      },
+      "contributors": [
+        {
+          "name": "J. P. Donleavy",
+          "role": "author"
+        },
+        {
+          "name": "Gainor Crist",
+          "role": "author"
+        },
+        {
+          "name": "and A. K. Donoghue",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976410_FC.jpg?v=1768509396",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/the-ginger-man-letters",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/the-ginger-man-letters",
+      "source_product_id": "7440203645083",
+      "source_sku": "9781628976427",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "The Ginger Man Letters",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Ginger Man Letters",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-05-05",
+        "isbn_13": "9781628976427"
+      },
+      "contributors": [
+        {
+          "name": "J. P. Donleavy",
+          "role": "author"
+        },
+        {
+          "name": "Gainor Crist",
+          "role": "author"
+        },
+        {
+          "name": "and A. K. Donoghue",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976410_FC.jpg?v=1768509396",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/the-ginger-man-letters",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/ladies-almanack-1",
+      "source_product_id": "8451867771035",
+      "source_sku": "9781628975581",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Ladies Almanack",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Ladies Almanack",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-02-17",
+        "isbn_13": "9781628975581"
+      },
+      "contributors": [
+        {
+          "name": "Djuna Barnes",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628975581_FC_baca7cc2-26d7-4bcb-9ced-ad6e322336ef.jpg?v=1759853424",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/ladies-almanack-1",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/hopeful-monsters",
+      "source_product_id": "8228017733787",
+      "source_sku": "9781628975741",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Hopeful Monsters",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Hopeful Monsters",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-03-10",
+        "isbn_13": "9781628975741"
+      },
+      "contributors": [
+        {
+          "name": "Nicholas Mosley",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628975741_FC.jpg?v=1752682027",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/hopeful-monsters",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/hopeful-monsters",
+      "source_product_id": "8228017733787",
+      "source_sku": "9781628976229",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Hopeful Monsters",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Hopeful Monsters",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-03-10",
+        "isbn_13": "9781628976229"
+      },
+      "contributors": [
+        {
+          "name": "Nicholas Mosley",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628975741_FC.jpg?v=1752682027",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/hopeful-monsters",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/antic-hay",
+      "source_product_id": "8451814621339",
+      "source_sku": "9781628975680",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Antic Hay",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Antic Hay",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-01-20",
+        "isbn_13": "9781628975680"
+      },
+      "contributors": [
+        {
+          "name": "Aldous Huxley",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628975680_FC.jpg?v=1755815512",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/antic-hay",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/palinuro-of-mexico",
+      "source_product_id": "8451934814363",
+      "source_sku": "9781628975635",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Palinuro of Mexico",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Palinuro of Mexico",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-01-06",
+        "isbn_13": "9781628975635"
+      },
+      "contributors": [
+        {
+          "name": "Fernando del Paso",
+          "role": "author"
+        },
+        {
+          "name": "Elizabeth Plaister",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/Palinuro-cover-082725.jpg?v=1756324602",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/palinuro-of-mexico",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/palinuro-of-mexico",
+      "source_product_id": "8451934814363",
+      "source_sku": "9781628976359",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "Palinuro of Mexico",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "Palinuro of Mexico",
+        "subtitle": null,
+        "format": "ebook",
+        "published_on": "2026-01-06",
+        "isbn_13": "9781628976359"
+      },
+      "contributors": [
+        {
+          "name": "Fernando del Paso",
+          "role": "author"
+        },
+        {
+          "name": "Elizabeth Plaister",
+          "role": "translator"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/Palinuro-cover-082725.jpg?v=1756324602",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/palinuro-of-mexico",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    },
+    {
+      "source_uri": "https://dalkeyarchive.store/products/the-conversions",
+      "source_product_id": "8451833659547",
+      "source_sku": "9781628976304",
+      "publisher": "Dalkey Archive",
+      "imprint": null,
+      "work": {
+        "title": "The Conversions",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published"
+      },
+      "edition": {
+        "title": "The Conversions",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2025-11-04",
+        "isbn_13": "9781628976304"
+      },
+      "contributors": [
+        {
+          "name": "Harry Mathews",
+          "role": "author"
+        }
+      ],
+      "cover": {
+        "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/Conversions_Cover-Final.jpg?v=1754948211",
+        "provider": "dalkey_archive_official_store",
+        "rights_basis": "publisher_store_link_only",
+        "attribution_text": "Cover via Dalkey Archive official source",
+        "attribution_url": "https://dalkeyarchive.store/products/the-conversions",
+        "cache_policy": "link_only"
+      },
+      "displayed_fields": [
+        "title",
+        "contributors",
+        "publisher",
+        "format",
+        "published_on",
+        "isbn_13",
+        "cover"
+      ],
+      "curation": {
+        "status": "approved",
+        "notes": "Manual source review completed. No jacket copy imported."
+      }
+    }
+  ]
+}

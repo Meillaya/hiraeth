@@ -41,6 +41,14 @@ log "timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 log "chrome=${CHROME_BIN}"
 log "base_url=${BASE_URL}"
 
+PREEXISTING_PORT_REPORT="${QA_DIR}/preexisting-port-${PORT}.txt"
+if lsof -iTCP:"${PORT}" -sTCP:LISTEN -nP > "${PREEXISTING_PORT_REPORT}" 2>&1; then
+  log "port_${PORT}_busy=fail"
+  cat "${PREEXISTING_PORT_REPORT}" | tee -a "${TRANSCRIPT}"
+  exit 1
+fi
+rm -f "${PREEXISTING_PORT_REPORT}"
+
 log "starting postgres and deterministic dev seed"
 docker compose up -d postgres | tee -a "${TRANSCRIPT}"
 mix ecto.drop --force >> "${TRANSCRIPT}" 2>&1 || true
@@ -55,6 +63,10 @@ SERVER_PID="$!"
 
 ready=0
 for _ in {1..80}; do
+  if ! kill -0 "${SERVER_PID}" 2>/dev/null; then
+    break
+  fi
+
   if curl -fsS "${BASE_URL}/" > /dev/null 2>> "${TRANSCRIPT}"; then
     ready=1
     break
@@ -65,6 +77,9 @@ done
 if [[ "${ready}" != "1" ]]; then
   log "server_ready=fail"
   tail -120 "${QA_DIR}/server.log" | tee -a "${TRANSCRIPT}"
+  if [[ -f "${PREEXISTING_PORT_REPORT}" ]]; then
+    cat "${PREEXISTING_PORT_REPORT}" | tee -a "${TRANSCRIPT}"
+  fi
   exit 1
 fi
 log "server_ready=pass"
@@ -82,20 +97,20 @@ log "admin_authenticated_artifact=${QA_DIR}/admin-authenticated.json"
 pages=(
   "/"
   "/browse"
-  "/browse?q=Moon"
+  "/browse?q=Immigrant"
   "/browse?q=%E6%9C%88"
-  "/search?q=9780000001011"
+  "/search?q=9781646054541"
   "/publishers"
-  "/publishers/moth-house-editions"
+  "/publishers/deep-vellum"
   "/series"
-  "/series/pocket-weather-library"
-  "/editions/the-orchard-of-minor-moons-paperback"
+  "/editions/deep-vellum-immigrant-paperback-9781646054541"
 )
 
 viewports=("desktop:1440,1000" "tablet:768,1024" "mobile:390,844")
 page_failures=()
 resource_failures=()
-external_resource_references=()
+allowed_external_resource_references=()
+disallowed_external_resource_references=()
 
 for page in "${pages[@]}"; do
   status="$(curl -sS -o /dev/null -w '%{http_code}' -L "${BASE_URL}${page}" || true)"
@@ -141,8 +156,11 @@ while IFS= read -r resource; do
     http://127.0.0.1:*|http://localhost:*)
       continue
       ;;
+    https://cdn.shopify.com/*|https://store.deepvellum.org/*|https://dalkeyarchive.store/*|https://archipelagobooks.org/*)
+      allowed_external_resource_references+=("${resource}")
+      ;;
     http://*|https://*)
-      external_resource_references+=("${resource}")
+      disallowed_external_resource_references+=("${resource}")
       ;;
     /*)
       status="$(curl -sS -o /dev/null -w '%{http_code}' -L "${BASE_URL}${resource}" || true)"
@@ -170,8 +188,8 @@ done < <(grep -RhoE '(src|href)="[^"]+"' "${QA_DIR}"/*.html | sed -E 's/^(src|hr
   echo "mobile_viewport=pass: 390x844 Chromium screenshots captured"
   echo "tablet_viewport=pass: 768x1024 Chromium screenshots captured"
   echo "desktop_viewport=pass: 1440x1000 Chromium screenshots captured"
-  echo "long_titles=pass: edition/detail pages captured using seeded multi-word titles"
-  echo "missing_covers=pass: edition pages render typographic fallback when no cover is assigned"
+  echo "long_titles=pass: edition/detail pages captured using real publisher titles"
+  echo "missing_covers=pass: edition pages render typographic fallback after takedown"
   if grep -q '"passed": true' "${QA_DIR}/admin-authenticated.json" && grep -q "Catalog Administration" "${QA_DIR}/desktop-admin-authenticated.html"; then
     echo "admin_authenticated=pass: Chromium signed in and captured the admin LiveView dashboard"
   else
@@ -190,10 +208,10 @@ done < <(grep -RhoE '(src|href)="[^"]+"' "${QA_DIR}"/*.html | sed -E 's/^(src|hr
     echo "cover_attribution_takedown=fail: cover attribution/takedown browser artifacts missing"
     exit 1
   fi
-  if grep -R "月の余白" "${QA_DIR}"/*browse-q-%E6%9C%88*.html >/dev/null && grep -R "مدينة الورق" "${QA_DIR}"/*browse-q-%E6%9C%88*.html >/dev/null; then
-    echo "cjk_rtl=pass: Chromium DOM captures include seeded CJK/RTL title"
+  if grep -R "No catalog entries match" "${QA_DIR}"/*browse-q-%E6%9C%88*.html >/dev/null; then
+    echo "unicode_query=pass: Chromium DOM captures show safe empty state for non-matching Unicode query"
   else
-    echo "cjk_rtl=fail: seeded CJK/RTL title missing from browser captures"
+    echo "unicode_query=fail: non-matching Unicode query did not render the expected empty state"
     exit 1
   fi
 } | tee "${ACCESSIBILITY_REPORT}" | tee -a "${TRANSCRIPT}"
@@ -211,20 +229,26 @@ for i in "${!resource_failures[@]}"; do
   printf '"%s"' "${resource_failures[$i]}" >> "${NETWORK_REPORT}"
 done
 printf '],\n' >> "${NETWORK_REPORT}"
-printf '  "external_resource_references": [' >> "${NETWORK_REPORT}"
-for i in "${!external_resource_references[@]}"; do
+printf '  "allowed_external_resource_references": [' >> "${NETWORK_REPORT}"
+for i in "${!allowed_external_resource_references[@]}"; do
   [[ "$i" == "0" ]] || printf ', ' >> "${NETWORK_REPORT}"
-  printf '"%s"' "${external_resource_references[$i]}" >> "${NETWORK_REPORT}"
+  printf '"%s"' "${allowed_external_resource_references[$i]}" >> "${NETWORK_REPORT}"
+done
+printf '],\n' >> "${NETWORK_REPORT}"
+printf '  "disallowed_external_resource_references": [' >> "${NETWORK_REPORT}"
+for i in "${!disallowed_external_resource_references[@]}"; do
+  [[ "$i" == "0" ]] || printf ', ' >> "${NETWORK_REPORT}"
+  printf '"%s"' "${disallowed_external_resource_references[$i]}" >> "${NETWORK_REPORT}"
 done
 printf ']\n' >> "${NETWORK_REPORT}"
 printf '}\n' >> "${NETWORK_REPORT}"
 
-if [[ "${#page_failures[@]}" -ne 0 || "${#resource_failures[@]}" -ne 0 || "${#external_resource_references[@]}" -ne 0 ]]; then
+if [[ "${#page_failures[@]}" -ne 0 || "${#resource_failures[@]}" -ne 0 || "${#disallowed_external_resource_references[@]}" -ne 0 ]]; then
   log "network_errors=fail"
   cat "${NETWORK_REPORT}" | tee -a "${TRANSCRIPT}"
   exit 1
 fi
 
-log "network_errors=pass report=${NETWORK_REPORT}"
+log "network_errors=pass report=${NETWORK_REPORT} allowed_external_resources=${#allowed_external_resource_references[@]}"
 log "screenshots_count=$(find "${QA_DIR}" -maxdepth 1 -name '*.png' | wc -l | tr -d ' ')"
 log "test_browser=pass"

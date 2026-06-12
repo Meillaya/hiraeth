@@ -14,7 +14,7 @@ defmodule Mix.Tasks.Hiraeth.AuditProvenance do
         aliases: [o: :output_dir]
       )
 
-    if Keyword.get(opts, :seed, false), do: Hiraeth.DemoFixtures.seed!()
+    if Keyword.get(opts, :seed, false), do: Hiraeth.RealCatalogFixtures.seed!()
 
     output_dir = Keyword.get(opts, :output_dir, "artifacts/qa/provenance")
     fail_on_error? = not Keyword.get(opts, :no_fail, false)

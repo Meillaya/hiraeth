@@ -19,7 +19,7 @@ defmodule HiraethWeb.CatalogComponents do
         class="aspect-[2/3] w-full rounded-sm border border-[#E7E2D8] object-cover shadow-sm dark:border-[#2E2A27]"
       />
       <figcaption
-        id="cover-attribution"
+        id={"cover-attribution-#{@book.slug}"}
         class="text-[10px] font-mono uppercase tracking-wider text-stone-600 dark:text-stone-400"
       >
         {@book.cover.attribution_text || @book.cover.provider}
@@ -161,6 +161,10 @@ defmodule HiraethWeb.CatalogComponents do
         <p>
           Provider:
           <span class="font-semibold text-stone-900 dark:text-stone-100">{@source.provider}</span>
+        </p>
+        <p :if={@source[:source_type]}>
+          Source type:
+          <span class="font-mono text-stone-900 dark:text-stone-100">{@source.source_type}</span>
         </p>
         <p :if={@source[:source_uri]}>
           Source record:

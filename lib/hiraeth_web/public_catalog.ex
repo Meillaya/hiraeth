@@ -7,6 +7,7 @@ defmodule HiraethWeb.PublicCatalog do
   """
 
   alias Hiraeth.Catalog.{Edition, Publisher, Series}
+  alias Hiraeth.Covers
   alias Hiraeth.Sources.SourceRecord
 
   @page_size 2
@@ -157,18 +158,22 @@ defmodule HiraethWeb.PublicCatalog do
   end
 
   defp attach_sources(editions) do
-    source_by_uri =
+    source_records =
       SourceRecord
       |> Ash.Query.for_read(:read)
       |> Ash.read!()
-      |> Map.new(&{&1.source_uri, source_projection(&1)})
+
+    source_by_uri = Map.new(source_records, &{&1.source_uri, source_projection(&1)})
+    source_by_isbn = source_by_isbn(source_records)
 
     editions
     |> Enum.map(fn edition ->
       source =
         edition
         |> Map.fetch!(:source_uri_candidates)
-        |> Enum.find_value(&Map.get(source_by_uri, &1))
+        |> Enum.find_value(&Map.get(source_by_uri, &1)) ||
+          edition.identifiers
+          |> Enum.find_value(&Map.get(source_by_isbn, &1))
 
       edition
       |> Map.put(:source, source)
@@ -176,6 +181,15 @@ defmodule HiraethWeb.PublicCatalog do
       |> Map.delete(:source_uri_candidates)
     end)
     |> Enum.reject(&is_nil(&1.source))
+  end
+
+  defp source_by_isbn(source_records) do
+    source_records
+    |> Enum.flat_map(fn source_record ->
+      isbn = get_in(source_record.raw_payload || %{}, ["edition", "isbn_13"])
+      if is_binary(isbn), do: [{isbn, source_projection(source_record)}], else: []
+    end)
+    |> Map.new()
   end
 
   defp source_projection(source_record) do
@@ -194,8 +208,7 @@ defmodule HiraethWeb.PublicCatalog do
     |> Enum.filter(fn assignment ->
       asset = loaded_or_nil(assignment.cover_asset)
 
-      ((assignment.visible? and asset) && asset.takedown_state == "visible") and
-        is_binary(asset.source_url) and String.trim(asset.source_url) != ""
+      assignment.visible? and Covers.public_cover_asset?(asset)
     end)
     |> Enum.sort_by(&{&1.position || 0, &1.id})
     |> List.first()

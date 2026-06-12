@@ -5,6 +5,7 @@ defmodule HiraethWeb.UiStatesLiveTest do
 
   alias Hiraeth.Accounts.User
   alias Hiraeth.Catalog.{Edition, Publisher, Series, SeriesMembership, Work}
+  alias Hiraeth.Repo
   alias Hiraeth.Sources.SourceRecord
   alias Hiraeth.Imports.{ImportMapping, ImportRun, ReviewItem, StagedImportRow}
   alias HiraethWeb.CatalogComponents
@@ -152,6 +153,24 @@ defmodule HiraethWeb.UiStatesLiveTest do
   end
 
   defp clear_imports! do
+    ImportRun
+    |> Ash.read!(authorize?: false)
+    |> Enum.each(fn run ->
+      run_id = Ecto.UUID.dump!(run.id)
+
+      Repo.query!(
+        """
+        DELETE FROM source_ledger_entries
+        WHERE source_record_id IN (
+          SELECT id FROM source_records WHERE import_run_id = $1
+        )
+        """,
+        [run_id]
+      )
+
+      Repo.query!("DELETE FROM source_records WHERE import_run_id = $1", [run_id])
+    end)
+
     [ReviewItem, ImportMapping, StagedImportRow, ImportRun]
     |> Enum.each(fn resource ->
       resource

@@ -159,7 +159,7 @@ defmodule HiraethWeb.AdminCatalogLiveTest do
       create!(
         Edition,
         %{
-          title: "Editable Edition",
+          title: "000 Editable Edition",
           slug: unique_slug("editable-edition"),
           publisher_id: publisher.id,
           work_id: work.id

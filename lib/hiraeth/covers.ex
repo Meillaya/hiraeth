@@ -2,6 +2,7 @@ defmodule Hiraeth.Covers do
   use Ash.Domain
 
   alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
+  alias Hiraeth.RealCatalog.SourcePolicy
 
   resources do
     resource Hiraeth.Covers.CoverAsset
@@ -65,9 +66,50 @@ defmodule Hiraeth.Covers do
     audit
   end
 
-  defp public_cover_asset?(%CoverAsset{} = cover_asset) do
+  def public_cover_asset?(%CoverAsset{} = cover_asset) do
+    uri = parse_uri(cover_asset.source_url)
+
     cover_asset.takedown_state == "visible" and present?(cover_asset.source_url) and
-      present?(cover_asset.provider) and present?(cover_asset.rights_basis)
+      present?(cover_asset.provider) and present?(cover_asset.rights_basis) and
+      cover_asset.cache_policy == "link_only" and not present?(cover_asset.cached_file_path) and
+      uri.scheme == "https" and SourcePolicy.cover_host_allowed?(cover_asset.provider, uri.host)
+  end
+
+  def public_cover_asset?(_cover_asset), do: false
+
+  def public_cover_rejection_reason(nil), do: "cover assignment has no cover asset"
+
+  def public_cover_rejection_reason(%CoverAsset{} = asset) do
+    uri = parse_uri(asset.source_url)
+
+    cond do
+      asset.takedown_state != "visible" ->
+        "cover is hidden or under takedown"
+
+      not present?(asset.source_url) ->
+        "cover source URL is missing"
+
+      not present?(asset.provider) ->
+        "cover provider is missing"
+
+      not present?(asset.rights_basis) ->
+        "cover rights basis is missing"
+
+      asset.cache_policy != "link_only" ->
+        "cover cache_policy must be link_only"
+
+      present?(asset.cached_file_path) ->
+        "cover cache file path is not allowed for link-only public display"
+
+      uri.scheme != "https" ->
+        "cover source URL must be HTTPS"
+
+      not SourcePolicy.cover_host_allowed?(asset.provider, uri.host) ->
+        "cover source URL host is not allowlisted for provider"
+
+      true ->
+        "cover provenance is incomplete"
+    end
   end
 
   defp public_cover_map(%CoverAsset{} = cover_asset) do
@@ -84,4 +126,6 @@ defmodule Hiraeth.Covers do
   end
 
   defp present?(value), do: is_binary(value) and String.trim(value) != ""
+  defp parse_uri(value) when is_binary(value), do: URI.parse(value)
+  defp parse_uri(_value), do: %URI{}
 end

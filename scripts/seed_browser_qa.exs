@@ -3,20 +3,32 @@
 
 alias Hiraeth.Accounts.User
 alias Hiraeth.Catalog.Edition
-alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
 alias Hiraeth.Imports.{ImportRun, ReviewItem, StagedImportRow}
+
+if Mix.env() not in [:dev, :test] do
+  raise "scripts/seed_browser_qa.exs may only run in dev/test environments"
+end
+
+admin_email = System.get_env("HIRAETH_BROWSER_ADMIN_EMAIL", "real-catalog-admin@example.test")
+admin_password = System.get_env("HIRAETH_BROWSER_ADMIN_PASSWORD", "correct horse battery staple")
 
 admin =
   User
   |> Ash.read!(authorize?: false)
-  |> Enum.find(&(to_string(&1.email) == "demo-fixtures-admin@example.test")) ||
-    raise "demo fixture admin missing; run priv/repo/seeds.exs first"
+  |> Enum.find(&(to_string(&1.email) == admin_email)) ||
+    User
+    |> Ash.Changeset.for_create(:seed_admin, %{
+      email: admin_email,
+      password: admin_password,
+      display_name: "Browser QA Admin"
+    })
+    |> Ash.create!(authorize?: false)
 
 edition =
   Edition
   |> Ash.read!(authorize?: false)
-  |> Enum.find(&(&1.slug == "the-orchard-of-minor-moons-paperback")) ||
-    raise "demo fixture edition missing; run priv/repo/seeds.exs first"
+  |> Enum.find(&(&1.slug == "deep-vellum-immigrant-paperback-9781646054541")) ||
+    raise "real catalog edition missing; run priv/repo/seeds.exs first"
 
 run =
   ImportRun
@@ -62,31 +74,4 @@ ReviewItem
   })
   |> Ash.create!(actor: admin)
 
-cover =
-  CoverAsset
-  |> Ash.read!(authorize?: false)
-  |> Enum.find(&(&1.source_url == "/images/logo.svg" and &1.provider == "browser_qa_local_cover")) ||
-    CoverAsset
-    |> Ash.Changeset.for_create(:create, %{
-      source_url: "/images/logo.svg",
-      provider: "browser_qa_local_cover",
-      rights_basis: "local_static_asset_fixture",
-      attribution_text: "Browser QA cover attribution",
-      cache_policy: "link_only",
-      takedown_state: "visible"
-    })
-    |> Ash.create!(actor: admin)
-
-CoverAssignment
-|> Ash.read!(authorize?: false)
-|> Enum.find(&(&1.edition_id == edition.id and &1.cover_asset_id == cover.id)) ||
-  CoverAssignment
-  |> Ash.Changeset.for_create(:create, %{
-    edition_id: edition.id,
-    cover_asset_id: cover.id,
-    position: 1,
-    visible?: true
-  })
-  |> Ash.create!(actor: admin)
-
-IO.puts("seeded browser_qa_import review row and browser_qa_local_cover assignment")
+IO.puts("seeded browser_qa_import review row for #{edition.slug}")
