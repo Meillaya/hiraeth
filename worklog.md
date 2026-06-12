@@ -29,4 +29,4 @@ T1 checks:
 - `.gitignore` already excludes `.omo/`, `.omx/`, and `artifacts/`.
 - Staged pre-existing changes were unstaged with `git restore --staged .` to avoid accidental inclusion in the T1 process commit.
 
-T1 commit: cea9e22 — chore(process): establish catalog worklog discipline
+T1 process commit: b7eca18586084865745447907e3509fb4ef3a923 — chore(process): establish catalog worklog discipline
