@@ -46,3 +46,21 @@ Evidence:
 Files: real catalog dataset/import/provenance/public catalog baseline files already present in the dirty worktree.
 
 Baseline consolidation commit: e4ff613 — Add real publisher catalog dataset
+
+## 2026-06-12 — T2 RED grouping contract
+
+Scope: add a failing public catalog contract for one logical book entry per work, using Deep Vellum's `Immigrant` paperback and ebook records.
+
+Commands:
+- `MIX_ENV=test mix test test/hiraeth_web/live/public_catalog_live_test.exs --trace`
+
+Result: expected RED — 5 tests, 1 failure. The failure is the missing grouped read API `PublicCatalog.search_books/1`.
+
+Evidence:
+- `.omo/evidence/task-2-red-dedup-tests.txt`
+- Independent verifier: Verifier the 56th confirmed the RED failure, nested format contract, exact identifier union, and duplicate ISBN coverage.
+
+Files:
+- `test/hiraeth_web/live/public_catalog_live_test.exs`
+
+T2 commit: fe1e900 — test(catalog): specify work-centric public grouping

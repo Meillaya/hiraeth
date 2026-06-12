@@ -3,6 +3,8 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
 
   import Phoenix.LiveViewTest
 
+  alias HiraethWeb.PublicCatalog
+
   @immigrant_slug "deep-vellum-immigrant-paperback-9781646054541"
 
   setup do
@@ -31,6 +33,44 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
 
     {:ok, no_results, _html} = live(conn, ~p"/browse?q=not-a-seeded-title")
     assert has_element?(no_results, "#catalog-empty", "No catalog entries match")
+  end
+
+  test "public catalog groups multiple formats under one logical book entry", %{conn: conn} do
+    assert function_exported?(PublicCatalog, :search_books, 1),
+           "PublicCatalog.search_books/1 must return work-centric public book projections"
+
+    books = apply(PublicCatalog, :search_books, ["Immigrant"])
+
+    assert [%{title: "Immigrant", formats: formats, identifiers: identifiers}] = books
+    assert length(formats) == 2
+    assert Enum.map(formats, & &1.format) |> Enum.sort() == ["ebook", "paperback"]
+
+    assert %{
+             edition_slug: "deep-vellum-immigrant-paperback-9781646054541",
+             format: "paperback",
+             format_label: "Paperback",
+             identifiers: ["9781646054541"],
+             published_on: ~D[2027-02-16]
+           } in formats
+
+    assert %{
+             edition_slug: "deep-vellum-immigrant-ebook-9781646054558",
+             format: "ebook",
+             format_label: "Ebook",
+             identifiers: ["9781646054558"],
+             published_on: ~D[2027-02-16]
+           } in formats
+
+    assert Enum.sort(identifiers) == ["9781646054541", "9781646054558"]
+
+    {:ok, filtered, _html} = live(conn, ~p"/browse?q=Immigrant")
+    document = filtered |> render() |> LazyHTML.from_fragment()
+
+    assert document |> LazyHTML.query("#catalog-index h4") |> LazyHTML.to_tree() |> length() == 1
+    assert has_element?(filtered, "#catalog-index", "paperback")
+    assert has_element?(filtered, "#catalog-index", "ebook")
+    assert has_element?(filtered, "#catalog-index", "9781646054541")
+    assert has_element?(filtered, "#catalog-index", "9781646054558")
   end
 
   test "search filters real catalog without crashing on malformed text", %{conn: conn} do
