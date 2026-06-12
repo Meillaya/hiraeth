@@ -12,6 +12,7 @@ artifacts/
 /cover/
 /priv/static/assets/
 /priv/static/cache_manifest.json
+/priv/static/covers/cache/*
 
 # Node assets if Phoenix generator creates asset tooling
 /assets/node_modules/

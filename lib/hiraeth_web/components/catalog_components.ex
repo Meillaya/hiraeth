@@ -14,7 +14,7 @@ defmodule HiraethWeb.CatalogComponents do
     ~H"""
     <figure :if={@book[:cover]} id={"public-cover-#{@book.slug}"} class={[@class, "space-y-2"]}>
       <img
-        src={@book.cover.source_url}
+        src={@book.cover[:public_url] || @book.cover.source_url}
         alt={"Cover for #{@book.title}"}
         class="aspect-[2/3] w-full rounded-sm border border-[#E7E2D8] object-cover shadow-sm dark:border-[#2E2A27]"
       />

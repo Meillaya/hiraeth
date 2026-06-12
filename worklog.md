@@ -204,3 +204,25 @@ T7 reviewer fix: added a malformed-input regression proving raw HTML inside cano
 - `.omo/evidence/task-7-provenance-summary-clean-after-raw-html-fix.txt` — clean provenance gate passed.
 
 T7 finalized commit: f2c69bd — feat(import): ingest sourced descriptions and praise.
+
+## T8 — Local cover cache and public cover policy
+
+Implemented local cover caching under `priv/static/covers/cache` and exposed it through Phoenix static paths (`covers`). Generated cached cover files are gitignored via `/priv/static/covers/cache/*`.
+
+Changed:
+- `Hiraeth.Covers.public_cover_asset?/1` now accepts both link-only remote covers and cache-allowed local covers when rights and paths are safe.
+- Public cover maps include `public_url`, preferring `/covers/cache/...` for valid cached files and remote source URLs for link-only covers.
+- Added deterministic cache path generation from source URL SHA-256 and extension.
+- Added `Hiraeth.Covers.cache_public_covers!/1` and `mix hiraeth.cache_covers`, using `Req.get!/2` for downloads.
+- Cache task skips already cached covers, refreshes stale DB paths whose files are missing, supports `--force`, and refuses unallowlisted/unsafe source URLs before fetch.
+- Takedown and unsafe cached paths do not render local paths.
+
+Evidence:
+- `.omo/evidence/task-8-cover-cache-tests-final-after-review-fixes.txt` — 11 tests, 0 failures.
+- `.omo/evidence/task-8-cover-component-test-final-after-review-fixes.txt` — cached public URL component test passed.
+- `.omo/evidence/task-8-compile-final-after-review-fixes.txt` — compile passed.
+- `.omo/evidence/task-8-format-final-after-review-fixes.txt` — format passed.
+- `.omo/evidence/task-8-diff-check-final-after-review-fixes.txt` — diff whitespace check passed.
+- `.omo/evidence/task-8-cache-task-help-final.txt` — Mix task help available.
+
+T8 commit: pending

@@ -78,12 +78,17 @@ defmodule Hiraeth.CoversResourceTest do
     admin: admin,
     edition: edition
   } do
+    cached_path = "priv/static/covers/cache/cache-preferred.jpg"
+    File.mkdir_p!(Path.dirname(cached_path))
+    File.write!(cached_path, "cached cover bytes")
+    on_exit(fn -> File.rm(cached_path) end)
+
     cached =
       cover_asset!(admin, %{
         source_url: "https://covers.example.test/cache-preferred.jpg",
         rights_basis: "local_cache_permitted",
         cache_policy: "cache_allowed",
-        cached_file_path: "priv/static/covers/cache/cache-preferred.jpg"
+        cached_file_path: cached_path
       })
 
     assignment!(admin, edition, cached)
@@ -137,6 +142,135 @@ defmodule Hiraeth.CoversResourceTest do
 
     refute Covers.public_cover_asset?(hidden_cached)
     assert Covers.public_cover_for_edition(edition.id) == Covers.fallback_cover()
+  end
+
+  test "cover cache task helper writes deterministic local files and exposes public URL", %{
+    admin: admin,
+    edition: edition
+  } do
+    cache_root =
+      Path.join(
+        "priv/static/covers/cache",
+        "test-#{System.unique_integer([:positive])}"
+      )
+
+    on_exit(fn -> File.rm_rf!(cache_root) end)
+
+    cacheable =
+      cover_asset!(admin, %{
+        source_url: "https://covers.example.test/cache-task.jpg",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed",
+        cached_file_path: nil
+      })
+
+    assignment!(admin, edition, cacheable)
+
+    summary =
+      Covers.cache_public_covers!(
+        cache_root: cache_root,
+        fetch: fn "https://covers.example.test/cache-task.jpg" -> "fake image bytes" end
+      )
+
+    assert %{cached: 1, skipped: 0, assets: [cached_asset]} = summary
+    assert File.read!(cached_asset.cached_file_path) == "fake image bytes"
+    assert String.starts_with?(cached_asset.cached_file_path, cache_root)
+
+    assert %{
+             cached_file_path: cached_path,
+             public_url: public_url
+           } = Covers.public_cover_for_edition(edition.id)
+
+    assert cached_path == cached_asset.cached_file_path
+    assert public_url =~ "/covers/cache/test-"
+
+    skipped =
+      Covers.cache_public_covers!(
+        cache_root: cache_root,
+        fetch: fn _url -> raise "already cached covers should be skipped" end
+      )
+
+    assert %{cached: 0, skipped: 1} = skipped
+
+    forced =
+      Covers.cache_public_covers!(
+        cache_root: cache_root,
+        force?: true,
+        fetch: fn "https://covers.example.test/cache-task.jpg" -> "new fake image bytes" end
+      )
+
+    assert %{cached: 1, skipped: 0, assets: [forced_asset]} = forced
+    assert File.read!(forced_asset.cached_file_path) == "new fake image bytes"
+  end
+
+  test "public cache policy rejects missing cached files and cache task refreshes them", %{
+    admin: admin,
+    edition: edition
+  } do
+    cache_root =
+      Path.join(
+        "priv/static/covers/cache",
+        "missing-#{System.unique_integer([:positive])}"
+      )
+
+    on_exit(fn -> File.rm_rf!(cache_root) end)
+
+    stale_path = Path.join(cache_root, "stale.jpg")
+
+    stale =
+      cover_asset!(admin, %{
+        source_url: "https://covers.example.test/stale-cache.jpg",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed",
+        cached_file_path: stale_path
+      })
+
+    assignment!(admin, edition, stale)
+
+    refute Covers.public_cover_asset?(stale)
+    assert Covers.public_cover_for_edition(edition.id) == Covers.fallback_cover()
+
+    summary =
+      Covers.cache_public_covers!(
+        cache_root: cache_root,
+        fetch: fn "https://covers.example.test/stale-cache.jpg" -> "restored bytes" end
+      )
+
+    assert %{cached: 1, skipped: 0, assets: [refreshed]} = summary
+    assert File.read!(refreshed.cached_file_path) == "restored bytes"
+    assert Covers.public_cover_asset?(refreshed)
+  end
+
+  test "cache task skips unsafe source URLs before fetching", %{admin: admin} do
+    _unsafe =
+      cover_asset!(admin, %{
+        source_url: "https://evil.example.test/unsafe.jpg",
+        provider: "fixture-covers",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed"
+      })
+
+    summary =
+      Covers.cache_public_covers!(
+        fetch: fn _url -> raise "unsafe source URL should not be fetched" end
+      )
+
+    assert %{cached: 0, skipped: 0, assets: []} = summary
+  end
+
+  test "public cache policy rejects cached paths outside static cache root", %{admin: admin} do
+    unsafe =
+      cover_asset!(admin, %{
+        source_url: "https://covers.example.test/unsafe-cache-root.jpg",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed",
+        cached_file_path: "tmp/unsafe-cache-root.jpg"
+      })
+
+    refute Covers.public_cover_asset?(unsafe)
+
+    assert Covers.public_cover_rejection_reason(unsafe) ==
+             "cached cover file path must be under priv/static/covers/cache"
   end
 
   test "provenance audit writes zero invalid public covers", %{admin: admin, edition: edition} do

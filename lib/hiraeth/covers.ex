@@ -4,6 +4,8 @@ defmodule Hiraeth.Covers do
   alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
   alias Hiraeth.RealCatalog.SourcePolicy
 
+  @cache_root "priv/static/covers/cache"
+
   resources do
     resource Hiraeth.Covers.CoverAsset
     resource Hiraeth.Covers.CoverAssignment
@@ -71,8 +73,8 @@ defmodule Hiraeth.Covers do
 
     cover_asset.takedown_state == "visible" and present?(cover_asset.source_url) and
       present?(cover_asset.provider) and present?(cover_asset.rights_basis) and
-      cover_asset.cache_policy == "link_only" and not present?(cover_asset.cached_file_path) and
-      uri.scheme == "https" and SourcePolicy.cover_host_allowed?(cover_asset.provider, uri.host)
+      uri.scheme == "https" and SourcePolicy.cover_host_allowed?(cover_asset.provider, uri.host) and
+      cache_policy_public?(cover_asset)
   end
 
   def public_cover_asset?(_cover_asset), do: false
@@ -95,27 +97,83 @@ defmodule Hiraeth.Covers do
       not present?(asset.rights_basis) ->
         "cover rights basis is missing"
 
-      asset.cache_policy != "link_only" ->
-        "cover cache_policy must be link_only"
-
-      present?(asset.cached_file_path) ->
-        "cover cache file path is not allowed for link-only public display"
-
       uri.scheme != "https" ->
         "cover source URL must be HTTPS"
 
       not SourcePolicy.cover_host_allowed?(asset.provider, uri.host) ->
         "cover source URL host is not allowlisted for provider"
 
+      asset.cache_policy == "link_only" and present?(asset.cached_file_path) ->
+        "cover cache file path is not allowed for link-only public display"
+
+      asset.cache_policy == "cache_allowed" and asset.rights_basis != "local_cache_permitted" ->
+        "cached cover requires local cache rights basis"
+
+      asset.cache_policy == "cache_allowed" and not safe_cached_file_path?(asset.cached_file_path) ->
+        "cached cover file path must be under priv/static/covers/cache"
+
+      asset.cache_policy not in ["link_only", "cache_allowed"] ->
+        "cover cache_policy must be link_only or cache_allowed"
+
       true ->
         "cover provenance is incomplete"
     end
+  end
+
+  def cache_public_covers!(opts \\ []) do
+    cache_root = Keyword.get(opts, :cache_root, @cache_root)
+    force? = Keyword.get(opts, :force?, false)
+    fetch = Keyword.get(opts, :fetch, &req_fetch!/1)
+
+    File.mkdir_p!(cache_root)
+
+    CoverAsset
+    |> Ash.read!(authorize?: false)
+    |> Enum.filter(&cache_candidate?/1)
+    |> Enum.reduce(%{cached: 0, skipped: 0, assets: []}, fn asset, summary ->
+      cache_path = cache_path(asset, cache_root)
+
+      if not force? and cached_file_present?(asset.cached_file_path) do
+        %{summary | skipped: summary.skipped + 1}
+      else
+        body = fetch.(asset.source_url)
+        File.write!(cache_path, body)
+
+        cached_asset =
+          asset
+          |> Ash.Changeset.for_update(:update, %{
+            cache_policy: "cache_allowed",
+            cached_file_path: cache_path,
+            cached_at: DateTime.utc_now(:second)
+          })
+          |> Ash.update!(authorize?: false)
+
+        %{summary | cached: summary.cached + 1, assets: [cached_asset | summary.assets]}
+      end
+    end)
+    |> Map.update!(:assets, &Enum.reverse/1)
+  end
+
+  def purge_cached_cover!(%CoverAsset{} = asset) do
+    if safe_cached_file_path?(asset.cached_file_path) and File.exists?(asset.cached_file_path) do
+      File.rm!(asset.cached_file_path)
+    end
+
+    asset
+    |> Ash.Changeset.for_update(:update, %{cached_file_path: nil, cached_at: nil})
+    |> Ash.update!(authorize?: false)
+  end
+
+  def cache_path(%CoverAsset{} = asset, cache_root \\ @cache_root) do
+    extension = asset.source_url |> URI.parse() |> Map.get(:path) |> extension_from_path()
+    Path.join(cache_root, "#{sha256(asset.source_url)}#{extension}")
   end
 
   defp public_cover_map(%CoverAsset{} = cover_asset) do
     %{
       id: cover_asset.id,
       source_url: cover_asset.source_url,
+      public_url: public_cover_url(cover_asset),
       provider: cover_asset.provider,
       rights_basis: cover_asset.rights_basis,
       attribution_text: cover_asset.attribution_text,
@@ -123,6 +181,81 @@ defmodule Hiraeth.Covers do
       cache_policy: cover_asset.cache_policy,
       cached_file_path: cover_asset.cached_file_path
     }
+  end
+
+  defp public_cover_url(%CoverAsset{cache_policy: "cache_allowed", cached_file_path: path})
+       when is_binary(path) do
+    static_path(path) || path
+  end
+
+  defp public_cover_url(%CoverAsset{} = cover_asset), do: cover_asset.source_url
+
+  defp cache_policy_public?(%CoverAsset{cache_policy: "link_only"} = asset),
+    do: not present?(asset.cached_file_path)
+
+  defp cache_policy_public?(%CoverAsset{cache_policy: "cache_allowed"} = asset),
+    do:
+      asset.rights_basis == "local_cache_permitted" and
+        safe_cached_file_path?(asset.cached_file_path)
+
+  defp cache_policy_public?(_asset), do: false
+
+  defp cache_candidate?(%CoverAsset{} = asset) do
+    uri = parse_uri(asset.source_url)
+
+    asset.takedown_state == "visible" and asset.cache_policy == "cache_allowed" and
+      asset.rights_basis == "local_cache_permitted" and present?(asset.source_url) and
+      uri.scheme == "https" and SourcePolicy.cover_host_allowed?(asset.provider, uri.host)
+  end
+
+  defp safe_cached_file_path?(path) when is_binary(path) do
+    path = Path.expand(path)
+    cache_root = Path.expand(@cache_root)
+    String.starts_with?(path, cache_root <> "/") and File.exists?(path)
+  end
+
+  defp safe_cached_file_path?(_path), do: false
+
+  defp cached_file_present?(path) when is_binary(path) do
+    path = Path.expand(path)
+    cache_root = Path.expand(@cache_root)
+    String.starts_with?(path, cache_root <> "/") and File.exists?(path)
+  end
+
+  defp cached_file_present?(_path), do: false
+
+  defp static_path(path) do
+    path = Path.expand(path)
+    static_root = Path.expand("priv/static")
+
+    if String.starts_with?(path, static_root <> "/") do
+      "/" <> Path.relative_to(path, static_root)
+    end
+  end
+
+  defp req_fetch!(url) do
+    response = Req.get!(url, decode_body: false)
+
+    if response.status in 200..299 do
+      response.body
+    else
+      raise "cover cache request failed with status #{response.status} for #{url}"
+    end
+  end
+
+  defp extension_from_path(path) when is_binary(path) do
+    case path |> Path.extname() |> String.downcase() do
+      extension when extension in [".jpg", ".jpeg", ".png", ".webp", ".gif"] -> extension
+      _extension -> ".jpg"
+    end
+  end
+
+  defp extension_from_path(_path), do: ".jpg"
+
+  defp sha256(value) do
+    value
+    |> then(&:crypto.hash(:sha256, &1))
+    |> Base.encode16(case: :lower)
   end
 
   defp present?(value), do: is_binary(value) and String.trim(value) != ""
