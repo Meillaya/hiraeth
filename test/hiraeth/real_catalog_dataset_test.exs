@@ -38,6 +38,40 @@ defmodule Hiraeth.RealCatalogDatasetTest do
       assert summary.cover_findings == []
     end
 
+    test "tracked datasets declare provider permission metadata" do
+      assert {:ok, datasets} = Dataset.load_dir(@dataset_dir)
+
+      for dataset <- datasets do
+        assert is_map(dataset.provider_permissions)
+        assert dataset.provider_permissions.provider == dataset.provider
+        assert is_binary(dataset.provider_permissions.permission_basis)
+        assert is_binary(dataset.provider_permissions.cover_cache_policy)
+        assert is_binary(dataset.provider_permissions.not_legal_advice)
+        assert is_list(dataset.provider_permissions.source_urls)
+        assert is_list(dataset.provider_permissions.source_hosts)
+        assert is_list(dataset.provider_permissions.cover_hosts)
+        assert is_list(dataset.provider_permissions.excluded_content)
+        assert is_binary(dataset.provider_permissions.takedown_contact)
+      end
+    end
+
+    test "tracked records include field-level provenance for every displayed field" do
+      assert {:ok, datasets} = Dataset.load_dir(@dataset_dir)
+
+      for dataset <- datasets,
+          record <- dataset.records,
+          field <- record.displayed_fields do
+        assert is_map(record.field_sources)
+        assert Map.has_key?(record.field_sources, field), "missing field_sources.#{field}"
+
+        source = Map.fetch!(record.field_sources, field)
+        assert source.provider == dataset.provider
+        assert source.source_uri == record.source_uri
+        assert source.source_type in ["publisher_dataset", "publisher_official_page"]
+        assert is_binary(source.rights_basis)
+      end
+    end
+
     test "loaded records contain only approved display and prose fields" do
       assert {:ok, datasets} = Dataset.load_dir(@dataset_dir)
 
@@ -45,7 +79,7 @@ defmodule Hiraeth.RealCatalogDatasetTest do
         ~w(blurb bio author_bio review reviews user_review user_reviews jacket_copy price inventory availability cart checkout account body_html content excerpt html rendered_html)
 
       allowed_displayed_fields =
-        ~w(title subtitle contributors publisher imprint format published_on isbn_13 cover source_url description synopsis editorial_praise storefront_url)
+        ~w(title subtitle contributors publisher imprint format published_on isbn_13 cover source_url description synopsis editorial_praise storefront_url original_title original_language_code subjects language_code page_count dimensions)
 
       for dataset <- datasets,
           record <- dataset.records do
@@ -97,6 +131,27 @@ defmodule Hiraeth.RealCatalogDatasetTest do
              )
 
       assert get_in(schema, ["properties", "records", "items", "additionalProperties"]) == false
+
+      assert get_in(schema, ["$defs", "provider_permissions", "required"]) |> Enum.sort() ==
+               ~w(cover_cache_policy cover_hosts excluded_content not_legal_advice permission_basis provider source_hosts source_urls takedown_contact)
+
+      assert get_in(schema, ["properties", "records", "items", "required"])
+             |> Enum.member?("field_sources")
+
+      displayed_enum =
+        get_in(schema, [
+          "properties",
+          "records",
+          "items",
+          "properties",
+          "displayed_fields",
+          "items",
+          "enum"
+        ])
+
+      assert "original_language_code" in displayed_enum
+      assert "language_code" in displayed_enum
+      assert "dimensions" in displayed_enum
     end
 
     test "approved records may include sourced public prose, editorial praise, and storefront CTAs" do
@@ -116,6 +171,13 @@ defmodule Hiraeth.RealCatalogDatasetTest do
         ])
         |> Map.update!(:displayed_fields, fn fields ->
           Enum.uniq(fields ++ ["description", "editorial_praise", "storefront_url"])
+        end)
+        |> Map.update!(:field_sources, fn sources ->
+          Map.merge(sources, %{
+            "description" => field_source_for(record, dataset.provider),
+            "editorial_praise" => field_source_for(record, dataset.provider),
+            "storefront_url" => field_source_for(record, dataset.provider)
+          })
         end)
 
       assert {:ok, _summary} =
@@ -374,6 +436,63 @@ defmodule Hiraeth.RealCatalogDatasetTest do
       assert "edition format is not valid" in Enum.map(findings, & &1.reason)
     end
 
+    test "rejects displayed fields without field-level provenance" do
+      record =
+        record_fixture(%{})
+        |> Map.put("displayed_fields", ["title", "contributors"])
+        |> Map.delete("field_sources")
+
+      tmp = write_dataset_fixture("bad-field-sources-missing", [record])
+      on_exit(fn -> File.rm_rf!(tmp) end)
+
+      assert {:error, findings} = Validator.validate_dir(tmp)
+
+      assert "displayed field requires field_sources provenance" in Enum.map(
+               findings,
+               & &1.reason
+             )
+    end
+
+    test "rejects unsafe field_sources values and unknown atom keys stay binary" do
+      record =
+        record_fixture(%{})
+        |> Map.put("field_sources", %{
+          "title" => %{
+            "provider" => "unapproved_provider",
+            "source_uri" => "https://evil.example.test/book",
+            "source_type" => "openlibrary_enrichment",
+            "rights_basis" => "test"
+          }
+        })
+        |> Map.put("unexpected_future_key", "must stay a binary key")
+
+      tmp = write_dataset_fixture("bad-field-sources-unsafe", [record])
+      on_exit(fn -> File.rm_rf!(tmp) end)
+
+      assert {:ok, [dataset]} = Dataset.load_dir(tmp)
+      loaded_record = hd(dataset.records)
+      assert Map.has_key?(loaded_record, "unexpected_future_key")
+      refute Map.has_key?(loaded_record, :unexpected_future_key)
+
+      assert {:error, findings} = Validator.validate_dir(tmp)
+      reasons = Enum.map(findings, & &1.reason)
+      assert "field_sources provider must match dataset provider" in reasons
+      assert "field_sources source_uri must match record source_uri" in reasons
+      assert "field_sources source_type is not approved" in reasons
+    end
+
+    test "rejects missing provider permission metadata" do
+      tmp = write_dataset_fixture("bad-provider-permissions", [record_fixture(%{})])
+      on_exit(fn -> File.rm_rf!(tmp) end)
+
+      path = Path.join(tmp, "deep_vellum.json")
+      payload = path |> File.read!() |> Jason.decode!() |> Map.delete("provider_permissions")
+      File.write!(path, Jason.encode!(payload, pretty: true))
+
+      assert {:error, findings} = Validator.validate_dir(tmp)
+      assert "provider permission metadata is required" in Enum.map(findings, & &1.reason)
+    end
+
     test "rejects supporter-only SKUs even when the edition format is otherwise valid" do
       tmp =
         write_dataset_fixture("bad-supporter-sku", [
@@ -466,6 +585,7 @@ defmodule Hiraeth.RealCatalogDatasetTest do
       "provider" => provider,
       "retrieved_at" => "2026-06-12T00:00:00Z",
       "license_note" => "test",
+      "provider_permissions" => provider_permissions_fixture(provider),
       "records" => records
     }
 
@@ -516,7 +636,48 @@ defmodule Hiraeth.RealCatalogDatasetTest do
         "isbn_13",
         "cover"
       ],
+      "field_sources" => %{
+        "title" => field_source_fixture(provider),
+        "contributors" => field_source_fixture(provider),
+        "publisher" => field_source_fixture(provider),
+        "format" => field_source_fixture(provider),
+        "published_on" => field_source_fixture(provider),
+        "isbn_13" => field_source_fixture(provider),
+        "cover" => field_source_fixture(provider)
+      },
       "curation" => %{"status" => "approved", "notes" => "fixture"}
+    }
+  end
+
+  defp provider_permissions_fixture(provider) do
+    %{
+      "provider" => provider,
+      "source_urls" => ["https://example.test/book"],
+      "source_hosts" => ["example.test"],
+      "cover_hosts" => ["cdn.shopify.com"],
+      "permission_basis" => "test permission note",
+      "cover_cache_policy" => "cache_allowed",
+      "excluded_content" => ["price", "reviews", "raw_html"],
+      "takedown_contact" => "test@example.test",
+      "not_legal_advice" => "Engineering provenance note, not legal advice."
+    }
+  end
+
+  defp field_source_fixture(provider) do
+    %{
+      "provider" => provider,
+      "source_uri" => "https://example.test/book",
+      "source_type" => "publisher_dataset",
+      "rights_basis" => "test"
+    }
+  end
+
+  defp field_source_for(record, provider) do
+    %{
+      provider: provider,
+      source_uri: record.source_uri,
+      source_type: "publisher_dataset",
+      rights_basis: "test"
     }
   end
 

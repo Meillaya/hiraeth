@@ -10,7 +10,8 @@ defmodule Hiraeth.RealCatalog.Validator do
     defstruct [:provider, :file, :source_uri, :isbn_13, :reason]
   end
 
-  @allowed_displayed_fields ~w(title subtitle contributors publisher imprint format published_on isbn_13 cover source_url description synopsis editorial_praise storefront_url)
+  @allowed_displayed_fields ~w(title subtitle contributors publisher imprint format published_on isbn_13 cover source_url description synopsis editorial_praise storefront_url original_title original_language_code subjects language_code page_count dimensions)
+  @approved_field_source_types ~w(publisher_dataset publisher_official_page)
   @canonical_prose_fields ~w(description synopsis editorial_praise storefront_url)
   @commerce_state_keys ~w(price inventory availability cart checkout account)
   @raw_content_keys ~w(body_html content excerpt html rendered_html)
@@ -49,6 +50,7 @@ defmodule Hiraeth.RealCatalog.Validator do
       nil,
       "dataset must contain exactly 50 approved records"
     )
+    |> Kernel.++(provider_permission_findings(dataset))
     |> Kernel.++(Enum.flat_map(records, &record_findings(dataset, &1)))
   end
 
@@ -73,9 +75,80 @@ defmodule Hiraeth.RealCatalog.Validator do
     |> add_curation_finding(dataset, record)
     |> Kernel.++(cover_findings(dataset, record))
     |> Kernel.++(displayed_field_findings(dataset, record))
+    |> Kernel.++(field_source_findings(dataset, record))
     |> Kernel.++(prose_provenance_findings(dataset, record))
     |> Kernel.++(copy_risk_findings(dataset, record))
     |> Kernel.++(provider_mismatch_findings(provider, dataset, record))
+  end
+
+  defp provider_permission_findings(dataset) do
+    permissions = Map.get(dataset, :provider_permissions)
+
+    if is_map(permissions) do
+      []
+      |> add_blank(
+        dataset,
+        nil,
+        permissions[:provider],
+        "provider permission metadata is required"
+      )
+      |> add_blank(
+        dataset,
+        nil,
+        permissions[:permission_basis],
+        "provider permission metadata is required"
+      )
+      |> add_blank(
+        dataset,
+        nil,
+        permissions[:cover_cache_policy],
+        "provider permission metadata is required"
+      )
+      |> add_blank(
+        dataset,
+        nil,
+        permissions[:takedown_contact],
+        "provider permission metadata is required"
+      )
+      |> add_blank(
+        dataset,
+        nil,
+        permissions[:not_legal_advice],
+        "provider permission metadata is required"
+      )
+      |> add_if(
+        permissions[:provider] != dataset.provider,
+        dataset,
+        nil,
+        "provider permission metadata provider mismatch"
+      )
+      |> add_if(
+        blank?(permissions[:source_urls]),
+        dataset,
+        nil,
+        "provider permission metadata is required"
+      )
+      |> add_if(
+        blank?(permissions[:source_hosts]),
+        dataset,
+        nil,
+        "provider permission metadata is required"
+      )
+      |> add_if(
+        blank?(permissions[:cover_hosts]),
+        dataset,
+        nil,
+        "provider permission metadata is required"
+      )
+      |> add_if(
+        blank?(permissions[:excluded_content]),
+        dataset,
+        nil,
+        "provider permission metadata is required"
+      )
+    else
+      [finding(dataset, nil, "provider permission metadata is required")]
+    end
   end
 
   defp add_blank(findings, dataset, record, value, reason) do
@@ -237,7 +310,65 @@ defmodule Hiraeth.RealCatalog.Validator do
   defp displayed_field_value(record, "publisher"), do: Map.get(record, :publisher)
   defp displayed_field_value(record, "imprint"), do: Map.get(record, :imprint)
   defp displayed_field_value(record, "cover"), do: Map.get(record, :cover)
+
+  defp displayed_field_value(record, "original_title"),
+    do: get_in(record, [:work, :original_title])
+
+  defp displayed_field_value(record, "original_language_code"),
+    do: get_in(record, [:work, :original_language_code])
+
+  defp displayed_field_value(record, "subjects"), do: get_in(record, [:work, :subjects])
+
+  defp displayed_field_value(record, "language_code"),
+    do: get_in(record, [:edition, :language_code])
+
+  defp displayed_field_value(record, "page_count"), do: get_in(record, [:edition, :page_count])
+  defp displayed_field_value(record, "dimensions"), do: get_in(record, [:edition, :dimensions])
   defp displayed_field_value(_record, _field), do: nil
+
+  defp field_source_findings(dataset, record) do
+    sources = Map.get(record, :field_sources)
+
+    if is_map(sources) do
+      record
+      |> Map.get(:displayed_fields, [])
+      |> Enum.flat_map(fn field ->
+        source = Map.get(sources, field) || Map.get(sources, to_string(field))
+
+        if is_map(source) do
+          []
+          |> add_if(
+            map_value(source, :provider) != dataset.provider,
+            dataset,
+            record,
+            "field_sources provider must match dataset provider"
+          )
+          |> add_if(
+            map_value(source, :source_uri) != record.source_uri,
+            dataset,
+            record,
+            "field_sources source_uri must match record source_uri"
+          )
+          |> add_if(
+            map_value(source, :source_type) not in @approved_field_source_types,
+            dataset,
+            record,
+            "field_sources source_type is not approved"
+          )
+          |> add_if(
+            blank?(map_value(source, :rights_basis)),
+            dataset,
+            record,
+            "displayed field requires field_sources provenance"
+          )
+        else
+          [finding(dataset, record, "displayed field requires field_sources provenance")]
+        end
+      end)
+    else
+      [finding(dataset, record, "displayed field requires field_sources provenance")]
+    end
+  end
 
   defp prose_provenance_findings(dataset, record) do
     if public_prose_present?(record) do

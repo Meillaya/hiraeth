@@ -60,7 +60,69 @@
           "source": "Kirkus",
           "source_uri": "https://dalkeyarchive.store/products/the-tunnel"
         }
-      ]
+      ],
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "description": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "storefront_url": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "editorial_praise": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
+      }
     },
     {
       "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
@@ -119,7 +181,69 @@
           "source": "Kirkus",
           "source_uri": "https://dalkeyarchive.store/products/the-tunnel"
         }
-      ]
+      ],
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "description": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "storefront_url": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "editorial_praise": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
+      }
     },
     {
       "source_uri": "https://dalkeyarchive.store/products/my-paris",
@@ -166,6 +290,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/my-paris",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/my-paris",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/my-paris",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/my-paris",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/my-paris",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/my-paris",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/my-paris",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -213,6 +381,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/my-paris",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/my-paris",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/my-paris",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/my-paris",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/my-paris",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/my-paris",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/my-paris",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -260,6 +472,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/a-hyphenated-childhood",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/a-hyphenated-childhood",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/a-hyphenated-childhood",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/a-hyphenated-childhood",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/a-hyphenated-childhood",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/a-hyphenated-childhood",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/a-hyphenated-childhood",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -307,6 +563,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/a-hyphenated-childhood",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/a-hyphenated-childhood",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/a-hyphenated-childhood",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/a-hyphenated-childhood",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/a-hyphenated-childhood",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/a-hyphenated-childhood",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/a-hyphenated-childhood",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -358,6 +658,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-house-of-ulysses",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-house-of-ulysses",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-house-of-ulysses",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-house-of-ulysses",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-house-of-ulysses",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-house-of-ulysses",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-house-of-ulysses",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -409,6 +753,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-house-of-ulysses",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-house-of-ulysses",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-house-of-ulysses",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-house-of-ulysses",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-house-of-ulysses",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-house-of-ulysses",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-house-of-ulysses",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -460,6 +848,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/b-moondocks",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/b-moondocks",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/b-moondocks",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/b-moondocks",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/b-moondocks",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/b-moondocks",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/b-moondocks",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -511,6 +943,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/b-moondocks",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/b-moondocks",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/b-moondocks",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/b-moondocks",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/b-moondocks",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/b-moondocks",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/b-moondocks",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -562,6 +1038,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-stars",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-stars",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-stars",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-stars",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-stars",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-stars",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-stars",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -613,6 +1133,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-stars",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-stars",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-stars",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-stars",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-stars",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-stars",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-stars",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -660,6 +1224,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/imago-bird-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/imago-bird-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/imago-bird-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/imago-bird-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/imago-bird-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/imago-bird-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/imago-bird-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -707,6 +1315,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/imago-bird-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/imago-bird-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/imago-bird-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/imago-bird-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/imago-bird-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/imago-bird-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/imago-bird-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -754,6 +1406,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/tlooth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/tlooth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/tlooth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/tlooth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/tlooth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/tlooth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/tlooth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -801,6 +1497,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/tlooth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/tlooth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/tlooth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/tlooth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/tlooth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/tlooth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/tlooth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -848,6 +1588,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hackenfellers-ape",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hackenfellers-ape",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hackenfellers-ape",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hackenfellers-ape",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hackenfellers-ape",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hackenfellers-ape",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hackenfellers-ape",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -895,6 +1679,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hackenfellers-ape",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hackenfellers-ape",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hackenfellers-ape",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hackenfellers-ape",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hackenfellers-ape",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hackenfellers-ape",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hackenfellers-ape",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -942,6 +1770,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/in-transit-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/in-transit-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/in-transit-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/in-transit-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/in-transit-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/in-transit-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/in-transit-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -989,6 +1861,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/in-transit-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/in-transit-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/in-transit-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/in-transit-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/in-transit-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/in-transit-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/in-transit-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1036,6 +1952,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-terrible",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-terrible",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-terrible",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-terrible",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-terrible",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-terrible",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-terrible",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1083,6 +2043,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-terrible",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-terrible",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-terrible",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-terrible",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-terrible",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-terrible",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-terrible",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1130,6 +2134,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/cadenza-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/cadenza-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/cadenza-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/cadenza-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/cadenza-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/cadenza-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/cadenza-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1177,6 +2225,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/cadenza-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/cadenza-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/cadenza-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/cadenza-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/cadenza-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/cadenza-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/cadenza-essentials",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1223,6 +2315,44 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/paradise",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/paradise",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/paradise",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/paradise",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/paradise",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/paradise",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1270,6 +2400,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/nellys-version",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/nellys-version",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/nellys-version",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/nellys-version",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/nellys-version",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/nellys-version",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/nellys-version",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1317,6 +2491,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/nellys-version",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/nellys-version",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/nellys-version",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/nellys-version",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/nellys-version",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/nellys-version",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/nellys-version",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1372,6 +2590,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/melancholy-i-ii",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/melancholy-i-ii",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/melancholy-i-ii",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/melancholy-i-ii",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/melancholy-i-ii",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/melancholy-i-ii",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/melancholy-i-ii",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1427,6 +2689,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/melancholy-i-ii",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/melancholy-i-ii",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/melancholy-i-ii",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/melancholy-i-ii",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/melancholy-i-ii",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/melancholy-i-ii",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/melancholy-i-ii",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1474,6 +2780,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/killoyle-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/killoyle-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/killoyle-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/killoyle-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/killoyle-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/killoyle-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/killoyle-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1521,6 +2871,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/killoyle-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/killoyle-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/killoyle-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/killoyle-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/killoyle-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/killoyle-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/killoyle-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1568,6 +2962,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/singular-pleasures",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/singular-pleasures",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/singular-pleasures",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/singular-pleasures",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/singular-pleasures",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/singular-pleasures",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/singular-pleasures",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1615,6 +3053,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/singular-pleasures",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/singular-pleasures",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/singular-pleasures",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/singular-pleasures",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/singular-pleasures",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/singular-pleasures",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/singular-pleasures",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1666,6 +3148,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/self-control-copy",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/self-control-copy",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/self-control-copy",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/self-control-copy",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/self-control-copy",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/self-control-copy",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/self-control-copy",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1717,6 +3243,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/self-control-copy",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/self-control-copy",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/self-control-copy",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/self-control-copy",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/self-control-copy",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/self-control-copy",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/self-control-copy",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1764,6 +3334,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-fountain-of-youth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-fountain-of-youth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-fountain-of-youth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-fountain-of-youth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-fountain-of-youth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-fountain-of-youth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-fountain-of-youth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1811,6 +3425,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-fountain-of-youth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-fountain-of-youth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-fountain-of-youth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-fountain-of-youth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-fountain-of-youth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-fountain-of-youth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-fountain-of-youth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1858,6 +3516,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/dead-as-doornails",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/dead-as-doornails",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/dead-as-doornails",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/dead-as-doornails",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/dead-as-doornails",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/dead-as-doornails",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/dead-as-doornails",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1905,6 +3607,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/dead-as-doornails",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/dead-as-doornails",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/dead-as-doornails",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/dead-as-doornails",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/dead-as-doornails",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/dead-as-doornails",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/dead-as-doornails",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1952,6 +3698,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-trick-is-to-keep-breathing-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-trick-is-to-keep-breathing-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-trick-is-to-keep-breathing-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-trick-is-to-keep-breathing-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-trick-is-to-keep-breathing-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-trick-is-to-keep-breathing-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-trick-is-to-keep-breathing-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1999,6 +3789,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-trick-is-to-keep-breathing-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-trick-is-to-keep-breathing-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-trick-is-to-keep-breathing-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-trick-is-to-keep-breathing-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-trick-is-to-keep-breathing-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-trick-is-to-keep-breathing-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-trick-is-to-keep-breathing-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2054,6 +3888,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-ginger-man-letters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-ginger-man-letters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-ginger-man-letters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-ginger-man-letters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-ginger-man-letters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-ginger-man-letters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-ginger-man-letters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2109,6 +3987,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-ginger-man-letters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-ginger-man-letters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-ginger-man-letters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-ginger-man-letters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-ginger-man-letters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-ginger-man-letters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-ginger-man-letters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2156,6 +4078,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/ladies-almanack-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/ladies-almanack-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/ladies-almanack-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/ladies-almanack-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/ladies-almanack-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/ladies-almanack-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/ladies-almanack-1",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2203,6 +4169,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hopeful-monsters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hopeful-monsters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hopeful-monsters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hopeful-monsters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hopeful-monsters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hopeful-monsters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hopeful-monsters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2250,6 +4260,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hopeful-monsters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hopeful-monsters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hopeful-monsters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hopeful-monsters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hopeful-monsters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hopeful-monsters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/hopeful-monsters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2297,6 +4351,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/antic-hay",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/antic-hay",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/antic-hay",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/antic-hay",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/antic-hay",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/antic-hay",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/antic-hay",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2348,6 +4446,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/palinuro-of-mexico",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/palinuro-of-mexico",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/palinuro-of-mexico",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/palinuro-of-mexico",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/palinuro-of-mexico",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/palinuro-of-mexico",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/palinuro-of-mexico",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2399,6 +4541,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/palinuro-of-mexico",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/palinuro-of-mexico",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/palinuro-of-mexico",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/palinuro-of-mexico",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/palinuro-of-mexico",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/palinuro-of-mexico",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/palinuro-of-mexico",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2446,6 +4632,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-conversions",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-conversions",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-conversions",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-conversions",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-conversions",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-conversions",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "dalkey_archive_official_store",
+          "source_uri": "https://dalkeyarchive.store/products/the-conversions",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     }
   ],
@@ -2453,5 +4683,33 @@
     "scope": "Short official product-page prose snippets only; no raw HTML, author bios, commerce state, or user reviews.",
     "updated_at": "2026-06-12T00:00:00Z",
     "records_with_prose": 2
+  },
+  "provider_permissions": {
+    "provider": "dalkey_archive_official_store",
+    "source_urls": [
+      "https://dalkeyarchive.store/products.json?limit=250",
+      "https://dalkeyarchive.store/collections/dalkey-archive-essentials/products.json?limit=250"
+    ],
+    "source_hosts": [
+      "dalkeyarchive.store"
+    ],
+    "cover_hosts": [
+      "cdn.shopify.com"
+    ],
+    "permission_basis": "Official public publisher/store metadata curated into deterministic fixtures; prototype cover cache permitted for checked-in dataset URLs only.",
+    "cover_cache_policy": "cache_allowed",
+    "excluded_content": [
+      "price",
+      "inventory",
+      "availability",
+      "cart",
+      "checkout",
+      "account",
+      "raw_html",
+      "reviews",
+      "jacket_copy"
+    ],
+    "takedown_contact": "Use publisher/source contact or Hiraeth cover takedown flow.",
+    "not_legal_advice": "Engineering provenance note, not legal advice."
   }
 }

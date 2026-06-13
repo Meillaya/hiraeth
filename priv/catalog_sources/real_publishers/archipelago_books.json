@@ -56,7 +56,63 @@
         "notes": "Manual source review completed. No jacket copy imported. Prose snippet curated from Archipelago Books official product page."
       },
       "description": "A tender kid’s picture book about a goofy rabbit and dog who discover they can both achieve their goals if they depend on one another.",
-      "storefront_url": "https://archipelagobooks.org/book/bob-and-hilbert/"
+      "storefront_url": "https://archipelagobooks.org/book/bob-and-hilbert/",
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/bob-and-hilbert/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/bob-and-hilbert/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/bob-and-hilbert/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/bob-and-hilbert/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/bob-and-hilbert/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/bob-and-hilbert/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/bob-and-hilbert/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "description": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/bob-and-hilbert/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "storefront_url": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/bob-and-hilbert/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
+      }
     },
     {
       "source_uri": "https://archipelagobooks.org/book/bob-and-hilbert/",
@@ -111,7 +167,63 @@
         "notes": "Manual source review completed. No jacket copy imported. Prose snippet curated from Archipelago Books official product page."
       },
       "description": "A tender kid’s picture book about a goofy rabbit and dog who discover they can both achieve their goals if they depend on one another.",
-      "storefront_url": "https://archipelagobooks.org/book/bob-and-hilbert/"
+      "storefront_url": "https://archipelagobooks.org/book/bob-and-hilbert/",
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/bob-and-hilbert/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/bob-and-hilbert/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/bob-and-hilbert/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/bob-and-hilbert/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/bob-and-hilbert/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/bob-and-hilbert/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/bob-and-hilbert/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "description": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/bob-and-hilbert/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "storefront_url": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/bob-and-hilbert/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
+      }
     },
     {
       "source_uri": "https://archipelagobooks.org/book/the-river/",
@@ -166,6 +278,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-river/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-river/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-river/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-river/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-river/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-river/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-river/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -221,6 +377,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-river/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-river/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-river/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-river/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-river/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-river/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-river/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -272,6 +472,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/little-yu-the-treelings-lost-in-peach-blossom-paradise/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/little-yu-the-treelings-lost-in-peach-blossom-paradise/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/little-yu-the-treelings-lost-in-peach-blossom-paradise/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/little-yu-the-treelings-lost-in-peach-blossom-paradise/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/little-yu-the-treelings-lost-in-peach-blossom-paradise/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/little-yu-the-treelings-lost-in-peach-blossom-paradise/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/little-yu-the-treelings-lost-in-peach-blossom-paradise/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -327,6 +571,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills-copy/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills-copy/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills-copy/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills-copy/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills-copy/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills-copy/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills-copy/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -382,6 +670,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills-copy/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills-copy/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills-copy/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills-copy/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills-copy/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills-copy/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills-copy/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -433,6 +765,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -484,6 +860,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/murmurs-from-the-hills/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -539,6 +959,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/last-stops-of-the-night-journey/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/last-stops-of-the-night-journey/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/last-stops-of-the-night-journey/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/last-stops-of-the-night-journey/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/last-stops-of-the-night-journey/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/last-stops-of-the-night-journey/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/last-stops-of-the-night-journey/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -594,6 +1058,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/last-stops-of-the-night-journey/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/last-stops-of-the-night-journey/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/last-stops-of-the-night-journey/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/last-stops-of-the-night-journey/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/last-stops-of-the-night-journey/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/last-stops-of-the-night-journey/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/last-stops-of-the-night-journey/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -645,6 +1153,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/jerome-lindon/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/jerome-lindon/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/jerome-lindon/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/jerome-lindon/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/jerome-lindon/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/jerome-lindon/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/jerome-lindon/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -696,6 +1248,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/jerome-lindon/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/jerome-lindon/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/jerome-lindon/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/jerome-lindon/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/jerome-lindon/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/jerome-lindon/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/jerome-lindon/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -747,6 +1343,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/aside-from-my-heart-all-is-well/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/aside-from-my-heart-all-is-well/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/aside-from-my-heart-all-is-well/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/aside-from-my-heart-all-is-well/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/aside-from-my-heart-all-is-well/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/aside-from-my-heart-all-is-well/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/aside-from-my-heart-all-is-well/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -798,6 +1438,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/aside-from-my-heart-all-is-well/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/aside-from-my-heart-all-is-well/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/aside-from-my-heart-all-is-well/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/aside-from-my-heart-all-is-well/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/aside-from-my-heart-all-is-well/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/aside-from-my-heart-all-is-well/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/aside-from-my-heart-all-is-well/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -849,6 +1533,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-monroe-girls/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-monroe-girls/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-monroe-girls/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-monroe-girls/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-monroe-girls/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-monroe-girls/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-monroe-girls/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -900,6 +1628,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-monroe-girls/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-monroe-girls/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-monroe-girls/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-monroe-girls/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-monroe-girls/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-monroe-girls/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-monroe-girls/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -951,6 +1723,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-parish-chronicle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-parish-chronicle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-parish-chronicle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-parish-chronicle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-parish-chronicle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-parish-chronicle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-parish-chronicle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1002,6 +1818,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-parish-chronicle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-parish-chronicle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-parish-chronicle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-parish-chronicle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-parish-chronicle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-parish-chronicle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-parish-chronicle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1053,6 +1913,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/on-the-relations-of-the-circle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/on-the-relations-of-the-circle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/on-the-relations-of-the-circle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/on-the-relations-of-the-circle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/on-the-relations-of-the-circle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/on-the-relations-of-the-circle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/on-the-relations-of-the-circle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1104,6 +2008,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/on-the-relations-of-the-circle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/on-the-relations-of-the-circle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/on-the-relations-of-the-circle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/on-the-relations-of-the-circle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/on-the-relations-of-the-circle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/on-the-relations-of-the-circle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/on-the-relations-of-the-circle/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1155,6 +2103,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/walking/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/walking/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/walking/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/walking/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/walking/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/walking/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/walking/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1206,6 +2198,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/walking/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/walking/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/walking/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/walking/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/walking/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/walking/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/walking/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1261,6 +2297,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/inshallah-madonna-inshallah-2/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/inshallah-madonna-inshallah-2/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/inshallah-madonna-inshallah-2/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/inshallah-madonna-inshallah-2/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/inshallah-madonna-inshallah-2/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/inshallah-madonna-inshallah-2/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/inshallah-madonna-inshallah-2/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1316,6 +2396,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/inshallah-madonna-inshallah-2/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/inshallah-madonna-inshallah-2/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/inshallah-madonna-inshallah-2/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/inshallah-madonna-inshallah-2/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/inshallah-madonna-inshallah-2/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/inshallah-madonna-inshallah-2/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/inshallah-madonna-inshallah-2/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1367,6 +2491,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/queen/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/queen/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/queen/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/queen/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/queen/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/queen/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/queen/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1418,6 +2586,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/queen/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/queen/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/queen/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/queen/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/queen/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/queen/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/queen/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1469,6 +2681,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/take-a-walk-with-the-wind/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/take-a-walk-with-the-wind/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/take-a-walk-with-the-wind/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/take-a-walk-with-the-wind/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/take-a-walk-with-the-wind/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/take-a-walk-with-the-wind/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/take-a-walk-with-the-wind/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1520,6 +2776,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/take-a-walk-with-the-wind/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/take-a-walk-with-the-wind/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/take-a-walk-with-the-wind/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/take-a-walk-with-the-wind/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/take-a-walk-with-the-wind/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/take-a-walk-with-the-wind/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/take-a-walk-with-the-wind/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1571,6 +2871,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-two/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-two/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-two/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-two/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-two/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-two/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-two/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1622,6 +2966,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-two/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-two/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-two/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-two/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-two/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-two/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-two/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1677,6 +3065,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/night-on-the-galactic-railroad/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/night-on-the-galactic-railroad/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/night-on-the-galactic-railroad/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/night-on-the-galactic-railroad/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/night-on-the-galactic-railroad/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/night-on-the-galactic-railroad/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/night-on-the-galactic-railroad/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1728,6 +3160,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-magicians-flower/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-magicians-flower/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-magicians-flower/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-magicians-flower/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-magicians-flower/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-magicians-flower/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-magicians-flower/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1779,6 +3255,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-magicians-flower/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-magicians-flower/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-magicians-flower/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-magicians-flower/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-magicians-flower/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-magicians-flower/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/a-magicians-flower/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1834,6 +3354,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/my-brother/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/my-brother/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/my-brother/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/my-brother/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/my-brother/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/my-brother/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/my-brother/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1889,6 +3453,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/my-brother/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/my-brother/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/my-brother/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/my-brother/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/my-brother/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/my-brother/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/my-brother/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1940,6 +3548,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-one/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-one/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-one/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-one/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-one/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-one/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-one/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1991,6 +3643,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-one/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-one/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-one/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-one/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-one/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-one/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/mafalda-book-one/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2042,6 +3738,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/one-none-and-a-hundred-grand/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/one-none-and-a-hundred-grand/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/one-none-and-a-hundred-grand/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/one-none-and-a-hundred-grand/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/one-none-and-a-hundred-grand/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/one-none-and-a-hundred-grand/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/one-none-and-a-hundred-grand/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2093,6 +3833,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/one-none-and-a-hundred-grand/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/one-none-and-a-hundred-grand/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/one-none-and-a-hundred-grand/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/one-none-and-a-hundred-grand/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/one-none-and-a-hundred-grand/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/one-none-and-a-hundred-grand/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/one-none-and-a-hundred-grand/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2143,6 +3927,44 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/cece/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/cece/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/cece/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/cece/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/cece/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/cece/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2193,6 +4015,44 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/cece/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/cece/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/cece/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/cece/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/cece/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/cece/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2244,6 +4104,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-leucothea-dialogues/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-leucothea-dialogues/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-leucothea-dialogues/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-leucothea-dialogues/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-leucothea-dialogues/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-leucothea-dialogues/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-leucothea-dialogues/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2295,6 +4199,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-leucothea-dialogues/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-leucothea-dialogues/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-leucothea-dialogues/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-leucothea-dialogues/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-leucothea-dialogues/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-leucothea-dialogues/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-leucothea-dialogues/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2345,6 +4293,44 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-hairdressers-son/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-hairdressers-son/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-hairdressers-son/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-hairdressers-son/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-hairdressers-son/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-hairdressers-son/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2395,6 +4381,44 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-hairdressers-son/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-hairdressers-son/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-hairdressers-son/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-hairdressers-son/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-hairdressers-son/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/the-hairdressers-son/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2446,6 +4470,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/needles-eye/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/needles-eye/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/needles-eye/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/needles-eye/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/needles-eye/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/needles-eye/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/needles-eye/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2497,6 +4565,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/needles-eye/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/needles-eye/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/needles-eye/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/needles-eye/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/needles-eye/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/needles-eye/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/needles-eye/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2548,6 +4660,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/star-of-the-sea/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/star-of-the-sea/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/star-of-the-sea/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/star-of-the-sea/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/star-of-the-sea/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/star-of-the-sea/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/star-of-the-sea/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2599,6 +4755,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/star-of-the-sea/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/star-of-the-sea/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/star-of-the-sea/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/star-of-the-sea/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/star-of-the-sea/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/star-of-the-sea/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "archipelago_books_official_store",
+          "source_uri": "https://archipelagobooks.org/book/star-of-the-sea/",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     }
   ],
@@ -2606,5 +4806,32 @@
     "scope": "Short official product-page prose snippets only; no raw HTML, author bios, commerce state, or user reviews.",
     "updated_at": "2026-06-12T00:00:00Z",
     "records_with_prose": 2
+  },
+  "provider_permissions": {
+    "provider": "archipelago_books_official_store",
+    "source_urls": [
+      "https://archipelagobooks.org/wp-json/wc/store/products?per_page=100&page=1"
+    ],
+    "source_hosts": [
+      "archipelagobooks.org"
+    ],
+    "cover_hosts": [
+      "archipelagobooks.org"
+    ],
+    "permission_basis": "Official public publisher/store metadata curated into deterministic fixtures; prototype cover cache permitted for checked-in dataset URLs only.",
+    "cover_cache_policy": "cache_allowed",
+    "excluded_content": [
+      "price",
+      "inventory",
+      "availability",
+      "cart",
+      "checkout",
+      "account",
+      "raw_html",
+      "reviews",
+      "jacket_copy"
+    ],
+    "takedown_contact": "Use publisher/source contact or Hiraeth cover takedown flow.",
+    "not_legal_advice": "Engineering provenance note, not legal advice."
   }
 }

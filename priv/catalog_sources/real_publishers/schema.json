@@ -6,6 +6,7 @@
     "provider",
     "retrieved_at",
     "license_note",
+    "provider_permissions",
     "records"
   ],
   "properties": {
@@ -31,7 +32,8 @@
           "edition",
           "contributors",
           "displayed_fields",
-          "curation"
+          "curation",
+          "field_sources"
         ],
         "properties": {
           "source_uri": {
@@ -108,12 +110,24 @@
                 "description",
                 "synopsis",
                 "editorial_praise",
-                "storefront_url"
+                "storefront_url",
+                "original_title",
+                "original_language_code",
+                "subjects",
+                "language_code",
+                "page_count",
+                "dimensions"
               ]
             }
           },
           "curation": {
             "$ref": "#/$defs/curation"
+          },
+          "field_sources": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/field_source"
+            }
           }
         },
         "not": {
@@ -220,6 +234,9 @@
     },
     "prose_curation": {
       "$ref": "#/$defs/prose_curation"
+    },
+    "provider_permissions": {
+      "$ref": "#/$defs/provider_permissions"
     }
   },
   "$defs": {
@@ -247,6 +264,19 @@
         },
         "publication_state": {
           "type": "string"
+        },
+        "original_language_code": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z]{3}$"
+        },
+        "subjects": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "additionalProperties": false
@@ -285,6 +315,23 @@
         },
         "isbn_13": {
           "type": "string"
+        },
+        "language_code": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z]{3}$"
+        },
+        "page_count": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "dimensions": {
+          "$ref": "#/$defs/dimensions"
         }
       },
       "additionalProperties": false
@@ -387,6 +434,118 @@
         "records_with_prose": {
           "type": "integer",
           "minimum": 0
+        }
+      }
+    },
+    "dimensions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "height_mm",
+        "width_mm",
+        "depth_mm"
+      ],
+      "properties": {
+        "height_mm": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "width_mm": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "depth_mm": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "field_source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "source_uri",
+        "source_type",
+        "rights_basis"
+      ],
+      "properties": {
+        "provider": {
+          "type": "string"
+        },
+        "source_uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "source_type": {
+          "enum": [
+            "publisher_dataset",
+            "publisher_official_page"
+          ]
+        },
+        "rights_basis": {
+          "type": "string"
+        }
+      }
+    },
+    "provider_permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "source_urls",
+        "source_hosts",
+        "cover_hosts",
+        "permission_basis",
+        "cover_cache_policy",
+        "excluded_content",
+        "takedown_contact",
+        "not_legal_advice"
+      ],
+      "properties": {
+        "provider": {
+          "type": "string"
+        },
+        "source_urls": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          },
+          "minItems": 1
+        },
+        "source_hosts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "cover_hosts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "permission_basis": {
+          "type": "string"
+        },
+        "cover_cache_policy": {
+          "type": "string"
+        },
+        "excluded_content": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "takedown_contact": {
+          "type": "string"
+        },
+        "not_legal_advice": {
+          "type": "string"
         }
       }
     }

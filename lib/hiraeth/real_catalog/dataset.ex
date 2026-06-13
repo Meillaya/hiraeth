@@ -48,20 +48,29 @@ defmodule Hiraeth.RealCatalog.Dataset do
   end
 
   defp atomize(map) when is_map(map) do
-    Map.new(map, fn {key, value} -> {atom_key(key), atomize(value)} end)
+    Map.new(map, fn
+      {"field_sources", value} -> {:field_sources, atomize_field_sources(value)}
+      {key, value} -> {atom_key(key), atomize(value)}
+    end)
   end
 
   defp atomize(list) when is_list(list), do: Enum.map(list, &atomize/1)
   defp atomize(value), do: value
 
+  defp atomize_field_sources(sources) when is_map(sources) do
+    Map.new(sources, fn {field, value} -> {to_string(field), atomize(value)} end)
+  end
+
+  defp atomize_field_sources(value), do: atomize(value)
+
   @known_keys ~w(
-    provider retrieved_at license_note records prose_curation scope updated_at records_with_prose
+    provider retrieved_at license_note provider_permissions records prose_curation scope updated_at records_with_prose
     file source_uri source_product_id source_sku
-    publisher imprint work title subtitle original_title publication_state description synopsis
-    storefront_url editorial_praise quote source source_uri edition format published_on isbn_13
+    publisher imprint work title subtitle original_title original_language_code subjects publication_state description synopsis
+    storefront_url editorial_praise quote source source_uri edition format published_on isbn_13 language_code page_count dimensions height_mm width_mm depth_mm
     contributors name role cover source_url rights_basis attribution_text
     attribution_url cache_policy no_cover_reason cover_fallback_reason displayed_fields curation status
-    notes file_path file_checksum
+    notes file_path file_checksum field_sources source_type permission_basis cover_cache_policy source_urls source_hosts cover_hosts excluded_content takedown_contact not_legal_advice
   )
   @known_atoms Map.new(@known_keys, &{&1, String.to_atom(&1)})
 

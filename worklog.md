@@ -694,3 +694,19 @@ Commit: 61b857b — `fix(covers): secure cacheable cover display`
   - `.omo/evidence/task-2-red-language-code-validation.txt` — reproduced invalid `english`/`en` acceptance.
   - `.omo/evidence/task-2-green-language-code-validation.txt` — catalog resource tests passed with validation in place.
   - `.omo/evidence/task-2-focused-post-language-fix.txt` — resource and topology tests passed after the language-code remediation.
+
+## Next roadmap — T3 canonical dataset provenance schema
+
+- Date: 2026-06-13
+- Extended the tracked real-publisher JSON contract with machine-checkable provider permission metadata and per-displayed-field provenance:
+  - Added top-level `provider_permissions` metadata for provider, source URLs/hosts, cover hosts/cache policy, permission basis, excluded content, takedown contact, and not-legal-advice note.
+  - Added per-record `field_sources` entries for every field listed in `displayed_fields`.
+  - Reserved rich source-backed metadata keys for original title/language, subjects, edition language, page count, and dimensions without importing external enrichment.
+  - Kept `field_sources` field names as binary strings while atomizing only known structural keys, preventing unbounded atom creation from attacker-controlled field names.
+- Validation now rejects missing provider permission metadata, missing/unsafe field-level provenance, provider/source mismatches, unsupported field source types, and the existing unsafe cover/prose/commerce/raw-content cases.
+- Verification evidence:
+  - `.omo/evidence/task-3-red-dataset-schema-a.txt` — RED dataset/schema contract before provider permissions and field provenance existed.
+  - `.omo/evidence/task-3-green-dataset-schema.txt` — focused dataset tests passed after schema/validator updates.
+  - `.omo/evidence/task-3-dataset-schema-tmux.txt` — tmux QA trace for the dataset suite: 25 tests, 0 failures.
+  - `.omo/evidence/task-3-validator-cli.txt` — validator CLI returned `{:ok, ...}` for the tracked three-provider corpus.
+  - `.omo/evidence/task-3-field-source-coverage.txt` — all 150 records have field-source coverage for displayed fields.

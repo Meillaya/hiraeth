@@ -56,7 +56,63 @@
         "notes": "Manual source review completed. No jacket copy imported. Prose snippet curated from Deep Vellum official product page."
       },
       "description": "In a trilingual collection—presented in Nahuatl, Spanish, and English—Joaquín Zihuatenejo unflinchingly captures the duality of immigrant experiences in the United States.",
-      "storefront_url": "https://store.deepvellum.org/products/immigrant"
+      "storefront_url": "https://store.deepvellum.org/products/immigrant",
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/immigrant",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/immigrant",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/immigrant",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/immigrant",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/immigrant",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/immigrant",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/immigrant",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "description": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/immigrant",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "storefront_url": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/immigrant",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
+      }
     },
     {
       "source_uri": "https://store.deepvellum.org/products/immigrant",
@@ -111,7 +167,63 @@
         "notes": "Manual source review completed. No jacket copy imported. Prose snippet curated from Deep Vellum official product page."
       },
       "description": "In a trilingual collection—presented in Nahuatl, Spanish, and English—Joaquín Zihuatenejo unflinchingly captures the duality of immigrant experiences in the United States.",
-      "storefront_url": "https://store.deepvellum.org/products/immigrant"
+      "storefront_url": "https://store.deepvellum.org/products/immigrant",
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/immigrant",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/immigrant",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/immigrant",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/immigrant",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/immigrant",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/immigrant",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/immigrant",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "description": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/immigrant",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "storefront_url": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/immigrant",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
+      }
     },
     {
       "source_uri": "https://store.deepvellum.org/products/the-robert-poems",
@@ -158,6 +270,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-robert-poems",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-robert-poems",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-robert-poems",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-robert-poems",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-robert-poems",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-robert-poems",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-robert-poems",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -205,6 +361,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-robert-poems",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-robert-poems",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-robert-poems",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-robert-poems",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-robert-poems",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-robert-poems",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-robert-poems",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -252,6 +452,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-river-of-blessings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-river-of-blessings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-river-of-blessings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-river-of-blessings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-river-of-blessings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-river-of-blessings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-river-of-blessings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -299,6 +543,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-river-of-blessings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-river-of-blessings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-river-of-blessings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-river-of-blessings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-river-of-blessings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-river-of-blessings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-river-of-blessings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -350,6 +638,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/theodoros",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/theodoros",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/theodoros",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/theodoros",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/theodoros",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/theodoros",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/theodoros",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -401,6 +733,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/theodoros",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/theodoros",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/theodoros",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/theodoros",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/theodoros",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/theodoros",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/theodoros",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -456,6 +832,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/best-literary-translations-2026",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/best-literary-translations-2026",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/best-literary-translations-2026",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/best-literary-translations-2026",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/best-literary-translations-2026",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/best-literary-translations-2026",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/best-literary-translations-2026",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -511,6 +931,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/best-literary-translations-2026",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/best-literary-translations-2026",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/best-literary-translations-2026",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/best-literary-translations-2026",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/best-literary-translations-2026",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/best-literary-translations-2026",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/best-literary-translations-2026",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -558,6 +1022,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/filth-eaters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/filth-eaters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/filth-eaters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/filth-eaters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/filth-eaters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/filth-eaters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/filth-eaters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -605,6 +1113,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/filth-eaters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/filth-eaters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/filth-eaters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/filth-eaters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/filth-eaters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/filth-eaters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/filth-eaters",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -652,6 +1204,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-blue-book-of-nebo-ya",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-blue-book-of-nebo-ya",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-blue-book-of-nebo-ya",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-blue-book-of-nebo-ya",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-blue-book-of-nebo-ya",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-blue-book-of-nebo-ya",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-blue-book-of-nebo-ya",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -699,6 +1295,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-blue-book-of-nebo-ya",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-blue-book-of-nebo-ya",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-blue-book-of-nebo-ya",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-blue-book-of-nebo-ya",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-blue-book-of-nebo-ya",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-blue-book-of-nebo-ya",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-blue-book-of-nebo-ya",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -750,6 +1390,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-book-of-homes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-book-of-homes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-book-of-homes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-book-of-homes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-book-of-homes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-book-of-homes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-book-of-homes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -801,6 +1485,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-book-of-homes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-book-of-homes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-book-of-homes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-book-of-homes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-book-of-homes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-book-of-homes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-book-of-homes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -852,6 +1580,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/beginnings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/beginnings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/beginnings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/beginnings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/beginnings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/beginnings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/beginnings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -903,6 +1675,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/beginnings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/beginnings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/beginnings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/beginnings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/beginnings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/beginnings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/beginnings",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -954,6 +1770,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/woodwind-harmony-in-the-nighttime",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/woodwind-harmony-in-the-nighttime",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/woodwind-harmony-in-the-nighttime",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/woodwind-harmony-in-the-nighttime",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/woodwind-harmony-in-the-nighttime",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/woodwind-harmony-in-the-nighttime",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/woodwind-harmony-in-the-nighttime",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1005,6 +1865,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/woodwind-harmony-in-the-nighttime",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/woodwind-harmony-in-the-nighttime",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/woodwind-harmony-in-the-nighttime",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/woodwind-harmony-in-the-nighttime",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/woodwind-harmony-in-the-nighttime",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/woodwind-harmony-in-the-nighttime",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/woodwind-harmony-in-the-nighttime",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1056,6 +1960,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/slovenian-abcs",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/slovenian-abcs",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/slovenian-abcs",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/slovenian-abcs",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/slovenian-abcs",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/slovenian-abcs",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/slovenian-abcs",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1107,6 +2055,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/slovenian-abcs",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/slovenian-abcs",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/slovenian-abcs",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/slovenian-abcs",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/slovenian-abcs",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/slovenian-abcs",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/slovenian-abcs",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1158,6 +2150,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/invisible-years",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/invisible-years",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/invisible-years",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/invisible-years",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/invisible-years",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/invisible-years",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/invisible-years",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1209,6 +2245,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/invisible-years",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/invisible-years",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/invisible-years",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/invisible-years",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/invisible-years",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/invisible-years",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/invisible-years",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1260,6 +2340,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/invisible-years",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/invisible-years",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/invisible-years",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/invisible-years",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/invisible-years",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/invisible-years",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/invisible-years",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1311,6 +2435,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-slaughterhouse-of-dreams",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-slaughterhouse-of-dreams",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-slaughterhouse-of-dreams",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-slaughterhouse-of-dreams",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-slaughterhouse-of-dreams",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-slaughterhouse-of-dreams",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-slaughterhouse-of-dreams",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1362,6 +2530,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-slaughterhouse-of-dreams",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-slaughterhouse-of-dreams",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-slaughterhouse-of-dreams",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-slaughterhouse-of-dreams",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-slaughterhouse-of-dreams",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-slaughterhouse-of-dreams",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-slaughterhouse-of-dreams",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1413,6 +2625,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1464,6 +2720,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1515,6 +2815,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1566,6 +2910,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/married-life",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/married-life",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/married-life",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/married-life",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/married-life",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/married-life",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/married-life",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1617,6 +3005,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/married-life",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/married-life",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/married-life",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/married-life",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/married-life",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/married-life",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/married-life",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1668,6 +3100,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-ruins",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-ruins",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-ruins",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-ruins",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-ruins",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-ruins",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-ruins",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1719,6 +3195,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-ruins",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-ruins",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-ruins",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-ruins",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-ruins",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-ruins",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-ruins",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1770,6 +3290,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/things-and-thoughts",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/things-and-thoughts",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/things-and-thoughts",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/things-and-thoughts",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/things-and-thoughts",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/things-and-thoughts",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/things-and-thoughts",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1821,6 +3385,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/things-and-thoughts",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/things-and-thoughts",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/things-and-thoughts",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/things-and-thoughts",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/things-and-thoughts",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/things-and-thoughts",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/things-and-thoughts",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1880,6 +3488,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/what-remains",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/what-remains",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/what-remains",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/what-remains",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/what-remains",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/what-remains",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/what-remains",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1939,6 +3591,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/what-remains",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/what-remains",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/what-remains",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/what-remains",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/what-remains",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/what-remains",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/what-remains",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -1986,6 +3682,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/dreams-for-earth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/dreams-for-earth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/dreams-for-earth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/dreams-for-earth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/dreams-for-earth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/dreams-for-earth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/dreams-for-earth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2033,6 +3773,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/dreams-for-earth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/dreams-for-earth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/dreams-for-earth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/dreams-for-earth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/dreams-for-earth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/dreams-for-earth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/dreams-for-earth",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2088,6 +3872,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-animal-on-the-rock",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-animal-on-the-rock",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-animal-on-the-rock",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-animal-on-the-rock",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-animal-on-the-rock",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-animal-on-the-rock",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-animal-on-the-rock",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2143,6 +3971,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-animal-on-the-rock",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-animal-on-the-rock",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-animal-on-the-rock",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-animal-on-the-rock",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-animal-on-the-rock",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-animal-on-the-rock",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-animal-on-the-rock",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2194,6 +4066,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-pawn",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-pawn",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-pawn",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-pawn",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-pawn",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-pawn",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/the-pawn",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2241,6 +4157,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/juvenilia",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/juvenilia",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/juvenilia",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/juvenilia",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/juvenilia",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/juvenilia",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/juvenilia",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2288,6 +4248,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/juvenilia",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/juvenilia",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/juvenilia",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/juvenilia",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/juvenilia",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/juvenilia",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/juvenilia",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2339,6 +4343,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/what-good-does-it-do",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/what-good-does-it-do",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/what-good-does-it-do",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/what-good-does-it-do",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/what-good-does-it-do",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/what-good-does-it-do",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/what-good-does-it-do",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2386,6 +4434,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/terror-counter",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/terror-counter",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/terror-counter",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/terror-counter",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/terror-counter",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/terror-counter",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/terror-counter",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2433,6 +4525,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/terror-counter",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/terror-counter",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/terror-counter",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/terror-counter",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/terror-counter",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/terror-counter",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/terror-counter",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2484,6 +4620,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/crocodiles-at-night",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/crocodiles-at-night",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/crocodiles-at-night",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/crocodiles-at-night",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/crocodiles-at-night",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/crocodiles-at-night",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/crocodiles-at-night",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     },
     {
@@ -2535,6 +4715,50 @@
       "curation": {
         "status": "approved",
         "notes": "Manual source review completed. No jacket copy imported."
+      },
+      "field_sources": {
+        "title": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/gamerover",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "contributors": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/gamerover",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "publisher": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/gamerover",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "format": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/gamerover",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "published_on": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/gamerover",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "isbn_13": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/gamerover",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        },
+        "cover": {
+          "provider": "deep_vellum_official_store",
+          "source_uri": "https://store.deepvellum.org/products/gamerover",
+          "source_type": "publisher_dataset",
+          "rights_basis": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls."
+        }
       }
     }
   ],
@@ -2542,5 +4766,32 @@
     "scope": "Short official product-page prose snippets only; no raw HTML, author bios, commerce state, or user reviews.",
     "updated_at": "2026-06-12T00:00:00Z",
     "records_with_prose": 2
+  },
+  "provider_permissions": {
+    "provider": "deep_vellum_official_store",
+    "source_urls": [
+      "https://store.deepvellum.org/products.json?limit=250"
+    ],
+    "source_hosts": [
+      "store.deepvellum.org"
+    ],
+    "cover_hosts": [
+      "cdn.shopify.com"
+    ],
+    "permission_basis": "Official public publisher/store metadata curated into deterministic fixtures; prototype cover cache permitted for checked-in dataset URLs only.",
+    "cover_cache_policy": "cache_allowed",
+    "excluded_content": [
+      "price",
+      "inventory",
+      "availability",
+      "cart",
+      "checkout",
+      "account",
+      "raw_html",
+      "reviews",
+      "jacket_copy"
+    ],
+    "takedown_contact": "Use publisher/source contact or Hiraeth cover takedown flow.",
+    "not_legal_advice": "Engineering provenance note, not legal advice."
   }
 }
