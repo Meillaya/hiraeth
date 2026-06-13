@@ -565,3 +565,14 @@ Remediation commit: 682a972 — fix(catalog): close global review blockers
   - This section plus the timeout fix and README correction address those blockers; follow-up independent verification is required before marking the plan checkbox complete.
 
 Pending commit: `perf(covers): serve optimized local cover derivatives`
+
+## Catalog performance optimization — Milestone 6
+
+- Date: 2026-06-13
+- Decision: skipped the optional immutable public read-model cache.
+- Reason: after the SQL read-path, index, LiveView rendering, and cover-derivative changes, current measured routes and public catalog read functions are already comfortably inside the plan budgets. Adding a cache now would add invalidation/takedown complexity without evidence of remaining projection overhead.
+- Verification evidence:
+  - `.omo/evidence/m6-performance-cache-skip-tests.txt` — public catalog performance suite: 6 tests, 0 failures.
+  - `.omo/evidence/m6-cache-skip-decision.md` — browser route timings from the latest browser QA, with public routes under 300ms TTFB / 800ms total.
+
+Commit: pending — `chore(perf): record read-model cache skip`
