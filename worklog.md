@@ -564,7 +564,7 @@ Remediation commit: 682a972 — fix(catalog): close global review blockers
   - Initial independent verifier found three blockers: unbounded ImageMagick, stale README rights text, and missing worklog.
   - This section plus the timeout fix and README correction address those blockers; follow-up independent verification is required before marking the plan checkbox complete.
 
-Pending commit: `perf(covers): serve optimized local cover derivatives`
+Commit: 7c2f4fa — `perf(covers): serve optimized local cover derivatives`
 
 ## Catalog performance optimization — Milestone 6
 
@@ -600,3 +600,4 @@ Commits:
 - fcfe2aa — `fix(covers): allow cacheable covers before warmup`
 - ce340a8 — `fix(ui): stack search results on mobile`
 - 05db7ed — `chore(qa): record final performance verification`
+- e08a1b9 — `chore(process): finalize verification worklog commit`
