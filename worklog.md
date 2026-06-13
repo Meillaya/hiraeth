@@ -623,3 +623,18 @@ Commits:
   - `.omo/evidence/m7-precommit-post-review-fixes.txt` — `MIX_ENV=test mix precommit`: 138 tests, 0 failures.
 
 Commit: 61b857b — `fix(covers): secure cacheable cover display`
+
+## Next roadmap — T0 provider gate
+
+- Date: 2026-06-13
+- Added a New Directions provider preflight gate before any dataset expansion work:
+  - Provider slug: `new_directions_official_site`.
+  - Official source page: `https://www.ndbooks.com/books/`.
+  - Permission/contact pages: `https://www.ndbooks.com/permissions/` and `https://www.ndbooks.com/about/contact/`.
+  - Allowed source host: `www.ndbooks.com`; observed public cover host: `cdn.sanity.io`.
+  - New Directions covers remain `link_only_until_explicit_cache_permission`; this task does not authorize local cover caching or data import.
+  - The gate excludes raw HTML, jacket-copy dumps, author bios, reviews/user reviews, prices, inventory, storefront/account, and cart/checkout data.
+  - The gate is an engineering provenance safeguard and not legal advice.
+- Verification evidence:
+  - `.omo/evidence/task-0-red-provider-gate-test.txt` — RED provider gate test before `SourcePolicy.provider_gate!/1` and readiness checks existed.
+  - `.omo/evidence/task-0-new-directions-*-page.html` — captured official source/permission/contact evidence for the preflight decision.

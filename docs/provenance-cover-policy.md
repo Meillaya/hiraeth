@@ -32,6 +32,21 @@ bookstores, monetized cover display, or bulk jacket-copy/description imports,
 perform a separate source-permission review and update the provider policy
 records accordingly.
 
+## New Directions preflight gate
+
+The default next expansion candidate is New Directions
+(`new_directions_official_site`). Its current preflight gate allows factual
+source references under `https://www.ndbooks.com/books/`, permission/contact
+documentation under `https://www.ndbooks.com/permissions/` and
+`https://www.ndbooks.com/about/contact/`, source host `www.ndbooks.com`, and
+observed cover host `cdn.sanity.io`.
+
+This gate does not grant local cover-cache rights. New Directions covers remain
+`link_only_until_explicit_cache_permission` until a later provider policy records
+explicit cache permission and provenance. The gate also excludes raw HTML,
+jacket-copy dumps, author bios, reviews, prices, inventory, and storefront or
+account data. It is an engineering safeguard and not legal advice.
+
 ## Oban deferral
 
 No Oban in v1. If imports exceed synchronous limits or need retries/scheduling, add Oban in a future plan with idempotent jobs, provenance-preserving retry semantics, audit events, and clear failure/replay controls.

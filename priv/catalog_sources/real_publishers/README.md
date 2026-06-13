@@ -2,6 +2,23 @@
 
 This directory contains Hiraeth's first curated real-book pilot dataset: 50 factual edition records each for Deep Vellum, Dalkey Archive, and Archipelago Books.
 
+## Next provider gate: New Directions
+
+New Directions is the default next expansion candidate, but this gate is not an import authorization by itself. It is a preflight record that must stay machine-checkable before any New Directions fixture or cover data is added.
+
+- Provider slug: `new_directions_official_site`.
+- Official source URL: `https://www.ndbooks.com/books/`.
+- Permission URL: `https://www.ndbooks.com/permissions/`.
+- Contact/takedown URL: `https://www.ndbooks.com/about/contact/`.
+- Allowed source host: `www.ndbooks.com`.
+- Observed cover host for public book-grid images: `cdn.sanity.io`.
+- Explicitly excluded hosts for this gate: `ndpublishing.myshopify.com` storefront/account links and any off-host cover source.
+- Permission/provenance note: use only source-backed factual bibliographic metadata from official New Directions pages or a checked-in deterministic fixture derived from an approved source. Preserve provider, source URL, field provenance, and import-run evidence for every imported value.
+- Cover cache policy: `link_only_until_explicit_cache_permission`; do not cache New Directions covers locally unless a later provider policy records explicit cache permission.
+- Excluded content: raw HTML, jacket-copy dumps, author bios, reviews, user reviews, prices, inventory, availability, cart/checkout/account data, and unsupported long prose.
+- Takedown/contact note: route removal/correction requests through the same cover takedown flow used by the pilot dataset, then update fixtures with source notes; New Directions lists permissions/contact paths on its official site.
+- Not legal advice: this gate is an engineering provenance control, not a legal conclusion.
+
 ## Source URLs
 
 - Deep Vellum: official Shopify product JSON and product pages under `https://store.deepvellum.org/products/...`; source probe: `https://store.deepvellum.org/products.json?limit=250`.
