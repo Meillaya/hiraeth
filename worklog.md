@@ -621,3 +621,5 @@ Commits:
   - `.omo/evidence/m7-full-mix-test-post-review-fixes.txt` — full suite: 138 tests, 0 failures.
   - `.omo/evidence/m7-browser-qa-strict-post-review-fixes.txt` — strict browser QA passed with all route timings under budget, no remote public image dependencies, thumbnail decode, and mobile overflow checks.
   - `.omo/evidence/m7-precommit-post-review-fixes.txt` — `MIX_ENV=test mix precommit`: 138 tests, 0 failures.
+
+Commit: 61b857b — `fix(covers): secure cacheable cover display`
