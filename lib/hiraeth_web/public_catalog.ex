@@ -56,7 +56,11 @@ defmodule HiraethWeb.PublicCatalog do
   defp books_for_work_ids([]), do: []
 
   defp books_for_work_ids(work_ids) do
-    work_order = work_ids |> Enum.with_index() |> Map.new()
+    work_order =
+      work_ids
+      |> Enum.map(&uuid_text/1)
+      |> Enum.with_index()
+      |> Map.new()
 
     work_ids
     |> editions_for_work_ids()
@@ -247,7 +251,7 @@ defmodule HiraethWeb.PublicCatalog do
 
       publisher ->
         editions =
-          edition_rows("where e.publisher_id = $1::uuid", [publisher.id])
+          edition_rows("where e.publisher_id = $1::uuid", [uuid_param(publisher.id)])
           |> Enum.map(&edition_projection_from_row/1)
           |> Enum.sort_by(&sort_key/1)
 
@@ -274,7 +278,7 @@ defmodule HiraethWeb.PublicCatalog do
         position_by_work_id = Map.new(memberships, &{&1.work_id, &1.position})
 
         editions =
-          edition_rows("where e.work_id::text = any($1::text[])", [work_ids])
+          edition_rows("where e.work_id = any($1::uuid[])", [Enum.map(work_ids, &uuid_param/1)])
           |> Enum.map(&edition_projection_from_row/1)
           |> Enum.sort_by(fn edition ->
             position = Map.get(position_by_work_id, edition.work_id)
@@ -341,7 +345,7 @@ defmodule HiraethWeb.PublicCatalog do
 
   defp publisher_summary_from_row([id, name, slug, description, editions_count]) do
     %{
-      id: id,
+      id: uuid_text(id),
       name: name,
       slug: slug,
       description: description,
@@ -423,7 +427,7 @@ defmodule HiraethWeb.PublicCatalog do
          unknown_order?
        ]) do
     %{
-      id: id,
+      id: uuid_text(id),
       title: title,
       name: title,
       slug: slug,
@@ -445,7 +449,7 @@ defmodule HiraethWeb.PublicCatalog do
   end
 
   defp membership_from_data(%{"work_id" => work_id, "position" => position}) do
-    %{work_id: work_id, position: position}
+    %{work_id: uuid_text(work_id), position: position}
   end
 
   defp edition_rows(where_sql, params) do
@@ -579,8 +583,8 @@ defmodule HiraethWeb.PublicCatalog do
     cover = covers |> public_cover_data() |> cover_projection_from_data()
 
     %{
-      id: id,
-      work_id: work_id,
+      id: uuid_text(id),
+      work_id: uuid_text(work_id),
       title: title,
       subtitle: subtitle,
       slug: slug,
@@ -840,8 +844,8 @@ defmodule HiraethWeb.PublicCatalog do
 
   defp atomize_source(source) do
     %{
-      id: source["id"],
-      source_record_id: source["source_record_id"],
+      id: uuid_text(source["id"]),
+      source_record_id: uuid_text(source["source_record_id"]),
       provider: source["provider"],
       source_type: source["source_type"],
       source_uri: source["source_uri"],
@@ -913,6 +917,33 @@ defmodule HiraethWeb.PublicCatalog do
   defp truthy?(true), do: true
   defp truthy?("true"), do: true
   defp truthy?(_value), do: false
+
+  defp uuid_text(value) when is_binary(value) and byte_size(value) == 16 do
+    case Ecto.UUID.load(value) do
+      {:ok, uuid} -> uuid
+      :error -> value
+    end
+  end
+
+  defp uuid_text(value) when is_binary(value) do
+    case Ecto.UUID.cast(value) do
+      {:ok, uuid} -> uuid
+      :error -> value
+    end
+  end
+
+  defp uuid_text(value), do: value
+
+  defp uuid_param(value) when is_binary(value) and byte_size(value) == 16, do: value
+
+  defp uuid_param(value) when is_binary(value) do
+    case Ecto.UUID.dump(value) do
+      {:ok, raw_uuid} -> raw_uuid
+      :error -> value
+    end
+  end
+
+  defp uuid_param(value), do: value
 
   defp normalize_text(value) do
     value

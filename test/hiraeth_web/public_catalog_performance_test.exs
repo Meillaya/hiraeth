@@ -92,12 +92,37 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
 
     assert scoped_edition_projection_query?(
              series_detail,
-             "where e.work_id::text = any($1::text[])"
+             "where e.work_id = any($1::uuid[])"
            )
 
     for measurement <- [publisher_index, publisher_detail, series_index, series_detail] do
       assert measurement.query_count <= @directory_query_budget
       assert measurement.elapsed_microseconds <= @warm_elapsed_budget_microseconds
+    end
+  end
+
+  test "public catalog ids are UTF-8 UUID strings safe for LiveView stream DOM ids" do
+    page = PublicCatalog.book_page(nil, 1)
+    publisher = PublicCatalog.publisher("deep-vellum")
+    series_slug = PublicCatalog.series() |> List.first() |> Map.fetch!(:slug)
+    series = PublicCatalog.series_by_slug(series_slug)
+
+    ids =
+      [
+        Enum.flat_map(page.entries, &[&1.id, &1.work_id]),
+        [publisher.id],
+        Enum.flat_map(publisher.editions, &[&1.id, &1.work_id]),
+        [series.id],
+        Enum.flat_map(series.editions, &[&1.id, &1.work_id])
+      ]
+      |> List.flatten()
+
+    assert ids != []
+
+    for id <- ids do
+      assert is_binary(id)
+      assert String.valid?(id), "expected #{inspect(id)} to be valid UTF-8"
+      assert {:ok, _uuid} = Ecto.UUID.cast(id)
     end
   end
 
