@@ -730,8 +730,8 @@ defmodule HiraethWeb.PublicCatalog do
       public_cache_policy_data?(asset)
   end
 
-  defp public_cache_policy_data?(%{"cache_policy" => "link_only", "cached_file_path" => path}) do
-    not present?(path)
+  defp public_cache_policy_data?(%{"cache_policy" => "link_only"} = asset) do
+    not present?(asset["cached_file_path"]) and not present?(asset["thumbnail_file_path"])
   end
 
   defp public_cache_policy_data?(%{
@@ -739,7 +739,7 @@ defmodule HiraethWeb.PublicCatalog do
          "rights_basis" => "local_cache_permitted",
          "cached_file_path" => path
        }) do
-    not present?(path) or safe_cached_file_path?(path)
+    safe_cached_file_path?(path)
   end
 
   defp public_cache_policy_data?(_asset), do: false
@@ -870,10 +870,40 @@ defmodule HiraethWeb.PublicCatalog do
     path = Path.expand(path)
     cache_root = Path.expand("priv/static/covers/cache")
 
-    String.starts_with?(path, cache_root <> "/") and File.exists?(path)
+    with true <- String.starts_with?(path, cache_root <> "/"),
+         true <- cache_root_directory?(cache_root),
+         true <- no_symlink_components?(path, cache_root),
+         true <- File.regular?(path) do
+      true
+    else
+      _ -> false
+    end
   end
 
   defp safe_cached_file_path?(_path), do: false
+
+  defp cache_root_directory?(cache_root) do
+    case File.lstat(cache_root) do
+      {:ok, %{type: :directory}} -> true
+      _ -> false
+    end
+  end
+
+  defp no_symlink_components?(path, cache_root) do
+    path
+    |> Path.relative_to(cache_root)
+    |> Path.split()
+    |> Enum.reduce_while(cache_root, fn component, parent ->
+      current = Path.join(parent, component)
+
+      case File.lstat(current) do
+        {:ok, %{type: :symlink}} -> {:halt, false}
+        {:ok, _stat} -> {:cont, current}
+        {:error, _reason} -> {:halt, false}
+      end
+    end)
+    |> is_binary()
+  end
 
   defp present?(value), do: is_binary(value) and String.trim(value) != ""
 

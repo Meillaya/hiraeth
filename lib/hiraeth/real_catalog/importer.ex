@@ -210,17 +210,10 @@ defmodule Hiraeth.RealCatalog.Importer do
           CoverAsset,
           :source_url,
           cover.source_url,
-          %{
-            source_url: cover.source_url,
-            provider: cover.provider,
-            rights_basis: cover.rights_basis,
-            attribution_text: cover.attribution_text,
-            attribution_url: cover.attribution_url,
-            cache_policy: cover.cache_policy,
-            takedown_state: "visible"
-          },
+          cover_asset_attrs(cover),
           write_opts
         )
+        |> sync_cover_asset!(cover, write_opts)
 
       find_or_create_by!(
         CoverAssignment,
@@ -228,6 +221,48 @@ defmodule Hiraeth.RealCatalog.Importer do
         %{edition_id: edition.id, cover_asset_id: asset.id, position: 1, visible?: true},
         write_opts
       )
+    end
+  end
+
+  defp cover_asset_attrs(cover) do
+    %{
+      source_url: cover.source_url,
+      provider: cover.provider,
+      rights_basis: cover.rights_basis,
+      attribution_text: cover.attribution_text,
+      attribution_url: cover.attribution_url,
+      cache_policy: cover.cache_policy,
+      takedown_state: "visible"
+    }
+  end
+
+  defp sync_cover_asset!(asset, cover, write_opts) do
+    updates = %{
+      provider: cover.provider,
+      rights_basis: cover.rights_basis,
+      attribution_text: cover.attribution_text,
+      attribution_url: cover.attribution_url,
+      cache_policy: cover.cache_policy
+    }
+
+    updates =
+      if cover.cache_policy == "link_only" do
+        Map.merge(updates, %{cached_file_path: nil, thumbnail_file_path: nil, cached_at: nil})
+      else
+        updates
+      end
+
+    updates =
+      updates
+      |> Enum.reject(fn {key, value} -> Map.get(asset, key) == value end)
+      |> Map.new()
+
+    if updates == %{} do
+      asset
+    else
+      asset
+      |> Ash.Changeset.for_update(:update, updates)
+      |> Ash.update!(write_opts)
     end
   end
 

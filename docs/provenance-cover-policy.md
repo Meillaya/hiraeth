@@ -26,6 +26,7 @@ source records, local cache paths, thumbnail paths, and takedown controls
 auditable.
 
 These provenance checks are product/audit safeguards, not legal conclusions.
+Treat this as a legal review required before production boundary.
 Before production/commercial use, expansion to additional publishers or
 bookstores, monetized cover display, or bulk jacket-copy/description imports,
 perform a separate source-permission review and update the provider policy

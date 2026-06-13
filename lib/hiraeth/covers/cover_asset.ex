@@ -96,6 +96,8 @@ defmodule Hiraeth.Covers.CoverAsset do
       require_atomic? false
 
       accept [
+        :provider,
+        :rights_basis,
         :attribution_text,
         :attribution_url,
         :cache_policy,

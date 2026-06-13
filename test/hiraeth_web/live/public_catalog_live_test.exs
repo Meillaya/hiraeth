@@ -259,12 +259,13 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
         }
       )
 
-    assert html =~ ~s|src="/covers/cache/cached-cover-book-thumb.jpg"|
-    assert html =~ ~s|loading="lazy"|
-    assert html =~ ~s|decoding="async"|
-    assert html =~ ~s|width="400"|
-    assert html =~ ~s|height="600"|
-    refute html =~ ~s|src="https://covers.example.test/cached-cover-book.jpg"|
+    card_img = html |> LazyHTML.from_fragment() |> LazyHTML.query("img")
+
+    assert LazyHTML.attribute(card_img, "src") == ["/covers/cache/cached-cover-book-thumb.jpg"]
+    assert LazyHTML.attribute(card_img, "loading") == ["lazy"]
+    assert LazyHTML.attribute(card_img, "decoding") == ["async"]
+    assert LazyHTML.attribute(card_img, "width") == ["400"]
+    assert LazyHTML.attribute(card_img, "height") == ["600"]
 
     hero_html =
       render_component(&CatalogComponents.book_cover/1,
@@ -285,10 +286,11 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
         }
       )
 
-    assert hero_html =~ ~s|src="/covers/cache/cached-cover-book.jpg"|
-    assert hero_html =~ ~s|loading="eager"|
-    assert hero_html =~ ~s|fetchpriority="high"|
-    refute hero_html =~ ~s|src="/covers/cache/cached-cover-book-thumb.jpg"|
+    hero_img = hero_html |> LazyHTML.from_fragment() |> LazyHTML.query("img")
+
+    assert LazyHTML.attribute(hero_img, "src") == ["/covers/cache/cached-cover-book.jpg"]
+    assert LazyHTML.attribute(hero_img, "loading") == ["eager"]
+    assert LazyHTML.attribute(hero_img, "fetchpriority") == ["high"]
   end
 
   defp cache_cover_for_edition_slug!(slug, provider, source_url, filename, attribution_text) do

@@ -11,6 +11,22 @@ defmodule Hiraeth.RealCatalogImporterTest do
   test "real catalog importer seeds approved publisher records with provenance and covers idempotently" do
     clear_catalog!()
 
+    {:ok, datasets} = Dataset.load_dir()
+    first_cover = datasets |> hd() |> Map.fetch!(:records) |> hd() |> Map.fetch!(:cover)
+
+    legacy_asset =
+      CoverAsset
+      |> Ash.Changeset.for_create(:create, %{
+        source_url: first_cover.source_url,
+        provider: first_cover.provider,
+        rights_basis: "provider_link_allowed",
+        attribution_text: "Legacy attribution",
+        attribution_url: nil,
+        cache_policy: "link_only",
+        takedown_state: "visible"
+      })
+      |> Ash.create!(authorize?: false)
+
     assert {:ok, first_summary} = Hiraeth.RealCatalog.Importer.seed!()
     assert first_summary.editions == 150
     assert first_summary.publishers == 3
@@ -50,6 +66,13 @@ defmodule Hiraeth.RealCatalogImporterTest do
     assert Enum.all?(source_records, &is_binary(&1.import_run_id))
     assert Enum.all?(cover_assets, &(&1.cache_policy == "cache_allowed"))
     assert Enum.all?(cover_assets, &is_nil(&1.cached_file_path))
+
+    synced_asset = Enum.find(cover_assets, &(&1.id == legacy_asset.id))
+    assert synced_asset.provider == first_cover.provider
+    assert synced_asset.rights_basis == "local_cache_permitted"
+    assert synced_asset.attribution_text == first_cover.attribution_text
+    assert synced_asset.attribution_url == first_cover.attribution_url
+    assert synced_asset.cache_policy == "cache_allowed"
 
     assert {:ok, datasets} = Dataset.load_dir()
     dataset_file_checksums = datasets |> Enum.map(& &1.file_checksum) |> Enum.sort()

@@ -178,10 +178,11 @@ defmodule Hiraeth.CoversResourceTest do
            } = Covers.public_cover_for_edition(edition.id)
   end
 
-  test "public resolver allows cacheable remote covers before local cache warmup", %{
-    admin: admin,
-    edition: edition
-  } do
+  test "public resolver records cacheable provenance but hides remote cover before local cache warmup",
+       %{
+         admin: admin,
+         edition: edition
+       } do
     cacheable =
       cover_asset!(admin, %{
         source_url: "https://covers.example.test/cacheable-before-warmup.jpg",
@@ -192,13 +193,10 @@ defmodule Hiraeth.CoversResourceTest do
 
     assignment!(admin, edition, cacheable)
 
-    assert Covers.public_cover_asset?(cacheable)
+    assert Covers.public_cover_provenance_valid?(cacheable)
+    refute Covers.public_cover_asset?(cacheable)
 
-    assert %{
-             source_url: "https://covers.example.test/cacheable-before-warmup.jpg",
-             cached_file_path: nil,
-             public_url: "https://covers.example.test/cacheable-before-warmup.jpg"
-           } = Covers.public_cover_for_edition(edition.id)
+    assert Covers.public_cover_for_edition(edition.id) == Covers.fallback_cover()
   end
 
   test "takedown hides cached covers and does not expose stale local paths", %{
@@ -245,7 +243,12 @@ defmodule Hiraeth.CoversResourceTest do
     summary =
       Covers.cache_public_covers!(
         cache_root: cache_root,
-        fetch: fn "https://covers.example.test/cache-task.jpg" -> "fake image bytes" end
+        source_urls: ["https://covers.example.test/cache-task.jpg"],
+        fetch: fn "https://covers.example.test/cache-task.jpg" -> "fake image bytes" end,
+        thumbnailer: fn _cache_path, thumbnail_path ->
+          File.write!(thumbnail_path, "fake thumbnail bytes")
+          {:ok, thumbnail_path}
+        end
       )
 
     assert %{cached: 1, skipped: 0, assets: [cached_asset]} = summary
@@ -263,6 +266,7 @@ defmodule Hiraeth.CoversResourceTest do
     skipped =
       Covers.cache_public_covers!(
         cache_root: cache_root,
+        source_urls: ["https://covers.example.test/cache-task.jpg"],
         fetch: fn _url -> raise "already cached covers should be skipped" end
       )
 
@@ -271,12 +275,57 @@ defmodule Hiraeth.CoversResourceTest do
     forced =
       Covers.cache_public_covers!(
         cache_root: cache_root,
+        source_urls: ["https://covers.example.test/cache-task.jpg"],
         force?: true,
         fetch: fn "https://covers.example.test/cache-task.jpg" -> "new fake image bytes" end
       )
 
     assert %{cached: 1, skipped: 0, assets: [forced_asset]} = forced
     assert File.read!(forced_asset.cached_file_path) == "new fake image bytes"
+  end
+
+  test "cover cache task backfills missing thumbnails from already cached originals", %{
+    admin: admin,
+    edition: edition
+  } do
+    cache_root =
+      Path.join(
+        "priv/static/covers/cache",
+        "backfill-thumb-#{System.unique_integer([:positive])}"
+      )
+
+    on_exit(fn -> File.rm_rf!(cache_root) end)
+
+    cached_path = Path.join(cache_root, "already-cached.jpg")
+    File.mkdir_p!(cache_root)
+    File.write!(cached_path, "cached original bytes")
+
+    cacheable =
+      cover_asset!(admin, %{
+        source_url: "https://covers.example.test/backfill-thumbnail.jpg",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed",
+        cached_file_path: cached_path,
+        thumbnail_file_path: nil
+      })
+
+    assignment!(admin, edition, cacheable)
+
+    summary =
+      Covers.cache_public_covers!(
+        cache_root: cache_root,
+        source_urls: ["https://covers.example.test/backfill-thumbnail.jpg"],
+        fetch: fn _url -> raise "cached original should not be fetched" end,
+        thumbnailer: fn ^cached_path, thumbnail_path ->
+          File.write!(thumbnail_path, "thumbnail bytes")
+          {:ok, thumbnail_path}
+        end
+      )
+
+    assert %{cached: 1, skipped: 0, assets: [updated]} = summary
+    assert File.read!(updated.cached_file_path) == "cached original bytes"
+    assert File.read!(updated.thumbnail_file_path) == "thumbnail bytes"
+    assert Covers.public_cover_asset?(updated)
   end
 
   test "cover cache task bounds hung thumbnail generation", %{admin: admin, edition: edition} do
@@ -302,6 +351,7 @@ defmodule Hiraeth.CoversResourceTest do
       :timer.tc(fn ->
         Covers.cache_public_covers!(
           cache_root: cache_root,
+          source_urls: ["https://covers.example.test/hung-thumbnail.jpg"],
           fetch: fn "https://covers.example.test/hung-thumbnail.jpg" -> "fake image bytes" end,
           thumbnail_timeout: 25,
           thumbnailer: fn _source_path, _thumbnail_path ->
@@ -348,6 +398,7 @@ defmodule Hiraeth.CoversResourceTest do
     summary =
       Covers.cache_public_covers!(
         cache_root: cache_root,
+        source_urls: ["https://covers.example.test/stale-cache.jpg"],
         fetch: fn "https://covers.example.test/stale-cache.jpg" -> "restored bytes" end
       )
 
@@ -367,6 +418,7 @@ defmodule Hiraeth.CoversResourceTest do
 
     summary =
       Covers.cache_public_covers!(
+        source_urls: ["https://evil.example.test/unsafe.jpg"],
         fetch: fn _url -> raise "unsafe source URL should not be fetched" end
       )
 
@@ -388,7 +440,11 @@ defmodule Hiraeth.CoversResourceTest do
       Req.Test.redirect(conn, external: "http://169.254.169.254/latest/meta-data")
     end
 
-    summary = Covers.cache_public_covers!(req_options: [plug: plug])
+    summary =
+      Covers.cache_public_covers!(
+        source_urls: ["https://covers.example.test/redirect.jpg"],
+        req_options: [plug: plug]
+      )
 
     assert %{cached: 0, skipped: 0, failed: 1, failures: [%{reason: reason}]} = summary
     assert reason =~ "status 302"
@@ -417,6 +473,7 @@ defmodule Hiraeth.CoversResourceTest do
 
     summary =
       Covers.cache_public_covers!(
+        source_urls: ["https://covers.example.test/fetch-failure.jpg"],
         fetch: fn "https://covers.example.test/fetch-failure.jpg" -> raise "network down" end
       )
 
@@ -425,6 +482,7 @@ defmodule Hiraeth.CoversResourceTest do
     assert_raise RuntimeError, ~r/cover cache failed.*network down/, fn ->
       Covers.cache_public_covers!(
         strict?: true,
+        source_urls: ["https://covers.example.test/fetch-failure.jpg"],
         fetch: fn "https://covers.example.test/fetch-failure.jpg" -> raise "network down" end
       )
     end
@@ -444,6 +502,7 @@ defmodule Hiraeth.CoversResourceTest do
       Covers.cache_public_covers!(
         timeout: 10,
         max_concurrency: 1,
+        source_urls: ["https://covers.example.test/timeout.jpg"],
         fetch: fn "https://covers.example.test/timeout.jpg" -> Process.sleep(:infinity) end
       )
 
@@ -465,8 +524,60 @@ defmodule Hiraeth.CoversResourceTest do
              "cached cover file path must be under priv/static/covers/cache"
   end
 
+  test "public cache policy rejects symlinked cached paths inside static cache root", %{
+    admin: admin
+  } do
+    cache_root =
+      Path.join(
+        "priv/static/covers/cache",
+        "symlink-#{System.unique_integer([:positive])}"
+      )
+
+    outside_dir =
+      Path.join(System.tmp_dir!(), "hiraeth-cover-outside-#{System.unique_integer([:positive])}")
+
+    File.mkdir_p!(cache_root)
+    File.mkdir_p!(outside_dir)
+
+    outside_path = Path.join(outside_dir, "outside.jpg")
+    symlink_path = Path.join(cache_root, "linked.jpg")
+    File.write!(outside_path, "outside bytes")
+
+    case File.ln_s(outside_path, symlink_path) do
+      :ok ->
+        on_exit(fn ->
+          File.rm_rf!(cache_root)
+          File.rm_rf!(outside_dir)
+        end)
+
+        symlinked =
+          cover_asset!(admin, %{
+            source_url: "https://covers.example.test/symlink-cache.jpg",
+            rights_basis: "local_cache_permitted",
+            cache_policy: "cache_allowed",
+            cached_file_path: symlink_path
+          })
+
+        refute Covers.public_cover_asset?(symlinked)
+
+        assert Covers.public_cover_rejection_reason(symlinked) ==
+                 "cached cover file path must be under priv/static/covers/cache"
+
+      {:error, _reason} ->
+        File.rm_rf!(cache_root)
+        File.rm_rf!(outside_dir)
+        :ok
+    end
+  end
+
   test "provenance audit writes zero invalid public covers", %{admin: admin, edition: edition} do
-    cover = cover_asset!(admin, %{source_url: "https://covers.example.test/visible.jpg"})
+    cover =
+      cover_asset!(admin, %{
+        source_url: "https://covers.example.test/visible.jpg",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed"
+      })
+
     assignment!(admin, edition, cover)
 
     audit = Covers.audit_public_cover_provenance!("artifacts/qa/covers/provenance-audit.json")

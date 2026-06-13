@@ -213,7 +213,7 @@ defmodule Hiraeth.ProvenanceAudit do
   defp valid_public_cover?(%CoverAssignment{} = assignment) do
     case loaded_or_nil(assignment.cover_asset) do
       %CoverAsset{} = asset ->
-        Covers.public_cover_asset?(asset)
+        Covers.public_cover_provenance_valid?(asset)
 
       _ ->
         false

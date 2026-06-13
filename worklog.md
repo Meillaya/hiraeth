@@ -602,3 +602,22 @@ Commits:
 - 05db7ed — `chore(qa): record final performance verification`
 - e08a1b9 — `chore(process): finalize verification worklog commit`
 - Context-mining review found older cover-policy docs still stated link-only defaults without noting the superseding cacheable pilot decision. Updated `docs/provenance-cover-policy.md` and the earlier OMX dataset plan to document that the checked-in pilot dataset is cacheable for this prototype run while future providers remain link-only unless explicit cache rights are recorded.
+
+
+## Catalog performance optimization — Milestone 7 review remediation
+
+- Date: 2026-06-13
+- Addressed independent security/code-quality review blockers found after the first final-verification pass:
+  - Cacheable covers no longer render remote source URLs before a safe local cached file exists; provenance audit can still recognize explicit cache rights before warmup.
+  - Cached cover paths now reject symlinked files/components under `priv/static/covers/cache` before public display.
+  - `cache_public_covers!/1` backfills missing thumbnails from already cached originals, so migrated/previously cached rows receive card derivatives without refetching originals.
+  - Real-catalog import now syncs provider, rights basis, attribution, and cache policy onto existing cover assets so old `link_only` rows upgrade idempotently when the validated dataset changes.
+  - Responsive overflow QA now binds Chrome DevTools to loopback, rejects non-local targets by default, uses CDP/global timeouts, and waits for the expected page marker before probing overflow.
+  - Component cover assertions now use LazyHTML selector/attribute checks.
+- Verification evidence after remediation:
+  - `.omo/evidence/m7-compile-post-review-fixes.txt` — compile with warnings as errors passed.
+  - `.omo/evidence/m7-focused-post-review-fixes.txt` — focused covers/importer/provenance/LiveView/performance suite: 43 tests, 0 failures.
+  - `.omo/evidence/m7-script-syntax-post-review-fixes.txt` — browser QA shell and responsive overflow script syntax checks passed.
+  - `.omo/evidence/m7-full-mix-test-post-review-fixes.txt` — full suite: 138 tests, 0 failures.
+  - `.omo/evidence/m7-browser-qa-strict-post-review-fixes.txt` — strict browser QA passed with all route timings under budget, no remote public image dependencies, thumbnail decode, and mobile overflow checks.
+  - `.omo/evidence/m7-precommit-post-review-fixes.txt` — `MIX_ENV=test mix precommit`: 138 tests, 0 failures.
