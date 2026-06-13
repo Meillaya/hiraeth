@@ -105,6 +105,18 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     |> render_change()
 
     assert has_element?(view, "#search-empty", "No catalog entries match")
+
+    view
+    |> form("#catalog-search-form", search: %{query: "%"})
+    |> render_change()
+
+    assert has_element?(view, "#search-empty", "No catalog entries match")
+
+    view
+    |> form("#catalog-search-form", search: %{query: "_"})
+    |> render_change()
+
+    assert has_element?(view, "#search-empty", "No catalog entries match")
   end
 
   test "publisher index/detail routes render real publishers", %{conn: conn} do

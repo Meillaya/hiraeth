@@ -6,28 +6,27 @@ defmodule HiraethWeb.SearchLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    books = PublicCatalog.books()
+    results = PublicCatalog.book_page("", 1)
 
     {:ok,
      socket
      |> assign(:page_title, "Search Catalog")
-     |> assign(:all_books, books)
      |> assign(:query, "")
      |> assign(:form, to_form(%{"query" => ""}, as: :search))
-     |> assign(:results_count, length(books))
-     |> stream(:results, books)}
+     |> assign(:results_count, results.total_count)
+     |> stream(:results, results.entries)}
   end
 
   @impl true
   def handle_event("search", %{"search" => %{"query" => query}}, socket) do
-    results = PublicCatalog.search_books(query)
+    results = PublicCatalog.book_page(query, 1)
 
     {:noreply,
      socket
      |> assign(:query, query)
      |> assign(:form, to_form(%{"query" => query}, as: :search))
-     |> assign(:results_count, length(results))
-     |> stream(:results, results, reset: true)}
+     |> assign(:results_count, results.total_count)
+     |> stream(:results, results.entries, reset: true)}
   end
 
   @impl true

@@ -392,7 +392,7 @@ Evidence:
 Milestone commits:
 - `05fbfb2` — test(browser): verify cached grouped catalog UX
 - `9065cc3` — chore(process): record final T13 commit reference
-- T14 commit: pending
+- `7680818` — chore(qa): record catalog metadata performance verification
 
 Final status for T14: pass; unresolved T14 risks: none beyond normal local browser-QA timing variance (latest timings were within budget).
 
@@ -414,3 +414,23 @@ Evidence:
 - `.omo/evidence/final-f1-fixes-public-live.txt` — public catalog LiveView focused rerun passed, 7 tests, 0 failures.
 
 Remediation finalized commit: e4ce65f — fix(catalog): close final compliance gaps
+
+
+## Final verification remediation — search pagination and SQL correctness
+
+Addressed the second F1/F2 audit revisions before rerunning final verification.
+
+Changed:
+- Search LiveView now uses `PublicCatalog.book_page/3` for the initial `/search` render and real-time search events instead of loading the full catalog stream.
+- Public catalog SQL now escapes `%`, `_`, and `!` for text `LIKE` searches, so wildcard characters are treated as literal malformed input.
+- Work-id and count queries now require matching source provenance before a work contributes to public pagination/counts, aligning SQL totals with the source-attached projections rendered later.
+- Blank browse/search work-id selection has a minimal source-safe SQL path to keep full-catalog page reads under the performance budget.
+- Added regressions for literal `%` / `_` search handling and for excluding source-less editions from public pagination.
+
+Evidence:
+- `.omo/evidence/final-search-sql-correctness-tests.txt` — focused public catalog LiveView/performance suite passed, 9 tests, 0 failures.
+- `.omo/evidence/final-after-search-fixes-precommit.txt` — `MIX_ENV=test mix precommit` passed, 126 tests, 0 failures.
+- `.omo/evidence/final-after-search-fixes-browser.txt` — `make test-browser` passed with `test_browser=pass`; timings were `/browse` 97ms, `/browse?q=Immigrant` 99ms, `/books/deep-vellum-immigrant` 85ms.
+- `.omo/evidence/final-after-search-fixes-docker-cleanup.txt` — docker/browser QA cleanup receipt.
+
+Remediation commit: pending

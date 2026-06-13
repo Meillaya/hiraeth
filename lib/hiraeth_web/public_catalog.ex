@@ -104,6 +104,22 @@ defmodule HiraethWeb.PublicCatalog do
     end
   end
 
+  defp count_books_for_query(query) when query in [nil, ""] do
+    {:ok, %{rows: [[count]]}} =
+      Hiraeth.Repo.query(
+        """
+        select count(distinct e.work_id)
+        from editions e
+        join identifiers source_identifier on source_identifier.edition_id = e.id
+        join source_records sr
+          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+        """,
+        []
+      )
+
+    count
+  end
+
   defp count_books_for_query(query) do
     {where, params} = work_query_where(query)
 
@@ -113,8 +129,10 @@ defmodule HiraethWeb.PublicCatalog do
         select count(distinct e.work_id)
         from editions e
         join works w on w.id = e.work_id
+        join identifiers source_identifier on source_identifier.edition_id = e.id
+        join source_records sr
+          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
         left join publishers p on p.id = e.publisher_id
-        left join identifiers i on i.edition_id = e.id
         left join contributions c on c.work_id = w.id or c.edition_id = e.id
         left join contributors ct on ct.id = c.contributor_id
         left join series_memberships sm on sm.work_id = w.id
@@ -127,6 +145,28 @@ defmodule HiraethWeb.PublicCatalog do
     count
   end
 
+  defp work_ids_for_query(query, limit, offset) when query in [nil, ""] do
+    {limit_sql, params} = limit_params(limit, offset, [])
+
+    {:ok, %{rows: rows}} =
+      Hiraeth.Repo.query(
+        """
+        select e.work_id
+        from editions e
+        join works w on w.id = e.work_id
+        join identifiers source_identifier on source_identifier.edition_id = e.id
+        join source_records sr
+          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+        group by e.work_id, w.title
+        order by lower(w.title), min(e.slug)
+        #{limit_sql}
+        """,
+        params
+      )
+
+    Enum.map(rows, fn [work_id] -> work_id end)
+  end
+
   defp work_ids_for_query(query, limit, offset) do
     {where, params} = work_query_where(query)
     {limit_sql, params} = limit_params(limit, offset, params)
@@ -137,8 +177,10 @@ defmodule HiraethWeb.PublicCatalog do
         select e.work_id
         from editions e
         join works w on w.id = e.work_id
+        join identifiers source_identifier on source_identifier.edition_id = e.id
+        join source_records sr
+          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
         left join publishers p on p.id = e.publisher_id
-        left join identifiers i on i.edition_id = e.id
         left join contributions c on c.work_id = w.id or c.edition_id = e.id
         left join contributors ct on ct.id = c.contributor_id
         left join series_memberships sm on sm.work_id = w.id
@@ -154,23 +196,21 @@ defmodule HiraethWeb.PublicCatalog do
     Enum.map(rows, fn [work_id] -> work_id end)
   end
 
-  defp work_query_where(query) when query in [nil, ""], do: {"", []}
-
   defp work_query_where(query) do
-    needle = "%#{normalize_text(query)}%"
+    needle = "%#{like_escape(normalize_text(query))}%"
     normalized_identifier = normalize_identifier(query)
     identifier = if normalized_identifier == "", do: "", else: "%#{normalized_identifier}%"
 
     {
       """
-      where lower(coalesce(w.title, '')) like $1
-         or lower(coalesce(w.subtitle, '')) like $1
-         or lower(coalesce(e.title, '')) like $1
-         or lower(coalesce(e.subtitle, '')) like $1
-         or lower(coalesce(p.name, '')) like $1
-         or lower(coalesce(ct.display_name, '')) like $1
-         or lower(coalesce(s.title, '')) like $1
-         or ($2 <> '' and regexp_replace(coalesce(i.value, ''), '[^0-9xX]', '', 'g') like $2)
+      where lower(coalesce(w.title, '')) like $1 escape '!'
+         or lower(coalesce(w.subtitle, '')) like $1 escape '!'
+         or lower(coalesce(e.title, '')) like $1 escape '!'
+         or lower(coalesce(e.subtitle, '')) like $1 escape '!'
+         or lower(coalesce(p.name, '')) like $1 escape '!'
+         or lower(coalesce(ct.display_name, '')) like $1 escape '!'
+         or lower(coalesce(s.title, '')) like $1 escape '!'
+         or ($2 <> '' and regexp_replace(coalesce(source_identifier.value, ''), '[^0-9xX]', '', 'g') like $2)
       """,
       [needle, identifier]
     }
@@ -617,6 +657,13 @@ defmodule HiraethWeb.PublicCatalog do
     |> String.downcase()
     |> String.replace(~r/\s+/, " ")
     |> String.trim()
+  end
+
+  defp like_escape(value) do
+    value
+    |> String.replace("!", "!!")
+    |> String.replace("%", "!%")
+    |> String.replace("_", "!_")
   end
 
   defp normalize_identifier(value) do
