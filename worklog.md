@@ -601,3 +601,4 @@ Commits:
 - ce340a8 — `fix(ui): stack search results on mobile`
 - 05db7ed — `chore(qa): record final performance verification`
 - e08a1b9 — `chore(process): finalize verification worklog commit`
+- Context-mining review found older cover-policy docs still stated link-only defaults without noting the superseding cacheable pilot decision. Updated `docs/provenance-cover-policy.md` and the earlier OMX dataset plan to document that the checked-in pilot dataset is cacheable for this prototype run while future providers remain link-only unless explicit cache rights are recorded.

@@ -10,12 +10,26 @@ Hiraeth stores source evidence separately from canonical catalog records. Source
 
 ## Cover lifecycle
 
-- v1 is link-only by default.
+- v1 is link-only by default unless a checked-in dataset or provider policy explicitly
+  records `rights_basis: "local_cache_permitted"` and `cache_policy: "cache_allowed"`.
 - Public covers require source URL, provider, rights basis, attribution text/link when required, and a non-hidden takedown state.
-- Cached cover files require explicit cache rights. Without that basis, render the typographic fallback.
+- Cached cover files require explicit cache rights. Without that basis, render the source URL only when link-only display is allowed, or the typographic fallback when the public-cover gate fails.
 - Takedown-hidden cover assignments must not render publicly, and takedown events should appear in audit exports.
 
-legal review required before production use if Hiraeth caches covers, monetizes cover display, expands third-party cover providers, or imports real jacket copy/descriptions at scale.
+## Current pilot dataset cover decision
+
+The real-publisher pilot dataset under `priv/catalog_sources/real_publishers/`
+is intentionally marked cacheable for this prototype catalog run. That decision
+supersedes the earlier link-only planning default for these checked-in records
+only. The implementation still keeps source URLs, provider names, attribution,
+source records, local cache paths, thumbnail paths, and takedown controls
+auditable.
+
+These provenance checks are product/audit safeguards, not legal conclusions.
+Before production/commercial use, expansion to additional publishers or
+bookstores, monetized cover display, or bulk jacket-copy/description imports,
+perform a separate source-permission review and update the provider policy
+records accordingly.
 
 ## Oban deferral
 
