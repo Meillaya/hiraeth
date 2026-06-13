@@ -599,4 +599,4 @@ Commit: 1c53c91 — `chore(perf): record read-model cache skip`
 Commits:
 - fcfe2aa — `fix(covers): allow cacheable covers before warmup`
 - ce340a8 — `fix(ui): stack search results on mobile`
-- pending — final verification worklog update
+- 05db7ed — `chore(qa): record final performance verification`
