@@ -362,4 +362,4 @@ Cleanup:
 - Browser QA trap stopped Phoenix and docker compose resources; `.omo/evidence/task-13-docker-cleanup.txt` captured final cleanup.
 - Removed ignored `priv/static/covers/cache/browser-qa-immigrant.*` QA files after evidence capture; seeding recreates the PNG deterministically.
 
-T13 commit: pending
+T13 finalized commit: 05fbfb2 — test(browser): verify cached grouped catalog UX
