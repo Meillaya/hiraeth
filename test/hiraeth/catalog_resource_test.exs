@@ -98,10 +98,270 @@ defmodule Hiraeth.CatalogResourceTest do
 
     updated =
       work
-      |> Ash.Changeset.for_update(:update, %{description: "Updated sourced synopsis."})
+      |> Ash.Changeset.for_update(:update, %{
+        description: "Updated sourced synopsis.",
+        original_title: "Titre mis à jour",
+        original_language_code: "fra",
+        subjects: ["Updated subject"]
+      })
       |> Ash.update!(actor: admin)
 
     assert updated.description == "Updated sourced synopsis."
+    assert updated.original_title == "Titre mis à jour"
+    assert updated.original_language_code == "fra"
+    assert updated.subjects == ["Updated subject"]
+  end
+
+  test "works store nullable source-backed bibliographic metadata", %{admin: admin} do
+    work =
+      create!(
+        Work,
+        %{
+          title: "Source Metadata Work",
+          slug: unique_slug("source-metadata-work"),
+          original_title: "Titre source",
+          original_language_code: "fra",
+          subjects: ["French literature", "Experimental fiction"]
+        },
+        admin
+      )
+
+    assert work.original_title == "Titre source"
+    assert work.original_language_code == "fra"
+    assert work.subjects == ["French literature", "Experimental fiction"]
+
+    minimal = create!(Work, %{title: "Minimal Metadata Work", slug: unique_slug("work")}, admin)
+
+    assert minimal.original_title == nil
+    assert minimal.original_language_code == nil
+    assert minimal.subjects == []
+  end
+
+  test "editions store nullable source-backed format metadata in millimetres", %{admin: admin} do
+    publisher =
+      create!(Publisher, %{name: "Metadata Press", slug: unique_slug("publisher")}, admin)
+
+    work = create!(Work, %{title: "Measured Work", slug: unique_slug("work")}, admin)
+
+    edition =
+      create!(
+        Edition,
+        %{
+          title: "Measured Work",
+          slug: unique_slug("edition"),
+          work_id: work.id,
+          publisher_id: publisher.id,
+          format: "paperback",
+          language_code: "eng",
+          page_count: 224,
+          height_mm: 203,
+          width_mm: 127,
+          depth_mm: 18
+        },
+        admin
+      )
+
+    assert edition.language_code == "eng"
+    assert edition.page_count == 224
+    assert edition.height_mm == 203
+    assert edition.width_mm == 127
+    assert edition.depth_mm == 18
+
+    minimal =
+      create!(
+        Edition,
+        %{
+          title: "Unmeasured Work",
+          slug: unique_slug("edition"),
+          work_id: work.id,
+          publisher_id: publisher.id
+        },
+        admin
+      )
+
+    assert minimal.language_code == nil
+    assert minimal.page_count == nil
+    assert minimal.height_mm == nil
+    assert minimal.width_mm == nil
+    assert minimal.depth_mm == nil
+
+    updated =
+      minimal
+      |> Ash.Changeset.for_update(:update, %{
+        language_code: "spa",
+        page_count: 144,
+        height_mm: 198,
+        width_mm: 129,
+        depth_mm: 16
+      })
+      |> Ash.update!(actor: admin)
+
+    assert updated.language_code == "spa"
+    assert updated.page_count == 144
+    assert updated.height_mm == 198
+    assert updated.width_mm == 129
+    assert updated.depth_mm == 16
+  end
+
+  test "edition catalog-edge create accepts source-backed format metadata", %{admin: admin} do
+    publisher =
+      create!(Publisher, %{name: "Nested Metadata Press", slug: unique_slug("publisher")}, admin)
+
+    work = create!(Work, %{title: "Nested Metadata Work", slug: unique_slug("work")}, admin)
+
+    edition =
+      Edition
+      |> Ash.Changeset.for_create(:create_with_catalog_edges, %{
+        title: "Nested Metadata Work",
+        slug: unique_slug("edition"),
+        work_id: work.id,
+        publisher_id: publisher.id,
+        format: "paperback",
+        language_code: "ita",
+        page_count: 192,
+        height_mm: 210,
+        width_mm: 135,
+        depth_mm: 20,
+        contributor: %{
+          "display_name" => "Nested Author",
+          "sort_name" => "Author, Nested",
+          "slug" => unique_slug("nested-author"),
+          "role" => "author"
+        },
+        identifier: %{
+          "identifier_type" => "isbn_13",
+          "value" => "9787000000209"
+        }
+      })
+      |> Ash.create!(actor: admin)
+
+    assert edition.language_code == "ita"
+    assert edition.page_count == 192
+    assert edition.height_mm == 210
+    assert edition.width_mm == 135
+    assert edition.depth_mm == 20
+  end
+
+  test "edition physical metadata requires positive millimetre and page values", %{admin: admin} do
+    publisher =
+      create!(Publisher, %{name: "Positive Press", slug: unique_slug("publisher")}, admin)
+
+    work = create!(Work, %{title: "Positive Work", slug: unique_slug("work")}, admin)
+
+    invalid =
+      Edition
+      |> Ash.Changeset.for_create(:create, %{
+        title: "Invalid Dimensions",
+        slug: unique_slug("edition"),
+        work_id: work.id,
+        publisher_id: publisher.id,
+        page_count: 0,
+        height_mm: -1,
+        width_mm: 0,
+        depth_mm: -4
+      })
+      |> Ash.create(actor: admin)
+
+    assert {:error, error} = invalid
+    message = Exception.message(error)
+    assert message =~ "page_count"
+    assert message =~ "height_mm"
+    assert message =~ "width_mm"
+    assert message =~ "depth_mm"
+
+    valid =
+      create!(
+        Edition,
+        %{
+          title: "Valid Dimensions",
+          slug: unique_slug("edition"),
+          work_id: work.id,
+          publisher_id: publisher.id,
+          page_count: 1,
+          height_mm: 1,
+          width_mm: 1,
+          depth_mm: 1
+        },
+        admin
+      )
+
+    invalid_update =
+      valid
+      |> Ash.Changeset.for_update(:update, %{page_count: 0, height_mm: -2})
+      |> Ash.update(actor: admin)
+
+    assert {:error, update_error} = invalid_update
+    update_message = Exception.message(update_error)
+    assert update_message =~ "page_count"
+    assert update_message =~ "height_mm"
+  end
+
+  test "language metadata must be nullable ISO 639-3 codes", %{admin: admin} do
+    publisher =
+      create!(Publisher, %{name: "Language Press", slug: unique_slug("publisher")}, admin)
+
+    work = create!(Work, %{title: "Language Work", slug: unique_slug("work")}, admin)
+
+    invalid_work =
+      Work
+      |> Ash.Changeset.for_create(:create, %{
+        title: "Invalid Original Language",
+        slug: unique_slug("work"),
+        original_language_code: "english"
+      })
+      |> Ash.create(actor: admin)
+
+    assert {:error, work_error} = invalid_work
+    assert Exception.message(work_error) =~ "original_language_code"
+
+    valid_work =
+      create!(
+        Work,
+        %{
+          title: "Valid Original Language",
+          slug: unique_slug("work"),
+          original_language_code: "jpn"
+        },
+        admin
+      )
+
+    invalid_work_update =
+      valid_work
+      |> Ash.Changeset.for_update(:update, %{original_language_code: "JP"})
+      |> Ash.update(actor: admin)
+
+    assert {:error, work_update_error} = invalid_work_update
+    assert Exception.message(work_update_error) =~ "original_language_code"
+
+    invalid_edition =
+      Edition
+      |> Ash.Changeset.for_create(:create, %{
+        title: "Invalid Edition Language",
+        slug: unique_slug("edition"),
+        work_id: work.id,
+        publisher_id: publisher.id,
+        language_code: "en"
+      })
+      |> Ash.create(actor: admin)
+
+    assert {:error, edition_error} = invalid_edition
+    assert Exception.message(edition_error) =~ "language_code"
+
+    invalid_nested =
+      Edition
+      |> Ash.Changeset.for_create(:create_with_catalog_edges, %{
+        title: "Invalid Nested Language",
+        slug: unique_slug("edition"),
+        work_id: work.id,
+        publisher_id: publisher.id,
+        language_code: "italian",
+        contributor: %{"display_name" => "Language Author", "role" => "author"},
+        identifier: %{"identifier_type" => "isbn_13", "value" => "9787000000216"}
+      })
+      |> Ash.create(actor: admin)
+
+    assert {:error, nested_error} = invalid_nested
+    assert Exception.message(nested_error) =~ "language_code"
   end
 
   test "contributors are assigned by contribution role", %{admin: admin} do

@@ -652,3 +652,45 @@ Commit: 61b857b — `fix(covers): secure cacheable cover display`
   - `.omo/evidence/task-1-role-aware-contributors-http.txt` — real HTTP route rendered `by Joaquín Zihuatanejo` and `translated by David Bowles`.
   - `.omo/evidence/task-1-search-regression.txt` — generic search resource regression passed.
   - `.omo/evidence/task-1-browser-qa-strict.txt` — strict browser QA passed after the public UI change.
+
+## Next roadmap — T2 source-backed bibliographic fields
+
+- Date: 2026-06-13
+- Added persisted Ash/AshPostgres metadata fields for the approved ownership contract:
+  - `Work.original_title`, `Work.original_language_code`, and `Work.subjects`.
+  - `Edition.language_code`, `Edition.page_count`, `Edition.height_mm`, `Edition.width_mm`, and `Edition.depth_mm`.
+  - Page count and dimensions are nullable but, when present, must be positive integers; dimensions are stored in millimetres.
+- Generated AshPostgres migration and snapshots:
+  - `priv/repo/migrations/20260613181658_add_source_backed_bibliographic_fields.exs`.
+  - `priv/resource_snapshots/repo/editions/20260613181659.json`.
+  - `priv/resource_snapshots/repo/works/20260613181700.json`.
+- Verification evidence:
+  - `.omo/evidence/task-2-red-resource-metadata.txt` — RED resource tests before the Ash fields/actions existed.
+  - `.omo/evidence/task-2-green-resource-metadata.txt` — catalog resource tests passed after migration and implementation.
+  - `.omo/evidence/task-2-ash-codegen-check.txt` — AshPostgres migration/snapshot check passed.
+  - `.omo/evidence/task-2-rich-metadata-tmux.txt` — tmux QA channel passed catalog resource tests with trace output.
+  - `.omo/evidence/task-2-domain-topology.txt` — Work/Edition topology regression passed.
+
+### T2 review remediation
+
+- Independent verification found missing coverage for updates and `Edition.create_with_catalog_edges`, plus a real nested-edge authorization failure.
+- Added tests for:
+  - `Work.update` preserving `original_title`, `original_language_code`, and `subjects`.
+  - `Edition.update` preserving language, page count, and millimetre dimensions.
+  - `Edition.create_with_catalog_edges` accepting and persisting the new metadata fields.
+  - invalid physical metadata on update.
+- Fixed nested catalog edge writes so the already-authorized outer admin action performs its transactional implementation writes without re-authorizing against a missing after-action actor.
+- Verification evidence:
+  - `.omo/evidence/task-2-red-review-remediation.txt` — reproduced `create_with_catalog_edges` forbidden failure.
+  - `.omo/evidence/task-2-green-review-remediation.txt` — catalog resource tests passed after the nested-edge fix.
+  - `.omo/evidence/task-2-focused-post-review-fix.txt` — resource and topology tests passed after remediation.
+
+### T2 language-code remediation
+
+- Independent verification found `original_language_code` and `language_code` accepted non-ISO values.
+- Added nullable ISO 639-3 validation for both fields using lowercase three-letter codes.
+- Added malformed create, update, and `create_with_catalog_edges` tests for invalid language metadata.
+- Verification evidence:
+  - `.omo/evidence/task-2-red-language-code-validation.txt` — reproduced invalid `english`/`en` acceptance.
+  - `.omo/evidence/task-2-green-language-code-validation.txt` — catalog resource tests passed with validation in place.
+  - `.omo/evidence/task-2-focused-post-language-fix.txt` — resource and topology tests passed after the language-code remediation.

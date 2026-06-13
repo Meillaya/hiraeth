@@ -36,6 +36,30 @@ defmodule Hiraeth.Catalog.Edition do
       public? true
     end
 
+    attribute :language_code, :string do
+      public? true
+    end
+
+    attribute :page_count, :integer do
+      constraints min: 1
+      public? true
+    end
+
+    attribute :height_mm, :integer do
+      constraints min: 1
+      public? true
+    end
+
+    attribute :width_mm, :integer do
+      constraints min: 1
+      public? true
+    end
+
+    attribute :depth_mm, :integer do
+      constraints min: 1
+      public? true
+    end
+
     attribute :published_on, :date do
       public? true
     end
@@ -54,6 +78,11 @@ defmodule Hiraeth.Catalog.Edition do
     identity :unique_slug, [:slug]
   end
 
+  validations do
+    validate match(:language_code, ~r/^[a-z]{3}$/),
+      message: "must be a lowercase ISO 639-3 language code"
+  end
+
   actions do
     defaults [:read, :destroy]
 
@@ -65,6 +94,11 @@ defmodule Hiraeth.Catalog.Edition do
         :subtitle,
         :slug,
         :format,
+        :language_code,
+        :page_count,
+        :height_mm,
+        :width_mm,
+        :depth_mm,
         :published_on,
         :work_id,
         :publisher_id,
@@ -78,6 +112,11 @@ defmodule Hiraeth.Catalog.Edition do
         :subtitle,
         :slug,
         :format,
+        :language_code,
+        :page_count,
+        :height_mm,
+        :width_mm,
+        :depth_mm,
         :published_on,
         :work_id,
         :publisher_id,
@@ -115,6 +154,11 @@ defmodule Hiraeth.Catalog.Edition do
         :subtitle,
         :slug,
         :format,
+        :language_code,
+        :page_count,
+        :height_mm,
+        :width_mm,
+        :depth_mm,
         :published_on,
         :work_id,
         :publisher_id,

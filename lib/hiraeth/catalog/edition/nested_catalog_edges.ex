@@ -19,6 +19,10 @@ defmodule Hiraeth.Catalog.Edition.NestedCatalogEdges do
   defp create_contributor(edition, params, actor) do
     display_name = required_param(params, "display_name")
 
+    # The outer `Edition.create_with_catalog_edges` action has already been
+    # authorized with the admin actor. Nested edge writes are implementation
+    # details of that authorized action and must preserve the same transaction
+    # instead of re-authorizing against a nil actor in Ash's after-action context.
     contributor =
       Contributor
       |> Ash.Changeset.for_create(:create, %{
@@ -26,7 +30,7 @@ defmodule Hiraeth.Catalog.Edition.NestedCatalogEdges do
         sort_name: blank_to_nil(params["sort_name"]),
         slug: blank_to_nil(params["slug"]) || slugify(display_name)
       })
-      |> Ash.create!(actor: actor)
+      |> Ash.create!(actor: actor, authorize?: false)
 
     Contribution
     |> Ash.Changeset.for_create(:create, %{
@@ -35,7 +39,7 @@ defmodule Hiraeth.Catalog.Edition.NestedCatalogEdges do
       role: blank_to_nil(params["role"]) || "author",
       position: 1
     })
-    |> Ash.create!(actor: actor)
+    |> Ash.create!(actor: actor, authorize?: false)
 
     {:ok, contributor.display_name}
   rescue
@@ -51,7 +55,7 @@ defmodule Hiraeth.Catalog.Edition.NestedCatalogEdges do
       value: value,
       edition_id: edition.id
     })
-    |> Ash.create!(actor: actor)
+    |> Ash.create!(actor: actor, authorize?: false)
 
     {:ok, value}
   rescue
@@ -73,7 +77,7 @@ defmodule Hiraeth.Catalog.Edition.NestedCatalogEdges do
           attribution_text:
             blank_to_nil(params["attribution_text"]) || blank_to_nil(params["attribution"])
         })
-        |> Ash.create!(actor: actor)
+        |> Ash.create!(actor: actor, authorize?: false)
 
       CoverAssignment
       |> Ash.Changeset.for_create(:create, %{
@@ -81,7 +85,7 @@ defmodule Hiraeth.Catalog.Edition.NestedCatalogEdges do
         cover_asset_id: asset.id,
         position: 1
       })
-      |> Ash.create!(actor: actor)
+      |> Ash.create!(actor: actor, authorize?: false)
     end
 
     {:ok, :cover_saved}

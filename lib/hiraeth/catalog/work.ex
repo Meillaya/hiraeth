@@ -21,6 +21,20 @@ defmodule Hiraeth.Catalog.Work do
       public? true
     end
 
+    attribute :original_title, :string do
+      public? true
+    end
+
+    attribute :original_language_code, :string do
+      public? true
+    end
+
+    attribute :subjects, {:array, :string} do
+      allow_nil? false
+      default []
+      public? true
+    end
+
     attribute :slug, :string do
       allow_nil? false
       public? true
@@ -57,6 +71,11 @@ defmodule Hiraeth.Catalog.Work do
     identity :unique_slug, [:slug]
   end
 
+  validations do
+    validate match(:original_language_code, ~r/^[a-z]{3}$/),
+      message: "must be a lowercase ISO 639-3 language code"
+  end
+
   actions do
     defaults [:read, :destroy]
 
@@ -66,6 +85,9 @@ defmodule Hiraeth.Catalog.Work do
       accept [
         :title,
         :subtitle,
+        :original_title,
+        :original_language_code,
+        :subjects,
         :slug,
         :publication_state,
         :description,
@@ -78,6 +100,9 @@ defmodule Hiraeth.Catalog.Work do
       accept [
         :title,
         :subtitle,
+        :original_title,
+        :original_language_code,
+        :subjects,
         :slug,
         :publication_state,
         :description,
