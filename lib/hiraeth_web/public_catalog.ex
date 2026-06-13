@@ -17,11 +17,11 @@ defmodule HiraethWeb.PublicCatalog do
   def page_size, do: @page_size
 
   def books do
-    books_for_query(nil, :all, 0)
+    book_page(nil, 1).entries
   end
 
   def search_books(query) do
-    books_for_query(query, :all, 0)
+    book_page(query, 1).entries
   end
 
   def book_page(query, page, page_size \\ @page_size) do

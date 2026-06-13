@@ -454,3 +454,30 @@ Latest verification commands:
 Final remediation/process commits:
 - `32b585d` — fix(catalog): page search with source-safe SQL
 - `33bad2a` — chore(process): record final search compliance fix
+
+
+## Global review remediation — performance contract and cover-cache SSRF
+
+Addressed blocking findings from the Global Review and Debugging Gate.
+
+Changed:
+- `PublicCatalog.books/0` and `search_books/1` now delegate to `book_page(..., 1).entries`, so compatibility helpers stay page-bounded and match the public page foundation.
+- Added a regression assertion that the grouped public catalog performance helper returns no more than `PublicCatalog.page_size()` entries.
+- Cover cache fetches now force `redirect: false` in `Req`, preventing allowlisted cover hosts from redirecting the server-side cache task to internal or non-allowlisted URLs.
+- Cover cache root overrides are now constrained to `priv/static/covers/cache` or its subdirectories.
+- Added regressions for redirect-following SSRF prevention and unsafe cache-root rejection.
+
+Debug/root cause:
+- Performance probe before fix showed `search_books("")` hydrating 79 entries and exceeding the 100ms helper budget while `book_page("", 1)` hydrated 24 entries in ~22–28ms.
+- Post-fix probe showed `search_books("")` returning 24 entries with warm timings around 11–16ms.
+
+Evidence:
+- `.omo/evidence/final-performance-red-page-bound.txt` — failing-first performance evidence before the page-bound helper fix.
+- `.omo/evidence/final-performance-debug-after.txt` and `.omo/evidence/final-performance-focused-after.txt` — performance and public LiveView focused suites passed after the fix.
+- `.omo/evidence/final-security-cover-cache-ssrf-tests.txt` — cover cache SSRF/cache-root regression suite passed, 15 tests, 0 failures.
+- `.omo/evidence/final-after-performance-security-focused.txt` — combined covers/performance/public LiveView focused suite passed, 24 tests, 0 failures.
+- `.omo/evidence/final-after-performance-security-precommit.txt` — `MIX_ENV=test mix precommit` passed, 128 tests, 0 failures.
+- `.omo/evidence/final-after-performance-security-browser.txt` — `make test-browser` passed with `test_browser=pass`; timings were `/browse` 81ms, `/browse?q=Immigrant` 96ms, `/books/deep-vellum-immigrant` 81ms.
+- `.omo/evidence/final-performance-security-debug-journal.md` — hypothesis-driven debug journal and cleanup record.
+
+Remediation commit: pending

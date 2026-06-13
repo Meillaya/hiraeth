@@ -121,9 +121,10 @@ defmodule Hiraeth.Covers do
   end
 
   def cache_public_covers!(opts \\ []) do
-    cache_root = Keyword.get(opts, :cache_root, @cache_root)
+    cache_root = opts |> Keyword.get(:cache_root, @cache_root) |> ensure_safe_cache_root!()
     force? = Keyword.get(opts, :force?, false)
-    fetch = Keyword.get(opts, :fetch, &req_fetch!/1)
+    req_options = Keyword.get(opts, :req_options, [])
+    fetch = Keyword.get(opts, :fetch, fn url -> req_fetch!(url, req_options) end)
     max_concurrency = Keyword.get(opts, :max_concurrency, 4)
     timeout = Keyword.get(opts, :timeout, 15_000)
     strict? = Keyword.get(opts, :strict?, false)
@@ -253,16 +254,14 @@ defmodule Hiraeth.Covers do
 
   defp safe_cached_file_path?(path) when is_binary(path) do
     path = Path.expand(path)
-    cache_root = Path.expand(@cache_root)
-    String.starts_with?(path, cache_root <> "/") and File.exists?(path)
+    String.starts_with?(path, expanded_cache_root() <> "/") and File.exists?(path)
   end
 
   defp safe_cached_file_path?(_path), do: false
 
   defp cached_file_present?(path) when is_binary(path) do
     path = Path.expand(path)
-    cache_root = Path.expand(@cache_root)
-    String.starts_with?(path, cache_root <> "/") and File.exists?(path)
+    String.starts_with?(path, expanded_cache_root() <> "/") and File.exists?(path)
   end
 
   defp cached_file_present?(_path), do: false
@@ -276,8 +275,31 @@ defmodule Hiraeth.Covers do
     end
   end
 
-  defp req_fetch!(url) do
-    response = Req.get!(url, decode_body: false)
+  defp ensure_safe_cache_root!(cache_root) when is_binary(cache_root) do
+    expanded_root = Path.expand(cache_root)
+    allowed_root = expanded_cache_root()
+
+    if expanded_root == allowed_root or String.starts_with?(expanded_root, allowed_root <> "/") do
+      cache_root
+    else
+      raise ArgumentError,
+            "cover cache_root must stay under #{@cache_root}, got: #{cache_root}"
+    end
+  end
+
+  defp ensure_safe_cache_root!(cache_root) do
+    raise ArgumentError, "cover cache_root must be a path string, got: #{inspect(cache_root)}"
+  end
+
+  defp expanded_cache_root, do: Path.expand(@cache_root)
+
+  defp req_fetch!(url, req_options) do
+    req_options =
+      req_options
+      |> Keyword.put(:decode_body, false)
+      |> Keyword.put(:redirect, false)
+
+    response = Req.get!(url, req_options)
 
     if response.status in 200..299 do
       response.body

@@ -258,6 +258,35 @@ defmodule Hiraeth.CoversResourceTest do
     assert %{cached: 0, skipped: 0, assets: []} = summary
   end
 
+  test "cache task does not follow redirects from allowlisted cover hosts", %{admin: admin} do
+    parent = self()
+
+    _redirecting =
+      cover_asset!(admin, %{
+        source_url: "https://covers.example.test/redirect.jpg",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed"
+      })
+
+    plug = fn conn ->
+      send(parent, {:cover_request, conn.scheme, conn.host, conn.request_path})
+      Req.Test.redirect(conn, external: "http://169.254.169.254/latest/meta-data")
+    end
+
+    summary = Covers.cache_public_covers!(req_options: [plug: plug])
+
+    assert %{cached: 0, skipped: 0, failed: 1, failures: [%{reason: reason}]} = summary
+    assert reason =~ "status 302"
+    assert_received {:cover_request, :https, "covers.example.test", "/redirect.jpg"}
+    refute_receive {:cover_request, _scheme, "169.254.169.254", _path}
+  end
+
+  test "cache task rejects cache roots outside the public cover cache directory" do
+    assert_raise ArgumentError, ~r|cache_root must stay under priv/static/covers/cache|, fn ->
+      Covers.cache_public_covers!(cache_root: "tmp/hiraeth-cover-cache")
+    end
+  end
+
   test "cache task skips fetch failures unless strict mode is requested", %{
     admin: admin,
     edition: edition

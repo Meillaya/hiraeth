@@ -26,6 +26,7 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
 
     assert elapsed_microseconds <= 100_000
     assert length(books) > 0
+    assert length(books) <= PublicCatalog.page_size()
 
     book_keys = Enum.map(books, & &1.work_id)
     assert Enum.uniq(book_keys) == book_keys
