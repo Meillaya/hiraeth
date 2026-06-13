@@ -575,4 +575,4 @@ Pending commit: `perf(covers): serve optimized local cover derivatives`
   - `.omo/evidence/m6-performance-cache-skip-tests.txt` — public catalog performance suite: 6 tests, 0 failures.
   - `.omo/evidence/m6-cache-skip-decision.md` — browser route timings from the latest browser QA, with public routes under 300ms TTFB / 800ms total.
 
-Commit: pending — `chore(perf): record read-model cache skip`
+Commit: 1c53c91 — `chore(perf): record read-model cache skip`
