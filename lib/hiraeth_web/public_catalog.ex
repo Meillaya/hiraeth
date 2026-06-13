@@ -6,11 +6,10 @@ defmodule HiraethWeb.PublicCatalog do
   unknown dates, languages, dimensions, page counts, translators, or cover art.
   """
 
-  import Ash.Expr
   require Ash.Query
 
-  alias Hiraeth.Catalog.{Edition, Publisher, Series}
-  alias Hiraeth.Covers
+  alias Hiraeth.Catalog.{Publisher, Series}
+  alias Hiraeth.RealCatalog.SourcePolicy
 
   @page_size 24
 
@@ -70,19 +69,8 @@ defmodule HiraethWeb.PublicCatalog do
   end
 
   defp editions_for_work_ids(work_ids) do
-    Edition
-    |> Ash.Query.for_read(:read)
-    |> Ash.Query.filter(expr(work_id in ^work_ids))
-    |> Ash.Query.load([
-      :publisher,
-      :identifiers,
-      cover_assignments: [:cover_asset],
-      contributions: [:contributor],
-      work: [series_memberships: [:series], contributions: [:contributor]]
-    ])
-    |> Ash.read!()
-    |> Enum.map(&edition_projection/1)
-    |> attach_sources()
+    edition_rows("where e.work_id = any($1::uuid[])", [work_ids])
+    |> Enum.map(&edition_projection_from_row/1)
   end
 
   defp work_id_for_slug(slug) do
@@ -225,18 +213,8 @@ defmodule HiraethWeb.PublicCatalog do
   end
 
   def editions do
-    Edition
-    |> Ash.Query.for_read(:read)
-    |> Ash.Query.load([
-      :publisher,
-      :identifiers,
-      cover_assignments: [:cover_asset],
-      contributions: [:contributor],
-      work: [series_memberships: [:series], contributions: [:contributor]]
-    ])
-    |> Ash.read!()
-    |> Enum.map(&edition_projection/1)
-    |> attach_sources()
+    edition_rows("", [])
+    |> Enum.map(&edition_projection_from_row/1)
     |> Enum.sort_by(&sort_key/1)
   end
 
@@ -330,39 +308,158 @@ defmodule HiraethWeb.PublicCatalog do
     Enum.find(editions(), &(&1.slug == slug))
   end
 
-  defp edition_projection(edition) do
-    publisher = loaded_or_nil(edition.publisher)
-    work = loaded_or_nil(edition.work)
-    contributions = loaded_list(edition.contributions) ++ loaded_list(work && work.contributions)
-    identifiers = loaded_list(edition.identifiers)
-    cover_assignment = visible_cover_assignment(edition)
-    cover_asset = cover_assignment && loaded_or_nil(cover_assignment.cover_asset)
+  defp edition_rows(where_sql, params) do
+    {:ok, %{rows: rows}} =
+      Hiraeth.Repo.query(
+        """
+        select
+          e.id,
+          e.work_id,
+          e.title,
+          e.subtitle,
+          e.slug,
+          e.format,
+          e.published_on,
+          p.name,
+          p.slug,
+          w.description,
+          w.editorial_praise,
+          w.storefront_url,
+          coalesce(identifiers.data, '[]'::jsonb),
+          coalesce(contributors.data, '[]'::jsonb),
+          coalesce(series.data, '[]'::jsonb),
+          coalesce(covers.data, '[]'::jsonb),
+          source.data
+        from editions e
+        join works w on w.id = e.work_id
+        join publishers p on p.id = e.publisher_id
+        join lateral (
+          select jsonb_agg(i.value order by i.identifier_type, i.value) as data
+          from identifiers i
+          where i.edition_id = e.id
+        ) identifiers on true
+        join lateral (
+          select jsonb_build_object(
+            'id', sr.id,
+            'source_record_id', sr.id,
+            'provider', sr.provider,
+            'source_type', sr.source_type,
+            'source_uri', sr.source_uri,
+            'license_note', sr.license_note,
+            'import_run_id', sr.import_run_id,
+            'imported_at', sr.imported_at
+          ) as data
+          from identifiers source_identifier
+          join source_records sr
+            on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+          where source_identifier.edition_id = e.id
+          order by sr.imported_at desc nulls last, sr.id
+          limit 1
+        ) source on true
+        left join lateral (
+          select jsonb_agg(
+            jsonb_build_object(
+              'id', c.id,
+              'position', c.position,
+              'role', c.role,
+              'name', ct.display_name
+            )
+            order by coalesce(c.position, 0), c.role, c.id
+          ) as data
+          from contributions c
+          join contributors ct on ct.id = c.contributor_id
+          where c.work_id = e.work_id or c.edition_id = e.id
+        ) contributors on true
+        left join lateral (
+          select jsonb_agg(
+            jsonb_build_object(
+              'id', sm.id,
+              'position', sm.position,
+              'title', s.title,
+              'slug', s.slug
+            )
+            order by coalesce(sm.position, 0), sm.id
+          ) as data
+          from series_memberships sm
+          join series s on s.id = sm.series_id
+          where sm.work_id = e.work_id
+        ) series on true
+        left join lateral (
+          select jsonb_agg(
+            jsonb_build_object(
+              'id', ca.id,
+              'position', ca.position,
+              'visible?', ca."visible?",
+              'source_url', cover.source_url,
+              'provider', cover.provider,
+              'rights_basis', cover.rights_basis,
+              'attribution_text', cover.attribution_text,
+              'attribution_url', cover.attribution_url,
+              'cache_policy', cover.cache_policy,
+              'cached_file_path', cover.cached_file_path,
+              'takedown_state', cover.takedown_state
+            )
+            order by coalesce(ca.position, 0), ca.id
+          ) as data
+          from cover_assignments ca
+          join cover_assets cover on cover.id = ca.cover_asset_id
+          where ca.edition_id = e.id
+        ) covers on true
+        #{where_sql}
+        """,
+        params
+      )
 
-    series_memberships = loaded_list(work && work.series_memberships)
+    rows
+  end
+
+  defp edition_projection_from_row([
+         id,
+         work_id,
+         title,
+         subtitle,
+         slug,
+         format,
+         published_on,
+         publisher,
+         publisher_slug,
+         description,
+         editorial_praise,
+         storefront_url,
+         identifiers,
+         contributors,
+         series,
+         covers,
+         source
+       ]) do
+    identifiers = Enum.sort(identifiers || [])
+    contributors = contributors || []
+    series = series || []
+    cover = covers |> public_cover_data() |> cover_projection_from_data()
 
     %{
-      id: edition.id,
-      work_id: edition.work_id,
-      title: edition.title,
-      subtitle: edition.subtitle,
-      slug: edition.slug,
-      format: edition.format,
-      published_on: edition.published_on,
-      year: edition.published_on && edition.published_on.year,
-      publisher: publisher && publisher.name,
-      publisher_slug: publisher && publisher.slug,
-      author: contributor_text(contributions),
-      contributor_names: contributor_names(contributions),
-      identifiers: identifier_values(identifiers),
-      isbn: first_identifier(identifiers),
-      series_titles: series_titles(series_memberships),
-      series_slug: first_series_slug(series_memberships),
-      cover: cover_projection(cover_asset),
-      description: work && work.description,
-      editorial_praise: (work && work.editorial_praise) || [],
-      storefront_url: work && work.storefront_url,
-      source: nil,
-      source_uri: nil
+      id: id,
+      work_id: work_id,
+      title: title,
+      subtitle: subtitle,
+      slug: slug,
+      format: format,
+      published_on: published_on,
+      year: published_on && published_on.year,
+      publisher: publisher,
+      publisher_slug: publisher_slug,
+      author: contributor_text_from_data(contributors),
+      contributor_names: contributor_names_from_data(contributors),
+      identifiers: identifiers,
+      isbn: List.first(identifiers),
+      series_titles: series_titles_from_data(series),
+      series_slug: first_series_slug_from_data(series),
+      cover: cover,
+      description: description,
+      editorial_praise: editorial_praise || [],
+      storefront_url: storefront_url,
+      source: atomize_source(source),
+      source_uri: source && source["source_uri"]
     }
   end
 
@@ -443,103 +540,61 @@ defmodule HiraethWeb.PublicCatalog do
   defp format_rank("audiobook"), do: 3
   defp format_rank(_format), do: 9
 
-  defp attach_sources(editions) do
-    source_by_isbn =
-      editions
-      |> Enum.flat_map(& &1.identifiers)
-      |> Enum.uniq()
-      |> source_by_isbn()
+  defp cover_projection_from_data(nil), do: nil
 
-    editions
-    |> Enum.map(fn edition ->
-      source = Enum.find_value(edition.identifiers, &Map.get(source_by_isbn, &1))
-
-      edition
-      |> Map.put(:source, source)
-      |> Map.put(:source_uri, source && source.source_uri)
-    end)
-    |> Enum.reject(&is_nil(&1.source))
-  end
-
-  defp source_by_isbn([]), do: %{}
-
-  defp source_by_isbn(isbns) do
-    {:ok, %{rows: rows}} =
-      Hiraeth.Repo.query(
-        """
-        select id, provider, source_type, source_uri, license_note, import_run_id, imported_at, raw_payload,
-               coalesce(raw_payload->'edition'->>'isbn_13', raw_payload->'identifier'->>'isbn_13') as isbn
-        from source_records
-        where coalesce(raw_payload->'edition'->>'isbn_13', raw_payload->'identifier'->>'isbn_13') = any($1::text[])
-        """,
-        [isbns]
-      )
-
-    rows
-    |> Enum.map(fn [
-                     id,
-                     provider,
-                     source_type,
-                     source_uri,
-                     license_note,
-                     import_run_id,
-                     imported_at,
-                     raw_payload,
-                     isbn
-                   ] ->
-      isbn =
-        isbn || get_in(raw_payload || %{}, ["edition", "isbn_13"]) ||
-          get_in(raw_payload || %{}, ["identifier", "isbn_13"])
-
-      {isbn,
-       %{
-         id: id,
-         source_record_id: id,
-         provider: provider,
-         source_type: source_type,
-         source_uri: source_uri,
-         license_note: license_note,
-         import_run_id: import_run_id,
-         imported_at: imported_at
-       }}
-    end)
-    |> Enum.reject(fn {isbn, _source} -> is_nil(isbn) end)
-    |> Map.new()
-  end
-
-  defp visible_cover_assignment(edition) do
-    edition.cover_assignments
-    |> loaded_list()
-    |> Enum.filter(fn assignment ->
-      asset = loaded_or_nil(assignment.cover_asset)
-
-      assignment.visible? and Covers.public_cover_asset?(asset)
-    end)
-    |> Enum.sort_by(&{&1.position || 0, &1.id})
-    |> List.first()
-  end
-
-  defp cover_projection(nil), do: nil
-
-  defp cover_projection(asset) do
+  defp cover_projection_from_data(asset) do
     %{
-      source_url: asset.source_url,
-      public_url: cover_public_url(asset),
-      provider: asset.provider,
-      rights_basis: asset.rights_basis,
-      attribution_text: asset.attribution_text,
-      attribution_url: asset.attribution_url,
-      cache_policy: asset.cache_policy,
-      takedown_state: asset.takedown_state
+      source_url: asset["source_url"],
+      public_url: cover_public_url_from_data(asset),
+      provider: asset["provider"],
+      rights_basis: asset["rights_basis"],
+      attribution_text: asset["attribution_text"],
+      attribution_url: asset["attribution_url"],
+      cache_policy: asset["cache_policy"],
+      takedown_state: asset["takedown_state"]
     }
   end
 
-  defp cover_public_url(asset) do
-    case asset.cache_policy do
-      "cache_allowed" -> static_cover_path(asset.cached_file_path) || asset.source_url
-      _ -> asset.source_url
-    end
+  defp cover_public_url_from_data(%{
+         "cache_policy" => "cache_allowed",
+         "cached_file_path" => path
+       })
+       when is_binary(path) do
+    static_cover_path(path) || path
   end
+
+  defp cover_public_url_from_data(asset), do: asset["source_url"]
+
+  defp public_cover_data(covers) do
+    covers
+    |> Enum.filter(&public_cover_data?/1)
+    |> Enum.sort_by(&{&1["position"] || 0, &1["id"]})
+    |> List.first()
+  end
+
+  defp public_cover_data?(asset) do
+    uri = parse_uri(asset["source_url"])
+
+    truthy?(asset["visible?"]) and asset["takedown_state"] == "visible" and
+      present?(asset["source_url"]) and present?(asset["provider"]) and
+      present?(asset["rights_basis"]) and uri.scheme == "https" and
+      SourcePolicy.cover_host_allowed?(asset["provider"], uri.host) and
+      public_cache_policy_data?(asset)
+  end
+
+  defp public_cache_policy_data?(%{"cache_policy" => "link_only", "cached_file_path" => path}) do
+    not present?(path)
+  end
+
+  defp public_cache_policy_data?(%{
+         "cache_policy" => "cache_allowed",
+         "rights_basis" => "local_cache_permitted",
+         "cached_file_path" => path
+       }) do
+    safe_cached_file_path?(path)
+  end
+
+  defp public_cache_policy_data?(_asset), do: false
 
   defp static_cover_path(path) when is_binary(path) do
     path = Path.expand(path)
@@ -552,45 +607,34 @@ defmodule HiraethWeb.PublicCatalog do
 
   defp static_cover_path(_path), do: nil
 
-  defp contributor_names(contributions) do
-    contributions
-    |> Enum.sort_by(&{&1.position || 0, &1.role, &1.id})
-    |> Enum.map(&loaded_or_nil(&1.contributor))
+  defp contributor_names_from_data(contributors) do
+    contributors
+    |> Enum.sort_by(&{&1["position"] || 0, &1["role"], &1["id"]})
+    |> Enum.map(& &1["name"])
     |> Enum.reject(&is_nil/1)
-    |> Enum.map(& &1.display_name)
     |> Enum.uniq()
   end
 
-  defp contributor_text(contributions) do
-    case contributor_names(contributions) do
+  defp contributor_text_from_data(contributors) do
+    case contributor_names_from_data(contributors) do
       [] -> nil
       names -> Enum.join(names, ", ")
     end
   end
 
-  defp identifier_values(identifiers) do
-    identifiers
-    |> Enum.sort_by(&{&1.identifier_type, &1.value})
-    |> Enum.map(& &1.value)
-  end
-
-  defp first_identifier(identifiers), do: identifiers |> identifier_values() |> List.first()
-
-  defp series_titles(series_memberships) do
-    series_memberships
-    |> Enum.sort_by(&{&1.position || 0, &1.id})
-    |> Enum.map(&loaded_or_nil(&1.series))
+  defp series_titles_from_data(series) do
+    series
+    |> Enum.sort_by(&{&1["position"] || 0, &1["id"]})
+    |> Enum.map(& &1["title"])
     |> Enum.reject(&is_nil/1)
-    |> Enum.map(& &1.title)
     |> Enum.uniq()
   end
 
-  defp first_series_slug(series_memberships) do
-    series_memberships
-    |> Enum.sort_by(&{&1.position || 0, &1.id})
-    |> Enum.map(&loaded_or_nil(&1.series))
+  defp first_series_slug_from_data(series) do
+    series
+    |> Enum.sort_by(&{&1["position"] || 0, &1["id"]})
+    |> Enum.map(& &1["slug"])
     |> Enum.reject(&is_nil/1)
-    |> Enum.map(& &1.slug)
     |> List.first()
   end
 
@@ -643,6 +687,54 @@ defmodule HiraethWeb.PublicCatalog do
   defp parse_page(_page), do: 1
 
   defp blank?(value), do: value in [nil, [], ""]
+
+  defp atomize_source(nil), do: nil
+
+  defp atomize_source(source) do
+    %{
+      id: source["id"],
+      source_record_id: source["source_record_id"],
+      provider: source["provider"],
+      source_type: source["source_type"],
+      source_uri: source["source_uri"],
+      license_note: source["license_note"],
+      import_run_id: source["import_run_id"],
+      imported_at: parse_imported_at(source["imported_at"])
+    }
+  end
+
+  defp parse_imported_at(%DateTime{} = value), do: value
+  defp parse_imported_at(%NaiveDateTime{} = value), do: DateTime.from_naive!(value, "Etc/UTC")
+
+  defp parse_imported_at(value) when is_binary(value) do
+    with {:error, _reason} <- DateTime.from_iso8601(value),
+         {:ok, naive} <- NaiveDateTime.from_iso8601(value) do
+      DateTime.from_naive!(naive, "Etc/UTC")
+    else
+      {:ok, datetime, _offset} -> datetime
+      _other -> nil
+    end
+  end
+
+  defp parse_imported_at(_value), do: nil
+
+  defp safe_cached_file_path?(path) when is_binary(path) do
+    path = Path.expand(path)
+    cache_root = Path.expand("priv/static/covers/cache")
+
+    String.starts_with?(path, cache_root <> "/") and File.exists?(path)
+  end
+
+  defp safe_cached_file_path?(_path), do: false
+
+  defp present?(value), do: is_binary(value) and String.trim(value) != ""
+
+  defp parse_uri(value) when is_binary(value), do: URI.parse(value)
+  defp parse_uri(_value), do: %URI{}
+
+  defp truthy?(true), do: true
+  defp truthy?("true"), do: true
+  defp truthy?(_value), do: false
 
   defp loaded_list(%Ash.NotLoaded{}), do: []
   defp loaded_list(nil), do: []

@@ -9,6 +9,8 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
   alias HiraethWeb.CatalogComponents
   alias HiraethWeb.PublicCatalog
 
+  @search_interaction_budget_microseconds 75_000
+
   @immigrant_slug "deep-vellum-immigrant-paperback-9781646054541"
 
   setup do
@@ -117,6 +119,27 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     |> render_change()
 
     assert has_element?(view, "#search-empty", "No catalog entries match")
+  end
+
+  test "search interaction stays within local render_change budget", %{conn: conn} do
+    {:ok, view, _html} = live(conn, ~p"/search")
+
+    {_warm_microseconds, _html} =
+      :timer.tc(fn ->
+        view
+        |> form("#catalog-search-form", search: %{query: "Immigrant"})
+        |> render_change()
+      end)
+
+    {elapsed_microseconds, html} =
+      :timer.tc(fn ->
+        view
+        |> form("#catalog-search-form", search: %{query: "Bob and Hilbert"})
+        |> render_change()
+      end)
+
+    assert elapsed_microseconds <= @search_interaction_budget_microseconds
+    assert html =~ "Bob and Hilbert"
   end
 
   test "publisher index/detail routes render real publishers", %{conn: conn} do

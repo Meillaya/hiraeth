@@ -6,6 +6,7 @@ PORT="${PORT:-4014}"
 BASE_URL="${BASE_URL:-http://127.0.0.1:${PORT}}"
 CHROME_BIN="${CHROME_BIN:-}"
 SERVER_PID=""
+STRICT_TIMING="${STRICT_TIMING:-0}"
 
 if [[ -z "${CHROME_BIN}" ]]; then
   CHROME_BIN="$(command -v chromium || command -v google-chrome || command -v chromium-browser || true)"
@@ -101,18 +102,37 @@ measure_timing() {
   total_ms="$(awk -v value="${total_s}" 'BEGIN { printf "%d", value * 1000 }')"
   local verdict="pass"
   if (( ttfb_ms > 300 || total_ms > 800 )); then
-    verdict="warn_local_env_variance"
+    if [[ "${STRICT_TIMING}" == "1" ]]; then
+      verdict="fail"
+    else
+      verdict="warn_local_env_variance"
+    fi
   fi
   printf 'curl_timing_route=%s curl_timing_ttfb_ms=%s curl_timing_total_ms=%s ttfb_budget_ms=300 total_budget_ms=800 budget=%s\n'     "${label}" "${ttfb_ms}" "${total_ms}" "${verdict}" | tee -a "${TIMING_REPORT}" | tee -a "${TRANSCRIPT}"
+  if [[ "${verdict}" == "fail" ]]; then
+    return 1
+  fi
 }
 
 : > "${TIMING_REPORT}"
-curl -fsS "${BASE_URL}/browse" > /dev/null
-curl -fsS "${BASE_URL}/browse?q=Immigrant" > /dev/null
-curl -fsS "${BASE_URL}/books/deep-vellum-immigrant" > /dev/null
-measure_timing "/browse" "/browse"
-measure_timing "/browse?q=Immigrant" "/browse?q=Immigrant"
-measure_timing "/books/deep-vellum-immigrant" "/books/deep-vellum-immigrant"
+timing_routes=(
+  "/"
+  "/browse"
+  "/browse?page=2"
+  "/browse?q=Immigrant"
+  "/search"
+  "/search?q=9781646054541"
+  "/publishers"
+  "/publishers/deep-vellum"
+  "/series"
+  "/books/deep-vellum-immigrant"
+)
+for route in "${timing_routes[@]}"; do
+  curl -fsS "${BASE_URL}${route}" > /dev/null
+done
+for route in "${timing_routes[@]}"; do
+  measure_timing "${route}" "${route}"
+done
 log "curl_timing_artifact=${TIMING_REPORT}"
 
 log "running real keyboard focus audit"

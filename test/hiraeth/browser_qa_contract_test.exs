@@ -37,6 +37,15 @@ defmodule Hiraeth.BrowserQaContractTest do
     assert script_text =~ "curl_timing_total_ms"
     assert script_text =~ "ttfb_budget_ms=300"
     assert script_text =~ "total_budget_ms=800"
+    assert script_text =~ "STRICT_TIMING"
+    assert script_text =~ "timing_routes=("
+    assert script_text =~ ~s|"/"|
+    assert script_text =~ ~s|"/browse?page=2"|
+    assert script_text =~ ~s|"/search"|
+    assert script_text =~ ~s|"/search?q=9781646054541"|
+    assert script_text =~ ~s|"/publishers"|
+    assert script_text =~ ~s|"/publishers/deep-vellum"|
+    assert script_text =~ ~s|"/series"|
     assert File.exists?(focus_script)
     assert File.exists?(admin_script)
     assert File.exists?(image_decode_script)

@@ -481,3 +481,16 @@ Evidence:
 - `.omo/evidence/final-performance-security-debug-journal.md` — hypothesis-driven debug journal and cleanup record.
 
 Remediation commit: 682a972 — fix(catalog): close global review blockers
+
+## Catalog performance optimization — Milestone 0/1 start
+
+- Date: 2026-06-13
+- Plan: `.omo/plans/catalog-performance-optimization.md`
+- Baseline RED evidence: `.omo/evidence/m0-red-performance-contracts.txt`
+  - New query-count contracts failed on current code: list paths 14 queries, detail/directory paths 13 queries against budgets of 8.
+- Implemented initial read-path fix in `HiraethWeb.PublicCatalog`:
+  - Replaced wide Ash relationship hydration for `editions_for_work_ids/1` and `editions/0` with a single SQL-backed projection query.
+  - Preserved source provenance, cover policy filtering, contributor, series, description, editorial praise, storefront, and format grouping fields.
+- Verification evidence:
+  - `.omo/evidence/m1-compile-after-dead-code.txt` — `mix compile --warnings-as-errors` passed.
+  - `.omo/evidence/m1-focused-performance-after-imported-at-fix.txt` — focused performance/LiveView/browser-contract suite: 15 tests, 0 failures.
