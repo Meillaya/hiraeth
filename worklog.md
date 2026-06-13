@@ -395,3 +395,22 @@ Milestone commits:
 - T14 commit: pending
 
 Final status for T14: pass; unresolved T14 risks: none beyond normal local browser-QA timing variance (latest timings were within budget).
+
+
+## Final verification remediation — F1 plan compliance fixes
+
+Addressed the initial F1 compliance audit revisions before final approval.
+
+Changed:
+- Cover cache task now uses bounded `Task.async_stream` fetch planning with configurable concurrency and timeout.
+- Cover cache failures are skipped and reported by default; `--strict` / `strict?: true` raises on failures.
+- Mix task exposes `--timeout`, `--concurrency`, and `--strict`, and prints failed count.
+- Public browse/search now use query/page-specific work-id SQL selection and only load editions for selected work ids, rather than using broad full-catalog loading as the browse foundation.
+- Added regression tests for skipped fetch failures, strict failure mode, and timeout handling.
+- Removed an unused browser QA script variable flagged in code review.
+
+Evidence:
+- `.omo/evidence/final-f1-fixes-tests.txt` — cover/public catalog focused suite passed, 21 tests, 0 failures.
+- `.omo/evidence/final-f1-fixes-public-live.txt` — public catalog LiveView focused rerun passed, 7 tests, 0 failures.
+
+Remediation commit: pending

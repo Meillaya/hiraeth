@@ -31,13 +31,12 @@ defmodule HiraethWeb.BrowseLive do
   defp assign_catalog(socket, params) do
     query = Map.get(params, "q", "")
     page = Map.get(params, "page", "1")
-    results = PublicCatalog.search_books(query)
-    pagination = PublicCatalog.paginate(results, page)
+    pagination = PublicCatalog.book_page(query, page)
 
     socket
     |> assign(:query, query)
     |> assign(:form, to_form(%{"query" => query}, as: :search))
-    |> assign(:all_count, length(results))
+    |> assign(:all_count, pagination.total_count)
     |> assign(:pagination, pagination)
     |> assign(:selected_book, List.first(pagination.entries))
     |> stream(:books, pagination.entries, reset: true)

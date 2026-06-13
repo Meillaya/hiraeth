@@ -258,6 +258,54 @@ defmodule Hiraeth.CoversResourceTest do
     assert %{cached: 0, skipped: 0, assets: []} = summary
   end
 
+  test "cache task skips fetch failures unless strict mode is requested", %{
+    admin: admin,
+    edition: edition
+  } do
+    failing =
+      cover_asset!(admin, %{
+        source_url: "https://covers.example.test/fetch-failure.jpg",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed"
+      })
+
+    assignment!(admin, edition, failing)
+
+    summary =
+      Covers.cache_public_covers!(
+        fetch: fn "https://covers.example.test/fetch-failure.jpg" -> raise "network down" end
+      )
+
+    assert %{cached: 0, skipped: 0, failed: 1, failures: [%{reason: "network down"}]} = summary
+
+    assert_raise RuntimeError, ~r/cover cache failed.*network down/, fn ->
+      Covers.cache_public_covers!(
+        strict?: true,
+        fetch: fn "https://covers.example.test/fetch-failure.jpg" -> raise "network down" end
+      )
+    end
+  end
+
+  test "cache task bounds hung fetches with a timeout", %{admin: admin, edition: edition} do
+    hanging =
+      cover_asset!(admin, %{
+        source_url: "https://covers.example.test/timeout.jpg",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed"
+      })
+
+    assignment!(admin, edition, hanging)
+
+    summary =
+      Covers.cache_public_covers!(
+        timeout: 10,
+        max_concurrency: 1,
+        fetch: fn "https://covers.example.test/timeout.jpg" -> Process.sleep(:infinity) end
+      )
+
+    assert %{cached: 0, skipped: 0, failed: 1, failures: [%{source_url: nil}]} = summary
+  end
+
   test "public cache policy rejects cached paths outside static cache root", %{admin: admin} do
     unsafe =
       cover_asset!(admin, %{

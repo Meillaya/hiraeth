@@ -124,19 +124,26 @@ defmodule Hiraeth.Covers do
     cache_root = Keyword.get(opts, :cache_root, @cache_root)
     force? = Keyword.get(opts, :force?, false)
     fetch = Keyword.get(opts, :fetch, &req_fetch!/1)
+    max_concurrency = Keyword.get(opts, :max_concurrency, 4)
+    timeout = Keyword.get(opts, :timeout, 15_000)
+    strict? = Keyword.get(opts, :strict?, false)
 
     File.mkdir_p!(cache_root)
 
     CoverAsset
     |> Ash.read!(authorize?: false)
     |> Enum.filter(&cache_candidate?/1)
-    |> Enum.reduce(%{cached: 0, skipped: 0, assets: []}, fn asset, summary ->
-      cache_path = cache_path(asset, cache_root)
-
-      if not force? and cached_file_present?(asset.cached_file_path) do
+    |> Task.async_stream(
+      &cover_cache_plan(&1, cache_root, force?, fetch),
+      max_concurrency: max_concurrency,
+      timeout: timeout,
+      on_timeout: :kill_task
+    )
+    |> Enum.reduce(%{cached: 0, skipped: 0, failed: 0, failures: [], assets: []}, fn
+      {:ok, {:skip, _asset}}, summary ->
         %{summary | skipped: summary.skipped + 1}
-      else
-        body = fetch.(asset.source_url)
+
+      {:ok, {:cache, asset, cache_path, body}}, summary ->
         File.write!(cache_path, body)
 
         cached_asset =
@@ -149,9 +156,45 @@ defmodule Hiraeth.Covers do
           |> Ash.update!(authorize?: false)
 
         %{summary | cached: summary.cached + 1, assets: [cached_asset | summary.assets]}
-      end
+
+      {:ok, {:error, asset, reason}}, summary ->
+        handle_cache_failure(summary, asset.source_url, reason, strict?)
+
+      {:exit, reason}, summary ->
+        handle_cache_failure(summary, nil, inspect(reason), strict?)
     end)
     |> Map.update!(:assets, &Enum.reverse/1)
+    |> Map.update!(:failures, &Enum.reverse/1)
+  end
+
+  defp cover_cache_plan(%CoverAsset{} = asset, cache_root, force?, fetch) do
+    cache_path = cache_path(asset, cache_root)
+
+    cond do
+      not force? and cached_file_present?(asset.cached_file_path) ->
+        {:skip, asset}
+
+      true ->
+        try do
+          {:cache, asset, cache_path, fetch.(asset.source_url)}
+        rescue
+          exception -> {:error, asset, Exception.message(exception)}
+        catch
+          kind, reason -> {:error, asset, "#{kind}: #{inspect(reason)}"}
+        end
+    end
+  end
+
+  defp handle_cache_failure(_summary, source_url, reason, true) do
+    raise "cover cache failed for #{source_url || "unknown source"}: #{reason}"
+  end
+
+  defp handle_cache_failure(summary, source_url, reason, false) do
+    failure = %{source_url: source_url, reason: reason}
+
+    summary
+    |> Map.update!(:failed, &(&1 + 1))
+    |> Map.update!(:failures, &[failure | &1])
   end
 
   def purge_cached_cover!(%CoverAsset{} = asset) do

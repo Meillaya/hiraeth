@@ -6,6 +6,9 @@ defmodule HiraethWeb.PublicCatalog do
   unknown dates, languages, dimensions, page counts, translators, or cover art.
   """
 
+  import Ash.Expr
+  require Ash.Query
+
   alias Hiraeth.Catalog.{Edition, Publisher, Series}
   alias Hiraeth.Covers
 
@@ -14,21 +17,171 @@ defmodule HiraethWeb.PublicCatalog do
   def page_size, do: @page_size
 
   def books do
-    editions()
-    |> Enum.group_by(& &1.work_id)
-    |> Enum.map(fn {_work_id, editions} -> book_projection(editions) end)
-    |> Enum.sort_by(&sort_key/1)
+    books_for_query(nil, :all, 0)
   end
 
   def search_books(query) do
-    books()
-    |> Enum.filter(&book_matches?(&1, query))
+    books_for_query(query, :all, 0)
+  end
+
+  def book_page(query, page, page_size \\ @page_size) do
+    total_count = count_books_for_query(query)
+    total_pages = max(ceil_div(max(total_count, 1), page_size), 1)
+    current_page = page |> parse_page() |> min(total_pages) |> max(1)
+
+    %{
+      entries: books_for_query(query, page_size, (current_page - 1) * page_size),
+      page: current_page,
+      page_size: page_size,
+      total_count: total_count,
+      total_pages: total_pages
+    }
   end
 
   def book(slug) do
-    Enum.find(books(), fn book ->
-      book.slug == slug or Enum.any?(book.formats, &(&1.edition_slug == slug))
-    end)
+    case work_id_for_slug(slug) do
+      nil ->
+        nil
+
+      work_id ->
+        Enum.find(
+          books_for_work_ids([work_id]),
+          &(&1.slug == slug or Enum.any?(&1.formats, fn format -> format.edition_slug == slug end))
+        )
+    end
+  end
+
+  defp books_for_query(query, limit, offset) do
+    query
+    |> work_ids_for_query(limit, offset)
+    |> books_for_work_ids()
+  end
+
+  defp books_for_work_ids([]), do: []
+
+  defp books_for_work_ids(work_ids) do
+    work_order = work_ids |> Enum.with_index() |> Map.new()
+
+    work_ids
+    |> editions_for_work_ids()
+    |> Enum.group_by(& &1.work_id)
+    |> Enum.map(fn {_work_id, editions} -> book_projection(editions) end)
+    |> Enum.sort_by(fn book -> Map.get(work_order, book.work_id, 999_999) end)
+  end
+
+  defp editions_for_work_ids(work_ids) do
+    Edition
+    |> Ash.Query.for_read(:read)
+    |> Ash.Query.filter(expr(work_id in ^work_ids))
+    |> Ash.Query.load([
+      :publisher,
+      :identifiers,
+      cover_assignments: [:cover_asset],
+      contributions: [:contributor],
+      work: [series_memberships: [:series], contributions: [:contributor]]
+    ])
+    |> Ash.read!()
+    |> Enum.map(&edition_projection/1)
+    |> attach_sources()
+  end
+
+  defp work_id_for_slug(slug) do
+    {:ok, %{rows: rows}} =
+      Hiraeth.Repo.query(
+        """
+        select e.work_id
+        from editions e
+        join works w on w.id = e.work_id
+        where e.slug = $1 or w.slug = $1 or regexp_replace(e.slug, '-(paperback|hardcover|ebook|audiobook)-[0-9xX-]+$', '') = $1
+        limit 1
+        """,
+        [slug]
+      )
+
+    case rows do
+      [[work_id]] -> work_id
+      _rows -> nil
+    end
+  end
+
+  defp count_books_for_query(query) do
+    {where, params} = work_query_where(query)
+
+    {:ok, %{rows: [[count]]}} =
+      Hiraeth.Repo.query(
+        """
+        select count(distinct e.work_id)
+        from editions e
+        join works w on w.id = e.work_id
+        left join publishers p on p.id = e.publisher_id
+        left join identifiers i on i.edition_id = e.id
+        left join contributions c on c.work_id = w.id or c.edition_id = e.id
+        left join contributors ct on ct.id = c.contributor_id
+        left join series_memberships sm on sm.work_id = w.id
+        left join series s on s.id = sm.series_id
+        #{where}
+        """,
+        params
+      )
+
+    count
+  end
+
+  defp work_ids_for_query(query, limit, offset) do
+    {where, params} = work_query_where(query)
+    {limit_sql, params} = limit_params(limit, offset, params)
+
+    {:ok, %{rows: rows}} =
+      Hiraeth.Repo.query(
+        """
+        select e.work_id
+        from editions e
+        join works w on w.id = e.work_id
+        left join publishers p on p.id = e.publisher_id
+        left join identifiers i on i.edition_id = e.id
+        left join contributions c on c.work_id = w.id or c.edition_id = e.id
+        left join contributors ct on ct.id = c.contributor_id
+        left join series_memberships sm on sm.work_id = w.id
+        left join series s on s.id = sm.series_id
+        #{where}
+        group by e.work_id, w.title
+        order by lower(w.title), min(e.slug)
+        #{limit_sql}
+        """,
+        params
+      )
+
+    Enum.map(rows, fn [work_id] -> work_id end)
+  end
+
+  defp work_query_where(query) when query in [nil, ""], do: {"", []}
+
+  defp work_query_where(query) do
+    needle = "%#{normalize_text(query)}%"
+    normalized_identifier = normalize_identifier(query)
+    identifier = if normalized_identifier == "", do: "", else: "%#{normalized_identifier}%"
+
+    {
+      """
+      where lower(coalesce(w.title, '')) like $1
+         or lower(coalesce(w.subtitle, '')) like $1
+         or lower(coalesce(e.title, '')) like $1
+         or lower(coalesce(e.subtitle, '')) like $1
+         or lower(coalesce(p.name, '')) like $1
+         or lower(coalesce(ct.display_name, '')) like $1
+         or lower(coalesce(s.title, '')) like $1
+         or ($2 <> '' and regexp_replace(coalesce(i.value, ''), '[^0-9xX]', '', 'g') like $2)
+      """,
+      [needle, identifier]
+    }
+  end
+
+  defp limit_params(:all, _offset, params), do: {"", params}
+
+  defp limit_params(limit, offset, params) do
+    limit_index = length(params) + 1
+    offset_index = length(params) + 2
+    {"limit $#{limit_index} offset $#{offset_index}", params ++ [limit, offset]}
   end
 
   def editions do
@@ -399,34 +552,6 @@ defmodule HiraethWeb.PublicCatalog do
     |> Enum.reject(&is_nil/1)
     |> Enum.map(& &1.slug)
     |> List.first()
-  end
-
-  defp book_matches?(_book, nil), do: true
-  defp book_matches?(_book, ""), do: true
-
-  defp book_matches?(book, query) do
-    needle = normalize_text(query)
-    identifier_needle = normalize_identifier(query)
-
-    searchable_text =
-      [
-        book.title,
-        book.subtitle,
-        book.publisher,
-        book.author,
-        book.series_titles,
-        book.identifiers,
-        Enum.map(book.formats, & &1.format)
-      ]
-      |> List.flatten()
-      |> Enum.reject(&is_nil/1)
-      |> Enum.map_join(" ", &to_string/1)
-      |> normalize_text()
-
-    searchable_identifiers = Enum.map_join(book.identifiers, " ", &normalize_identifier/1)
-
-    String.contains?(searchable_text, needle) or
-      (identifier_needle != "" and String.contains?(searchable_identifiers, identifier_needle))
   end
 
   defp matches?(_edition, nil), do: true

@@ -10,7 +10,6 @@ const chromeBin = process.env.CHROME_BIN || "chromium";
 const debugPort = Number.parseInt(process.env.CHROME_ADMIN_DEBUG_PORT || "9228", 10);
 const email = process.env.HIRAETH_BROWSER_ADMIN_EMAIL || "real-catalog-admin@example.test";
 const password = process.env.HIRAETH_BROWSER_ADMIN_PASSWORD || "correct horse battery staple";
-const editionSlug = "deep-vellum-immigrant-paperback-9781646054541";
 const bookSlug = "deep-vellum-immigrant";
 const expectedCoverAttribution = "Browser QA cached cover";
 const expectedCoverSource = "https://covers.example.test/browser-qa-immigrant.png";
