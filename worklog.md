@@ -413,4 +413,4 @@ Evidence:
 - `.omo/evidence/final-f1-fixes-tests.txt` — cover/public catalog focused suite passed, 21 tests, 0 failures.
 - `.omo/evidence/final-f1-fixes-public-live.txt` — public catalog LiveView focused rerun passed, 7 tests, 0 failures.
 
-Remediation commit: pending
+Remediation finalized commit: e4ce65f — fix(catalog): close final compliance gaps
