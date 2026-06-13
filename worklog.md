@@ -480,4 +480,4 @@ Evidence:
 - `.omo/evidence/final-after-performance-security-browser.txt` — `make test-browser` passed with `test_browser=pass`; timings were `/browse` 81ms, `/browse?q=Immigrant` 96ms, `/books/deep-vellum-immigrant` 81ms.
 - `.omo/evidence/final-performance-security-debug-journal.md` — hypothesis-driven debug journal and cleanup record.
 
-Remediation commit: pending
+Remediation commit: 682a972 — fix(catalog): close global review blockers
