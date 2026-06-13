@@ -75,6 +75,22 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     assert measurement.elapsed_microseconds <= @warm_elapsed_budget_microseconds
   end
 
+  test "book projection exposes contributor roles without dropping generic contributors" do
+    book = PublicCatalog.book("deep-vellum-immigrant")
+
+    assert %{contributors_by_role: contributors_by_role} = book
+    assert Map.keys(contributors_by_role) |> Enum.sort() == ["author", "translator"]
+    assert Enum.map(book.authors, & &1.name) == ["Joaquín Zihuatanejo"]
+    assert Enum.map(book.translators, & &1.name) == ["David Bowles"]
+    assert book.author == "Joaquín Zihuatanejo, David Bowles"
+    assert book.contributor_names == ["Joaquín Zihuatanejo", "David Bowles"]
+    assert get_in(contributors_by_role, ["author", Access.at(0), :role]) == "author"
+    assert get_in(contributors_by_role, ["translator", Access.at(0), :role]) == "translator"
+
+    assert PublicCatalog.search_editions("Joaquín Zihuatanejo")
+           |> Enum.any?(&(&1.title == "Immigrant"))
+  end
+
   test "publisher and series directories have bounded query count" do
     publisher_index = warm_measure(fn -> PublicCatalog.publishers() end)
     publisher_detail = warm_measure(fn -> PublicCatalog.publisher("deep-vellum") end)

@@ -3,7 +3,7 @@ defmodule HiraethWeb.PublicCatalog do
   Ash-backed read model for public LiveView catalog pages.
 
   The module deliberately projects only known persisted fields. It never fills in
-  unknown dates, languages, dimensions, page counts, translators, or cover art.
+  unknown dates, languages, dimensions, page counts, or cover art.
   """
 
   alias Hiraeth.RealCatalog.SourcePolicy
@@ -503,10 +503,12 @@ defmodule HiraethWeb.PublicCatalog do
         left join lateral (
           select jsonb_agg(
             jsonb_build_object(
-              'id', c.id,
+              'id', ct.id,
+              'contribution_id', c.id,
               'position', c.position,
               'role', c.role,
-              'name', ct.display_name
+              'name', ct.display_name,
+              'slug', ct.slug
             )
             order by coalesce(c.position, 0), c.role, c.id
           ) as data
@@ -579,6 +581,7 @@ defmodule HiraethWeb.PublicCatalog do
        ]) do
     identifiers = Enum.sort(identifiers || [])
     contributors = contributors || []
+    contributors_by_role = contributors_by_role_from_data(contributors)
     series = series || []
     cover = covers |> public_cover_data() |> cover_projection_from_data()
 
@@ -594,6 +597,9 @@ defmodule HiraethWeb.PublicCatalog do
       publisher: publisher,
       publisher_slug: publisher_slug,
       author: contributor_text_from_data(contributors),
+      authors: Map.get(contributors_by_role, "author", []),
+      translators: Map.get(contributors_by_role, "translator", []),
+      contributors_by_role: contributors_by_role,
       contributor_names: contributor_names_from_data(contributors),
       identifiers: identifiers,
       isbn: List.first(identifiers),
@@ -621,6 +627,9 @@ defmodule HiraethWeb.PublicCatalog do
         :publisher,
         :publisher_slug,
         :author,
+        :authors,
+        :translators,
+        :contributors_by_role,
         :contributor_names,
         :series_titles,
         :series_slug,
@@ -772,6 +781,27 @@ defmodule HiraethWeb.PublicCatalog do
       [] -> nil
       names -> Enum.join(names, ", ")
     end
+  end
+
+  defp contributors_by_role_from_data(contributors) do
+    contributors
+    |> Enum.sort_by(&{&1["position"] || 0, &1["role"], &1["id"]})
+    |> Enum.reduce(%{}, fn contributor, grouped ->
+      role = contributor["role"] || "contributor"
+
+      entry = %{
+        id: uuid_text(contributor["id"]),
+        name: contributor["name"],
+        slug: contributor["slug"],
+        role: role,
+        position: contributor["position"]
+      }
+
+      Map.update(grouped, role, [entry], &(&1 ++ [entry]))
+    end)
+    |> Map.new(fn {role, entries} ->
+      {role, Enum.uniq_by(entries, &{&1.name, &1.slug, &1.role})}
+    end)
   end
 
   defp series_titles_from_data(series) do

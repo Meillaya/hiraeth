@@ -90,6 +90,8 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert has_element?(filtered, "#catalog-index", "ebook")
     assert has_element?(filtered, "#catalog-index", "9781646054541")
     assert has_element?(filtered, "#catalog-index", "9781646054558")
+    assert has_element?(filtered, "#catalog-index", "by Joaquín Zihuatanejo")
+    assert has_element?(filtered, "#catalog-index", "translated by David Bowles")
   end
 
   test "search filters real catalog without crashing on malformed text", %{conn: conn} do
@@ -179,8 +181,8 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
 
     assert has_element?(view, "#book-detail-shell")
     assert has_element?(view, "#book-title", "Immigrant")
-    assert has_element?(view, "#book-contributors", "Joaquín Zihuatanejo")
-    assert has_element?(view, "#book-contributors", "David Bowles")
+    assert has_element?(view, "#book-authors", "by Joaquín Zihuatanejo")
+    assert has_element?(view, "#book-translators", "translated by David Bowles")
     assert has_element?(view, "#book-identifiers", "9781646054541")
     assert has_element?(view, "#edition-provenance", "deep_vellum_official_store")
     assert has_element?(view, "#edition-provenance", "publisher_dataset")

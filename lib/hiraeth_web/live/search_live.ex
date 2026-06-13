@@ -110,8 +110,11 @@ defmodule HiraethWeb.SearchLive do
                           {book.title}
                         </.link>
                       </div>
-                      <div :if={book[:author]} class="text-xs text-stone-500 italic mt-0.5">
-                        {book.author}
+                      <div class="mt-0.5 space-y-0.5 text-xs text-stone-500 italic">
+                        <p :if={role_names(book[:authors])}>by {role_names(book[:authors])}</p>
+                        <p :if={role_names(book[:translators])}>
+                          translated by {role_names(book[:translators])}
+                        </p>
                       </div>
                     </td>
                     <td class="block text-stone-700 dark:text-stone-300 sm:table-cell sm:py-4 sm:pr-4">
@@ -142,4 +145,17 @@ defmodule HiraethWeb.SearchLive do
     </Layouts.app>
     """
   end
+
+  defp role_names(contributors) when is_list(contributors) do
+    contributors
+    |> Enum.map(& &1[:name])
+    |> Enum.reject(&is_nil/1)
+    |> Enum.join(", ")
+    |> case do
+      "" -> nil
+      names -> names
+    end
+  end
+
+  defp role_names(_contributors), do: nil
 end

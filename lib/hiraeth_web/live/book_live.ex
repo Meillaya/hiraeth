@@ -68,13 +68,14 @@ defmodule HiraethWeb.BookLive do
                 >
                   {@book.subtitle}
                 </p>
-                <p
-                  :if={@book[:author]}
-                  id="book-contributors"
-                  class="text-sm font-medium text-stone-700 dark:text-stone-300"
-                >
-                  by {@book.author}
-                </p>
+                <div class="space-y-1 text-sm font-medium text-stone-700 dark:text-stone-300">
+                  <p :if={role_names(@book[:authors])} id="book-authors">
+                    by {role_names(@book[:authors])}
+                  </p>
+                  <p :if={role_names(@book[:translators])} id="book-translators">
+                    translated by {role_names(@book[:translators])}
+                  </p>
+                </div>
               </div>
 
               <div id="book-identifiers" class="sr-only">
@@ -162,4 +163,17 @@ defmodule HiraethWeb.BookLive do
     </Layouts.app>
     """
   end
+
+  defp role_names(contributors) when is_list(contributors) do
+    contributors
+    |> Enum.map(& &1[:name])
+    |> Enum.reject(&is_nil/1)
+    |> Enum.join(", ")
+    |> case do
+      "" -> nil
+      names -> names
+    end
+  end
+
+  defp role_names(_contributors), do: nil
 end

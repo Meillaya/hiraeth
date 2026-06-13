@@ -54,8 +54,8 @@ defmodule HiraethWeb.CatalogComponents do
         <h3 class="font-serif text-lg md:text-xl font-medium leading-tight tracking-tight">
           {@book.title}
         </h3>
-        <p :if={@book[:author]} class="font-sans text-xs italic mt-2 opacity-90">
-          {@book.author}
+        <p :if={role_names(@book[:authors])} class="font-sans text-xs italic mt-2 opacity-90">
+          by {role_names(@book[:authors])}
         </p>
       </div>
       <div class="relative flex items-center justify-between text-[8px] font-mono uppercase tracking-wider opacity-70 border-t border-current/25 pt-2 gap-2">
@@ -94,12 +94,17 @@ defmodule HiraethWeb.CatalogComponents do
             {@edition.title}
           </.link>
         </h4>
-        <p
-          :if={@edition[:author]}
-          class="font-sans text-sm font-medium text-stone-800 dark:text-stone-200 truncate"
-        >
-          {@edition.author}
-        </p>
+        <div class="space-y-0.5 font-sans text-sm font-medium text-stone-800 dark:text-stone-200">
+          <p :if={role_names(@edition[:authors])} class="truncate">
+            by {role_names(@edition[:authors])}
+          </p>
+          <p
+            :if={role_names(@edition[:translators])}
+            class="truncate text-stone-600 dark:text-stone-400"
+          >
+            translated by {role_names(@edition[:translators])}
+          </p>
+        </div>
         <p class="font-mono text-[11px] font-semibold uppercase tracking-wider !text-stone-700 dark:!text-stone-300 truncate">
           {@edition.publisher || "Publisher unknown"}
         </p>
@@ -133,6 +138,19 @@ defmodule HiraethWeb.CatalogComponents do
 
   defp description_excerpt(_description), do: nil
 
+  defp role_names(contributors) when is_list(contributors) do
+    contributors
+    |> Enum.map(& &1[:name])
+    |> Enum.reject(&is_nil/1)
+    |> Enum.join(", ")
+    |> case do
+      "" -> nil
+      names -> names
+    end
+  end
+
+  defp role_names(_contributors), do: nil
+
   attr :book, :map, required: true
 
   def metadata_table(assigns) do
@@ -143,7 +161,16 @@ defmodule HiraethWeb.CatalogComponents do
       </h3>
       <dl class="divide-y divide-[#E7E2D8]/60 dark:divide-[#2E2A27]/60 text-sm">
         <.metadata_row label="Title" value={@book.title} serif />
-        <.metadata_row :if={@book[:author]} label="Contributor" value={@book.author} />
+        <.metadata_row
+          :if={role_names(@book[:authors])}
+          label="Author"
+          value={role_names(@book[:authors])}
+        />
+        <.metadata_row
+          :if={role_names(@book[:translators])}
+          label="Translator"
+          value={role_names(@book[:translators])}
+        />
         <.metadata_row :if={@book[:publisher]} label="Publisher" value={@book.publisher} />
         <.metadata_row
           :if={Enum.any?(@book[:series_titles] || [])}

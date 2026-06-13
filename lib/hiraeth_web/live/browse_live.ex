@@ -67,7 +67,7 @@ defmodule HiraethWeb.BrowseLive do
           </.form>
           <div class="rounded-sm border border-[#D8CFC0] bg-[#FCFAF7]/70 p-4 text-xs text-stone-700 dark:border-[#2E2A27] dark:bg-[#12110F]/70 dark:text-stone-300 space-y-2">
             <p class="font-mono uppercase tracking-wider">Known fields only</p>
-            <p>Dates, translators, dimensions, and page counts remain absent until sourced.</p>
+            <p>Dates, dimensions, and page counts remain absent until sourced.</p>
           </div>
         </aside>
 

@@ -638,3 +638,17 @@ Commit: 61b857b — `fix(covers): secure cacheable cover display`
 - Verification evidence:
   - `.omo/evidence/task-0-red-provider-gate-test.txt` — RED provider gate test before `SourcePolicy.provider_gate!/1` and readiness checks existed.
   - `.omo/evidence/task-0-new-directions-*-page.html` — captured official source/permission/contact evidence for the preflight decision.
+
+## Next roadmap — T1 role-aware contributors
+
+- Date: 2026-06-13
+- Added role-aware contributor projection/display for public discovery:
+  - `PublicCatalog.book/1` and book pages now expose `authors`, `translators`, and `contributors_by_role` while preserving generic `contributor_names`.
+  - Book detail, browse cards, search rows, cover fallbacks, and metadata tables now label authors separately from translators.
+  - Existing `Contribution.role` remains the source of truth; no separate Author/Translator resources or `/authors`/`/translators` routes were added.
+- Verification evidence:
+  - `.omo/evidence/task-1-red-role-aware-contributors.txt` — RED tests for missing role-aware projection and UI labels.
+  - `.omo/evidence/task-1-green-role-aware-contributors.txt` — focused public catalog/LiveView suite passed after implementation.
+  - `.omo/evidence/task-1-role-aware-contributors-http.txt` — real HTTP route rendered `by Joaquín Zihuatanejo` and `translated by David Bowles`.
+  - `.omo/evidence/task-1-search-regression.txt` — generic search resource regression passed.
+  - `.omo/evidence/task-1-browser-qa-strict.txt` — strict browser QA passed after the public UI change.
