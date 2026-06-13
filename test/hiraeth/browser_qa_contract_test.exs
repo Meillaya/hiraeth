@@ -46,6 +46,7 @@ defmodule Hiraeth.BrowserQaContractTest do
     assert script_text =~ ~s|"/publishers"|
     assert script_text =~ ~s|"/publishers/deep-vellum"|
     assert script_text =~ ~s|"/series"|
+    assert script_text =~ "cover_image_attrs=pass"
     assert File.exists?(focus_script)
     assert File.exists?(admin_script)
     assert File.exists?(image_decode_script)

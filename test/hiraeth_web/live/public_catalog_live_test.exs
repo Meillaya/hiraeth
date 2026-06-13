@@ -256,6 +256,10 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
       )
 
     assert html =~ ~s|src="/covers/cache/cached-cover-book.jpg"|
+    assert html =~ ~s|loading="lazy"|
+    assert html =~ ~s|decoding="async"|
+    assert html =~ ~s|width="400"|
+    assert html =~ ~s|height="600"|
     refute html =~ ~s|src="https://covers.example.test/cached-cover-book.jpg"|
   end
 

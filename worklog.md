@@ -525,3 +525,15 @@ Remediation commit: 682a972 — fix(catalog): close global review blockers
 - Verification evidence:
   - `.omo/evidence/m3-migration-test.txt` — migration index test: 3 tests, 0 failures.
   - `.omo/evidence/m3-focused-tests.txt` — migration + public catalog performance/LiveView/browser-contract suite: 18 tests, 0 failures.
+
+## Catalog performance optimization — Milestone 4
+
+- Date: 2026-06-13
+- Improved cover rendering/perceived speed:
+  - Cover images now render with explicit `loading`, `decoding="async"`, `fetchpriority`, and `width`/`height` attributes.
+  - Card covers default to lazy loading; home spotlight and book detail covers opt into eager/high priority.
+  - Browser QA now validates lazy/async/dimension attributes on cached cover DOM.
+  - Browser QA screenshot coverage now includes `/browse?page=2` and `/search` to match timing coverage.
+- Verification evidence:
+  - `.omo/evidence/m4-compile.txt` — `mix compile --warnings-as-errors` passed.
+  - `.omo/evidence/m4-focused-ui-tests.txt` — public LiveView/browser-contract focused suite: 9 tests, 0 failures.

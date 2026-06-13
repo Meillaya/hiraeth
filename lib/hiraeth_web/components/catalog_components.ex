@@ -9,6 +9,8 @@ defmodule HiraethWeb.CatalogComponents do
   """
   attr :book, :map, required: true
   attr :class, :string, default: ""
+  attr :loading, :string, default: "lazy"
+  attr :fetchpriority, :string, default: "auto"
 
   def book_cover(assigns) do
     ~H"""
@@ -16,6 +18,11 @@ defmodule HiraethWeb.CatalogComponents do
       <img
         src={@book.cover[:public_url] || @book.cover.source_url}
         alt={"Cover for #{@book.title}"}
+        loading={@loading}
+        decoding="async"
+        fetchpriority={@fetchpriority}
+        width="400"
+        height="600"
         class="aspect-[2/3] w-full rounded-sm border border-[#D8CFC0] object-cover shadow-[0_18px_50px_-30px_rgba(28,25,23,0.75)] transition duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_28px_70px_-34px_rgba(28,25,23,0.9)] dark:border-[#3A332D]"
       />
       <figcaption

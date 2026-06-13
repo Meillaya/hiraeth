@@ -38,6 +38,8 @@ defmodule HiraethWeb.HomeLive do
               <CatalogComponents.book_cover
                 book={@spotlight}
                 class="shadow-md shadow-stone-900/10 dark:shadow-none"
+                loading="eager"
+                fetchpriority="high"
               />
             </div>
 

@@ -32,7 +32,12 @@ defmodule HiraethWeb.BookLive do
 
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start rounded-sm border border-[#D8CFC0] bg-[#FCFAF7] p-4 shadow-[0_28px_90px_-60px_rgba(28,25,23,0.65)] dark:border-[#2E2A27] dark:bg-[#12110F] sm:p-6">
             <aside class="lg:col-span-4 space-y-4 lg:sticky lg:top-24">
-              <CatalogComponents.book_cover book={@book} class="max-w-sm mx-auto" />
+              <CatalogComponents.book_cover
+                book={@book}
+                class="max-w-sm mx-auto"
+                loading="eager"
+                fetchpriority="high"
+              />
               <p
                 :if={!@book[:cover]}
                 id="missing-cover-note"

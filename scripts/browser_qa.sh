@@ -143,8 +143,10 @@ log "keyboard_focus_artifact=${QA_DIR}/keyboard-focus.json"
 pages=(
   "/"
   "/browse"
+  "/browse?page=2"
   "/browse?q=Immigrant"
   "/browse?q=%E6%9C%88"
+  "/search"
   "/search?q=9781646054541"
   "/publishers"
   "/publishers/deep-vellum"
@@ -222,6 +224,13 @@ if grep -q '/covers/cache/browser-qa-immigrant.png' "${IMMIGRANT_BROWSE_DOM}" "$
   log "cached_cover_paths=pass path=/covers/cache/browser-qa-immigrant.png"
 else
   log "cached_cover_paths=fail path=/covers/cache/browser-qa-immigrant.png"
+  exit 1
+fi
+
+if grep -q 'loading="lazy"' "${IMMIGRANT_BROWSE_DOM}" && grep -q 'decoding="async"' "${IMMIGRANT_BROWSE_DOM}" && grep -q 'width="400"' "${IMMIGRANT_BROWSE_DOM}" && grep -q 'height="600"' "${IMMIGRANT_BROWSE_DOM}"; then
+  log "cover_image_attrs=pass loading=lazy decoding=async dimensions=400x600"
+else
+  log "cover_image_attrs=fail expected=loading_lazy_decoding_async_dimensions"
   exit 1
 fi
 
