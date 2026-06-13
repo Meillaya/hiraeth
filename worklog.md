@@ -710,3 +710,15 @@ Commit: 61b857b — `fix(covers): secure cacheable cover display`
   - `.omo/evidence/task-3-dataset-schema-tmux.txt` — tmux QA trace for the dataset suite: 25 tests, 0 failures.
   - `.omo/evidence/task-3-validator-cli.txt` — validator CLI returned `{:ok, ...}` for the tracked three-provider corpus.
   - `.omo/evidence/task-3-field-source-coverage.txt` — all 150 records have field-source coverage for displayed fields.
+
+## Next roadmap — T4 New Directions provider policy scaffolding
+
+- Date: 2026-06-13
+- Added the machine-readable provider-policy scaffolding for the approved next expansion provider, New Directions:
+  - `expansion_provider_slugs/0` returns exactly `new_directions_official_site` for this batch.
+  - `provider_permission_metadata!/1` projects the gate into the future JSON `provider_permissions` shape.
+  - `source_uri_allowed?/2`, `cover_uri_allowed?/2`, and `cover_cache_allowed?/1` provide deterministic host/cache checks without adding data import or live scraping.
+  - New Directions covers remain link-only until explicit cache permission is recorded.
+- Verification evidence:
+  - `.omo/evidence/task-4-red-provider-policy.txt` — RED tests before policy projection and URL helpers existed.
+  - `.omo/evidence/task-4-green-provider-policy.txt` — source policy tests passed after implementation.

@@ -19,6 +19,15 @@ New Directions is the default next expansion candidate, but this gate is not an 
 - Takedown/contact note: route removal/correction requests through the same cover takedown flow used by the pilot dataset, then update fixtures with source notes; New Directions lists permissions/contact paths on its official site.
 - Not legal advice: this gate is an engineering provenance control, not a legal conclusion.
 
+`Hiraeth.RealCatalog.SourcePolicy` also exposes the machine-readable expansion
+policy for this single next provider. Its `provider_permission_metadata!/1`
+projection mirrors the JSON `provider_permissions` shape expected by future
+fixtures, while `source_uri_allowed?/2` and `cover_uri_allowed?/2` keep New
+Directions sources limited to `www.ndbooks.com` and `cdn.sanity.io`. The current
+New Directions cover policy remains `link_only_until_explicit_cache_permission`.
+Do not add a New Directions data fixture until the later expansion task supplies
+deterministic records with per-field provenance.
+
 ## Source URLs
 
 - Deep Vellum: official Shopify product JSON and product pages under `https://store.deepvellum.org/products/...`; source probe: `https://store.deepvellum.org/products.json?limit=250`.

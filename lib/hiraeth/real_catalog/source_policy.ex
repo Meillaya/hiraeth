@@ -4,6 +4,7 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
   """
 
   @allowed_formats MapSet.new(~w(paperback hardcover ebook audiobook))
+  @expansion_provider_slugs ["new_directions_official_site"]
 
   @cover_hosts %{
     "deep_vellum_official_store" => MapSet.new(["cdn.shopify.com"]),
@@ -68,6 +69,8 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
 
   def allowed_format?(format), do: MapSet.member?(@allowed_formats, to_string(format))
 
+  def expansion_provider_slugs, do: @expansion_provider_slugs
+
   def cover_host_allowed?(provider, host) do
     provider
     |> cover_hosts()
@@ -83,6 +86,20 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
   end
 
   def source_hosts(provider), do: Map.get(@source_hosts, provider, MapSet.new())
+
+  def source_uri_allowed?(provider, uri_string) do
+    uri_allowed?(provider, uri_string, &source_host_allowed?/2)
+  end
+
+  def cover_uri_allowed?(provider, uri_string) do
+    uri_allowed?(provider, uri_string, &cover_host_allowed?/2)
+  end
+
+  def cover_cache_allowed?(provider) do
+    provider_permission_metadata!(provider).cover_cache_policy == "cache_allowed"
+  rescue
+    ArgumentError -> false
+  end
 
   def provider_gate!(provider) do
     case Map.fetch(@provider_gates, provider) do
@@ -101,9 +118,56 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
     end
   end
 
+  def provider_policy_ready?(provider) do
+    provider in @expansion_provider_slugs and provider_gate_ready?(provider) and
+      provider_permission_metadata_ready?(provider)
+  rescue
+    ArgumentError -> false
+  end
+
+  def provider_permission_metadata!(provider) do
+    gate = provider_gate!(provider)
+
+    %{
+      provider: gate.provider,
+      source_urls: gate.source_urls,
+      source_hosts: sorted_set(gate.source_hosts),
+      cover_hosts: sorted_set(gate.cover_hosts),
+      permission_basis: gate.permission_basis,
+      cover_cache_policy: gate.cover_cache_policy,
+      excluded_content: gate.excluded_content,
+      takedown_contact: gate.takedown_contact,
+      not_legal_advice:
+        "This provider source policy is an engineering provenance control and is not legal advice."
+    }
+  end
+
+  defp provider_permission_metadata_ready?(provider) do
+    metadata = provider_permission_metadata!(provider)
+
+    Enum.all?(
+      ~w(provider source_urls source_hosts cover_hosts permission_basis cover_cache_policy excluded_content takedown_contact not_legal_advice)a,
+      &(metadata |> Map.get(&1) |> gate_field_present_value?())
+    ) and metadata.source_hosts == sorted_set(source_hosts(provider)) and
+      metadata.cover_hosts == sorted_set(cover_hosts(provider))
+  end
+
+  defp uri_allowed?(provider, uri_string, host_allowed?) do
+    case URI.parse(to_string(uri_string)) do
+      %URI{scheme: "https", host: host} when is_binary(host) -> host_allowed?.(provider, host)
+      _invalid -> false
+    end
+  end
+
+  defp sorted_set(%MapSet{} = set), do: set |> MapSet.to_list() |> Enum.sort()
+
   defp gate_field_present?(gate, field) do
     value = Map.get(gate, field)
 
+    gate_field_present_value?(value)
+  end
+
+  defp gate_field_present_value?(value) do
     case value do
       nil -> false
       false -> false

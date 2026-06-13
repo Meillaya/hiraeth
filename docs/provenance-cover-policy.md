@@ -47,6 +47,12 @@ explicit cache permission and provenance. The gate also excludes raw HTML,
 jacket-copy dumps, author bios, reviews, prices, inventory, and storefront or
 account data. It is an engineering safeguard and not legal advice.
 
+The checked-in source policy currently marks New Directions as the only
+expansion provider slug. Its provider-permission projection is intended to be
+copied into the future deterministic JSON fixture, so source URLs, source hosts,
+cover hosts, excluded content, takedown contact, cover-cache policy, and the
+not-legal-advice note remain machine-checkable before import.
+
 ## Oban deferral
 
 No Oban in v1. If imports exceed synchronous limits or need retries/scheduling, add Oban in a future plan with idempotent jobs, provenance-preserving retry semantics, audit events, and clear failure/replay controls.
