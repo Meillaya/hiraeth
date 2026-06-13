@@ -576,3 +576,27 @@ Pending commit: `perf(covers): serve optimized local cover derivatives`
   - `.omo/evidence/m6-cache-skip-decision.md` — browser route timings from the latest browser QA, with public routes under 300ms TTFB / 800ms total.
 
 Commit: 1c53c91 — `chore(perf): record read-model cache skip`
+
+## Catalog performance optimization — Milestone 7 final verification wave
+
+- Date: 2026-06-13
+- Final QA after cover/cache and mobile search fixes:
+  - `mix format --check-formatted`, `mix compile --warnings-as-errors`, focused performance tests, and full `mix test` passed.
+  - `make test-browser` and `STRICT_TIMING=1 make test-browser` passed with all public route timings under budget.
+  - Browser QA now includes `mobile_search_overflow=pass` to prevent the mobile search table clipping regression found during visual QA.
+  - `MIX_ENV=test mix precommit` passed with 136 tests, 0 failures.
+- Visual QA:
+  - Initial visual pass found mobile search overflow on a 390px viewport.
+  - Fixed search rows to stack on mobile and added `scripts/responsive_overflow_check.mjs`.
+  - Follow-up visual pass approved the refreshed mobile search screenshot and overflow JSON.
+- Verification evidence:
+  - `.omo/evidence/m7-full-mix-test-post-mobile-fix.txt`
+  - `.omo/evidence/m7-browser-qa-strict-post-mobile-fix.txt`
+  - `.omo/evidence/m7-precommit-post-mobile-fix.txt`
+  - `.omo/evidence/m7-browser-qa-mobile-search-fix.txt`
+  - `artifacts/qa/browser/mobile-search-overflow.json`
+
+Commits:
+- fcfe2aa — `fix(covers): allow cacheable covers before warmup`
+- ce340a8 — `fix(ui): stack search results on mobile`
+- pending — final verification worklog update
