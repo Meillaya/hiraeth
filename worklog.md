@@ -434,3 +434,23 @@ Evidence:
 - `.omo/evidence/final-after-search-fixes-docker-cleanup.txt` — docker/browser QA cleanup receipt.
 
 Remediation commit: 32b585d — fix(catalog): page search with source-safe SQL
+
+
+## Final verification wave — plan complete
+
+Final verification wave completed after the search/source-safe SQL remediation.
+
+Results:
+- F1 plan compliance audit: APPROVE; evidence `.omo/evidence/final-plan-compliance.md`.
+- F2 code quality review: APPROVE; evidence `.omo/evidence/final-code-quality.md`.
+- F3 real manual QA: APPROVE; evidence `.omo/evidence/final-manual-qa.md` plus browser artifacts.
+- F4 scope fidelity: APPROVE; evidence `.omo/evidence/final-scope-fidelity.md`.
+
+Latest verification commands:
+- `MIX_ENV=test mix test test/hiraeth_web/live/public_catalog_live_test.exs test/hiraeth_web/public_catalog_performance_test.exs --trace` — 9 tests, 0 failures.
+- `MIX_ENV=test mix precommit` — 126 tests, 0 failures.
+- `make test-browser` — `test_browser=pass`; `/browse`, `/browse?q=Immigrant`, and `/books/deep-vellum-immigrant` all under the 300ms/800ms budgets.
+
+Final remediation/process commits:
+- `32b585d` — fix(catalog): page search with source-safe SQL
+- `33bad2a` — chore(process): record final search compliance fix
