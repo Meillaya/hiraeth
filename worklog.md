@@ -195,7 +195,7 @@ Reviewer loop:
 - First independent verifier returned `needs-fix` for schema parity, fixture prose evidence, and stale T7 evidence claim.
 - Fixed all three: schema parity/additionalProperties, real sourced prose snippets in tracked fixtures, and replaced stale `.omo/evidence/task-7-done-claim.json`.
 
-T7 commit: pending
+T7 commit: f2c69bd — feat(import): ingest sourced descriptions and praise
 
 T7 reviewer fix: added a malformed-input regression proving raw HTML inside canonical prose (`description`) is rejected, then expanded the validator's HTML marker detection. Evidence:
 - `.omo/evidence/task-7-red-raw-html-prose.txt` — failed before validator fix.
@@ -225,7 +225,7 @@ Evidence:
 - `.omo/evidence/task-8-diff-check-final-after-review-fixes.txt` — diff whitespace check passed.
 - `.omo/evidence/task-8-cache-task-help-final.txt` — Mix task help available.
 
-T8 commit: pending
+T8 commit: 185a439 — feat(covers): serve cached public cover assets
 
 T8 finalized commit: 185a439 — feat(covers): serve cached public cover assets.
 
@@ -249,7 +249,7 @@ Evidence:
 - `.omo/evidence/task-9-public-query-explain-specific.txt` — ISBN lookup uses `identifiers_public_catalog_value_index` and `cover_assignments_public_catalog_edition_id_index`.
 - `.omo/evidence/task-9-format.txt`, `.omo/evidence/task-9-compile.txt` — format/compile gates passed.
 
-T9 commit: pending
+T9 commit: 480d04c — perf(catalog): add public read indexes
 
 T9 finalized commit: 480d04c — perf(catalog): add public read indexes.
 
@@ -269,7 +269,7 @@ Evidence:
 - `.omo/evidence/task-10-performance-search-tests.txt` — performance/search tests passed.
 - `.omo/evidence/task-10-compile.txt`, `.omo/evidence/task-10-format.txt` — compile/format gates passed.
 
-T10 commit: pending
+T10 commit: e2c7029 — feat(catalog): group public books by work
 
 T10 reviewer fixes:
 - Full public catalog LiveView test now passes, not only the grouped line-filter test.
