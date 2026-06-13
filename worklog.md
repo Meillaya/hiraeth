@@ -722,3 +722,18 @@ Commit: 61b857b — `fix(covers): secure cacheable cover display`
 - Verification evidence:
   - `.omo/evidence/task-4-red-provider-policy.txt` — RED tests before policy projection and URL helpers existed.
   - `.omo/evidence/task-4-green-provider-policy.txt` — source policy tests passed after implementation.
+
+## Next roadmap — T5 Postgres search/filter contract
+
+- Date: 2026-06-13
+- Added the public discovery filter contract on the bounded `HiraethWeb.PublicCatalog` Postgres read path:
+  - `book_page/3` now accepts either the legacy text query or a filter map with `q`, `publisher`, `role`, `contributor`, `format`, `language`, `subject`, `series`, `year`, and `sort`.
+  - Sort contract supports `title`, `newest`, `author`, and `recently_added`.
+  - Browse query params now flow into `PublicCatalog.book_page/3`; full UI controls remain for the later LiveView filter task.
+  - `Hiraeth.Search.Result` is explicitly marked non-public for browser discovery because its manual read hydrates editions before filtering.
+- Verification evidence:
+  - `.omo/evidence/task-5-red-filter-contracts.txt` — RED tests before filter maps and the non-public Ash search marker existed.
+  - `.omo/evidence/task-5-focused-tests.txt` — focused PublicCatalog/search/LiveView suite passed.
+  - `.omo/evidence/task-5-filter-contract-http.txt` — `/browse?publisher=deep-vellum&role=translator&format=paperback&sort=title` returned HTTP 200 and filtered Deep Vellum results.
+  - `.omo/evidence/task-5-malformed-search.txt` — malformed `%` query with filters returned HTTP 200 and a safe empty state.
+  - `.omo/evidence/task-5-format-check.txt`, `.omo/evidence/task-5-compile.txt`, and `.omo/evidence/task-5-diff-check.txt` — formatting, warning-free compile, and whitespace checks passed.

@@ -376,11 +376,25 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
       |> Map.update!(:displayed_fields, fn fields ->
         Enum.uniq(fields ++ ["description", "editorial_praise", "storefront_url"])
       end)
+      |> Map.update!(:field_sources, fn sources ->
+        field_source = %{
+          provider: dataset.provider,
+          source_uri: record.source_uri,
+          source_type: "publisher_dataset",
+          rights_basis: dataset.license_note
+        }
+
+        sources
+        |> Map.put("description", field_source)
+        |> Map.put("editorial_praise", field_source)
+        |> Map.put("storefront_url", field_source)
+      end)
 
     payload = %{
       provider: dataset.provider,
       retrieved_at: dataset.retrieved_at,
       license_note: dataset.license_note,
+      provider_permissions: dataset.provider_permissions,
       records: [prose_record | remaining_records]
     }
 

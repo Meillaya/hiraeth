@@ -21,12 +21,13 @@ defmodule HiraethWeb.PublicCatalog do
   end
 
   def book_page(query, page, page_size \\ @page_size) do
-    total_count = count_books_for_query(query)
+    filters = normalize_book_filters(query)
+    total_count = count_books_for_filters(filters)
     total_pages = max(ceil_div(max(total_count, 1), page_size), 1)
     current_page = page |> parse_page() |> min(total_pages) |> max(1)
 
     %{
-      entries: books_for_query(query, page_size, (current_page - 1) * page_size),
+      entries: books_for_filters(filters, page_size, (current_page - 1) * page_size),
       page: current_page,
       page_size: page_size,
       total_count: total_count,
@@ -47,9 +48,9 @@ defmodule HiraethWeb.PublicCatalog do
     end
   end
 
-  defp books_for_query(query, limit, offset) do
-    query
-    |> work_ids_for_query(limit, offset)
+  defp books_for_filters(filters, limit, offset) do
+    filters
+    |> work_ids_for_filters(limit, offset)
     |> books_for_work_ids()
   end
 
@@ -93,24 +94,8 @@ defmodule HiraethWeb.PublicCatalog do
     end
   end
 
-  defp count_books_for_query(query) when query in [nil, ""] do
-    {:ok, %{rows: [[count]]}} =
-      Hiraeth.Repo.query(
-        """
-        select count(distinct e.work_id)
-        from editions e
-        join identifiers source_identifier on source_identifier.edition_id = e.id
-        join source_records sr
-          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
-        """,
-        []
-      )
-
-    count
-  end
-
-  defp count_books_for_query(query) do
-    {where, params} = work_query_where(query)
+  defp count_books_for_filters(filters) do
+    {where, params} = work_filter_where(filters)
 
     {:ok, %{rows: [[count]]}} =
       Hiraeth.Repo.query(
@@ -134,31 +119,10 @@ defmodule HiraethWeb.PublicCatalog do
     count
   end
 
-  defp work_ids_for_query(query, limit, offset) when query in [nil, ""] do
-    {limit_sql, params} = limit_params(limit, offset, [])
-
-    {:ok, %{rows: rows}} =
-      Hiraeth.Repo.query(
-        """
-        select e.work_id
-        from editions e
-        join works w on w.id = e.work_id
-        join identifiers source_identifier on source_identifier.edition_id = e.id
-        join source_records sr
-          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
-        group by e.work_id, w.title
-        order by lower(w.title), min(e.slug)
-        #{limit_sql}
-        """,
-        params
-      )
-
-    Enum.map(rows, fn [work_id] -> work_id end)
-  end
-
-  defp work_ids_for_query(query, limit, offset) do
-    {where, params} = work_query_where(query)
+  defp work_ids_for_filters(filters, limit, offset) do
+    {where, params} = work_filter_where(filters)
     {limit_sql, params} = limit_params(limit, offset, params)
+    order_sql = work_order_sql(filters.sort)
 
     {:ok, %{rows: rows}} =
       Hiraeth.Repo.query(
@@ -176,7 +140,7 @@ defmodule HiraethWeb.PublicCatalog do
         left join series s on s.id = sm.series_id
         #{where}
         group by e.work_id, w.title
-        order by lower(w.title), min(e.slug)
+        order by #{order_sql}
         #{limit_sql}
         """,
         params
@@ -185,25 +149,123 @@ defmodule HiraethWeb.PublicCatalog do
     Enum.map(rows, fn [work_id] -> work_id end)
   end
 
-  defp work_query_where(query) do
-    needle = "%#{like_escape(normalize_text(query))}%"
-    normalized_identifier = normalize_identifier(query)
-    identifier = if normalized_identifier == "", do: "", else: "%#{normalized_identifier}%"
+  defp work_filter_where(filters) do
+    {conditions, params} =
+      {[], []}
+      |> add_text_filter(filters.q)
+      |> add_slug_or_name_filter(filters.publisher, "p.slug", "p.name")
+      |> add_exact_filter(filters.role, "lower(coalesce(c.role, ''))")
+      |> add_slug_or_name_filter(filters.contributor, "ct.slug", "ct.display_name")
+      |> add_exact_filter(filters.format, "lower(coalesce(e.format, ''))")
+      |> add_language_filter(filters.language)
+      |> add_subject_filter(filters.subject)
+      |> add_slug_or_name_filter(filters.series, "s.slug", "s.title")
+      |> add_year_filter(filters.year)
 
-    {
-      """
-      where lower(coalesce(w.title, '')) like $1 escape '!'
-         or lower(coalesce(w.subtitle, '')) like $1 escape '!'
-         or lower(coalesce(e.title, '')) like $1 escape '!'
-         or lower(coalesce(e.subtitle, '')) like $1 escape '!'
-         or lower(coalesce(p.name, '')) like $1 escape '!'
-         or lower(coalesce(ct.display_name, '')) like $1 escape '!'
-         or lower(coalesce(s.title, '')) like $1 escape '!'
-         or ($2 <> '' and regexp_replace(coalesce(source_identifier.value, ''), '[^0-9xX]', '', 'g') like $2)
-      """,
-      [needle, identifier]
-    }
+    case conditions do
+      [] -> {"", params}
+      _ -> {"where " <> Enum.join(Enum.reverse(conditions), " and "), params}
+    end
   end
+
+  defp add_text_filter({conditions, params}, value) when value in [nil, ""],
+    do: {conditions, params}
+
+  defp add_text_filter({conditions, params}, value) do
+    needle = "%#{like_escape(normalize_text(value))}%"
+    normalized_identifier = normalize_identifier(value)
+    identifier = if normalized_identifier == "", do: "", else: "%#{normalized_identifier}%"
+    text_index = length(params) + 1
+    identifier_index = length(params) + 2
+
+    condition =
+      """
+      (lower(coalesce(w.title, '')) like $#{text_index} escape '!'
+         or lower(coalesce(w.subtitle, '')) like $#{text_index} escape '!'
+         or lower(coalesce(e.title, '')) like $#{text_index} escape '!'
+         or lower(coalesce(e.subtitle, '')) like $#{text_index} escape '!'
+         or lower(coalesce(p.name, '')) like $#{text_index} escape '!'
+         or lower(coalesce(ct.display_name, '')) like $#{text_index} escape '!'
+         or lower(coalesce(s.title, '')) like $#{text_index} escape '!'
+         or ($#{identifier_index} <> '' and regexp_replace(coalesce(source_identifier.value, ''), '[^0-9xX]', '', 'g') like $#{identifier_index}))
+      """
+
+    {[condition | conditions], params ++ [needle, identifier]}
+  end
+
+  defp add_slug_or_name_filter({conditions, params}, value, _slug_column, _name_column)
+       when value in [nil, ""] do
+    {conditions, params}
+  end
+
+  defp add_slug_or_name_filter({conditions, params}, value, slug_column, name_column) do
+    exact = normalize_text(value)
+    like = "%#{like_escape(exact)}%"
+    exact_index = length(params) + 1
+    like_index = length(params) + 2
+
+    condition =
+      "(lower(coalesce(#{slug_column}, '')) = $#{exact_index} or lower(coalesce(#{name_column}, '')) like $#{like_index} escape '!')"
+
+    {[condition | conditions], params ++ [exact, like]}
+  end
+
+  defp add_exact_filter({conditions, params}, value, _expression) when value in [nil, ""] do
+    {conditions, params}
+  end
+
+  defp add_exact_filter({conditions, params}, value, expression) do
+    index = length(params) + 1
+    {["#{expression} = $#{index}" | conditions], params ++ [normalize_text(value)]}
+  end
+
+  defp add_language_filter({conditions, params}, value) when value in [nil, ""],
+    do: {conditions, params}
+
+  defp add_language_filter({conditions, params}, value) do
+    index = length(params) + 1
+
+    condition =
+      "(lower(coalesce(e.language_code, '')) = $#{index} or lower(coalesce(w.original_language_code, '')) = $#{index})"
+
+    {[condition | conditions], params ++ [normalize_text(value)]}
+  end
+
+  defp add_subject_filter({conditions, params}, value) when value in [nil, ""],
+    do: {conditions, params}
+
+  defp add_subject_filter({conditions, params}, value) do
+    index = length(params) + 1
+
+    {["$#{index} = any(coalesce(w.subjects, ARRAY[]::text[]))" | conditions],
+     params ++ [to_string(value)]}
+  end
+
+  defp add_year_filter({conditions, params}, value) when value in [nil, ""],
+    do: {conditions, params}
+
+  defp add_year_filter({conditions, params}, value) do
+    case Integer.parse(to_string(value)) do
+      {year, ""} when year > 0 ->
+        index = length(params) + 1
+        {["extract(year from e.published_on)::int = $#{index}" | conditions], params ++ [year]}
+
+      _invalid ->
+        {["false" | conditions], params}
+    end
+  end
+
+  defp work_order_sql("newest"),
+    do: "max(e.published_on) desc nulls last, lower(w.title), min(e.slug)"
+
+  defp work_order_sql("author"),
+    do:
+      "min(lower(ct.display_name)) filter (where c.role = 'author') nulls last, lower(w.title), min(e.slug)"
+
+  defp work_order_sql("recently_added"),
+    do: "max(sr.imported_at) desc nulls last, lower(w.title), min(e.slug)"
+
+  defp work_order_sql(_sort), do: "lower(w.title), min(e.slug)"
 
   defp limit_params(:all, _offset, params), do: {"", params}
 
@@ -212,6 +274,40 @@ defmodule HiraethWeb.PublicCatalog do
     offset_index = length(params) + 2
     {"limit $#{limit_index} offset $#{offset_index}", params ++ [limit, offset]}
   end
+
+  defp normalize_book_filters(query) when is_map(query) do
+    %{
+      q: filter_value(query, :q) || filter_value(query, :query) || "",
+      publisher: filter_value(query, :publisher),
+      role: filter_value(query, :role),
+      contributor: filter_value(query, :contributor),
+      format: filter_value(query, :format),
+      language: filter_value(query, :language),
+      subject: filter_value(query, :subject),
+      series: filter_value(query, :series),
+      year: filter_value(query, :year),
+      sort: normalize_sort(filter_value(query, :sort))
+    }
+  end
+
+  defp normalize_book_filters(query) do
+    normalize_book_filters(%{q: query})
+  end
+
+  defp filter_value(filters, key) do
+    value = Map.get(filters, key) || Map.get(filters, to_string(key))
+
+    cond do
+      is_nil(value) -> nil
+      is_binary(value) -> String.trim(value)
+      is_atom(value) -> value |> Atom.to_string() |> String.trim()
+      is_integer(value) -> Integer.to_string(value)
+      true -> value |> to_string() |> String.trim()
+    end
+  end
+
+  defp normalize_sort(sort) when sort in ~w(newest title author recently_added), do: sort
+  defp normalize_sort(_sort), do: "title"
 
   def editions do
     edition_rows("", [])

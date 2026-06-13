@@ -4,6 +4,8 @@ defmodule HiraethWeb.BrowseLive do
   alias HiraethWeb.CatalogComponents
   alias HiraethWeb.PublicCatalog
 
+  @filter_params ~w(q publisher role contributor format language subject series year sort)
+
   @impl true
   def mount(_params, _session, socket) do
     {:ok,
@@ -29,9 +31,10 @@ defmodule HiraethWeb.BrowseLive do
   end
 
   defp assign_catalog(socket, params) do
-    query = Map.get(params, "q", "")
+    filters = Map.take(params, @filter_params)
+    query = Map.get(filters, "q", "")
     page = Map.get(params, "page", "1")
-    pagination = PublicCatalog.book_page(query, page)
+    pagination = PublicCatalog.book_page(filters, page)
 
     socket
     |> assign(:query, query)

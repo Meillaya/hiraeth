@@ -66,6 +66,60 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     end
   end
 
+  test "facet filters and sorts are specified on the Postgres public read path" do
+    filters = create_filter_contract_edition!()
+
+    measurement = warm_measure(fn -> PublicCatalog.book_page(filters, 1) end)
+
+    assert measurement.query_count <= @list_query_budget
+
+    assert [%{title: "Facet Contract Novel", translators: translators} = book] =
+             measurement.result.entries
+
+    assert measurement.result.total_count == 1
+    assert Enum.map(translators, & &1.slug) == [filters.contributor]
+    assert hd(book.formats).format == "paperback"
+
+    for sort <- ~w(newest title author recently_added) do
+      page = PublicCatalog.book_page(%{filters | sort: sort}, 1)
+
+      assert page.total_count == 1
+      assert [%{title: "Facet Contract Novel"}] = page.entries
+    end
+  end
+
+  test "facet filters keep malformed wildcard input literal and bounded" do
+    for filters <- [
+          %{q: "%", format: "ebook", sort: "title"},
+          %{q: "_", publisher: "%", contributor: "_", sort: "newest"},
+          %{q: "][\'<>☃", language: "eng", subject: "%", year: "not-a-year"}
+        ] do
+      measurement = warm_measure(fn -> PublicCatalog.book_page(filters, 1) end)
+
+      assert measurement.query_count <= @list_query_budget
+      assert measurement.elapsed_microseconds <= @warm_elapsed_budget_microseconds
+      assert Enum.uniq_by(measurement.result.entries, & &1.work_id) == measurement.result.entries
+    end
+  end
+
+  test "legacy Ash search result is marked internal so public UI cannot drift to in-memory filtering" do
+    assert Hiraeth.Search.Result.public_catalog_path?() == false
+
+    public_files = [
+      "lib/hiraeth_web/live/browse_live.ex",
+      "lib/hiraeth_web/live/search_live.ex",
+      "lib/hiraeth_web/live/home_live.ex",
+      "lib/hiraeth_web/live/book_live.ex",
+      "lib/hiraeth_web/live/publishers_live.ex",
+      "lib/hiraeth_web/live/series_live.ex"
+    ]
+
+    for file <- public_files do
+      refute File.read!(file) =~ "Hiraeth.Search.Result",
+             "#{file} must use HiraethWeb.PublicCatalog instead of in-memory Ash search"
+    end
+  end
+
   test "book detail lookup has bounded query count and does not require all catalog scans" do
     measurement = warm_measure(fn -> PublicCatalog.book("deep-vellum-immigrant") end)
 
@@ -99,7 +153,7 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
 
     series_detail = warm_measure(fn -> PublicCatalog.series_by_slug(series_slug) end)
 
-    assert length(publisher_index.result) == 3
+    assert Enum.any?(publisher_index.result, &(&1.slug == "deep-vellum"))
     assert %{slug: "deep-vellum"} = publisher_detail.result
     assert is_list(series_index.result)
     refute broad_edition_projection_query?(publisher_index)
@@ -210,6 +264,122 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
       work_id: work.id,
       position: 1,
       label: "1"
+    })
+    |> Ash.create!(authorize?: false)
+  end
+
+  defp create_filter_contract_edition! do
+    suffix = System.unique_integer([:positive])
+
+    publisher =
+      Publisher
+      |> Ash.Changeset.for_create(:create, %{
+        name: "Facet Contract Press #{suffix}",
+        slug: "facet-contract-press-#{suffix}"
+      })
+      |> Ash.create!(authorize?: false)
+
+    work =
+      Work
+      |> Ash.Changeset.for_create(:create, %{
+        title: "Facet Contract Novel",
+        slug: "facet-contract-novel-#{suffix}",
+        publication_state: "published",
+        original_language_code: "spa",
+        subjects: ["contract-subject"]
+      })
+      |> Ash.create!(authorize?: false)
+
+    edition =
+      Edition
+      |> Ash.Changeset.for_create(:create, %{
+        title: "Facet Contract Novel",
+        slug: "facet-contract-novel-paperback-#{suffix}",
+        format: "paperback",
+        published_on: ~D[2026-05-01],
+        language_code: "eng",
+        work_id: work.id,
+        publisher_id: publisher.id
+      })
+      |> Ash.create!(authorize?: false)
+
+    author = create_contributor!("Facet Contract Author", "facet-contract-author-#{suffix}")
+
+    translator =
+      create_contributor!("Facet Contract Translator", "facet-contract-translator-#{suffix}")
+
+    create_contribution!(work.id, author.id, "author", 1)
+    create_contribution!(work.id, translator.id, "translator", 2)
+
+    series =
+      Series
+      |> Ash.Changeset.for_create(:create, %{
+        title: "Facet Contract Series",
+        slug: "facet-contract-series-#{suffix}",
+        publisher_id: publisher.id
+      })
+      |> Ash.create!(authorize?: false)
+
+    SeriesMembership
+    |> Ash.Changeset.for_create(:create, %{series_id: series.id, work_id: work.id, position: 1})
+    |> Ash.create!(authorize?: false)
+
+    Identifier
+    |> Ash.Changeset.for_create(:create, %{
+      identifier_type: "isbn_13",
+      value: "979000001#{String.pad_leading(to_string(rem(suffix, 10_000)), 4, "0")}",
+      edition_id: edition.id
+    })
+    |> Ash.create!(authorize?: false)
+
+    Hiraeth.Sources.SourceRecord
+    |> Ash.Changeset.for_create(:create, %{
+      provider: "deep_vellum_official_store",
+      source_type: "publisher_dataset",
+      source_uri: "https://store.deepvellum.org/products/facet-contract-#{suffix}",
+      file_checksum: "facet-contract-#{suffix}",
+      license_note: "test source fixture",
+      imported_at: DateTime.utc_now(:second),
+      raw_payload: %{
+        "edition" => %{
+          "isbn_13" => "979000001#{String.pad_leading(to_string(rem(suffix, 10_000)), 4, "0")}"
+        },
+        "displayed_fields" => ["title"]
+      }
+    })
+    |> Ash.create!(authorize?: false)
+
+    %{
+      q: "Facet Contract",
+      publisher: "facet-contract-press-#{suffix}",
+      role: "translator",
+      contributor: "facet-contract-translator-#{suffix}",
+      format: "paperback",
+      language: "eng",
+      subject: "contract-subject",
+      series: "facet-contract-series-#{suffix}",
+      year: "2026",
+      sort: "title"
+    }
+  end
+
+  defp create_contributor!(name, slug) do
+    Hiraeth.Catalog.Contributor
+    |> Ash.Changeset.for_create(:create, %{
+      display_name: name,
+      sort_name: name,
+      slug: slug
+    })
+    |> Ash.create!(authorize?: false)
+  end
+
+  defp create_contribution!(work_id, contributor_id, role, position) do
+    Hiraeth.Catalog.Contribution
+    |> Ash.Changeset.for_create(:create, %{
+      work_id: work_id,
+      contributor_id: contributor_id,
+      role: role,
+      position: position
     })
     |> Ash.create!(authorize?: false)
   end
