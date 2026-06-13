@@ -1,7 +1,7 @@
 defmodule HiraethWeb.PublicCatalogPerformanceTest do
   use HiraethWeb.ConnCase, async: false
 
-  alias Hiraeth.Catalog.{Edition, Identifier, Publisher, Work}
+  alias Hiraeth.Catalog.{Edition, Identifier, Publisher, Series, SeriesMembership, Work}
   alias Hiraeth.QueryCounting
   alias HiraethWeb.PublicCatalog
 
@@ -12,6 +12,7 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
 
   setup do
     Hiraeth.RealCatalogFixtures.seed!()
+    create_series_membership!()
     :ok
   end
 
@@ -71,13 +72,21 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     publisher_index = warm_measure(fn -> PublicCatalog.publishers() end)
     publisher_detail = warm_measure(fn -> PublicCatalog.publisher("deep-vellum") end)
     series_index = warm_measure(fn -> PublicCatalog.series() end)
+    series_slug = series_index.result |> List.first() |> Map.fetch!(:slug)
 
-    series_detail =
-      warm_measure(fn -> PublicCatalog.series_by_slug("spanish-literature-series") end)
+    series_detail = warm_measure(fn -> PublicCatalog.series_by_slug(series_slug) end)
 
     assert length(publisher_index.result) == 3
     assert %{slug: "deep-vellum"} = publisher_detail.result
     assert is_list(series_index.result)
+    refute broad_edition_projection_query?(publisher_index)
+    refute broad_edition_projection_query?(series_index)
+    assert scoped_edition_projection_query?(publisher_detail, "where e.publisher_id = $1::uuid")
+
+    assert scoped_edition_projection_query?(
+             series_detail,
+             "where e.work_id::text = any($1::text[])"
+           )
 
     for measurement <- [publisher_index, publisher_detail, series_index, series_detail] do
       assert measurement.query_count <= @directory_query_budget
@@ -125,8 +134,57 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     |> Ash.create!(authorize?: false)
   end
 
+  defp create_series_membership! do
+    suffix = System.unique_integer([:positive])
+
+    publisher =
+      Publisher
+      |> Ash.read!(authorize?: false)
+      |> Enum.find(&(&1.slug == "deep-vellum"))
+
+    work =
+      Work
+      |> Ash.read!(authorize?: false)
+      |> Enum.find(&(&1.slug == "deep-vellum-immigrant"))
+
+    series =
+      Series
+      |> Ash.Changeset.for_create(:create, %{
+        title: "Performance Test Series #{suffix}",
+        slug: "performance-test-series-#{suffix}",
+        publisher_id: publisher.id
+      })
+      |> Ash.create!(authorize?: false)
+
+    SeriesMembership
+    |> Ash.Changeset.for_create(:create, %{
+      series_id: series.id,
+      work_id: work.id,
+      position: 1,
+      label: "1"
+    })
+    |> Ash.create!(authorize?: false)
+  end
+
   defp warm_measure(fun) do
     _warm = QueryCounting.measure(fun)
     QueryCounting.measure(fun)
+  end
+
+  defp broad_edition_projection_query?(measurement) do
+    Enum.any?(measurement.queries, fn query ->
+      edition_projection_query?(query) and
+        not String.contains?(query, "where e.")
+    end)
+  end
+
+  defp scoped_edition_projection_query?(measurement, scope_sql) do
+    Enum.any?(measurement.queries, fn query ->
+      edition_projection_query?(query) and String.contains?(query, scope_sql)
+    end)
+  end
+
+  defp edition_projection_query?(query) do
+    query =~ ~r/select\s+e\.id,\s+e\.work_id,/i
   end
 end

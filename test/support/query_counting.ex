@@ -20,28 +20,30 @@ defmodule Hiraeth.QueryCounting do
 
     try do
       {elapsed_microseconds, result} = :timer.tc(fun)
+      queries = drain_query_count(ref, [])
 
       %{
         elapsed_microseconds: elapsed_microseconds,
-        query_count: drain_query_count(ref, 0),
+        queries: queries,
+        query_count: length(queries),
         result: result
       }
     after
       :telemetry.detach(handler_id)
-      drain_query_count(ref, 0)
+      drain_query_count(ref, [])
     end
   end
 
-  defp drain_query_count(ref, count) do
+  defp drain_query_count(ref, queries) do
     receive do
       {^ref, metadata} ->
         if ignored_query?(metadata) do
-          drain_query_count(ref, count)
+          drain_query_count(ref, queries)
         else
-          drain_query_count(ref, count + 1)
+          drain_query_count(ref, [to_string(Map.get(metadata, :query, "")) | queries])
         end
     after
-      0 -> count
+      0 -> Enum.reverse(queries)
     end
   end
 

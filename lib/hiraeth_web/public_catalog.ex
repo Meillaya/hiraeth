@@ -6,9 +6,6 @@ defmodule HiraethWeb.PublicCatalog do
   unknown dates, languages, dimensions, page counts, translators, or cover art.
   """
 
-  require Ash.Query
-
-  alias Hiraeth.Catalog.{Publisher, Series}
   alias Hiraeth.RealCatalog.SourcePolicy
 
   @page_size 24
@@ -238,74 +235,217 @@ defmodule HiraethWeb.PublicCatalog do
   end
 
   def publishers do
-    editions = editions()
-
-    Publisher
-    |> Ash.Query.for_read(:read)
-    |> Ash.read!()
-    |> Enum.map(fn publisher ->
-      publisher_editions = Enum.filter(editions, &(&1.publisher_slug == publisher.slug))
-
-      %{
-        id: publisher.id,
-        name: publisher.name,
-        slug: publisher.slug,
-        description: publisher.description,
-        editions: publisher_editions,
-        editions_count: length(publisher_editions)
-      }
-    end)
+    publisher_summary_rows()
+    |> Enum.map(&publisher_summary_from_row/1)
     |> Enum.sort_by(&String.downcase(&1.name))
   end
 
   def publisher(slug) do
-    Enum.find(publishers(), &(&1.slug == slug))
+    case publisher_summary_by_slug(slug) do
+      nil ->
+        nil
+
+      publisher ->
+        editions =
+          edition_rows("where e.publisher_id = $1::uuid", [publisher.id])
+          |> Enum.map(&edition_projection_from_row/1)
+          |> Enum.sort_by(&sort_key/1)
+
+        publisher
+        |> Map.put(:editions, editions)
+        |> Map.put(:editions_count, length(editions))
+    end
   end
 
   def series do
-    editions = editions()
-
-    Series
-    |> Ash.Query.for_read(:read)
-    |> Ash.Query.load([:publisher, :series_memberships])
-    |> Ash.read!()
-    |> Enum.map(fn series ->
-      memberships = loaded_list(series.series_memberships)
-      work_ids = Enum.map(memberships, & &1.work_id)
-
-      series_editions =
-        editions
-        |> Enum.filter(&(&1.work_id in work_ids))
-        |> Enum.sort_by(fn edition ->
-          membership = Enum.find(memberships, &(&1.work_id == edition.work_id))
-
-          {is_nil(membership && membership.position), (membership && membership.position) || 0,
-           edition.title}
-        end)
-
-      publisher = loaded_or_nil(series.publisher)
-
-      %{
-        id: series.id,
-        title: series.title,
-        name: series.title,
-        slug: series.slug,
-        publisher: publisher && publisher.name,
-        publisher_slug: publisher && publisher.slug,
-        editions: series_editions,
-        editions_count: length(series_editions),
-        unknown_order?: Enum.any?(memberships, &is_nil(&1.position))
-      }
-    end)
+    series_summary_rows()
+    |> Enum.map(&series_summary_from_row/1)
     |> Enum.sort_by(&String.downcase(&1.title))
   end
 
   def series_by_slug(slug) do
-    Enum.find(series(), &(&1.slug == slug))
+    case series_summary_by_slug(slug) do
+      nil ->
+        nil
+
+      series ->
+        memberships = series.memberships
+        work_ids = Enum.map(memberships, & &1.work_id)
+        position_by_work_id = Map.new(memberships, &{&1.work_id, &1.position})
+
+        editions =
+          edition_rows("where e.work_id::text = any($1::text[])", [work_ids])
+          |> Enum.map(&edition_projection_from_row/1)
+          |> Enum.sort_by(fn edition ->
+            position = Map.get(position_by_work_id, edition.work_id)
+            {is_nil(position), position || 0, edition.title}
+          end)
+
+        series
+        |> Map.delete(:memberships)
+        |> Map.put(:editions, editions)
+        |> Map.put(:editions_count, length(editions))
+    end
   end
 
   def edition(slug) do
-    Enum.find(editions(), &(&1.slug == slug))
+    case work_id_for_slug(slug) do
+      nil ->
+        nil
+
+      work_id ->
+        work_id
+        |> List.wrap()
+        |> editions_for_work_ids()
+        |> Enum.find(&(&1.slug == slug))
+    end
+  end
+
+  defp publisher_summary_rows do
+    {:ok, %{rows: rows}} =
+      Hiraeth.Repo.query(
+        """
+        select p.id, p.name, p.slug, p.description, count(distinct e.id) as editions_count
+        from publishers p
+        left join editions e on e.publisher_id = p.id
+        left join identifiers source_identifier on source_identifier.edition_id = e.id
+        left join source_records sr
+          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+        group by p.id, p.name, p.slug, p.description
+        """,
+        []
+      )
+
+    rows
+  end
+
+  defp publisher_summary_by_slug(slug) do
+    {:ok, %{rows: rows}} =
+      Hiraeth.Repo.query(
+        """
+        select p.id, p.name, p.slug, p.description, count(distinct e.id) as editions_count
+        from publishers p
+        left join editions e on e.publisher_id = p.id
+        left join identifiers source_identifier on source_identifier.edition_id = e.id
+        left join source_records sr
+          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+        where p.slug = $1
+        group by p.id, p.name, p.slug, p.description
+        limit 1
+        """,
+        [slug]
+      )
+
+    rows |> List.first() |> then(&(&1 && publisher_summary_from_row(&1)))
+  end
+
+  defp publisher_summary_from_row([id, name, slug, description, editions_count]) do
+    %{
+      id: id,
+      name: name,
+      slug: slug,
+      description: description,
+      editions: [],
+      editions_count: editions_count
+    }
+  end
+
+  defp series_summary_rows do
+    {:ok, %{rows: rows}} =
+      Hiraeth.Repo.query(
+        """
+        select
+          s.id,
+          s.title,
+          s.slug,
+          p.name,
+          p.slug,
+          count(distinct e.id) as editions_count,
+          coalesce(bool_or(sm.position is null) filter (where sm.id is not null), false) as unknown_order
+        from series s
+        left join publishers p on p.id = s.publisher_id
+        left join series_memberships sm on sm.series_id = s.id
+        left join editions e on e.work_id = sm.work_id
+        left join identifiers source_identifier on source_identifier.edition_id = e.id
+        left join source_records sr
+          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+        group by s.id, s.title, s.slug, p.name, p.slug
+        """,
+        []
+      )
+
+    rows
+  end
+
+  defp series_summary_by_slug(slug) do
+    {:ok, %{rows: rows}} =
+      Hiraeth.Repo.query(
+        """
+        select
+          s.id,
+          s.title,
+          s.slug,
+          p.name,
+          p.slug,
+          count(distinct e.id) as editions_count,
+          coalesce(bool_or(sm.position is null) filter (where sm.id is not null), false) as unknown_order,
+          coalesce(
+            jsonb_agg(
+              jsonb_build_object('work_id', sm.work_id, 'position', sm.position)
+              order by coalesce(sm.position, 0), sm.id
+            ) filter (where sm.id is not null),
+            '[]'::jsonb
+          ) as memberships
+        from series s
+        left join publishers p on p.id = s.publisher_id
+        left join series_memberships sm on sm.series_id = s.id
+        left join editions e on e.work_id = sm.work_id
+        left join identifiers source_identifier on source_identifier.edition_id = e.id
+        left join source_records sr
+          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+        where s.slug = $1
+        group by s.id, s.title, s.slug, p.name, p.slug
+        limit 1
+        """,
+        [slug]
+      )
+
+    rows |> List.first() |> then(&(&1 && series_summary_from_row(&1)))
+  end
+
+  defp series_summary_from_row([
+         id,
+         title,
+         slug,
+         publisher,
+         publisher_slug,
+         editions_count,
+         unknown_order?
+       ]) do
+    %{
+      id: id,
+      title: title,
+      name: title,
+      slug: slug,
+      publisher: publisher,
+      publisher_slug: publisher_slug,
+      editions: [],
+      editions_count: editions_count,
+      unknown_order?: unknown_order?
+    }
+  end
+
+  defp series_summary_from_row(row) do
+    memberships = List.last(row)
+
+    row
+    |> Enum.take(7)
+    |> series_summary_from_row()
+    |> Map.put(:memberships, Enum.map(memberships || [], &membership_from_data/1))
+  end
+
+  defp membership_from_data(%{"work_id" => work_id, "position" => position}) do
+    %{work_id: work_id, position: position}
   end
 
   defp edition_rows(where_sql, params) do
@@ -735,13 +875,6 @@ defmodule HiraethWeb.PublicCatalog do
   defp truthy?(true), do: true
   defp truthy?("true"), do: true
   defp truthy?(_value), do: false
-
-  defp loaded_list(%Ash.NotLoaded{}), do: []
-  defp loaded_list(nil), do: []
-  defp loaded_list(list) when is_list(list), do: list
-
-  defp loaded_or_nil(%Ash.NotLoaded{}), do: nil
-  defp loaded_or_nil(value), do: value
 
   defp normalize_text(value) do
     value

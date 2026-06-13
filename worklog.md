@@ -494,3 +494,18 @@ Remediation commit: 682a972 — fix(catalog): close global review blockers
 - Verification evidence:
   - `.omo/evidence/m1-compile-after-dead-code.txt` — `mix compile --warnings-as-errors` passed.
   - `.omo/evidence/m1-focused-performance-after-imported-at-fix.txt` — focused performance/LiveView/browser-contract suite: 15 tests, 0 failures.
+
+## Catalog performance optimization — Milestone 2
+
+- Date: 2026-06-13
+- Replaced public publisher/series directory paths with summary/detail-specific SQL reads:
+  - `publishers/0` and `series/0` now return summaries without running the full edition projection query.
+  - `publisher/1` scopes edition projection to `where e.publisher_id = $1::uuid`.
+  - `series_by_slug/1` scopes edition projection to the series work IDs.
+  - `edition/1` resolves via the slug's work id instead of filtering `editions()`.
+- Strengthened `Hiraeth.QueryCounting` to capture query SQL as well as query count.
+- Added performance assertions that index paths do not hide a broad all-edition projection query and that detail paths use scoped edition projections.
+- Verification evidence:
+  - `.omo/evidence/m2-compile-after-cleanup.txt` — `mix compile --warnings-as-errors` passed.
+  - `.omo/evidence/m2-performance-tests-scoped-queries-green-final.txt` — performance tests: 6 tests, 0 failures.
+  - `.omo/evidence/m2-public-live-browser-contract-green.txt` — public LiveView/browser-contract focused suite: 9 tests, 0 failures.
