@@ -40,6 +40,7 @@ defmodule HiraethWeb.HomeLive do
                 class="shadow-md shadow-stone-900/10 dark:shadow-none"
                 loading="eager"
                 fetchpriority="high"
+                variant="hero"
               />
             </div>
 

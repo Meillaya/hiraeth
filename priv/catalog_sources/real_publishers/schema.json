@@ -326,7 +326,7 @@
           "format": "uri"
         },
         "cache_policy": {
-          "const": "link_only"
+          "const": "cache_allowed"
         }
       },
       "additionalProperties": false

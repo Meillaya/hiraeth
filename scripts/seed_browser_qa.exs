@@ -61,10 +61,18 @@ row =
     |> Ash.create!(actor: admin)
 
 cache_path = "priv/static/covers/cache/browser-qa-immigrant.png"
+thumbnail_path = "priv/static/covers/cache/browser-qa-immigrant-thumb.png"
 File.mkdir_p!(Path.dirname(cache_path))
 
 File.write!(
   cache_path,
+  Base.decode64!(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII="
+  )
+)
+
+File.write!(
+  thumbnail_path,
   Base.decode64!(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII="
   )
@@ -82,10 +90,26 @@ cached_cover =
       attribution_text: "Browser QA cached cover",
       cache_policy: "cache_allowed",
       cached_file_path: cache_path,
+      thumbnail_file_path: thumbnail_path,
       cached_at: DateTime.utc_now(:second),
       takedown_state: "visible"
     })
     |> Ash.create!(authorize?: false)
+
+cached_cover =
+  if cached_cover.cached_file_path == cache_path and
+       cached_cover.thumbnail_file_path == thumbnail_path do
+    cached_cover
+  else
+    cached_cover
+    |> Ash.Changeset.for_update(:update, %{
+      cache_policy: "cache_allowed",
+      cached_file_path: cache_path,
+      thumbnail_file_path: thumbnail_path,
+      cached_at: DateTime.utc_now(:second)
+    })
+    |> Ash.update!(authorize?: false)
+  end
 
 cached_assignment =
   CoverAssignment

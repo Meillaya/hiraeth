@@ -4,8 +4,11 @@ defmodule HiraethWeb.RouteShellLiveTest do
   import Phoenix.LiveViewTest
   alias Hiraeth.Accounts.User
 
-  setup do
-    Hiraeth.RealCatalogFixtures.seed!()
+  setup_all do
+    Ecto.Adapters.SQL.Sandbox.unboxed_run(Hiraeth.Repo, fn ->
+      Hiraeth.RealCatalogFixtures.seed!()
+    end)
+
     :ok
   end
 

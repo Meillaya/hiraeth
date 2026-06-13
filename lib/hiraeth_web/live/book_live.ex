@@ -37,6 +37,7 @@ defmodule HiraethWeb.BookLive do
                 class="max-w-sm mx-auto"
                 loading="eager"
                 fetchpriority="high"
+                variant="hero"
               />
               <p
                 :if={!@book[:cover]}

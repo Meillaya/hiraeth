@@ -10,8 +10,15 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
   @directory_query_budget 8
   @warm_elapsed_budget_microseconds 50_000
 
+  setup_all do
+    Ecto.Adapters.SQL.Sandbox.unboxed_run(Hiraeth.Repo, fn ->
+      Hiraeth.RealCatalogFixtures.seed!()
+    end)
+
+    :ok
+  end
+
   setup do
-    Hiraeth.RealCatalogFixtures.seed!()
     create_series_membership!()
     :ok
   end

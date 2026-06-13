@@ -183,10 +183,17 @@ defmodule Hiraeth.RealCatalog.Validator do
         "cover source_url host is not allowlisted for provider"
       )
       |> add_if(
-        Map.get(cover, :cache_policy) != "link_only",
+        Map.get(cover, :cache_policy) != "cache_allowed",
         dataset,
         record,
-        "cover cache_policy must be link_only"
+        "cover cache_policy must be cache_allowed"
+      )
+      |> add_if(
+        Map.get(cover, :cache_policy) == "cache_allowed" and
+          Map.get(cover, :rights_basis) != "local_cache_permitted",
+        dataset,
+        record,
+        "cached cover requires local cache rights basis"
       )
     end
   end

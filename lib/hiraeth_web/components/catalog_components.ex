@@ -11,12 +11,13 @@ defmodule HiraethWeb.CatalogComponents do
   attr :class, :string, default: ""
   attr :loading, :string, default: "lazy"
   attr :fetchpriority, :string, default: "auto"
+  attr :variant, :string, default: "card"
 
   def book_cover(assigns) do
     ~H"""
     <figure :if={@book[:cover]} id={"public-cover-#{@book.slug}"} class={[@class, "space-y-2"]}>
       <img
-        src={@book.cover[:public_url] || @book.cover.source_url}
+        src={cover_src(@book.cover, @variant)}
         alt={"Cover for #{@book.title}"}
         loading={@loading}
         decoding="async"
@@ -65,6 +66,11 @@ defmodule HiraethWeb.CatalogComponents do
     </div>
     """
   end
+
+  defp cover_src(cover, "hero"), do: cover[:public_url] || cover.source_url
+
+  defp cover_src(cover, _variant),
+    do: cover[:thumbnail_url] || cover[:public_url] || cover.source_url
 
   attr :edition, :map, required: true
   attr :id_prefix, :string, default: "edition-card"

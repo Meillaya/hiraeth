@@ -537,3 +537,31 @@ Remediation commit: 682a972 — fix(catalog): close global review blockers
 - Verification evidence:
   - `.omo/evidence/m4-compile.txt` — `mix compile --warnings-as-errors` passed.
   - `.omo/evidence/m4-focused-ui-tests.txt` — public LiveView/browser-contract focused suite: 9 tests, 0 failures.
+
+## Catalog performance optimization — Milestone 5
+
+- Date: 2026-06-13
+- Added local cover derivatives and stricter cache behavior:
+  - `cover_assets.thumbnail_file_path` is now part of the Ash resource, AshPostgres migration, and resource snapshot.
+  - `cache_public_covers!/1` stores cached originals and bounded thumbnail derivatives under `priv/static/covers/cache`.
+  - Thumbnail generation is wrapped by a timeout guard and the external `timeout` command before ImageMagick, so malformed or stuck derivative processing skips the thumbnail instead of hanging cache warmup.
+  - Public catalog projections expose `thumbnail_url` only when the derivative path is safe and exists.
+  - Card/list covers prefer thumbnails; hero/detail covers keep the full cached original.
+  - Cached-cover purge/takedown clears both original and thumbnail paths.
+- Updated real publisher dataset cover policy for this product run:
+  - The explicit publisher fixture covers are now `cache_allowed` / `local_cache_permitted` with matching schema, validator, and README text.
+  - Browser QA now fails if any captured public page emits a remote `<img src="http...">` after cache warmup.
+- Debug/QA hardening:
+  - Moved deterministic real-catalog fixture seeding to `setup_all` for the heavy LiveView/performance test modules to avoid repeated import work causing fresh-DB test timeouts.
+  - Replaced a brittle browser QA stream-internal duplicate-card regex with a stable card/article link assertion.
+- Verification evidence:
+  - `.omo/evidence/m5-thumbnail-timeout-test.txt` — cover cache timeout regression: 17 tests, 0 failures.
+  - `.omo/evidence/m5-focused-all-after-timeout-fix.txt` — focused covers/catalog/performance/dataset/importer/migration suite: 59 tests, 0 failures.
+  - `.omo/evidence/m5-browser-qa-after-timeout-fix.txt` — `make test-browser` passed; all public route timings were under budget and `remote_image_dependencies=pass scope=all_captured_pages`.
+  - `.omo/evidence/m5-debug-live-search-timeout-journal.md` — debug journal for fresh-DB LiveView timeout; setup fix reduced the isolated search test from ~69s to ~177ms.
+  - `.omo/evidence/m5-ash-codegen-check-final.txt` — Ash codegen check passed after adding the thumbnail resource snapshot/migration.
+- Verifier feedback:
+  - Initial independent verifier found three blockers: unbounded ImageMagick, stale README rights text, and missing worklog.
+  - This section plus the timeout fix and README correction address those blockers; follow-up independent verification is required before marking the plan checkbox complete.
+
+Pending commit: `perf(covers): serve optimized local cover derivatives`

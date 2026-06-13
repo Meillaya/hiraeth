@@ -48,7 +48,7 @@ defmodule Hiraeth.RealCatalogImporterTest do
            )
 
     assert Enum.all?(source_records, &is_binary(&1.import_run_id))
-    assert Enum.all?(cover_assets, &(&1.cache_policy == "link_only"))
+    assert Enum.all?(cover_assets, &(&1.cache_policy == "cache_allowed"))
     assert Enum.all?(cover_assets, &is_nil(&1.cached_file_path))
 
     assert {:ok, datasets} = Dataset.load_dir()

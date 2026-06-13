@@ -1,7 +1,7 @@
 {
   "provider": "archipelago_books_official_store",
   "retrieved_at": "2026-06-12T00:00:00Z",
-  "license_note": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display link-only pending explicit cache rights.",
+  "license_note": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls.",
   "records": [
     {
       "source_uri": "https://archipelagobooks.org/book/bob-and-hilbert/",
@@ -35,10 +35,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2026/06/9781962770651.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/bob-and-hilbert/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -90,10 +90,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2026/06/9781962770651.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/bob-and-hilbert/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -149,10 +149,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/10/The-River_Cover_updated--scaled.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/the-river/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -204,10 +204,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/10/The-River_Cover_updated--scaled.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/the-river/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -255,10 +255,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/10/LittleYuCover_July15-scaled.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/little-yu-the-treelings-lost-in-peach-blossom-paradise/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -310,10 +310,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2026/05/AP_Cortazar_COVER.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/murmurs-from-the-hills-copy/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -365,10 +365,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2026/05/AP_Cortazar_COVER.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/murmurs-from-the-hills-copy/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -416,10 +416,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2026/04/Murmurs-Cover-Final.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/murmurs-from-the-hills/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -467,10 +467,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2026/04/Murmurs-Cover-Final.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/murmurs-from-the-hills/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -522,10 +522,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/07/last-stops-of-the-night-journey.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/last-stops-of-the-night-journey/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -577,10 +577,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/07/last-stops-of-the-night-journey.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/last-stops-of-the-night-journey/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -628,10 +628,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2026/02/unnamed-1.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/jerome-lindon/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -679,10 +679,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2026/02/unnamed-1.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/jerome-lindon/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -730,10 +730,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/07/AP_AsideFromMyHeart_Cover_June18-1.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/aside-from-my-heart-all-is-well/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -781,10 +781,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/07/AP_AsideFromMyHeart_Cover_June18-1.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/aside-from-my-heart-all-is-well/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -832,10 +832,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/07/The-Monroe-Girls-Galley-Cover-final.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/the-monroe-girls/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -883,10 +883,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/07/The-Monroe-Girls-Galley-Cover-final.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/the-monroe-girls/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -934,10 +934,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/07/A-Parish-Chronicle.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/a-parish-chronicle/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -985,10 +985,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/07/A-Parish-Chronicle.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/a-parish-chronicle/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1036,10 +1036,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2026/01/9781962770750.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/on-the-relations-of-the-circle/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1087,10 +1087,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2026/01/9781962770750.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/on-the-relations-of-the-circle/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1138,10 +1138,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2026/01/WalkingB.png",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/walking/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1189,10 +1189,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2026/01/WalkingB.png",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/walking/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1244,10 +1244,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2026/01/Inshallah-Cover-Options4.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/inshallah-madonna-inshallah-2/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1299,10 +1299,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2026/01/Inshallah-Cover-Options4.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/inshallah-madonna-inshallah-2/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1350,10 +1350,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/07/Queen-front-cover_new.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/queen/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1401,10 +1401,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/07/Queen-front-cover_new.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/queen/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1452,10 +1452,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/04/WWTW_cover_final-scaled.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/take-a-walk-with-the-wind/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1503,10 +1503,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/04/WWTW_cover_final-scaled.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/take-a-walk-with-the-wind/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1554,10 +1554,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2026/06/Mafalda_2_MB_Cover_JAN28_FINAL-scaled.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/mafalda-book-two/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1605,10 +1605,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2026/06/Mafalda_2_MB_Cover_JAN28_FINAL-scaled.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/mafalda-book-two/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1660,10 +1660,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/04/9781962770309.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/night-on-the-galactic-railroad/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1711,10 +1711,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/03/MagiciansFlower_Cover_PRH.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/a-magicians-flower/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1762,10 +1762,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/03/MagiciansFlower_Cover_PRH.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/a-magicians-flower/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1817,10 +1817,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/03/MyBrother_cover_front-scaled.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/my-brother/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1872,10 +1872,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/03/MyBrother_cover_front-scaled.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/my-brother/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1923,10 +1923,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/03/mafalda-cover-.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/mafalda-book-one/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1974,10 +1974,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/03/mafalda-cover-.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/mafalda-book-one/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2025,10 +2025,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/02/AP_Pirandello_Cover_Nov2.jpeg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/one-none-and-a-hundred-grand/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2076,10 +2076,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/02/AP_Pirandello_Cover_Nov2.jpeg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/one-none-and-a-hundred-grand/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2127,10 +2127,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/02/PRH-archipelago-cece.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/cece/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2177,10 +2177,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/02/PRH-archipelago-cece.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/cece/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2227,10 +2227,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/02/AP_TheLeucotheaDialogues_Cover_FINAL_Nov26-1.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/the-leucothea-dialogues/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2278,10 +2278,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/02/AP_TheLeucotheaDialogues_Cover_FINAL_Nov26-1.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/the-leucothea-dialogues/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2329,10 +2329,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/02/The-Hairdressers-Son_Chosen.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/the-hairdressers-son/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2379,10 +2379,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/02/The-Hairdressers-Son_Chosen.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/the-hairdressers-son/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2429,10 +2429,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/02/AP_NeedlesEye_Cover_Cover_Nov26_SENT.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/needles-eye/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2480,10 +2480,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2025/02/AP_NeedlesEye_Cover_Cover_Nov26_SENT.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/needles-eye/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2531,10 +2531,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2024/04/star-of-the-sea-cover_newmap-scaled.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/star-of-the-sea/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2582,10 +2582,10 @@
       "cover": {
         "source_url": "https://archipelagobooks.org/wp-content/uploads/2024/04/star-of-the-sea-cover_newmap-scaled.jpg",
         "provider": "archipelago_books_official_store",
-        "rights_basis": "publisher_store_link_only_pending_permission",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Archipelago Books official source",
         "attribution_url": "https://archipelagobooks.org/book/star-of-the-sea/",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",

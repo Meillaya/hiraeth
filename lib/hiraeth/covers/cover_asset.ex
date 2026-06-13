@@ -49,6 +49,10 @@ defmodule Hiraeth.Covers.CoverAsset do
       public? true
     end
 
+    attribute :thumbnail_file_path, :string do
+      public? true
+    end
+
     attribute :takedown_state, :string do
       allow_nil? false
       default "visible"
@@ -79,6 +83,7 @@ defmodule Hiraeth.Covers.CoverAsset do
         :cache_policy,
         :cached_file_path,
         :cached_at,
+        :thumbnail_file_path,
         :takedown_state
       ]
 
@@ -96,6 +101,7 @@ defmodule Hiraeth.Covers.CoverAsset do
         :cache_policy,
         :cached_file_path,
         :cached_at,
+        :thumbnail_file_path,
         :takedown_state
       ]
 
@@ -119,10 +125,11 @@ defmodule Hiraeth.Covers.CoverAsset do
 
   defp validate_cache_rights(changeset) do
     cached_file_path = Ash.Changeset.get_attribute(changeset, :cached_file_path)
+    thumbnail_file_path = Ash.Changeset.get_attribute(changeset, :thumbnail_file_path)
     cache_policy = Ash.Changeset.get_attribute(changeset, :cache_policy)
     rights_basis = Ash.Changeset.get_attribute(changeset, :rights_basis)
 
-    if present?(cached_file_path) and
+    if (present?(cached_file_path) or present?(thumbnail_file_path)) and
          not (cache_policy == "cache_allowed" and rights_basis == "local_cache_permitted") do
       {:error,
        field: :cached_file_path,

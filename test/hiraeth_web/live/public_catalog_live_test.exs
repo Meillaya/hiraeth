@@ -13,8 +13,11 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
 
   @immigrant_slug "deep-vellum-immigrant-paperback-9781646054541"
 
-  setup do
-    Hiraeth.RealCatalogFixtures.seed!()
+  setup_all do
+    Ecto.Adapters.SQL.Sandbox.unboxed_run(Hiraeth.Repo, fn ->
+      Hiraeth.RealCatalogFixtures.seed!()
+    end)
+
     :ok
   end
 
@@ -239,7 +242,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
            )
   end
 
-  test "book cover component prefers cached public URL over remote source URL" do
+  test "book cover component prefers optimized card derivatives and keeps hero originals" do
     html =
       render_component(&CatalogComponents.book_cover/1,
         book: %{
@@ -249,18 +252,43 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
           cover: %{
             source_url: "https://covers.example.test/cached-cover-book.jpg",
             public_url: "/covers/cache/cached-cover-book.jpg",
+            thumbnail_url: "/covers/cache/cached-cover-book-thumb.jpg",
             provider: "fixture-covers",
             attribution_text: "Fixture cover provider"
           }
         }
       )
 
-    assert html =~ ~s|src="/covers/cache/cached-cover-book.jpg"|
+    assert html =~ ~s|src="/covers/cache/cached-cover-book-thumb.jpg"|
     assert html =~ ~s|loading="lazy"|
     assert html =~ ~s|decoding="async"|
     assert html =~ ~s|width="400"|
     assert html =~ ~s|height="600"|
     refute html =~ ~s|src="https://covers.example.test/cached-cover-book.jpg"|
+
+    hero_html =
+      render_component(&CatalogComponents.book_cover/1,
+        variant: "hero",
+        loading: "eager",
+        fetchpriority: "high",
+        book: %{
+          slug: "cached-cover-book",
+          title: "Cached Cover Book",
+          publisher: "Fixture Press",
+          cover: %{
+            source_url: "https://covers.example.test/cached-cover-book.jpg",
+            public_url: "/covers/cache/cached-cover-book.jpg",
+            thumbnail_url: "/covers/cache/cached-cover-book-thumb.jpg",
+            provider: "fixture-covers",
+            attribution_text: "Fixture cover provider"
+          }
+        }
+      )
+
+    assert hero_html =~ ~s|src="/covers/cache/cached-cover-book.jpg"|
+    assert hero_html =~ ~s|loading="eager"|
+    assert hero_html =~ ~s|fetchpriority="high"|
+    refute hero_html =~ ~s|src="/covers/cache/cached-cover-book-thumb.jpg"|
   end
 
   defp cache_cover_for_edition_slug!(slug, provider, source_url, filename, attribution_text) do

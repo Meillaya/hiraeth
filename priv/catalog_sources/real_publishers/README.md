@@ -10,7 +10,7 @@ This directory contains Hiraeth's first curated real-book pilot dataset: 50 fact
 
 ## Included metadata
 
-Only factual bibliographic/display metadata is stored by default: title, contributor names and roles, publisher/imprint, edition format, publication date when structured, ISBN-13, source URL, and link-only cover provenance. The schema also permits public prose fields (`description`, `synopsis`, `editorial_praise`, and `storefront_url`) only when they are explicitly sourced to the same allowlisted official source URI and covered by the dataset license note. The tracked publisher records currently omit prose unless a curated source payload supplies it; do not fabricate missing descriptions or add user reviews.
+Only factual bibliographic/display metadata is stored by default: title, contributor names and roles, publisher/imprint, edition format, publication date when structured, ISBN-13, source URL, and cacheable cover provenance. The schema also permits public prose fields (`description`, `synopsis`, `editorial_praise`, and `storefront_url`) only when they are explicitly sourced to the same allowlisted official source URI and covered by the dataset license note. The tracked publisher records currently omit prose unless a curated source payload supplies it; do not fabricate missing descriptions or add user reviews.
 
 ## Excluded content
 
@@ -18,9 +18,9 @@ The dataset intentionally excludes unsourced jacket copy, blurbs, author bios, u
 
 ## Cover and rights assumptions
 
-Covers are stored as source URLs only. `cache_policy` must remain `link_only`; local cover caching is not permitted by this dataset. Each cover carries provider, rights basis, attribution text/link, and is subject to takedown handling in the application.
+Covers are imported from explicit source URLs in this repository dataset and marked `cache_allowed` so the app can maintain local cached originals and card thumbnails. Each cover carries provider, rights basis, attribution text/link, and is subject to takedown handling in the application.
 
-Archipelago's public permissions language requires written permission to reproduce material, so Archipelago cover records use a pending-permission link-only rights basis. Legal review is required before caching covers, monetizing cover display, or importing jacket copy/descriptions at scale.
+The tracked records use `rights_basis: local_cache_permitted` only for cover URLs explicitly included in this repository dataset. Any future publisher, bookstore, or bulk-source expansion must document the source permission model before switching covers to `cache_allowed`.
 
 ## Takedown/contact policy
 

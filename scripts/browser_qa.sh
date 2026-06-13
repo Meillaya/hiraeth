@@ -207,7 +207,7 @@ node - "${BROWSE_DOM}" <<'NODE' | tee -a "${TRANSCRIPT}"
 const fs = require('node:fs');
 const html = fs.readFileSync(process.argv[2], 'utf8');
 const slugs = [];
-for (const article of html.matchAll(/<article[^>]+data-phx-stream="0"[\s\S]*?<\/article>/g)) {
+for (const article of html.matchAll(/<article[^>]*class="[^"]*\bgroup\b[^"]*"[\s\S]*?<\/article>/g)) {
   const href = article[0].match(/href="\/books\/([^"]+)"/);
   if (href) slugs.push(href[1]);
 }
@@ -220,10 +220,10 @@ if (slugs.length > 0 && duplicates.length === 0) {
 }
 NODE
 
-if grep -q '/covers/cache/browser-qa-immigrant.png' "${IMMIGRANT_BROWSE_DOM}" "${IMMIGRANT_BOOK_DOM}"; then
-  log "cached_cover_paths=pass path=/covers/cache/browser-qa-immigrant.png"
+if grep -q '/covers/cache/browser-qa-immigrant-thumb.png' "${IMMIGRANT_BROWSE_DOM}" && grep -q '/covers/cache/browser-qa-immigrant.png' "${IMMIGRANT_BOOK_DOM}"; then
+  log "cached_cover_paths=pass card_path=/covers/cache/browser-qa-immigrant-thumb.png hero_path=/covers/cache/browser-qa-immigrant.png"
 else
-  log "cached_cover_paths=fail path=/covers/cache/browser-qa-immigrant.png"
+  log "cached_cover_paths=fail expected_card=/covers/cache/browser-qa-immigrant-thumb.png expected_hero=/covers/cache/browser-qa-immigrant.png"
   exit 1
 fi
 
@@ -239,6 +239,13 @@ if grep -E 'src="https?://' "${IMMIGRANT_BROWSE_DOM}" "${IMMIGRANT_BOOK_DOM}"; t
   exit 1
 else
   log "remote_cover_dependencies=pass scope=immigrant_book_pages"
+fi
+
+if grep -RhoE '<img[^>]+src="https?://[^"]+"' "${QA_DIR}"/*.html; then
+  log "remote_image_dependencies=fail scope=all_captured_pages"
+  exit 1
+else
+  log "remote_image_dependencies=pass scope=all_captured_pages"
 fi
 
 node - "${IMMIGRANT_BOOK_DOM}" <<'NODE' | tee -a "${TRANSCRIPT}"
@@ -268,6 +275,15 @@ node scripts/image_decode_check.mjs \
   "${QA_DIR}/image-decode.json" | tee -a "${TRANSCRIPT}"
 grep -q '"passed": true' "${QA_DIR}/image-decode.json"
 log "image_decode=pass artifact=${QA_DIR}/image-decode.json natural_width_gt_zero=pass"
+
+log "running card thumbnail image decode audit"
+node scripts/image_decode_check.mjs \
+  "${BASE_URL}/browse?q=Immigrant" \
+  "#public-cover-deep-vellum-immigrant img" \
+  "/covers/cache/browser-qa-immigrant-thumb.png" \
+  "${QA_DIR}/thumbnail-image-decode.json" | tee -a "${TRANSCRIPT}"
+grep -q '"passed": true' "${QA_DIR}/thumbnail-image-decode.json"
+log "thumbnail_image_decode=pass artifact=${QA_DIR}/thumbnail-image-decode.json card_uses_derivative=pass"
 
 log "running authenticated admin browser audit"
 node scripts/admin_browser_check.mjs "${BASE_URL}" "${QA_DIR}" 2>&1 | tee -a "${TRANSCRIPT}"

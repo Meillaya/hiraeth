@@ -182,10 +182,10 @@ defmodule Hiraeth.RealCatalogDatasetTest do
         "cover" => %{
           "source_url" => "http://cdn.shopify.com/s/files/1/0433/1651/0883/files/bad.jpg",
           "provider" => "deep_vellum_official_store",
-          "rights_basis" => "publisher_store_link_only",
+          "rights_basis" => "local_cache_permitted",
           "attribution_text" => "Example",
           "attribution_url" => "https://example.test/book",
-          "cache_policy" => "link_only"
+          "cache_policy" => "cache_allowed"
         },
         "jacket_copy" => String.duplicate("publisher marketing copy ", 20),
         "displayed_fields" => ["title", "jacket_copy", "cover"],
@@ -502,10 +502,10 @@ defmodule Hiraeth.RealCatalogDatasetTest do
       "cover" => %{
         "source_url" => cover_url,
         "provider" => provider,
-        "rights_basis" => "publisher_store_link_only",
+        "rights_basis" => "local_cache_permitted",
         "attribution_text" => "Example",
         "attribution_url" => "https://example.test/book",
-        "cache_policy" => "link_only"
+        "cache_policy" => "cache_allowed"
       },
       "displayed_fields" => [
         "title",

@@ -1,7 +1,7 @@
 {
   "provider": "dalkey_archive_official_store",
   "retrieved_at": "2026-06-12T00:00:00Z",
-  "license_note": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display link-only pending explicit cache rights.",
+  "license_note": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls.",
   "records": [
     {
       "source_uri": "https://dalkeyarchive.store/products/the-tunnel",
@@ -31,10 +31,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/thetunnel.jpg?v=1687906727",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/the-tunnel",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -90,10 +90,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/thetunnel.jpg?v=1687906727",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/the-tunnel",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -149,10 +149,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976830_FC.png?v=1779982959",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/my-paris",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -196,10 +196,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976830_FC.png?v=1779982959",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/my-paris",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -243,10 +243,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976694_FC.jpg?v=1778773287",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/a-hyphenated-childhood",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -290,10 +290,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976694_FC.jpg?v=1778773287",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/a-hyphenated-childhood",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -341,10 +341,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/Ulysses_Rios.jpg?v=1777558056",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/the-house-of-ulysses",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -392,10 +392,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/Ulysses_Rios.jpg?v=1777558056",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/the-house-of-ulysses",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -443,10 +443,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976816_FC.png?v=1779982906",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/b-moondocks",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -494,10 +494,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976816_FC.png?v=1779982906",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/b-moondocks",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -545,10 +545,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976854_FC.jpg?v=1775750429",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/the-stars",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -596,10 +596,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976854_FC.jpg?v=1775750429",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/the-stars",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -643,10 +643,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976878_FC.jpg?v=1777989643",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/imago-bird-essentials",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -690,10 +690,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976878_FC.jpg?v=1777989643",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/imago-bird-essentials",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -737,10 +737,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/Addaheading.jpg?v=1755815372",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/tlooth",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -784,10 +784,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/Addaheading.jpg?v=1755815372",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/tlooth",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -831,10 +831,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976731_FC.jpg?v=1778091027",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/hackenfellers-ape",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -878,10 +878,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976731_FC.jpg?v=1778091027",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/hackenfellers-ape",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -925,10 +925,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976717_FC.png?v=1779983021",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/in-transit-essentials",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -972,10 +972,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976717_FC.png?v=1779983021",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/in-transit-essentials",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1019,10 +1019,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976656_FC.jpg?v=1778174818",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/the-terrible",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1066,10 +1066,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976656_FC.jpg?v=1778174818",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/the-terrible",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1113,10 +1113,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976670_FC.png?v=1779983065",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/cadenza-essentials",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1160,10 +1160,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976670_FC.png?v=1779983065",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/cadenza-essentials",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1207,10 +1207,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781564784032_FC.jpg?v=1762983653",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/paradise",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1253,10 +1253,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976618_FC.jpg?v=1761150057",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/nellys-version",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1300,10 +1300,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976618_FC.jpg?v=1761150057",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/nellys-version",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1355,10 +1355,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976571_FC.jpg?v=1768508163",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/melancholy-i-ii",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1410,10 +1410,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976571_FC.jpg?v=1768508163",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/melancholy-i-ii",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1457,10 +1457,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976502_FC.jpg?v=1774365960",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/killoyle-1",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1504,10 +1504,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976502_FC.jpg?v=1774365960",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/killoyle-1",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1551,10 +1551,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976472_FC.jpg?v=1768601890",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/singular-pleasures",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1598,10 +1598,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976472_FC.jpg?v=1768601890",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/singular-pleasures",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1649,10 +1649,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976533_FC.jpg?v=1760987468",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/self-control-copy",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1700,10 +1700,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976533_FC.jpg?v=1760987468",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/self-control-copy",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1747,10 +1747,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628975703_FC.jpg?v=1757445906",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/the-fountain-of-youth",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1794,10 +1794,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628975703_FC.jpg?v=1757445906",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/the-fountain-of-youth",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1841,10 +1841,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976434_FC_dffb7e42-4635-4d6f-abd7-29838a1f4fde.jpg?v=1778599791",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/dead-as-doornails",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1888,10 +1888,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976434_FC_dffb7e42-4635-4d6f-abd7-29838a1f4fde.jpg?v=1778599791",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/dead-as-doornails",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1935,10 +1935,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976458_FC.jpg?v=1766424618",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/the-trick-is-to-keep-breathing-1",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1982,10 +1982,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976458_FC.jpg?v=1766424618",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/the-trick-is-to-keep-breathing-1",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2037,10 +2037,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976410_FC.jpg?v=1768509396",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/the-ginger-man-letters",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2092,10 +2092,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628976410_FC.jpg?v=1768509396",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/the-ginger-man-letters",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2139,10 +2139,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628975581_FC_baca7cc2-26d7-4bcb-9ced-ad6e322336ef.jpg?v=1759853424",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/ladies-almanack-1",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2186,10 +2186,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628975741_FC.jpg?v=1752682027",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/hopeful-monsters",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2233,10 +2233,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628975741_FC.jpg?v=1752682027",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/hopeful-monsters",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2280,10 +2280,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/9781628975680_FC.jpg?v=1755815512",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/antic-hay",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2331,10 +2331,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/Palinuro-cover-082725.jpg?v=1756324602",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/palinuro-of-mexico",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2382,10 +2382,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/Palinuro-cover-082725.jpg?v=1756324602",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/palinuro-of-mexico",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2429,10 +2429,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0594/2915/9067/files/Conversions_Cover-Final.jpg?v=1754948211",
         "provider": "dalkey_archive_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Dalkey Archive official source",
         "attribution_url": "https://dalkeyarchive.store/products/the-conversions",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",

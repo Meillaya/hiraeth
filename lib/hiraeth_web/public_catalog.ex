@@ -537,6 +537,7 @@ defmodule HiraethWeb.PublicCatalog do
               'attribution_url', cover.attribution_url,
               'cache_policy', cover.cache_policy,
               'cached_file_path', cover.cached_file_path,
+              'thumbnail_file_path', cover.thumbnail_file_path,
               'takedown_state', cover.takedown_state
             )
             order by coalesce(ca.position, 0), ca.id
@@ -691,7 +692,10 @@ defmodule HiraethWeb.PublicCatalog do
       attribution_text: asset["attribution_text"],
       attribution_url: asset["attribution_url"],
       cache_policy: asset["cache_policy"],
-      takedown_state: asset["takedown_state"]
+      takedown_state: asset["takedown_state"],
+      cached_file_path: asset["cached_file_path"],
+      thumbnail_file_path: asset["thumbnail_file_path"],
+      thumbnail_url: thumbnail_url_from_data(asset["thumbnail_file_path"])
     }
   end
 
@@ -704,6 +708,10 @@ defmodule HiraethWeb.PublicCatalog do
   end
 
   defp cover_public_url_from_data(asset), do: asset["source_url"]
+
+  defp thumbnail_url_from_data(path) do
+    if safe_cached_file_path?(path), do: static_cover_path(path)
+  end
 
   defp public_cover_data(covers) do
     covers

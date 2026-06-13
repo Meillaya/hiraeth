@@ -1,7 +1,7 @@
 {
   "provider": "deep_vellum_official_store",
   "retrieved_at": "2026-06-12T00:00:00Z",
-  "license_note": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display link-only pending explicit cache rights.",
+  "license_note": "Official public publisher/store metadata; curated factual and approved public prose metadata only; cover display cached locally from explicit dataset URLs with attribution and takedown controls.",
   "records": [
     {
       "source_uri": "https://store.deepvellum.org/products/immigrant",
@@ -35,10 +35,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054541_FC.jpg?v=1781276294",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/immigrant",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -90,10 +90,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054541_FC.jpg?v=1781276294",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/immigrant",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -141,10 +141,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054503_FC.jpg?v=1777385151",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/the-robert-poems",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -188,10 +188,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054503_FC.jpg?v=1777385151",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/the-robert-poems",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -235,10 +235,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054626_FC.jpg?v=1780934017",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/the-river-of-blessings",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -282,10 +282,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054626_FC.jpg?v=1780934017",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/the-river-of-blessings",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -333,10 +333,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/Theodoros_Placeholder_3.png?v=1759873264",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/theodoros",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -384,10 +384,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/Theodoros_Placeholder_3.png?v=1759873264",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/theodoros",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -439,10 +439,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/2026-BLT-cover-rgb.jpg?v=1760128369",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/best-literary-translations-2026",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -494,10 +494,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/2026-BLT-cover-rgb.jpg?v=1760128369",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/best-literary-translations-2026",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -541,10 +541,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054305_FC.jpg?v=1760647665",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/filth-eaters",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -588,10 +588,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054305_FC.jpg?v=1760647665",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/filth-eaters",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -635,10 +635,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054343_FC.jpg?v=1762799571",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/the-blue-book-of-nebo-ya",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -682,10 +682,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054343_FC.jpg?v=1762799571",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/the-blue-book-of-nebo-ya",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -733,10 +733,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646053933_FC.jpg?v=1740501745",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/the-book-of-homes",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -784,10 +784,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646053933_FC.jpg?v=1740501745",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/the-book-of-homes",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -835,10 +835,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/unnamed_cb3437ef-b187-4a4c-80a3-946627a21c5d.jpg?v=1765559799",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/beginnings",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -886,10 +886,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/unnamed_cb3437ef-b187-4a4c-80a3-946627a21c5d.jpg?v=1765559799",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/beginnings",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -937,10 +937,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054190_FC.jpg?v=1757006273",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/woodwind-harmony-in-the-nighttime",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -988,10 +988,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054190_FC.jpg?v=1757006273",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/woodwind-harmony-in-the-nighttime",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1039,10 +1039,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054176_FC.jpg?v=1754411610",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/slovenian-abcs",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1090,10 +1090,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054176_FC.jpg?v=1754411610",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/slovenian-abcs",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1141,10 +1141,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054152_FC.jpg?v=1750865905",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/invisible-years",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1192,10 +1192,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054152_FC.jpg?v=1750865905",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/invisible-years",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1243,10 +1243,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054152_FC.jpg?v=1750865905",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/invisible-years",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1294,10 +1294,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/SOD-jacket-091725.pdf.jpg?v=1763580248",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/the-slaughterhouse-of-dreams",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1345,10 +1345,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/SOD-jacket-091725.pdf.jpg?v=1763580248",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/the-slaughterhouse-of-dreams",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1396,10 +1396,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054091_FC.jpg?v=1759422101",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1447,10 +1447,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054091_FC.jpg?v=1759422101",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1498,10 +1498,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054091_FC.jpg?v=1759422101",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/the-summer-my-mother-had-green-eyes",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1549,10 +1549,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054077_FC_47e05fa3-5851-4bc6-b449-45e1b6f19aab.jpg?v=1763751843",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/married-life",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1600,10 +1600,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054077_FC_47e05fa3-5851-4bc6-b449-45e1b6f19aab.jpg?v=1763751843",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/married-life",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1651,10 +1651,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054053_FC.jpg?v=1752250083",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/the-ruins",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1702,10 +1702,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054053_FC.jpg?v=1752250083",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/the-ruins",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1753,10 +1753,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054039_FC.jpg?v=1749657482",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/things-and-thoughts",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1804,10 +1804,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054039_FC.jpg?v=1749657482",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/things-and-thoughts",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1863,10 +1863,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054015_FC.jpg?v=1756153598",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/what-remains",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1922,10 +1922,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054015_FC.jpg?v=1756153598",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/what-remains",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -1969,10 +1969,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/Dreams_for_Earth_cover_web_resized.jpg?v=1746024464",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/dreams-for-earth",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2016,10 +2016,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/Dreams_for_Earth_cover_web_resized.jpg?v=1746024464",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/dreams-for-earth",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2071,10 +2071,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646053971_FC.jpg?v=1749580390",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/the-animal-on-the-rock",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2126,10 +2126,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646053971_FC.jpg?v=1749580390",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/the-animal-on-the-rock",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2177,10 +2177,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646053780_FC.jpg?v=1742485191",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/the-pawn",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2224,10 +2224,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646053773_FC_e1278a0b-9a19-4530-9b83-63411344b63f.jpg?v=1742311395",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/juvenilia",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2271,10 +2271,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646053773_FC_e1278a0b-9a19-4530-9b83-63411344b63f.jpg?v=1742311395",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/juvenilia",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2322,10 +2322,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646053728_FC.jpg?v=1744900962",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/what-good-does-it-do",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2369,10 +2369,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646053797_FC.jpg?v=1744137699",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/terror-counter",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2416,10 +2416,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646053797_FC.jpg?v=1744137699",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/terror-counter",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2467,10 +2467,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646053766_FC.jpg?v=1741877042",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/crocodiles-at-night",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",
@@ -2518,10 +2518,10 @@
       "cover": {
         "source_url": "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/GameroverbyGiancarloHuapaya_RGB.jpg?v=1741714106",
         "provider": "deep_vellum_official_store",
-        "rights_basis": "publisher_store_link_only",
+        "rights_basis": "local_cache_permitted",
         "attribution_text": "Cover via Deep Vellum official source",
         "attribution_url": "https://store.deepvellum.org/products/gamerover",
-        "cache_policy": "link_only"
+        "cache_policy": "cache_allowed"
       },
       "displayed_fields": [
         "title",

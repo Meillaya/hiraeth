@@ -5,6 +5,8 @@ defmodule Hiraeth.Covers do
   alias Hiraeth.RealCatalog.SourcePolicy
 
   @cache_root "priv/static/covers/cache"
+  @thumbnail_timeout 5_000
+  @thumbnail_command_timeout "5s"
 
   resources do
     resource Hiraeth.Covers.CoverAsset
@@ -127,6 +129,8 @@ defmodule Hiraeth.Covers do
     fetch = Keyword.get(opts, :fetch, fn url -> req_fetch!(url, req_options) end)
     max_concurrency = Keyword.get(opts, :max_concurrency, 4)
     timeout = Keyword.get(opts, :timeout, 15_000)
+    thumbnailer = Keyword.get(opts, :thumbnailer, &generate_thumbnail/2)
+    thumbnail_timeout = Keyword.get(opts, :thumbnail_timeout, @thumbnail_timeout)
     strict? = Keyword.get(opts, :strict?, false)
 
     File.mkdir_p!(cache_root)
@@ -147,11 +151,20 @@ defmodule Hiraeth.Covers do
       {:ok, {:cache, asset, cache_path, body}}, summary ->
         File.write!(cache_path, body)
 
+        thumbnail_file_path =
+          maybe_generate_thumbnail(
+            cache_path,
+            thumbnail_path(asset, cache_root),
+            thumbnailer,
+            thumbnail_timeout
+          )
+
         cached_asset =
           asset
           |> Ash.Changeset.for_update(:update, %{
             cache_policy: "cache_allowed",
             cached_file_path: cache_path,
+            thumbnail_file_path: thumbnail_file_path,
             cached_at: DateTime.utc_now(:second)
           })
           |> Ash.update!(authorize?: false)
@@ -203,14 +216,27 @@ defmodule Hiraeth.Covers do
       File.rm!(asset.cached_file_path)
     end
 
+    if safe_cached_file_path?(asset.thumbnail_file_path) and
+         File.exists?(asset.thumbnail_file_path) do
+      File.rm!(asset.thumbnail_file_path)
+    end
+
     asset
-    |> Ash.Changeset.for_update(:update, %{cached_file_path: nil, cached_at: nil})
+    |> Ash.Changeset.for_update(:update, %{
+      cached_file_path: nil,
+      thumbnail_file_path: nil,
+      cached_at: nil
+    })
     |> Ash.update!(authorize?: false)
   end
 
   def cache_path(%CoverAsset{} = asset, cache_root \\ @cache_root) do
     extension = asset.source_url |> URI.parse() |> Map.get(:path) |> extension_from_path()
     Path.join(cache_root, "#{sha256(asset.source_url)}#{extension}")
+  end
+
+  def thumbnail_path(%CoverAsset{} = asset, cache_root \\ @cache_root) do
+    Path.join(cache_root, "#{sha256(asset.source_url)}-thumb.jpg")
   end
 
   defp public_cover_map(%CoverAsset{} = cover_asset) do
@@ -223,7 +249,9 @@ defmodule Hiraeth.Covers do
       attribution_text: cover_asset.attribution_text,
       attribution_url: cover_asset.attribution_url,
       cache_policy: cover_asset.cache_policy,
-      cached_file_path: cover_asset.cached_file_path
+      cached_file_path: cover_asset.cached_file_path,
+      thumbnail_file_path: cover_asset.thumbnail_file_path,
+      thumbnail_url: public_thumbnail_url(cover_asset.thumbnail_file_path)
     }
   end
 
@@ -234,6 +262,10 @@ defmodule Hiraeth.Covers do
 
   defp public_cover_url(%CoverAsset{} = cover_asset), do: cover_asset.source_url
 
+  defp public_thumbnail_url(path) do
+    if safe_cached_file_path?(path), do: static_path(path)
+  end
+
   defp cache_policy_public?(%CoverAsset{cache_policy: "link_only"} = asset),
     do: not present?(asset.cached_file_path)
 
@@ -243,6 +275,58 @@ defmodule Hiraeth.Covers do
         safe_cached_file_path?(asset.cached_file_path)
 
   defp cache_policy_public?(_asset), do: false
+
+  defp maybe_generate_thumbnail(source_path, thumbnail_path, thumbnailer, timeout) do
+    with true <- safe_cached_file_path?(source_path),
+         true <- String.starts_with?(Path.expand(thumbnail_path), expanded_cache_root() <> "/"),
+         {:ok, generated_path} <-
+           run_thumbnailer(thumbnailer, source_path, thumbnail_path, timeout),
+         true <- safe_cached_file_path?(generated_path) do
+      generated_path
+    else
+      _ -> nil
+    end
+  end
+
+  defp run_thumbnailer(thumbnailer, source_path, thumbnail_path, timeout)
+       when is_function(thumbnailer, 2) do
+    task = Task.async(fn -> thumbnailer.(source_path, thumbnail_path) end)
+
+    case Task.yield(task, timeout) || Task.shutdown(task, :brutal_kill) do
+      {:ok, {:ok, generated_path}} when is_binary(generated_path) -> {:ok, generated_path}
+      {:ok, generated_path} when is_binary(generated_path) -> {:ok, generated_path}
+      _result -> :error
+    end
+  end
+
+  defp run_thumbnailer(_thumbnailer, _source_path, _thumbnail_path, _timeout), do: :error
+
+  defp generate_thumbnail(source_path, thumbnail_path) do
+    with magick when is_binary(magick) <- System.find_executable("magick"),
+         timeout when is_binary(timeout) <- System.find_executable("timeout"),
+         {_, 0} <-
+           System.cmd(
+             timeout,
+             [
+               @thumbnail_command_timeout,
+               magick,
+               source_path,
+               "-auto-orient",
+               "-thumbnail",
+               "400x600>",
+               "-strip",
+               "-quality",
+               "82",
+               thumbnail_path
+             ],
+             stderr_to_stdout: true
+           ),
+         true <- File.exists?(thumbnail_path) do
+      {:ok, thumbnail_path}
+    else
+      _ -> nil
+    end
+  end
 
   defp cache_candidate?(%CoverAsset{} = asset) do
     uri = parse_uri(asset.source_url)
@@ -266,7 +350,7 @@ defmodule Hiraeth.Covers do
 
   defp cached_file_present?(_path), do: false
 
-  defp static_path(path) do
+  defp static_path(path) when is_binary(path) do
     path = Path.expand(path)
     static_root = Path.expand("priv/static")
 
@@ -274,6 +358,8 @@ defmodule Hiraeth.Covers do
       "/" <> Path.relative_to(path, static_root)
     end
   end
+
+  defp static_path(_path), do: nil
 
   defp ensure_safe_cache_root!(cache_root) when is_binary(cache_root) do
     expanded_root = Path.expand(cache_root)
