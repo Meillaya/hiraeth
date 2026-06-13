@@ -285,6 +285,15 @@ node scripts/image_decode_check.mjs \
 grep -q '"passed": true' "${QA_DIR}/thumbnail-image-decode.json"
 log "thumbnail_image_decode=pass artifact=${QA_DIR}/thumbnail-image-decode.json card_uses_derivative=pass"
 
+log "running mobile search overflow audit"
+node scripts/responsive_overflow_check.mjs \
+  "${BASE_URL}/search" \
+  "${QA_DIR}/mobile-search-overflow.json" \
+  390 \
+  844 | tee -a "${TRANSCRIPT}"
+grep -q '"passed": true' "${QA_DIR}/mobile-search-overflow.json"
+log "mobile_search_overflow=pass artifact=${QA_DIR}/mobile-search-overflow.json"
+
 log "running authenticated admin browser audit"
 node scripts/admin_browser_check.mjs "${BASE_URL}" "${QA_DIR}" 2>&1 | tee -a "${TRANSCRIPT}"
 grep -q '"passed": true' "${QA_DIR}/admin-authenticated.json"

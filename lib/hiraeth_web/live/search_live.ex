@@ -70,9 +70,9 @@ defmodule HiraethWeb.SearchLive do
               message={"No catalog entries match search term \"#{@query}\"."}
             />
           <% else %>
-            <div class="overflow-x-auto rounded-sm border border-[#E7E2D8] bg-[#FCFAF7]/65 dark:border-[#2E2A27] dark:bg-[#12110F]/50">
+            <div class="overflow-hidden rounded-sm border border-[#E7E2D8] bg-[#FCFAF7]/65 dark:border-[#2E2A27] dark:bg-[#12110F]/50">
               <table class="w-full text-left text-sm border-collapse">
-                <thead>
+                <thead class="hidden sm:table-header-group">
                   <tr class="border-b border-[#E7E2D8] dark:border-[#2E2A27]">
                     <th class="py-3 font-mono text-xs uppercase text-stone-500 font-semibold w-1/3">
                       Title & Contributor
@@ -91,14 +91,17 @@ defmodule HiraethWeb.SearchLive do
                 <tbody
                   id="search-results-body"
                   phx-update="stream"
-                  class="divide-y divide-[#E7E2D8]/50 dark:divide-[#2E2A27]/50"
+                  class="block divide-y divide-[#E7E2D8]/50 dark:divide-[#2E2A27]/50 sm:table-row-group"
                 >
                   <tr
                     :for={{dom_id, book} <- @streams.results}
                     id={dom_id}
-                    class="group transition-colors hover:bg-[#F5F2EB]/70 dark:hover:bg-[#1C1917]"
+                    class="group block space-y-3 p-4 transition-colors hover:bg-[#F5F2EB]/70 dark:hover:bg-[#1C1917] sm:table-row sm:space-y-0 sm:p-0"
                   >
-                    <td class="py-4 pr-4">
+                    <td class="block sm:table-cell sm:py-4 sm:pr-4">
+                      <span class="mb-1 block font-mono text-[10px] font-semibold uppercase tracking-wider text-stone-500 sm:hidden">
+                        Title
+                      </span>
                       <div class="font-serif font-medium text-stone-900 dark:text-stone-100">
                         <.link
                           navigate={~p"/books/#{book.slug}"}
@@ -111,9 +114,22 @@ defmodule HiraethWeb.SearchLive do
                         {book.author}
                       </div>
                     </td>
-                    <td class="py-4 pr-4 text-stone-700 dark:text-stone-300">{book.publisher}</td>
-                    <td class="py-4 font-mono text-xs text-stone-500">{book.isbn}</td>
-                    <td class="py-4 font-mono text-right text-stone-700 dark:text-stone-300">
+                    <td class="block text-stone-700 dark:text-stone-300 sm:table-cell sm:py-4 sm:pr-4">
+                      <span class="mb-1 block font-mono text-[10px] font-semibold uppercase tracking-wider text-stone-500 sm:hidden">
+                        Publisher
+                      </span>
+                      {book.publisher}
+                    </td>
+                    <td class="block break-all font-mono text-xs text-stone-500 sm:table-cell sm:py-4">
+                      <span class="mb-1 block font-mono text-[10px] font-semibold uppercase tracking-wider text-stone-500 sm:hidden">
+                        ISBN
+                      </span>
+                      {book.isbn}
+                    </td>
+                    <td class="block break-all font-mono text-xs text-stone-700 dark:text-stone-300 sm:table-cell sm:py-4 sm:text-right sm:text-sm">
+                      <span class="mb-1 block font-mono text-[10px] font-semibold uppercase tracking-wider text-stone-500 sm:hidden">
+                        Source
+                      </span>
                       {book.source && book.source.provider}
                     </td>
                   </tr>
