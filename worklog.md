@@ -433,4 +433,4 @@ Evidence:
 - `.omo/evidence/final-after-search-fixes-browser.txt` — `make test-browser` passed with `test_browser=pass`; timings were `/browse` 97ms, `/browse?q=Immigrant` 99ms, `/books/deep-vellum-immigrant` 85ms.
 - `.omo/evidence/final-after-search-fixes-docker-cleanup.txt` — docker/browser QA cleanup receipt.
 
-Remediation commit: pending
+Remediation commit: 32b585d — fix(catalog): page search with source-safe SQL
