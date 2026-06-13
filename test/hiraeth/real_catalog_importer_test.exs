@@ -182,6 +182,7 @@ defmodule Hiraeth.RealCatalogImporterTest do
       |> Map.update!(:displayed_fields, fn fields ->
         Enum.uniq(fields ++ ["description", "editorial_praise", "storefront_url"])
       end)
+      |> put_field_sources(dataset, ["description", "editorial_praise", "storefront_url"])
 
     write_archipelago_payload!(tmp, dataset, prose_record, remaining_records)
 
@@ -197,6 +198,143 @@ defmodule Hiraeth.RealCatalogImporterTest do
     assert updated_work.description == "A later checksum-versioned official synopsis."
     assert updated_work.storefront_url == record.source_uri
     assert [%{"quote" => "Later sourced praise."}] = updated_work.editorial_praise
+
+    updated_work
+    |> Ash.Changeset.for_update(:update, %{description: "Curated nonblank synopsis."})
+    |> Ash.update!(authorize?: false)
+
+    overwrite_attempt =
+      Map.put(prose_record, :description, "A newer source should not overwrite curation.")
+
+    write_archipelago_payload!(tmp, dataset, overwrite_attempt, remaining_records)
+
+    assert {:ok, third_summary} = Hiraeth.RealCatalog.Importer.seed!(tmp)
+    assert third_summary.source_records == 150
+
+    preserved_work =
+      Work |> Ash.read!(authorize?: false) |> Enum.find(&(&1.title == record.work.title))
+
+    assert preserved_work.description == "Curated nonblank synopsis."
+  end
+
+  test "real catalog importer ingests enriched metadata and preserves field provenance payload" do
+    clear_catalog!()
+
+    tmp =
+      Path.join(
+        System.tmp_dir!(),
+        "hiraeth-enriched-real-catalog-#{System.unique_integer([:positive])}"
+      )
+
+    File.mkdir_p!(tmp)
+    File.cp!(Path.join(Dataset.default_dir(), "README.md"), Path.join(tmp, "README.md"))
+    File.cp!(Path.join(Dataset.default_dir(), "schema.json"), Path.join(tmp, "schema.json"))
+    on_exit(fn -> File.rm_rf!(tmp) end)
+
+    {:ok, dataset} = Dataset.load_file(Path.join(Dataset.default_dir(), "archipelago_books.json"))
+    [record | remaining_records] = dataset.records
+
+    enriched_record =
+      record
+      |> put_in([:work, :original_title], "Bob og Hilbert")
+      |> put_in([:work, :original_language_code], "fao")
+      |> put_in([:work, :subjects], ["picture books", "friendship"])
+      |> put_in([:edition, :language_code], "eng")
+      |> put_in([:edition, :page_count], 48)
+      |> put_in([:edition, :dimensions], %{height_mm: 250, width_mm: 210, depth_mm: 8})
+      |> Map.update!(:displayed_fields, fn fields ->
+        Enum.uniq(
+          fields ++
+            [
+              "original_title",
+              "original_language_code",
+              "subjects",
+              "language_code",
+              "page_count",
+              "dimensions"
+            ]
+        )
+      end)
+      |> Map.update!(:field_sources, fn sources ->
+        rich_source = %{
+          provider: dataset.provider,
+          source_uri: record.source_uri,
+          source_type: "publisher_dataset",
+          rights_basis: dataset.license_note
+        }
+
+        sources
+        |> Map.put("original_title", rich_source)
+        |> Map.put("original_language_code", rich_source)
+        |> Map.put("subjects", rich_source)
+        |> Map.put("language_code", rich_source)
+        |> Map.put("page_count", rich_source)
+        |> Map.put("dimensions", rich_source)
+      end)
+
+    write_archipelago_payload!(tmp, dataset, enriched_record, remaining_records)
+
+    assert {:ok, summary} = Hiraeth.RealCatalog.Importer.seed!(tmp)
+    assert summary.editions == 50
+
+    work = Work |> Ash.read!(authorize?: false) |> Enum.find(&(&1.title == record.work.title))
+    edition = Edition |> Ash.read!(authorize?: false) |> Enum.find(&(&1.work_id == work.id))
+
+    assert work.original_title == "Bob og Hilbert"
+    assert work.original_language_code == "fao"
+    assert work.subjects == ["picture books", "friendship"]
+    assert edition.language_code == "eng"
+    assert edition.page_count == 48
+    assert edition.height_mm == 250
+    assert edition.width_mm == 210
+    assert edition.depth_mm == 8
+
+    source_record =
+      SourceRecord
+      |> Ash.read!(authorize?: false)
+      |> Enum.find(fn source_record ->
+        get_in(source_record.raw_payload || %{}, ["edition", "isbn_13"]) == "9781962770651"
+      end)
+
+    assert source_record.raw_payload["field_sources"]["dimensions"]["provider"] ==
+             dataset.provider
+
+    assert source_record.raw_payload["provider_permissions"]["provider"] == dataset.provider
+    assert source_record.raw_payload["work"]["subjects"] == ["picture books", "friendship"]
+    assert source_record.raw_payload["edition"]["page_count"] == 48
+    assert source_record.raw_payload["edition"]["dimensions"]["height_mm"] == 250
+  end
+
+  test "real catalog importer rejects rich metadata without field provenance" do
+    clear_catalog!()
+
+    tmp =
+      Path.join(
+        System.tmp_dir!(),
+        "hiraeth-unsourced-rich-real-catalog-#{System.unique_integer([:positive])}"
+      )
+
+    File.mkdir_p!(tmp)
+    File.cp!(Path.join(Dataset.default_dir(), "README.md"), Path.join(tmp, "README.md"))
+    File.cp!(Path.join(Dataset.default_dir(), "schema.json"), Path.join(tmp, "schema.json"))
+    on_exit(fn -> File.rm_rf!(tmp) end)
+
+    {:ok, dataset} = Dataset.load_file(Path.join(Dataset.default_dir(), "archipelago_books.json"))
+    [record | remaining_records] = dataset.records
+
+    unsourced_record =
+      record
+      |> put_in([:work, :original_language_code], "fao")
+      |> Map.update!(:displayed_fields, &List.delete(&1, "original_language_code"))
+      |> Map.update!(:field_sources, &Map.delete(&1, "original_language_code"))
+
+    write_archipelago_payload!(tmp, dataset, unsourced_record, remaining_records)
+
+    assert {:error, findings} = Hiraeth.RealCatalog.Importer.seed!(tmp)
+    reasons = Enum.map(findings, & &1.reason)
+
+    assert "rich metadata field requires field_sources provenance" in reasons
+    assert [] = Ash.read!(Work, authorize?: false)
   end
 
   test "real catalog importer persists sourced prose and storefront CTA for public display" do
@@ -251,6 +389,7 @@ defmodule Hiraeth.RealCatalogImporterTest do
       provider: dataset.provider,
       retrieved_at: dataset.retrieved_at,
       license_note: dataset.license_note,
+      provider_permissions: dataset.provider_permissions,
       records: [first_record | remaining_records]
     }
 
@@ -281,6 +420,7 @@ defmodule Hiraeth.RealCatalogImporterTest do
       provider: dataset.provider,
       retrieved_at: dataset.retrieved_at,
       license_note: dataset.license_note,
+      provider_permissions: dataset.provider_permissions,
       records: [no_cover_record | remaining_records]
     }
 
@@ -319,15 +459,30 @@ defmodule Hiraeth.RealCatalogImporterTest do
       |> Map.update!(:displayed_fields, fn fields ->
         Enum.uniq(fields ++ ["description", "editorial_praise", "storefront_url"])
       end)
+      |> put_field_sources(dataset, ["description", "editorial_praise", "storefront_url"])
 
     payload = %{
       provider: dataset.provider,
       retrieved_at: dataset.retrieved_at,
       license_note: dataset.license_note,
+      provider_permissions: dataset.provider_permissions,
       records: [prose_record | remaining_records]
     }
 
     File.write!(Path.join(tmp, "archipelago_books.json"), Jason.encode!(payload, pretty: true))
     tmp
+  end
+
+  defp put_field_sources(record, dataset, fields) do
+    source = %{
+      provider: dataset.provider,
+      source_uri: record.source_uri,
+      source_type: "publisher_dataset",
+      rights_basis: dataset.license_note
+    }
+
+    Map.update!(record, :field_sources, fn sources ->
+      Enum.reduce(fields, sources, fn field, sources -> Map.put(sources, field, source) end)
+    end)
   end
 end

@@ -11,6 +11,7 @@ defmodule Hiraeth.RealCatalog.Validator do
   end
 
   @allowed_displayed_fields ~w(title subtitle contributors publisher imprint format published_on isbn_13 cover source_url description synopsis editorial_praise storefront_url original_title original_language_code subjects language_code page_count dimensions)
+  @rich_metadata_fields ~w(original_title original_language_code subjects language_code page_count dimensions)
   @approved_field_source_types ~w(publisher_dataset publisher_official_page)
   @canonical_prose_fields ~w(description synopsis editorial_praise storefront_url)
   @commerce_state_keys ~w(price inventory availability cart checkout account)
@@ -76,6 +77,7 @@ defmodule Hiraeth.RealCatalog.Validator do
     |> Kernel.++(cover_findings(dataset, record))
     |> Kernel.++(displayed_field_findings(dataset, record))
     |> Kernel.++(field_source_findings(dataset, record))
+    |> Kernel.++(rich_metadata_field_source_findings(dataset, record))
     |> Kernel.++(prose_provenance_findings(dataset, record))
     |> Kernel.++(copy_risk_findings(dataset, record))
     |> Kernel.++(provider_mismatch_findings(provider, dataset, record))
@@ -336,27 +338,8 @@ defmodule Hiraeth.RealCatalog.Validator do
         source = Map.get(sources, field) || Map.get(sources, to_string(field))
 
         if is_map(source) do
-          []
-          |> add_if(
-            map_value(source, :provider) != dataset.provider,
-            dataset,
-            record,
-            "field_sources provider must match dataset provider"
-          )
-          |> add_if(
-            map_value(source, :source_uri) != record.source_uri,
-            dataset,
-            record,
-            "field_sources source_uri must match record source_uri"
-          )
-          |> add_if(
-            map_value(source, :source_type) not in @approved_field_source_types,
-            dataset,
-            record,
-            "field_sources source_type is not approved"
-          )
-          |> add_if(
-            blank?(map_value(source, :rights_basis)),
+          source_safety_findings(
+            source,
             dataset,
             record,
             "displayed field requires field_sources provenance"
@@ -368,6 +351,59 @@ defmodule Hiraeth.RealCatalog.Validator do
     else
       [finding(dataset, record, "displayed field requires field_sources provenance")]
     end
+  end
+
+  defp rich_metadata_field_source_findings(dataset, record) do
+    sources = Map.get(record, :field_sources)
+
+    if is_map(sources) do
+      @rich_metadata_fields
+      |> Enum.filter(fn field -> not blank?(displayed_field_value(record, field)) end)
+      |> Enum.flat_map(fn field ->
+        source = Map.get(sources, field)
+
+        if is_map(source) do
+          source_safety_findings(
+            source,
+            dataset,
+            record,
+            "rich metadata field requires field_sources provenance"
+          )
+        else
+          [finding(dataset, record, "rich metadata field requires field_sources provenance")]
+        end
+      end)
+    else
+      []
+    end
+  end
+
+  defp source_safety_findings(source, dataset, record, missing_reason) do
+    []
+    |> add_if(
+      map_value(source, :provider) != dataset.provider,
+      dataset,
+      record,
+      "field_sources provider must match dataset provider"
+    )
+    |> add_if(
+      map_value(source, :source_uri) != record.source_uri,
+      dataset,
+      record,
+      "field_sources source_uri must match record source_uri"
+    )
+    |> add_if(
+      map_value(source, :source_type) not in @approved_field_source_types,
+      dataset,
+      record,
+      "field_sources source_type is not approved"
+    )
+    |> add_if(
+      blank?(map_value(source, :rights_basis)),
+      dataset,
+      record,
+      missing_reason
+    )
   end
 
   defp prose_provenance_findings(dataset, record) do

@@ -58,7 +58,11 @@ defmodule Hiraeth.RealCatalog.Importer do
       )
       |> sync_work_metadata!(record, trusted_write_opts())
 
-    edition = find_or_create_edition!(record, publisher, imprint, work)
+    edition =
+      record
+      |> find_or_create_edition!(publisher, imprint, work)
+      |> sync_edition_metadata!(record, trusted_write_opts())
+
     ensure_identifier!(edition, normalized_isbn!(record), trusted_write_opts())
     ensure_contributions!(record, work, edition, trusted_write_opts())
     ensure_cover!(record, edition, trusted_write_opts())
@@ -95,6 +99,12 @@ defmodule Hiraeth.RealCatalog.Importer do
 
   defp work_metadata_attrs(record) do
     %{}
+    |> maybe_put_metadata(:original_title, get_in(record, [:work, :original_title]))
+    |> maybe_put_metadata(
+      :original_language_code,
+      get_in(record, [:work, :original_language_code])
+    )
+    |> maybe_put_metadata(:subjects, get_in(record, [:work, :subjects]))
     |> maybe_put_metadata(:description, prose_description(record))
     |> maybe_put_metadata(:storefront_url, Map.get(record, :storefront_url))
     |> maybe_put_metadata(:editorial_praise, editorial_praise(record))
@@ -145,6 +155,11 @@ defmodule Hiraeth.RealCatalog.Importer do
         subtitle: record.edition.subtitle,
         slug: edition_slug(record),
         format: record.edition.format,
+        language_code: Map.get(record.edition, :language_code),
+        page_count: Map.get(record.edition, :page_count),
+        height_mm: dimension_value(record, :height_mm),
+        width_mm: dimension_value(record, :width_mm),
+        depth_mm: dimension_value(record, :depth_mm),
         published_on: parse_date(record.edition.published_on),
         work_id: work.id,
         publisher_id: publisher.id,
@@ -155,6 +170,38 @@ defmodule Hiraeth.RealCatalog.Importer do
       |> Ash.Changeset.for_create(:create, attrs)
       |> Ash.create!(trusted_write_opts())
     end
+  end
+
+  defp sync_edition_metadata!(edition, record, write_opts) do
+    updates =
+      record
+      |> edition_metadata_attrs()
+      |> Enum.reject(fn {key, value} ->
+        blank_metadata?(value) or not blank_metadata?(Map.get(edition, key))
+      end)
+      |> Map.new()
+
+    if updates == %{} do
+      edition
+    else
+      edition
+      |> Ash.Changeset.for_update(:update, updates)
+      |> Ash.update!(write_opts)
+    end
+  end
+
+  defp edition_metadata_attrs(record) do
+    %{}
+    |> maybe_put_metadata(:language_code, Map.get(record.edition, :language_code))
+    |> maybe_put_metadata(:page_count, Map.get(record.edition, :page_count))
+    |> maybe_put_metadata(:height_mm, dimension_value(record, :height_mm))
+    |> maybe_put_metadata(:width_mm, dimension_value(record, :width_mm))
+    |> maybe_put_metadata(:depth_mm, dimension_value(record, :depth_mm))
+  end
+
+  defp dimension_value(record, key) do
+    dimensions = Map.get(record.edition, :dimensions) || %{}
+    map_value(dimensions, key)
   end
 
   defp ensure_identifier!(edition, isbn, write_opts) do
@@ -314,10 +361,29 @@ defmodule Hiraeth.RealCatalog.Importer do
       "displayed_fields" => record.displayed_fields,
       "publisher" => record.publisher,
       "imprint" => record.imprint,
-      "work" => Map.take(record.work, [:title, :subtitle, :original_title, :publication_state]),
+      "provider_permissions" => Map.get(dataset, :provider_permissions),
+      "field_sources" => Map.get(record, :field_sources),
+      "work" =>
+        Map.take(record.work, [
+          :title,
+          :subtitle,
+          :original_title,
+          :original_language_code,
+          :subjects,
+          :publication_state
+        ]),
       "edition" =>
         record.edition
-        |> Map.take([:title, :subtitle, :format, :published_on, :isbn_13])
+        |> Map.take([
+          :title,
+          :subtitle,
+          :format,
+          :language_code,
+          :page_count,
+          :dimensions,
+          :published_on,
+          :isbn_13
+        ])
         |> Map.put(:isbn_13, normalized_isbn!(record)),
       "contributors" => Enum.map(record.contributors, &Map.take(&1, [:name, :role])),
       "curation" => Map.take(record.curation, [:status, :notes])

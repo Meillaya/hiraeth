@@ -751,3 +751,28 @@ Commit: 61b857b — `fix(covers): secure cacheable cover display`
   - `.omo/evidence/task-6-ash-codegen-check.txt` — AshPostgres migration check passed.
   - `.omo/evidence/task-6-compile.txt` — warning-free test compile passed.
   - `.omo/evidence/task-6-diff-check.txt` — whitespace diff check passed.
+
+## Next roadmap — T7 enriched importer ingestion
+
+- Date: 2026-06-13
+- Extended deterministic JSON import so sourced rich metadata reaches Ash resources and immutable source records:
+  - Work imports now preserve `original_title`, `original_language_code`, `subjects`, sourced prose, storefront URL, and editorial praise.
+  - Edition imports now preserve `language_code`, `page_count`, and millimetre dimensions from the source fixture.
+  - SourceRecord raw payloads now retain `provider_permissions` and per-field `field_sources` alongside rich work/edition values.
+  - Existing nonblank curated work/edition metadata is preserved on reimport; newer checksum-versioned source records are still written for audit.
+  - Update actions for Work/Edition are explicitly non-atomic because validation of unchanged language-code fields blocks Ash atomic update planning.
+- Verification evidence:
+  - `.omo/evidence/task-7-red-importer-enriched.txt` — RED importer suite before provider-permission/field-source fixture updates and enriched ingestion.
+  - `.omo/evidence/task-7-importer-tmux.txt` — tmux importer suite passed: 6 tests, 0 failures.
+  - `.omo/evidence/task-7-dev-seed.txt` — dev seed returned 150 editions, 150 identifiers, 150 source records, 150 cover assignments, and 3 import runs.
+  - `.omo/evidence/task-7-validator-cli.txt` — tracked corpus validation returned `{:ok, ...}` with 150 records and no duplicate/copy/cover findings.
+  - `.omo/evidence/task-7-format-check.txt`, `.omo/evidence/task-7-compile.txt`, `.omo/evidence/task-7-ash-codegen-check.txt`, and `.omo/evidence/task-7-diff-check.txt` — formatting, warning-free compile, migration check, and whitespace check passed.
+
+### T7 provenance-gap remediation
+
+- Independent verification found that non-displayed rich metadata could be imported without `field_sources` provenance.
+- Added a RED importer regression proving an unsourced `work.original_language_code` was accepted, then hardened validation so every present rich metadata field requires field-level provenance even when the field is not listed in `displayed_fields`.
+- Verification evidence:
+  - `.omo/evidence/task-7-red-unsourced-rich-metadata.txt` — reproduced the unsourced rich metadata acceptance.
+  - `.omo/evidence/task-7-green-unsourced-rich-metadata.txt` — importer and dataset tests passed after validation hardening.
+  - `.omo/evidence/task-7-focused-post-review-fix.txt` — importer, dataset, and resource tests passed after remediation.

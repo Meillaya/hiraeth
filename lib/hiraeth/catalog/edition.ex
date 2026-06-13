@@ -149,6 +149,8 @@ defmodule Hiraeth.Catalog.Edition do
     end
 
     update :update do
+      require_atomic? false
+
       accept [
         :title,
         :subtitle,
