@@ -509,3 +509,19 @@ Remediation commit: 682a972 — fix(catalog): close global review blockers
   - `.omo/evidence/m2-compile-after-cleanup.txt` — `mix compile --warnings-as-errors` passed.
   - `.omo/evidence/m2-performance-tests-scoped-queries-green-final.txt` — performance tests: 6 tests, 0 failures.
   - `.omo/evidence/m2-public-live-browser-contract-green.txt` — public LiveView/browser-contract focused suite: 9 tests, 0 failures.
+
+## Catalog performance optimization — Milestone 3
+
+- Date: 2026-06-13
+- Added explicit public catalog search/index migration:
+  - Source-record ISBN expression index for JSON ISBN provenance joins.
+  - Trigram indexes for work/edition titles and subtitles, publisher names, contributor display names, series titles, and normalized identifier values.
+- Updated migration contract test to require the new indexes.
+- EXPLAIN evidence captured through `Hiraeth.Repo.query!/2` because `psql` is not installed in the container:
+  - `.omo/evidence/m3-explain-source-by-isbn.txt` shows `Bitmap Index Scan on source_records_public_catalog_isbn_expr_index`.
+  - `.omo/evidence/m3-explain-book-page-empty.txt`
+  - `.omo/evidence/m3-explain-book-page-immigrant.txt`
+  - `.omo/evidence/m3-explain-publisher-detail.txt`
+- Verification evidence:
+  - `.omo/evidence/m3-migration-test.txt` — migration index test: 3 tests, 0 failures.
+  - `.omo/evidence/m3-focused-tests.txt` — migration + public catalog performance/LiveView/browser-contract suite: 18 tests, 0 failures.
