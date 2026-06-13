@@ -737,3 +737,17 @@ Commit: 61b857b — `fix(covers): secure cacheable cover display`
   - `.omo/evidence/task-5-filter-contract-http.txt` — `/browse?publisher=deep-vellum&role=translator&format=paperback&sort=title` returned HTTP 200 and filtered Deep Vellum results.
   - `.omo/evidence/task-5-malformed-search.txt` — malformed `%` query with filters returned HTTP 200 and a safe empty state.
   - `.omo/evidence/task-5-format-check.txt`, `.omo/evidence/task-5-compile.txt`, and `.omo/evidence/task-5-diff-check.txt` — formatting, warning-free compile, and whitespace checks passed.
+
+## Next roadmap — T6 migration/snapshot verification
+
+- Date: 2026-06-13
+- Verified the enriched metadata persistence layer added in commit `4bd6a73`:
+  - `20260613181658_add_source_backed_bibliographic_fields.exs` migrates the approved work and edition fields.
+  - Ash snapshots for `works` and `editions` are present and migration generation remains in sync.
+  - A fresh test database reset migrated all schema files from scratch and seeded the real-publisher catalog.
+- Verification evidence:
+  - `.omo/evidence/task-6-migration-reset-tmux.txt` — `MIX_ENV=test mix ecto.reset` completed and applied the enriched metadata migration.
+  - `.omo/evidence/task-6-ash-migration-test.txt` — migration topology/index tests passed.
+  - `.omo/evidence/task-6-ash-codegen-check.txt` — AshPostgres migration check passed.
+  - `.omo/evidence/task-6-compile.txt` — warning-free test compile passed.
+  - `.omo/evidence/task-6-diff-check.txt` — whitespace diff check passed.
