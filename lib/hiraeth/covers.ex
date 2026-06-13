@@ -111,7 +111,8 @@ defmodule Hiraeth.Covers do
       asset.cache_policy == "cache_allowed" and asset.rights_basis != "local_cache_permitted" ->
         "cached cover requires local cache rights basis"
 
-      asset.cache_policy == "cache_allowed" and not safe_cached_file_path?(asset.cached_file_path) ->
+      asset.cache_policy == "cache_allowed" and present?(asset.cached_file_path) and
+          not safe_cached_file_path?(asset.cached_file_path) ->
         "cached cover file path must be under priv/static/covers/cache"
 
       asset.cache_policy not in ["link_only", "cache_allowed"] ->
@@ -272,7 +273,7 @@ defmodule Hiraeth.Covers do
   defp cache_policy_public?(%CoverAsset{cache_policy: "cache_allowed"} = asset),
     do:
       asset.rights_basis == "local_cache_permitted" and
-        safe_cached_file_path?(asset.cached_file_path)
+        (not present?(asset.cached_file_path) or safe_cached_file_path?(asset.cached_file_path))
 
   defp cache_policy_public?(_asset), do: false
 

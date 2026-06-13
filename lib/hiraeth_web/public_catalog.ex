@@ -739,7 +739,7 @@ defmodule HiraethWeb.PublicCatalog do
          "rights_basis" => "local_cache_permitted",
          "cached_file_path" => path
        }) do
-    safe_cached_file_path?(path)
+    not present?(path) or safe_cached_file_path?(path)
   end
 
   defp public_cache_policy_data?(_asset), do: false

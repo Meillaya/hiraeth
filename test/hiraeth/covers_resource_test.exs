@@ -178,6 +178,29 @@ defmodule Hiraeth.CoversResourceTest do
            } = Covers.public_cover_for_edition(edition.id)
   end
 
+  test "public resolver allows cacheable remote covers before local cache warmup", %{
+    admin: admin,
+    edition: edition
+  } do
+    cacheable =
+      cover_asset!(admin, %{
+        source_url: "https://covers.example.test/cacheable-before-warmup.jpg",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed",
+        cached_file_path: nil
+      })
+
+    assignment!(admin, edition, cacheable)
+
+    assert Covers.public_cover_asset?(cacheable)
+
+    assert %{
+             source_url: "https://covers.example.test/cacheable-before-warmup.jpg",
+             cached_file_path: nil,
+             public_url: "https://covers.example.test/cacheable-before-warmup.jpg"
+           } = Covers.public_cover_for_edition(edition.id)
+  end
+
   test "takedown hides cached covers and does not expose stale local paths", %{
     admin: admin,
     edition: edition
