@@ -11,6 +11,7 @@ defmodule Hiraeth.BrowserQaContractTest do
     script_text = File.read!(script)
     focus_script = Path.join(@root, "scripts/keyboard_focus_check.mjs")
     admin_script = Path.join(@root, "scripts/admin_browser_check.mjs")
+    image_decode_script = Path.join(@root, "scripts/image_decode_check.mjs")
 
     assert script_text =~ "chromium"
     assert script_text =~ "--screenshot"
@@ -25,12 +26,20 @@ defmodule Hiraeth.BrowserQaContractTest do
     assert script_text =~ "duplicate_book_cards=pass"
     assert script_text =~ "cached_cover_paths=pass"
     assert script_text =~ "remote_cover_dependencies=pass"
+    assert script_text =~ "prose_cta_presence=pass"
+    assert script_text =~ "image_decode=pass"
+    assert script_text =~ "natural_width_gt_zero=pass"
+    assert script_text =~ "image_decode_check.mjs"
+    assert script_text =~ "book-description"
+    assert script_text =~ "book-storefront-cta"
+    assert script_text =~ "Source provenance"
     assert script_text =~ "curl_timing_ttfb_ms"
     assert script_text =~ "curl_timing_total_ms"
     assert script_text =~ "ttfb_budget_ms=300"
     assert script_text =~ "total_budget_ms=800"
     assert File.exists?(focus_script)
     assert File.exists?(admin_script)
+    assert File.exists?(image_decode_script)
 
     focus_text = File.read!(focus_script)
     assert focus_text =~ "Input.dispatchKeyEvent"
@@ -42,6 +51,9 @@ defmodule Hiraeth.BrowserQaContractTest do
     assert admin_text =~ "desktop-admin-import-new"
     assert admin_text =~ "desktop-admin-review-detail"
     assert admin_text =~ "desktop-cover-fallback-after-takedown"
+    image_decode_text = File.read!(image_decode_script)
+    assert image_decode_text =~ "naturalWidth"
+    assert image_decode_text =~ "Runtime.evaluate"
     assert makefile =~ "scripts/browser_qa.sh"
   end
 end

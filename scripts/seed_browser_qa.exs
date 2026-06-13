@@ -3,6 +3,7 @@
 
 alias Hiraeth.Accounts.User
 alias Hiraeth.Catalog.Edition
+alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
 alias Hiraeth.Imports.{ImportRun, ReviewItem, StagedImportRow}
 
 if Mix.env() not in [:dev, :test] do
@@ -59,6 +60,55 @@ row =
     })
     |> Ash.create!(actor: admin)
 
+cache_path = "priv/static/covers/cache/browser-qa-immigrant.png"
+File.mkdir_p!(Path.dirname(cache_path))
+
+File.write!(
+  cache_path,
+  Base.decode64!(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII="
+  )
+)
+
+cached_cover =
+  CoverAsset
+  |> Ash.read!(authorize?: false)
+  |> Enum.find(&(&1.source_url == "https://covers.example.test/browser-qa-immigrant.png")) ||
+    CoverAsset
+    |> Ash.Changeset.for_create(:create, %{
+      source_url: "https://covers.example.test/browser-qa-immigrant.png",
+      provider: "fixture-covers",
+      rights_basis: "local_cache_permitted",
+      attribution_text: "Browser QA cached cover",
+      cache_policy: "cache_allowed",
+      cached_file_path: cache_path,
+      cached_at: DateTime.utc_now(:second),
+      takedown_state: "visible"
+    })
+    |> Ash.create!(authorize?: false)
+
+cached_assignment =
+  CoverAssignment
+  |> Ash.read!(authorize?: false)
+  |> Enum.find(&(&1.edition_id == edition.id and &1.cover_asset_id == cached_cover.id)) ||
+    CoverAssignment
+    |> Ash.Changeset.for_create(:create, %{
+      edition_id: edition.id,
+      cover_asset_id: cached_cover.id,
+      position: -1,
+      visible?: true
+    })
+    |> Ash.create!(authorize?: false)
+
+CoverAssignment
+|> Ash.read!(authorize?: false)
+|> Enum.filter(&(&1.edition_id == edition.id and &1.id != cached_assignment.id and &1.visible?))
+|> Enum.each(fn assignment ->
+  assignment
+  |> Ash.Changeset.for_update(:update, %{visible?: false})
+  |> Ash.update!(authorize?: false)
+end)
+
 ReviewItem
 |> Ash.read!(authorize?: false)
 |> Enum.find(
@@ -74,4 +124,4 @@ ReviewItem
   })
   |> Ash.create!(actor: admin)
 
-IO.puts("seeded browser_qa_import review row for #{edition.slug}")
+IO.puts("seeded browser_qa_import review row and cached cover for #{edition.slug}")

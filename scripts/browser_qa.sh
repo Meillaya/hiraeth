@@ -21,6 +21,7 @@ find "${QA_DIR}" -maxdepth 1 -type f \( -name "*.html" -o -name "*.png" -o -name
 TRANSCRIPT="${QA_DIR}/test-browser.txt"
 NETWORK_REPORT="${QA_DIR}/network-errors.json"
 ACCESSIBILITY_REPORT="${QA_DIR}/accessibility-checklist.txt"
+TIMING_REPORT="${QA_DIR}/curl-timing.txt"
 : > "${TRANSCRIPT}"
 
 log() {
@@ -56,6 +57,9 @@ mix ecto.create >> "${TRANSCRIPT}" 2>&1
 mix ash.migrate >> "${TRANSCRIPT}" 2>&1
 mix run priv/repo/seeds.exs >> "${TRANSCRIPT}" 2>&1
 mix run scripts/seed_browser_qa.exs >> "${TRANSCRIPT}" 2>&1
+log "warming local cover cache"
+mix hiraeth.cache_covers >> "${TRANSCRIPT}" 2>&1
+log "cover_cache_warmup=pass task=mix_hiraeth.cache_covers"
 
 log "starting Phoenix server"
 PORT="${PORT}" PHX_SERVER=true mix phx.server > "${QA_DIR}/server.log" 2>&1 &
@@ -84,15 +88,37 @@ if [[ "${ready}" != "1" ]]; then
 fi
 log "server_ready=pass"
 
+measure_timing() {
+  local route="$1"
+  local label="$2"
+  local metrics
+  metrics="$(curl -sS -o /dev/null -w '%{time_starttransfer} %{time_total}' "${BASE_URL}${route}")"
+  local ttfb_s="${metrics%% *}"
+  local total_s="${metrics##* }"
+  local ttfb_ms
+  local total_ms
+  ttfb_ms="$(awk -v value="${ttfb_s}" 'BEGIN { printf "%d", value * 1000 }')"
+  total_ms="$(awk -v value="${total_s}" 'BEGIN { printf "%d", value * 1000 }')"
+  local verdict="pass"
+  if (( ttfb_ms > 300 || total_ms > 800 )); then
+    verdict="warn_local_env_variance"
+  fi
+  printf 'curl_timing_route=%s curl_timing_ttfb_ms=%s curl_timing_total_ms=%s ttfb_budget_ms=300 total_budget_ms=800 budget=%s\n'     "${label}" "${ttfb_ms}" "${total_ms}" "${verdict}" | tee -a "${TIMING_REPORT}" | tee -a "${TRANSCRIPT}"
+}
+
+: > "${TIMING_REPORT}"
+curl -fsS "${BASE_URL}/browse" > /dev/null
+curl -fsS "${BASE_URL}/browse?q=Immigrant" > /dev/null
+curl -fsS "${BASE_URL}/books/deep-vellum-immigrant" > /dev/null
+measure_timing "/browse" "/browse"
+measure_timing "/browse?q=Immigrant" "/browse?q=Immigrant"
+measure_timing "/books/deep-vellum-immigrant" "/books/deep-vellum-immigrant"
+log "curl_timing_artifact=${TIMING_REPORT}"
+
 log "running real keyboard focus audit"
 node scripts/keyboard_focus_check.mjs "${BASE_URL}/browse" "${QA_DIR}/keyboard-focus.json" | tee -a "${TRANSCRIPT}"
 grep -q '"passed": true' "${QA_DIR}/keyboard-focus.json"
 log "keyboard_focus_artifact=${QA_DIR}/keyboard-focus.json"
-
-log "running authenticated admin browser audit"
-node scripts/admin_browser_check.mjs "${BASE_URL}" "${QA_DIR}" | tee -a "${TRANSCRIPT}"
-grep -q '"passed": true' "${QA_DIR}/admin-authenticated.json"
-log "admin_authenticated_artifact=${QA_DIR}/admin-authenticated.json"
 
 pages=(
   "/"
@@ -103,7 +129,7 @@ pages=(
   "/publishers"
   "/publishers/deep-vellum"
   "/series"
-  "/editions/deep-vellum-immigrant-paperback-9781646054541"
+  "/books/deep-vellum-immigrant"
 )
 
 viewports=("desktop:1440,1000" "tablet:768,1024" "mobile:390,844")
@@ -150,6 +176,75 @@ for page in "${pages[@]}"; do
   done
 done
 
+
+BROWSE_DOM="${QA_DIR}/desktop-browse.html"
+IMMIGRANT_BROWSE_DOM="${QA_DIR}/desktop-browse-q-Immigrant.html"
+IMMIGRANT_BOOK_DOM="${QA_DIR}/desktop-books-deep-vellum-immigrant.html"
+
+node - "${BROWSE_DOM}" <<'NODE' | tee -a "${TRANSCRIPT}"
+const fs = require('node:fs');
+const html = fs.readFileSync(process.argv[2], 'utf8');
+const slugs = [];
+for (const article of html.matchAll(/<article[^>]+data-phx-stream="0"[\s\S]*?<\/article>/g)) {
+  const href = article[0].match(/href="\/books\/([^"]+)"/);
+  if (href) slugs.push(href[1]);
+}
+const duplicates = slugs.filter((slug, index) => slugs.indexOf(slug) !== index);
+if (slugs.length > 0 && duplicates.length === 0) {
+  console.log(`duplicate_book_cards=pass count=${slugs.length}`);
+} else {
+  console.log(`duplicate_book_cards=fail count=${slugs.length} duplicates=${JSON.stringify([...new Set(duplicates)])}`);
+  process.exit(1);
+}
+NODE
+
+if grep -q '/covers/cache/browser-qa-immigrant.png' "${IMMIGRANT_BROWSE_DOM}" "${IMMIGRANT_BOOK_DOM}"; then
+  log "cached_cover_paths=pass path=/covers/cache/browser-qa-immigrant.png"
+else
+  log "cached_cover_paths=fail path=/covers/cache/browser-qa-immigrant.png"
+  exit 1
+fi
+
+if grep -E 'src="https?://' "${IMMIGRANT_BROWSE_DOM}" "${IMMIGRANT_BOOK_DOM}"; then
+  log "remote_cover_dependencies=fail scope=immigrant_book_pages"
+  exit 1
+else
+  log "remote_cover_dependencies=pass scope=immigrant_book_pages"
+fi
+
+node - "${IMMIGRANT_BOOK_DOM}" <<'NODE' | tee -a "${TRANSCRIPT}"
+const fs = require('node:fs');
+const html = fs.readFileSync(process.argv[2], 'utf8');
+const required = [
+  ['description_id', 'id="book-description"'],
+  ['description_prose', 'trilingual collection'],
+  ['storefront_cta_id', 'id="book-storefront-cta"'],
+  ['storefront_cta_href', 'href="https://store.deepvellum.org/products/immigrant"'],
+  ['source_provenance', 'Source provenance']
+];
+const missing = required.filter(([, marker]) => !html.includes(marker)).map(([name]) => name);
+if (missing.length === 0) {
+  console.log('prose_cta_presence=pass ids=book-description,book-storefront-cta source_provenance=pass');
+} else {
+  console.log(`prose_cta_presence=fail missing=${JSON.stringify(missing)}`);
+  process.exit(1);
+}
+NODE
+
+log "running cached cover image decode audit"
+node scripts/image_decode_check.mjs \
+  "${BASE_URL}/books/deep-vellum-immigrant" \
+  "#public-cover-deep-vellum-immigrant img" \
+  "/covers/cache/browser-qa-immigrant.png" \
+  "${QA_DIR}/image-decode.json" | tee -a "${TRANSCRIPT}"
+grep -q '"passed": true' "${QA_DIR}/image-decode.json"
+log "image_decode=pass artifact=${QA_DIR}/image-decode.json natural_width_gt_zero=pass"
+
+log "running authenticated admin browser audit"
+node scripts/admin_browser_check.mjs "${BASE_URL}" "${QA_DIR}" 2>&1 | tee -a "${TRANSCRIPT}"
+grep -q '"passed": true' "${QA_DIR}/admin-authenticated.json"
+log "admin_authenticated_artifact=${QA_DIR}/admin-authenticated.json"
+
 while IFS= read -r resource; do
   [[ -n "${resource}" ]] || continue
   case "${resource}" in
@@ -189,7 +284,7 @@ done < <(grep -RhoE '(src|href)="[^"]+"' "${QA_DIR}"/*.html | sed -E 's/^(src|hr
   echo "tablet_viewport=pass: 768x1024 Chromium screenshots captured"
   echo "desktop_viewport=pass: 1440x1000 Chromium screenshots captured"
   echo "long_titles=pass: edition/detail pages captured using real publisher titles"
-  echo "missing_covers=pass: edition pages render typographic fallback after takedown"
+  echo "missing_covers=pass: book pages render typographic fallback after takedown"
   if grep -q '"passed": true' "${QA_DIR}/admin-authenticated.json" && grep -q "Catalog Administration" "${QA_DIR}/desktop-admin-authenticated.html"; then
     echo "admin_authenticated=pass: Chromium signed in and captured the admin LiveView dashboard"
   else

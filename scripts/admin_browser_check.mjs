@@ -11,8 +11,9 @@ const debugPort = Number.parseInt(process.env.CHROME_ADMIN_DEBUG_PORT || "9228",
 const email = process.env.HIRAETH_BROWSER_ADMIN_EMAIL || "real-catalog-admin@example.test";
 const password = process.env.HIRAETH_BROWSER_ADMIN_PASSWORD || "correct horse battery staple";
 const editionSlug = "deep-vellum-immigrant-paperback-9781646054541";
-const expectedCoverAttribution = "Cover via Deep Vellum official source";
-const expectedCoverSource = "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/9781646054541_FC.jpg?v=1781276294";
+const bookSlug = "deep-vellum-immigrant";
+const expectedCoverAttribution = "Browser QA cached cover";
+const expectedCoverSource = "https://covers.example.test/browser-qa-immigrant.png";
 
 if (!baseUrl || !outputDir) {
   console.error("usage: admin_browser_check.mjs <base-url> <output-dir>");
@@ -166,7 +167,7 @@ try {
     client,
     outputDir,
     baseUrl,
-    `/editions/${editionSlug}`,
+    `/books/${bookSlug}`,
     "desktop-cover-attribution-before-takedown"
   );
   await navigate(client, `${baseUrl}/admin/covers`);
@@ -187,7 +188,7 @@ try {
     client,
     outputDir,
     baseUrl,
-    `/editions/${editionSlug}`,
+    `/books/${bookSlug}`,
     "desktop-cover-fallback-after-takedown"
   );
 
@@ -195,8 +196,8 @@ try {
   const importVisible = importsIndex.html.includes("CSV imports") && importsNew.html.includes("New CSV import");
   const reviewVisible = reviewIndex.html.includes("Review queue") && reviewIndex.html.includes("Browser QA missing ISBN review item") && reviewDetail.html.includes("Review detail");
   const coverVisible = coversBefore.html.includes("Cover governance") && coversBefore.html.includes(expectedCoverAttribution);
-  const coverAttributionVisible = coverPublicBefore.html.includes(`id="cover-attribution-${editionSlug}"`) && coverPublicBefore.html.includes(expectedCoverAttribution);
-  const takedownVisible = hideClicked && coversAfterHtml.includes("hidden · hidden") && coverPublicAfter.html.includes(`missing-cover-${editionSlug}`) && !coverPublicAfter.html.includes(expectedCoverAttribution);
+  const coverAttributionVisible = coverPublicBefore.html.includes(`id="cover-attribution-${bookSlug}"`) && coverPublicBefore.html.includes(expectedCoverAttribution) && coverPublicBefore.html.includes('/covers/cache/browser-qa-immigrant.png');
+  const takedownVisible = hideClicked && coversAfterHtml.includes("hidden · hidden") && coverPublicAfter.html.includes(`missing-cover-${bookSlug}`) && !coverPublicAfter.html.includes(expectedCoverAttribution);
   const passed = adminVisible && importVisible && reviewVisible && coverVisible && coverAttributionVisible && takedownVisible;
 
   await writeFile(join(outputDir, "admin-authenticated.json"), JSON.stringify({
@@ -213,9 +214,11 @@ try {
     containsReviewDetail: reviewDetail.html.includes("Review detail"),
     containsCoverGovernance: coversBefore.html.includes("Cover governance"),
     containsCoverAttribution: coverAttributionVisible,
+    usesBookRouteForPublicCoverChecks: true,
+    containsCachedCoverPath: coverPublicBefore.html.includes('/covers/cache/browser-qa-immigrant.png'),
     clickedHideForTakedown: hideClicked,
     containsHiddenTakedown: coversAfterHtml.includes("hidden · hidden"),
-    publicCoverFallsBackAfterTakedown: coverPublicAfter.html.includes(`missing-cover-${editionSlug}`) && !coverPublicAfter.html.includes(expectedCoverAttribution)
+    publicCoverFallsBackAfterTakedown: coverPublicAfter.html.includes(`missing-cover-${bookSlug}`) && !coverPublicAfter.html.includes(expectedCoverAttribution)
   }, null, 2));
 
   await client.close();

@@ -334,3 +334,32 @@ Cleanup:
 - Stopped the temporary Phoenix server on port 4023 after screenshot capture.
 
 T12 finalized commit: 03ffac3 — style(web): polish grouped book catalog UI.
+
+
+## T13 — Browser QA cache, grouping, metadata, and performance evidence
+
+Completed grouped-catalog browser QA updates for book-detail routes, local cover cache, and first-paint performance.
+
+Changed:
+- Updated browser QA from edition detail capture to `/books/deep-vellum-immigrant`.
+- Added cache warmup via `mix hiraeth.cache_covers` before browser captures.
+- Added curl timing evidence for `/browse`, `/browse?q=Immigrant`, and `/books/deep-vellum-immigrant`; latest local run was 86ms, 86ms, and 91ms total/TTFB respectively.
+- Added assertions for one card per book slug, local cached cover paths, no remote Immigrant image `src` dependency, sourced prose/CTA/source provenance presence, and decoded cached image rendering with `naturalWidth > 0`.
+- Added deterministic Browser QA cover seeding with a valid local PNG fixture and hid competing Immigrant cover assignments so takedown fallback is observable.
+- Kept existing authenticated admin/import/review/cover governance checks intact, now using the canonical book route for public cover checks.
+
+Evidence:
+- `.omo/evidence/task-13-browser-qa.txt` — full Chromium browser QA passed with `test_browser=pass`.
+- `.omo/evidence/task-13-curl-timing.txt` — all three routes under the 300ms TTFB / 800ms total budget.
+- `.omo/evidence/task-13-browser-qa-contract.txt` — browser QA contract test passed.
+- `.omo/evidence/task-13-artifact-inspection.json` — raw artifact parser confirmed no duplicate book slugs, local decoded cover, prose/CTA, and fallback after takedown.
+- `artifacts/qa/browser-dedup-metadata-cache/image-decode.json` — Chrome confirmed cached cover `complete=true`, `naturalWidth=1`, `naturalHeight=1`.
+- `artifacts/qa/browser-dedup-metadata-cache/admin-authenticated.json` and `network-errors.json` — admin flow and network checks passed.
+- `.omo/evidence/task-13-mix-compile.txt`, `.omo/evidence/task-13-format-check.txt`, `.omo/evidence/task-13-git-diff-check.txt` — compile/format/diff-check gates passed.
+- Independent verifier: Verifier the 76th confirmed T13 after prose/CTA and image decode fixes.
+
+Cleanup:
+- Browser QA trap stopped Phoenix and docker compose resources; `.omo/evidence/task-13-docker-cleanup.txt` captured final cleanup.
+- Removed ignored `priv/static/covers/cache/browser-qa-immigrant.*` QA files after evidence capture; seeding recreates the PNG deterministically.
+
+T13 commit: pending
