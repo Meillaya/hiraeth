@@ -363,3 +363,35 @@ Cleanup:
 - Removed ignored `priv/static/covers/cache/browser-qa-immigrant.*` QA files after evidence capture; seeding recreates the PNG deterministically.
 
 T13 finalized commit: 05fbfb2 — test(browser): verify cached grouped catalog UX
+
+
+## T14 — Full verification and clean milestone boundary
+
+Completed final milestone verification for the grouped catalog, metadata display, local cover cache, and browser QA performance work.
+
+Verification run:
+- Reset the test database before focused verification after a stale-state debug finding.
+- Focused suite: `24 tests, 0 failures` across public catalog LiveView, grouped search/performance, cover resources, and browser QA contract.
+- `mix precommit`: `123 tests, 0 failures` after compile, unused-deps, formatting, and full test suite.
+- `make test-browser`: full Chromium browser QA passed with `test_browser=pass`; timings were `/browse` 97ms, `/browse?q=Immigrant` 87ms, `/books/deep-vellum-immigrant` 104ms.
+- Final git status evidence was clean before the T14 worklog commit.
+
+Debug note:
+- The first focused-suite attempt failed because stale persisted test database rows from previous verification made cover-cache tests see an unrelated `fixture-debug-immigrant` cache candidate.
+- Confirmed by `.omo/evidence/task-14-debug-cover-assets-before-reset.txt`; reset/migrate toggled `CoversResourceTest` from 4 failures to `11 tests, 0 failures`.
+- No production code change was needed for that failure; the T14 verification process now records the reset-first discipline.
+
+Evidence:
+- `.omo/evidence/task-14-focused-suite.txt`
+- `.omo/evidence/task-14-mix-precommit.txt`
+- `.omo/evidence/task-14-make-test-browser.txt`
+- `.omo/evidence/task-14-debug-journal.md`
+- `.omo/evidence/task-14-final-git-status-after-debug-cleanup.txt`
+- `.omo/evidence/task-14-git-log.txt`
+
+Milestone commits:
+- `05fbfb2` — test(browser): verify cached grouped catalog UX
+- `9065cc3` — chore(process): record final T13 commit reference
+- T14 commit: pending
+
+Final status for T14: pass; unresolved T14 risks: none beyond normal local browser-QA timing variance (latest timings were within budget).
