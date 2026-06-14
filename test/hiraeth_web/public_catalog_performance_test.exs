@@ -2,6 +2,7 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
   use HiraethWeb.ConnCase, async: false
 
   alias Hiraeth.Catalog.{Edition, Identifier, Publisher, Series, SeriesMembership, Work}
+  alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
   alias Hiraeth.QueryCounting
   alias HiraethWeb.PublicCatalog
 
@@ -170,6 +171,16 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
 
     assert [%{language_code: "eng", page_count: 321, dimensions: dimensions}] = book.formats
     assert dimensions == %{height_mm: 203, width_mm: 127, depth_mm: 24}
+    assert measurement.query_count <= @detail_query_budget
+    assert measurement.elapsed_microseconds <= @warm_elapsed_budget_microseconds
+  end
+
+  test "public catalog projection applies provider cover policy before rendering covers" do
+    slug = create_new_directions_link_only_cover_edition!()
+
+    measurement = warm_measure(fn -> PublicCatalog.book(slug) end)
+
+    assert %{title: "Provider Policy Cover Novel", cover: nil} = measurement.result
     assert measurement.query_count <= @detail_query_budget
     assert measurement.elapsed_microseconds <= @warm_elapsed_budget_microseconds
   end
@@ -481,6 +492,85 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
           }
         }
       }
+    })
+    |> Ash.create!(authorize?: false)
+
+    edition.slug
+  end
+
+  defp create_new_directions_link_only_cover_edition! do
+    suffix = System.unique_integer([:positive])
+    isbn = "979000003#{String.pad_leading(to_string(rem(suffix, 10_000)), 4, "0")}"
+
+    publisher =
+      Publisher
+      |> Ash.Changeset.for_create(:create, %{
+        name: "Provider Policy Cover Press #{suffix}",
+        slug: "provider-policy-cover-press-#{suffix}"
+      })
+      |> Ash.create!(authorize?: false)
+
+    work =
+      Work
+      |> Ash.Changeset.for_create(:create, %{
+        title: "Provider Policy Cover Novel",
+        slug: "provider-policy-cover-novel-#{suffix}",
+        publication_state: "published"
+      })
+      |> Ash.create!(authorize?: false)
+
+    edition =
+      Edition
+      |> Ash.Changeset.for_create(:create, %{
+        title: "Provider Policy Cover Novel",
+        slug: "provider-policy-cover-novel-paperback-#{suffix}",
+        format: "paperback",
+        work_id: work.id,
+        publisher_id: publisher.id
+      })
+      |> Ash.create!(authorize?: false)
+
+    Identifier
+    |> Ash.Changeset.for_create(:create, %{
+      identifier_type: "isbn_13",
+      value: isbn,
+      edition_id: edition.id
+    })
+    |> Ash.create!(authorize?: false)
+
+    Hiraeth.Sources.SourceRecord
+    |> Ash.Changeset.for_create(:create, %{
+      provider: "new_directions_official_site",
+      source_type: "publisher_dataset",
+      source_uri: "https://www.ndbooks.com/book/provider-policy-cover-#{suffix}/",
+      file_checksum: "provider-policy-cover-#{suffix}",
+      license_note: "test source fixture",
+      imported_at: DateTime.utc_now(:second),
+      raw_payload: %{
+        "edition" => %{"isbn_13" => isbn},
+        "displayed_fields" => ["title"]
+      }
+    })
+    |> Ash.create!(authorize?: false)
+
+    cover =
+      CoverAsset
+      |> Ash.Changeset.for_create(:create, %{
+        source_url: "https://cdn.sanity.io/images/provider-policy-cover-#{suffix}.jpg",
+        provider: "new_directions_official_site",
+        rights_basis: "provider_link_allowed",
+        cache_policy: "link_only",
+        cached_file_path: nil,
+        thumbnail_file_path: nil
+      })
+      |> Ash.create!(authorize?: false)
+
+    CoverAssignment
+    |> Ash.Changeset.for_create(:create, %{
+      edition_id: edition.id,
+      cover_asset_id: cover.id,
+      visible?: true,
+      position: 1
     })
     |> Ash.create!(authorize?: false)
 

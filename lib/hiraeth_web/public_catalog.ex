@@ -1040,7 +1040,21 @@ defmodule HiraethWeb.PublicCatalog do
       present?(asset["source_url"]) and present?(asset["provider"]) and
       present?(asset["rights_basis"]) and uri.scheme == "https" and
       SourcePolicy.cover_host_allowed?(asset["provider"], uri.host) and
+      provider_cover_policy_allows_public_data?(asset) and
       public_cache_policy_data?(asset)
+  end
+
+  defp provider_cover_policy_allows_public_data?(%{
+         "provider" => provider,
+         "cache_policy" => cache_policy
+       }) do
+    case SourcePolicy.provider_permission_metadata!(provider).cover_cache_policy do
+      "cache_allowed" -> true
+      "link_only_until_explicit_cache_permission" -> false
+      _policy -> cache_policy == "link_only"
+    end
+  rescue
+    ArgumentError -> true
   end
 
   defp public_cache_policy_data?(%{"cache_policy" => "link_only"} = asset) do

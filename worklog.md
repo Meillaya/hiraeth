@@ -934,3 +934,10 @@ Commit: 61b857b — `fix(covers): secure cacheable cover display`
 - Updated architecture docs with current public discovery surfaces and URL-backed filters.
 - Updated provenance/cover policy docs with field-level provenance, enriched metadata, New Directions no-cover policy, and cache-task guardrails.
 - Updated browser QA docs with the hardened strict browser contract for contributors, filters, malformed queries, New Directions fallbacks, enriched metadata, provenance motif, network/image/overflow checks, and screenshots.
+
+## 2026-06-14 — Final review blocker: PublicCatalog cover policy parity
+
+- Final context-mining review found that `PublicCatalog` had its own cover projection and could expose a New Directions `link_only` cover if such an asset was inserted outside the deterministic fixture/import path.
+- Added a failing `PublicCatalog` regression test that creates a sourced New Directions edition with a link-only `cdn.sanity.io` cover and verifies the public read model returns `cover: nil`.
+- Updated `PublicCatalog` cover projection to apply provider permission metadata before accepting link-only or cacheable cover data, keeping parity with `Hiraeth.Covers` resolver/cache policy.
+- Verified RED/GREEN targeted tests, affected public-catalog/cover suites, a real Chromium browser page showing the typographic fallback with the remote New Directions URL absent, full `mix precommit` (171 tests), strict browser QA, and no-scope-creep checks.
