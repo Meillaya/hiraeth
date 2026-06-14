@@ -407,10 +407,14 @@ defmodule HiraethWeb.PublicCatalog do
         """
         select p.id, p.name, p.slug, p.description, count(distinct e.id) as editions_count
         from publishers p
-        left join editions e on e.publisher_id = p.id
-        left join identifiers source_identifier on source_identifier.edition_id = e.id
-        left join source_records sr
-          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+        join editions e on e.publisher_id = p.id
+        where exists (
+          select 1
+          from identifiers source_identifier
+          join source_records sr
+            on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+          where source_identifier.edition_id = e.id
+        )
         group by p.id, p.name, p.slug, p.description
         """,
         []
@@ -425,11 +429,15 @@ defmodule HiraethWeb.PublicCatalog do
         """
         select p.id, p.name, p.slug, p.description, count(distinct e.id) as editions_count
         from publishers p
-        left join editions e on e.publisher_id = p.id
-        left join identifiers source_identifier on source_identifier.edition_id = e.id
-        left join source_records sr
-          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+        join editions e on e.publisher_id = p.id
         where p.slug = $1
+          and exists (
+            select 1
+            from identifiers source_identifier
+            join source_records sr
+              on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+            where source_identifier.edition_id = e.id
+          )
         group by p.id, p.name, p.slug, p.description
         limit 1
         """,
@@ -464,11 +472,15 @@ defmodule HiraethWeb.PublicCatalog do
           coalesce(bool_or(sm.position is null) filter (where sm.id is not null), false) as unknown_order
         from series s
         left join publishers p on p.id = s.publisher_id
-        left join series_memberships sm on sm.series_id = s.id
-        left join editions e on e.work_id = sm.work_id
-        left join identifiers source_identifier on source_identifier.edition_id = e.id
-        left join source_records sr
-          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+        join series_memberships sm on sm.series_id = s.id
+        join editions e on e.work_id = sm.work_id
+        where exists (
+          select 1
+          from identifiers source_identifier
+          join source_records sr
+            on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+          where source_identifier.edition_id = e.id
+        )
         group by s.id, s.title, s.slug, p.name, p.slug
         """,
         []
@@ -498,12 +510,16 @@ defmodule HiraethWeb.PublicCatalog do
           ) as memberships
         from series s
         left join publishers p on p.id = s.publisher_id
-        left join series_memberships sm on sm.series_id = s.id
-        left join editions e on e.work_id = sm.work_id
-        left join identifiers source_identifier on source_identifier.edition_id = e.id
-        left join source_records sr
-          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+        join series_memberships sm on sm.series_id = s.id
+        join editions e on e.work_id = sm.work_id
         where s.slug = $1
+          and exists (
+            select 1
+            from identifiers source_identifier
+            join source_records sr
+              on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+            where source_identifier.edition_id = e.id
+          )
         group by s.id, s.title, s.slug, p.name, p.slug
         limit 1
         """,
@@ -565,6 +581,14 @@ defmodule HiraethWeb.PublicCatalog do
           w.description,
           w.editorial_praise,
           w.storefront_url,
+          w.original_title,
+          w.original_language_code,
+          w.subjects,
+          e.language_code,
+          e.page_count,
+          e.height_mm,
+          e.width_mm,
+          e.depth_mm,
           coalesce(identifiers.data, '[]'::jsonb),
           coalesce(contributors.data, '[]'::jsonb),
           coalesce(series.data, '[]'::jsonb),
@@ -587,7 +611,9 @@ defmodule HiraethWeb.PublicCatalog do
             'source_uri', sr.source_uri,
             'license_note', sr.license_note,
             'import_run_id', sr.import_run_id,
-            'imported_at', sr.imported_at
+            'imported_at', sr.imported_at,
+            'field_sources', sr.raw_payload->'field_sources',
+            'provider_permissions', sr.raw_payload->'provider_permissions'
           ) as data
           from identifiers source_identifier
           join source_records sr
@@ -669,6 +695,14 @@ defmodule HiraethWeb.PublicCatalog do
          description,
          editorial_praise,
          storefront_url,
+         original_title,
+         original_language_code,
+         subjects,
+         language_code,
+         page_count,
+         height_mm,
+         width_mm,
+         depth_mm,
          identifiers,
          contributors,
          series,
@@ -705,6 +739,15 @@ defmodule HiraethWeb.PublicCatalog do
       description: description,
       editorial_praise: editorial_praise || [],
       storefront_url: storefront_url,
+      original_title: original_title,
+      original_language_code: original_language_code,
+      subjects: subjects || [],
+      language_code: language_code,
+      page_count: page_count,
+      height_mm: height_mm,
+      width_mm: width_mm,
+      depth_mm: depth_mm,
+      dimensions: dimensions_projection(height_mm, width_mm, depth_mm),
       source: atomize_source(source),
       source_uri: source && source["source_uri"]
     }
@@ -730,7 +773,10 @@ defmodule HiraethWeb.PublicCatalog do
         :series_titles,
         :series_slug,
         :cover,
-        :source
+        :source,
+        :original_title,
+        :original_language_code,
+        :subjects
       ])
     )
     |> Map.put(:id, primary.work_id)
@@ -756,7 +802,23 @@ defmodule HiraethWeb.PublicCatalog do
       format: edition.format,
       format_label: format_label(edition.format),
       identifiers: edition.identifiers,
-      published_on: edition.published_on
+      published_on: edition.published_on,
+      language_code: edition.language_code,
+      page_count: edition.page_count,
+      height_mm: edition.height_mm,
+      width_mm: edition.width_mm,
+      depth_mm: edition.depth_mm,
+      dimensions: edition.dimensions
+    }
+  end
+
+  defp dimensions_projection(nil, nil, nil), do: nil
+
+  defp dimensions_projection(height_mm, width_mm, depth_mm) do
+    %{
+      height_mm: height_mm,
+      width_mm: width_mm,
+      depth_mm: depth_mm
     }
   end
 
@@ -977,7 +1039,9 @@ defmodule HiraethWeb.PublicCatalog do
       source_uri: source["source_uri"],
       license_note: source["license_note"],
       import_run_id: source["import_run_id"],
-      imported_at: parse_imported_at(source["imported_at"])
+      imported_at: parse_imported_at(source["imported_at"]),
+      field_sources: source["field_sources"] || %{},
+      provider_permissions: source["provider_permissions"] || %{}
     }
   end
 

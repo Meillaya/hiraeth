@@ -58,21 +58,37 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert length(formats) == 2
     assert Enum.map(formats, & &1.format) |> Enum.sort() == ["ebook", "paperback"]
 
-    assert %{
-             edition_slug: "deep-vellum-immigrant-paperback-9781646054541",
-             format: "paperback",
-             format_label: "Paperback",
-             identifiers: ["9781646054541"],
-             published_on: ~D[2027-02-16]
-           } in formats
+    assert Enum.any?(formats, fn format ->
+             Map.take(format, [
+               :edition_slug,
+               :format,
+               :format_label,
+               :identifiers,
+               :published_on
+             ]) == %{
+               edition_slug: "deep-vellum-immigrant-paperback-9781646054541",
+               format: "paperback",
+               format_label: "Paperback",
+               identifiers: ["9781646054541"],
+               published_on: ~D[2027-02-16]
+             }
+           end)
 
-    assert %{
-             edition_slug: "deep-vellum-immigrant-ebook-9781646054558",
-             format: "ebook",
-             format_label: "Ebook",
-             identifiers: ["9781646054558"],
-             published_on: ~D[2027-02-16]
-           } in formats
+    assert Enum.any?(formats, fn format ->
+             Map.take(format, [
+               :edition_slug,
+               :format,
+               :format_label,
+               :identifiers,
+               :published_on
+             ]) == %{
+               edition_slug: "deep-vellum-immigrant-ebook-9781646054558",
+               format: "ebook",
+               format_label: "Ebook",
+               identifiers: ["9781646054558"],
+               published_on: ~D[2027-02-16]
+             }
+           end)
 
     assert Enum.sort(identifiers) == ["9781646054541", "9781646054558"]
 

@@ -32,6 +32,16 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     assert page.entries == []
   end
 
+  test "publisher and series directories exclude records without source provenance" do
+    %{publisher_slug: publisher_slug, series_slug: series_slug} = create_source_less_edition!()
+
+    refute Enum.any?(PublicCatalog.publishers(), &(&1.slug == publisher_slug))
+    assert PublicCatalog.publisher(publisher_slug) == nil
+
+    refute Enum.any?(PublicCatalog.series(), &(&1.slug == series_slug))
+    assert PublicCatalog.series_by_slug(series_slug) == nil
+  end
+
   test "grouped public catalog search is fast and returns no duplicate book cards" do
     assert function_exported?(PublicCatalog, :search_books, 1),
            "PublicCatalog.search_books/1 must exist before public catalog performance can be measured"
@@ -145,6 +155,25 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
            |> Enum.any?(&(&1.title == "Immigrant"))
   end
 
+  test "book projection exposes enriched metadata from bounded sourced rows" do
+    slug = create_enriched_projection_edition!()
+
+    measurement = warm_measure(fn -> PublicCatalog.book(slug) end)
+    book = measurement.result
+
+    assert book.title == "Projection Contract Novel"
+    assert book.original_title == "Roman de projection"
+    assert book.original_language_code == "fra"
+    assert book.subjects == ["projection-subject", "metadata-contract"]
+    assert book.source.provider == "deep_vellum_official_store"
+    assert book.source.field_sources["page_count"]["provider"] == "deep_vellum_official_store"
+
+    assert [%{language_code: "eng", page_count: 321, dimensions: dimensions}] = book.formats
+    assert dimensions == %{height_mm: 203, width_mm: 127, depth_mm: 24}
+    assert measurement.query_count <= @detail_query_budget
+    assert measurement.elapsed_microseconds <= @warm_elapsed_budget_microseconds
+  end
+
   test "publisher and series directories have bounded query count" do
     publisher_index = warm_measure(fn -> PublicCatalog.publishers() end)
     publisher_detail = warm_measure(fn -> PublicCatalog.publisher("deep-vellum") end)
@@ -234,6 +263,26 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
       edition_id: edition.id
     })
     |> Ash.create!(authorize?: false)
+
+    series =
+      Series
+      |> Ash.Changeset.for_create(:create, %{
+        title: "Source Less Test Series #{suffix}",
+        slug: "source-less-test-series-#{suffix}",
+        publisher_id: publisher.id
+      })
+      |> Ash.create!(authorize?: false)
+
+    SeriesMembership
+    |> Ash.Changeset.for_create(:create, %{
+      series_id: series.id,
+      work_id: work.id,
+      position: 1,
+      label: "1"
+    })
+    |> Ash.create!(authorize?: false)
+
+    %{publisher_slug: publisher.slug, series_slug: series.slug}
   end
 
   defp create_series_membership! do
@@ -361,6 +410,81 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
       year: "2026",
       sort: "title"
     }
+  end
+
+  defp create_enriched_projection_edition! do
+    suffix = System.unique_integer([:positive])
+    isbn = "979000002#{String.pad_leading(to_string(rem(suffix, 10_000)), 4, "0")}"
+
+    publisher =
+      Publisher
+      |> Ash.Changeset.for_create(:create, %{
+        name: "Projection Contract Press #{suffix}",
+        slug: "projection-contract-press-#{suffix}"
+      })
+      |> Ash.create!(authorize?: false)
+
+    work =
+      Work
+      |> Ash.Changeset.for_create(:create, %{
+        title: "Projection Contract Novel",
+        slug: "projection-contract-novel-#{suffix}",
+        publication_state: "published",
+        original_title: "Roman de projection",
+        original_language_code: "fra",
+        subjects: ["projection-subject", "metadata-contract"]
+      })
+      |> Ash.create!(authorize?: false)
+
+    edition =
+      Edition
+      |> Ash.Changeset.for_create(:create, %{
+        title: "Projection Contract Novel",
+        slug: "projection-contract-novel-paperback-#{suffix}",
+        format: "paperback",
+        language_code: "eng",
+        page_count: 321,
+        height_mm: 203,
+        width_mm: 127,
+        depth_mm: 24,
+        published_on: ~D[2026-06-01],
+        work_id: work.id,
+        publisher_id: publisher.id
+      })
+      |> Ash.create!(authorize?: false)
+
+    Identifier
+    |> Ash.Changeset.for_create(:create, %{
+      identifier_type: "isbn_13",
+      value: isbn,
+      edition_id: edition.id
+    })
+    |> Ash.create!(authorize?: false)
+
+    Hiraeth.Sources.SourceRecord
+    |> Ash.Changeset.for_create(:create, %{
+      provider: "deep_vellum_official_store",
+      source_type: "publisher_dataset",
+      source_uri: "https://store.deepvellum.org/products/projection-contract-#{suffix}",
+      file_checksum: "projection-contract-#{suffix}",
+      license_note: "test source fixture",
+      imported_at: DateTime.utc_now(:second),
+      raw_payload: %{
+        "edition" => %{"isbn_13" => isbn},
+        "displayed_fields" => ["title", "page_count"],
+        "field_sources" => %{
+          "page_count" => %{
+            "provider" => "deep_vellum_official_store",
+            "source_uri" => "https://store.deepvellum.org/products/projection-contract-#{suffix}",
+            "source_type" => "publisher_dataset",
+            "rights_basis" => "test source fixture"
+          }
+        }
+      }
+    })
+    |> Ash.create!(authorize?: false)
+
+    edition.slug
   end
 
   defp create_contributor!(name, slug) do

@@ -776,3 +776,30 @@ Commit: 61b857b — `fix(covers): secure cacheable cover display`
   - `.omo/evidence/task-7-red-unsourced-rich-metadata.txt` — reproduced the unsourced rich metadata acceptance.
   - `.omo/evidence/task-7-green-unsourced-rich-metadata.txt` — importer and dataset tests passed after validation hardening.
   - `.omo/evidence/task-7-focused-post-review-fix.txt` — importer, dataset, and resource tests passed after remediation.
+
+## Next roadmap — T8 bounded enriched public read model
+
+- Date: 2026-06-14
+- Extended the bounded `HiraethWeb.PublicCatalog` SQL projection so public book/detail/page reads expose sourced rich metadata without hydrating the full catalog:
+  - Work fields: `original_title`, `original_language_code`, and `subjects`.
+  - Edition/format fields: `language_code`, `page_count`, millimetre `height_mm`/`width_mm`/`depth_mm`, and a derived dimensions projection.
+  - Source projection fields: per-field `field_sources` and provider-level `provider_permissions`.
+- Preserved UUID-safe public IDs by keeping IDs normalized as display-safe strings in projection maps.
+- Updated public LiveView projection assertions to compare format subsets so additional sourced fields do not break existing format contracts.
+- Verification evidence:
+  - `.omo/evidence/task-8-red-public-read-enriched-2.txt` — RED public catalog performance test before enriched projection keys existed.
+  - `.omo/evidence/task-8-focused-tests.txt` and `.omo/evidence/task-8-focused-rerun-after-resume.txt` — focused PublicCatalog and LiveView tests passed: 20 tests, 0 failures.
+  - `.omo/evidence/task-8-public-read-http.txt` — `/books/deep-vellum-immigrant` returned HTTP 200 with role-aware contributor and format/storefront data.
+  - `.omo/evidence/task-8-publisher-browser.json` — headless Chromium rendered `/publishers/deep-vellum` with a screenshot artifact and no duplicate-card finding.
+  - `.omo/evidence/task-8-format-check.txt`, `.omo/evidence/task-8-compile.txt`, `.omo/evidence/task-8-diff-check.txt`, and `.omo/evidence/task-8-diff-check-after-resume.txt` — formatting, warning-free compile, and whitespace checks passed.
+
+### T8 source-less directory remediation
+
+- Independent verification found source-less publishers/series could appear in directory/detail summaries even though book pagination excluded them.
+- Added a RED regression for `PublicCatalog.publishers/0`, `PublicCatalog.publisher/1`, `PublicCatalog.series/0`, and `PublicCatalog.series_by_slug/1` using a source-less publisher, edition, and series.
+- Tightened publisher and series summary SQL so directory rows require at least one edition with matching source-record provenance.
+- Verification evidence:
+  - `.omo/evidence/task-8-red-sourceless-directories.txt` — reproduced source-less publisher leakage.
+  - `.omo/evidence/task-8-green-sourceless-directories.txt` — focused performance suite passed after SQL hardening.
+  - `.omo/evidence/task-8-focused-post-review-fix.txt` — focused PublicCatalog and LiveView suite passed after remediation: 21 tests, 0 failures.
+  - `.omo/evidence/task-8-public-read-http-post-review-fix.txt` and `.omo/evidence/task-8-publisher-browser-post-review-fix.json` — post-fix HTTP/browser QA remained green and did not expose the source-less test marker.
