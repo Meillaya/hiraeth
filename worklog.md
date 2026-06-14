@@ -862,3 +862,22 @@ Commit: 61b857b — `fix(covers): secure cacheable cover display`
   - `.omo/evidence/task-11-focused-tests.txt` — public LiveView, route shell, and no-scope-creep tests passed: 20 tests, 0 failures.
   - `.omo/evidence/task-11-contributor-browser.txt` — Chromium rendered `/contributors`, `/contributors?role=translator`, and `/contributors/david-bowles`; screenshots exist, David Bowles and Immigrant render where expected, and no `/authors` or `/translators` routes leaked.
   - `.omo/evidence/task-11-route-scope.txt`, `.omo/evidence/task-11-format-check.txt`, `.omo/evidence/task-11-compile-2.txt`, and `.omo/evidence/task-11-diff-check.txt` — adjacent route/no-scope tests, formatting, warning-free compile, and whitespace checks passed.
+
+## Next roadmap — T12 rich metadata discovery surfaces
+
+- Date: 2026-06-14
+- Rendered source-backed bibliographic detail across public discovery pages:
+  - Book detail metadata now renders original title, original language, provider subjects, edition language, page count, and millimetre dimensions only when those fields are present.
+  - Provenance badge now exposes field-level provenance notes from `SourceRecord.raw_payload["field_sources"]` so sourced rich fields have visible provider/source basis.
+  - Publisher detail pages now include `#publisher-context` with sourced shelf count plus format/language facets, while preserving explicit empty-state copy for publishers with no editions.
+  - Series detail pages now include `#series-context` with sourced shelf count and collection identity; `/series` now renders an explicit no-series fallback instead of a blank shelf when no sourced memberships exist.
+  - `PublicCatalog.publisher/1` was tightened so empty publishers can render their no-editions state, but publishers that only have unsourced editions remain excluded from public catalog detail.
+- Verification evidence:
+  - `.omo/evidence/task-12-red-rich-metadata-live.txt` — RED LiveView test failed before rich metadata selectors rendered.
+  - `.omo/evidence/task-12-green-rich-metadata-live.txt` and `.omo/evidence/task-12-green-focused-final.txt` — public catalog LiveView tests passed after implementation.
+  - `.omo/evidence/task-12-ui-state-regression.txt` and `.omo/evidence/task-12-source-less-publisher-regression.txt` — empty publisher state and source-less publisher exclusion both remained correct.
+  - `.omo/evidence/task-12-not-found-http.txt` — `/books/not-a-real-book` returned HTTP 200 with explicit no-fabrication copy.
+  - `.omo/evidence/task-12-rich-metadata-browser.txt` and `artifacts/qa/browser/rich-metadata-*.png` — Chromium captured book, publisher, and series surfaces at desktop/tablet/mobile sizes.
+  - `.omo/evidence/task-12-browser-regression.txt` — `STRICT_TIMING=1 make test-browser` passed with route timing, keyboard, viewport, overflow, image decode, and network checks.
+  - `.omo/evidence/task-12-precommit.txt`, `.omo/evidence/task-12-compile-warnings.txt`, `.omo/evidence/task-12-format-check.txt`, and `.omo/evidence/task-12-diff-check.txt` — full precommit, warning-free compile, formatting, and whitespace gates passed.
+  - `.omx/artifacts/claude-t12-rich-metadata-verification-20260614050252.md` — external verifier found implementation correct but requested evidence-package fixes; stale task-12 bootstrap evidence was replaced with current rich-metadata done/adversarial records.

@@ -3,9 +3,10 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
 
   import Phoenix.LiveViewTest
 
-  alias Hiraeth.Catalog.Edition
+  alias Hiraeth.Catalog.{Edition, Identifier, Publisher, Series, SeriesMembership, Work}
   alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
   alias Hiraeth.RealCatalog.Dataset
+  alias Hiraeth.Sources.SourceRecord
   alias HiraethWeb.CatalogComponents
   alias HiraethWeb.PublicCatalog
 
@@ -291,6 +292,30 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
            )
   end
 
+  test "book, publisher, and series pages render sourced rich metadata", %{conn: conn} do
+    fixture = create_rich_metadata_book!()
+
+    {:ok, book, _html} = live(conn, ~p"/books/#{fixture.book_slug}")
+
+    assert has_element?(book, "#book-original-title", "Roman de métadonnées")
+    assert has_element?(book, "#book-original-language", "fra")
+    assert has_element?(book, "#book-subjects", "metadata")
+    assert has_element?(book, "#book-format-#{fixture.edition_slug}", "321 pages")
+    assert has_element?(book, "#book-format-#{fixture.edition_slug}", "eng")
+    assert has_element?(book, "#book-format-#{fixture.edition_slug}", "203 × 127 × 24 mm")
+    assert has_element?(book, "#edition-provenance", "field-level provenance")
+
+    {:ok, publisher, _html} = live(conn, ~p"/publishers/#{fixture.publisher_slug}")
+    assert has_element?(publisher, "#publisher-context", "1 sourced books")
+    assert has_element?(publisher, "#publisher-context", "paperback")
+    assert has_element?(publisher, "#publisher-context", "eng")
+
+    {:ok, series, _html} = live(conn, ~p"/series/#{fixture.series_slug}")
+    assert has_element?(series, "#series-context", "1 sourced books")
+    assert has_element?(series, "#series-context", "Metadata Series")
+    assert has_element?(series, "#series-editions", "Rich Metadata Novel")
+  end
+
   test "book cover component prefers optimized card derivatives and keeps hero originals" do
     html =
       render_component(&CatalogComponents.book_cover/1,
@@ -342,6 +367,119 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert LazyHTML.attribute(hero_img, "fetchpriority") == ["high"]
   end
 
+  defp create_rich_metadata_book! do
+    suffix = System.unique_integer([:positive])
+    isbn = "9781666#{String.pad_leading(Integer.to_string(rem(suffix, 1_000_000)), 6, "0")}"
+    publisher_slug = "rich-metadata-press-#{suffix}"
+    work_slug = "rich-metadata-novel-#{suffix}"
+    edition_slug = "#{work_slug}-paperback-#{isbn}"
+    series_slug = "metadata-series-#{suffix}"
+
+    publisher =
+      Publisher
+      |> Ash.Changeset.for_create(:create, %{
+        name: "Rich Metadata Press",
+        slug: publisher_slug,
+        description: "A fixture press for sourced metadata display."
+      })
+      |> Ash.create!(authorize?: false)
+
+    work =
+      Work
+      |> Ash.Changeset.for_create(:create, %{
+        title: "Rich Metadata Novel",
+        slug: work_slug,
+        publication_state: "published",
+        original_title: "Roman de métadonnées",
+        original_language_code: "fra",
+        subjects: ["metadata", "translation"],
+        description: "A sourced description for the rich metadata fixture."
+      })
+      |> Ash.create!(authorize?: false)
+
+    edition =
+      Edition
+      |> Ash.Changeset.for_create(:create, %{
+        title: "Rich Metadata Novel",
+        slug: edition_slug,
+        format: "paperback",
+        language_code: "eng",
+        page_count: 321,
+        height_mm: 203,
+        width_mm: 127,
+        depth_mm: 24,
+        published_on: ~D[2026-03-04],
+        work_id: work.id,
+        publisher_id: publisher.id
+      })
+      |> Ash.create!(authorize?: false)
+
+    Identifier
+    |> Ash.Changeset.for_create(:create, %{
+      identifier_type: "isbn_13",
+      value: isbn,
+      edition_id: edition.id
+    })
+    |> Ash.create!(authorize?: false)
+
+    series =
+      Series
+      |> Ash.Changeset.for_create(:create, %{
+        title: "Metadata Series",
+        slug: series_slug,
+        publisher_id: publisher.id
+      })
+      |> Ash.create!(authorize?: false)
+
+    SeriesMembership
+    |> Ash.Changeset.for_create(:create, %{
+      series_id: series.id,
+      work_id: work.id,
+      position: 1,
+      label: "Fixture order"
+    })
+    |> Ash.create!(authorize?: false)
+
+    SourceRecord
+    |> Ash.Changeset.for_create(:create, %{
+      provider: "deep_vellum_official_store",
+      source_type: "publisher_dataset",
+      source_uri: "https://www.deepvellum.org/fixture/rich-metadata-#{suffix}",
+      file_checksum: "sha256:rich-metadata-#{suffix}",
+      license_note: "field-level provenance fixture",
+      imported_at: DateTime.utc_now(:second),
+      raw_payload: %{
+        "edition" => %{"isbn_13" => isbn},
+        "provider_permissions" => %{"cache_policy" => "metadata_display_fixture"},
+        "field_sources" => %{
+          "original_title" => field_source("original_title", suffix),
+          "original_language_code" => field_source("original_language_code", suffix),
+          "subjects" => field_source("subjects", suffix),
+          "language_code" => field_source("language_code", suffix),
+          "page_count" => field_source("page_count", suffix),
+          "dimensions" => field_source("dimensions", suffix)
+        }
+      }
+    })
+    |> Ash.create!(authorize?: false)
+
+    %{
+      book_slug: work_slug,
+      edition_slug: edition_slug,
+      publisher_slug: publisher_slug,
+      series_slug: series_slug
+    }
+  end
+
+  defp field_source(field, suffix) do
+    %{
+      "provider" => "deep_vellum_official_store",
+      "source_uri" => "https://www.deepvellum.org/fixture/rich-metadata-#{suffix}##{field}",
+      "source_type" => "publisher_dataset",
+      "rights_basis" => "field-level provenance"
+    }
+  end
+
   defp cache_cover_for_edition_slug!(slug, provider, source_url, filename, attribution_text) do
     cached_path = Path.join("priv/static/covers/cache", filename)
     File.mkdir_p!(Path.dirname(cached_path))
@@ -387,7 +525,9 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
           Hiraeth.Catalog.Identifier,
           Hiraeth.Catalog.Contribution,
           Hiraeth.Catalog.Edition,
+          Hiraeth.Catalog.SeriesMembership,
           Hiraeth.Catalog.Work,
+          Hiraeth.Catalog.Series,
           Hiraeth.Catalog.Imprint,
           Hiraeth.Catalog.Publisher
         ] do

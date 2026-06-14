@@ -162,6 +162,20 @@ defmodule HiraethWeb.CatalogComponents do
       <dl class="divide-y divide-[#E7E2D8]/60 dark:divide-[#2E2A27]/60 text-sm">
         <.metadata_row label="Title" value={@book.title} serif />
         <.metadata_row
+          :if={present?(@book[:original_title])}
+          id="book-original-title"
+          label="Original title"
+          value={@book.original_title}
+          serif
+        />
+        <.metadata_row
+          :if={present?(@book[:original_language_code])}
+          id="book-original-language"
+          label="Original language"
+          value={@book.original_language_code}
+          mono
+        />
+        <.metadata_row
           :if={role_names(@book[:authors])}
           label="Author"
           value={role_names(@book[:authors])}
@@ -178,6 +192,12 @@ defmodule HiraethWeb.CatalogComponents do
           value={Enum.join(@book.series_titles, ", ")}
         />
         <.metadata_row :if={@book[:format]} label="Format" value={@book.format} />
+        <.metadata_row
+          :if={subject_text(@book[:subjects])}
+          id="book-subjects"
+          label="Subjects"
+          value={subject_text(@book[:subjects])}
+        />
         <.metadata_row :if={@book[:isbn]} label="ISBN" value={@book.isbn} mono />
         <div id="publication-date" class="grid grid-cols-3 py-3">
           <dt class="font-mono text-xs uppercase tracking-wider text-stone-600 font-bold dark:text-stone-300">
@@ -194,6 +214,7 @@ defmodule HiraethWeb.CatalogComponents do
     """
   end
 
+  attr :id, :string, default: nil
   attr :label, :string, required: true
   attr :value, :any, required: true
   attr :serif, :boolean, default: false
@@ -201,7 +222,7 @@ defmodule HiraethWeb.CatalogComponents do
 
   def metadata_row(assigns) do
     ~H"""
-    <div class="grid grid-cols-3 py-3">
+    <div id={@id} class="grid grid-cols-3 py-3">
       <dt class="font-mono text-xs uppercase tracking-wider text-stone-600 font-bold dark:text-stone-300">
         {@label}
       </dt>
@@ -214,6 +235,52 @@ defmodule HiraethWeb.CatalogComponents do
       </dd>
     </div>
     """
+  end
+
+  defp present?(value), do: value not in [nil, "", []]
+
+  defp subject_text(subjects) when is_list(subjects) do
+    subjects
+    |> Enum.reject(&(&1 in [nil, ""]))
+    |> Enum.join(", ")
+    |> case do
+      "" -> nil
+      text -> text
+    end
+  end
+
+  defp subject_text(_subjects), do: nil
+
+  defp field_source_notes(nil), do: []
+  defp field_source_notes(field_sources) when field_sources == %{}, do: []
+
+  defp field_source_notes(field_sources) when is_map(field_sources) do
+    field_sources
+    |> Enum.flat_map(fn {field, source} ->
+      rights_basis = source["rights_basis"] || source[:rights_basis]
+      provider = source["provider"] || source[:provider]
+
+      cond do
+        present?(rights_basis) and present?(provider) ->
+          ["#{humanize_field(field)} — #{rights_basis} via #{provider}"]
+
+        present?(rights_basis) ->
+          ["#{humanize_field(field)} — #{rights_basis}"]
+
+        true ->
+          []
+      end
+    end)
+    |> Enum.uniq()
+    |> Enum.sort()
+  end
+
+  defp field_source_notes(_field_sources), do: []
+
+  defp humanize_field(field) do
+    field
+    |> to_string()
+    |> String.replace("_", " ")
   end
 
   attr :source, :map, default: nil
@@ -247,6 +314,18 @@ defmodule HiraethWeb.CatalogComponents do
             "%Y-%m-%d %H:%M:%S UTC"
           )}</span>
         </p>
+        <div
+          :if={field_source_notes(@source[:field_sources]) != []}
+          id="edition-field-provenance"
+          class="pt-2"
+        >
+          <p class="font-mono text-[10px] uppercase tracking-wider text-stone-600 dark:text-stone-300">
+            Field-level provenance
+          </p>
+          <p class="mt-1 text-stone-700 dark:text-stone-300">
+            {Enum.join(field_source_notes(@source.field_sources), "; ")}
+          </p>
+        </div>
         <p :if={@source[:license_note]}>{@source.license_note}</p>
       <% else %>
         <p>No source record has been attached to this edition yet.</p>

@@ -18,10 +18,13 @@ defmodule HiraethWeb.SeriesLive do
   end
 
   def handle_params(_params, _uri, socket) do
+    series = PublicCatalog.series()
+
     {:noreply,
      socket
      |> assign(:page_title, "Series & Imprints")
-     |> stream(:series_list, PublicCatalog.series(), reset: true, dom_id: &"series-#{&1.slug}")}
+     |> assign(:series_empty?, series == [])
+     |> stream(:series_list, series, reset: true, dom_id: &"series-#{&1.slug}")}
   end
 
   @impl true
@@ -43,6 +46,12 @@ defmodule HiraethWeb.SeriesLive do
         </div>
 
         <div id="series-rows" phx-update="stream" class="space-y-12">
+          <CatalogComponents.empty_state
+            :if={@series_empty?}
+            id="series-empty"
+            title="No sourced series yet"
+            message="Series and collections appear only after sourced memberships are imported. The shelf will not invent unsourced collection names."
+          />
           <section
             :for={{dom_id, ser} <- @streams.series_list}
             id={dom_id}
@@ -100,6 +109,32 @@ defmodule HiraethWeb.SeriesLive do
             </h1>
           </div>
 
+          <section
+            id="series-context"
+            class="grid gap-4 rounded-sm border border-[#E7E2D8] bg-[#F5F2EB]/70 p-5 text-sm text-stone-700 dark:border-[#2E2A27] dark:bg-[#1C1917]/70 dark:text-stone-300 sm:grid-cols-3"
+          >
+            <div>
+              <p class="font-mono text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                Collection
+              </p>
+              <p class="mt-1 font-serif text-xl text-stone-950 dark:text-stone-50">{@series.title}</p>
+            </div>
+            <div>
+              <p class="font-mono text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                Sourced shelf
+              </p>
+              <p class="mt-1 font-serif text-xl text-stone-950 dark:text-stone-50">
+                {@series.editions_count} sourced books
+              </p>
+            </div>
+            <div :if={facet_text(format_facets(@series.editions))}>
+              <p class="font-mono text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                Formats
+              </p>
+              <p class="mt-1">{facet_text(format_facets(@series.editions))}</p>
+            </div>
+          </section>
+
           <section id="series-editions" class="space-y-6">
             <h2 class="font-serif text-2xl font-medium">Series editions</h2>
             <div
@@ -152,4 +187,17 @@ defmodule HiraethWeb.SeriesLive do
     |> assign(:series, series)
     |> stream(:series_editions, series.editions, reset: true)
   end
+
+  defp format_facets(editions), do: facet_values(editions, :format)
+
+  defp facet_values(editions, key) do
+    editions
+    |> Enum.map(&Map.get(&1, key))
+    |> Enum.reject(&(&1 in [nil, ""]))
+    |> Enum.uniq()
+    |> Enum.sort()
+  end
+
+  defp facet_text([]), do: nil
+  defp facet_text(values), do: Enum.join(values, ", ")
 end

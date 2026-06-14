@@ -450,24 +450,41 @@ defmodule HiraethWeb.PublicCatalog do
     {:ok, %{rows: rows}} =
       Hiraeth.Repo.query(
         """
-        select p.id, p.name, p.slug, p.description, count(distinct e.id) as editions_count
+        select
+          p.id,
+          p.name,
+          p.slug,
+          p.description,
+          count(distinct e.id) filter (
+            where exists (
+              select 1
+              from identifiers source_identifier
+              join source_records sr
+                on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+              where source_identifier.edition_id = e.id
+            )
+          ) as editions_count,
+          count(distinct e.id) as total_editions_count
         from publishers p
-        join editions e on e.publisher_id = p.id
+        left join editions e on e.publisher_id = p.id
         where p.slug = $1
-          and exists (
-            select 1
-            from identifiers source_identifier
-            join source_records sr
-              on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
-            where source_identifier.edition_id = e.id
-          )
         group by p.id, p.name, p.slug, p.description
         limit 1
         """,
         [slug]
       )
 
-    rows |> List.first() |> then(&(&1 && publisher_summary_from_row(&1)))
+    case List.first(rows) do
+      nil ->
+        nil
+
+      [_id, _name, _slug, _description, 0, total_editions_count]
+      when total_editions_count > 0 ->
+        nil
+
+      [id, name, slug, description, editions_count, _total_editions_count] ->
+        publisher_summary_from_row([id, name, slug, description, editions_count])
+    end
   end
 
   defp publisher_summary_from_row([id, name, slug, description, editions_count]) do

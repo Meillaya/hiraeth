@@ -109,10 +109,18 @@ defmodule HiraethWeb.BookLive do
                     <div class="font-mono text-xs break-all text-stone-700 dark:text-stone-300">
                       {Enum.join(format.identifiers, ", ")}
                     </div>
-                    <div class="text-stone-600 dark:text-stone-400">
-                      {if format.published_on,
-                        do: Calendar.strftime(format.published_on, "%Y-%m-%d"),
-                        else: "Date unknown"}
+                    <div class="space-y-1 text-stone-600 dark:text-stone-400">
+                      <p>
+                        {if format.published_on,
+                          do: Calendar.strftime(format.published_on, "%Y-%m-%d"),
+                          else: "Date unknown"}
+                      </p>
+                      <p
+                        :if={format_detail_text(format)}
+                        class="font-mono text-[11px] uppercase tracking-wider"
+                      >
+                        {format_detail_text(format)}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -176,4 +184,34 @@ defmodule HiraethWeb.BookLive do
   end
 
   defp role_names(_contributors), do: nil
+
+  defp format_detail_text(format) do
+    [
+      format[:language_code],
+      page_count_text(format[:page_count]),
+      dimensions_text(format[:dimensions])
+    ]
+    |> Enum.reject(&(&1 in [nil, ""]))
+    |> Enum.join(" · ")
+    |> case do
+      "" -> nil
+      text -> text
+    end
+  end
+
+  defp page_count_text(nil), do: nil
+  defp page_count_text(page_count), do: "#{page_count} pages"
+
+  defp dimensions_text(nil), do: nil
+
+  defp dimensions_text(%{height_mm: height, width_mm: width, depth_mm: depth}) do
+    [height, width, depth]
+    |> Enum.reject(&is_nil/1)
+    |> case do
+      [] -> nil
+      dimensions -> Enum.join(dimensions, " × ") <> " mm"
+    end
+  end
+
+  defp dimensions_text(_dimensions), do: nil
 end

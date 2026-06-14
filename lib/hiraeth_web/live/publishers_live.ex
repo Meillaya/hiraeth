@@ -103,6 +103,34 @@ defmodule HiraethWeb.PublishersLive do
             </p>
           </div>
 
+          <section
+            id="publisher-context"
+            class="grid gap-4 rounded-sm border border-[#E7E2D8] bg-[#F5F2EB]/70 p-5 text-sm text-stone-700 dark:border-[#2E2A27] dark:bg-[#1C1917]/70 dark:text-stone-300 sm:grid-cols-3"
+          >
+            <div>
+              <p class="font-mono text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                Sourced shelf
+              </p>
+              <p class="mt-1 font-serif text-xl text-stone-950 dark:text-stone-50">
+                {@publisher.editions_count} sourced books
+              </p>
+            </div>
+            <div :if={facet_text(format_facets(@publisher.editions))}>
+              <p class="font-mono text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                Formats
+              </p>
+              <p class="mt-1">{facet_text(format_facets(@publisher.editions))}</p>
+            </div>
+            <div :if={facet_text(language_facets(@publisher.editions))}>
+              <p class="font-mono text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                Languages
+              </p>
+              <p class="mt-1 font-mono text-xs uppercase tracking-wider">
+                {facet_text(language_facets(@publisher.editions))}
+              </p>
+            </div>
+          </section>
+
           <section id="publisher-editions" class="space-y-6">
             <h2 class="font-serif text-2xl font-medium">Cataloged editions</h2>
             <%= if @publisher.editions_count == 0 do %>
@@ -153,4 +181,19 @@ defmodule HiraethWeb.PublishersLive do
     |> assign(:publisher, publisher)
     |> stream(:publisher_editions, publisher.editions, reset: true)
   end
+
+  defp format_facets(editions), do: facet_values(editions, :format)
+
+  defp language_facets(editions), do: facet_values(editions, :language_code)
+
+  defp facet_values(editions, key) do
+    editions
+    |> Enum.map(&Map.get(&1, key))
+    |> Enum.reject(&(&1 in [nil, ""]))
+    |> Enum.uniq()
+    |> Enum.sort()
+  end
+
+  defp facet_text([]), do: nil
+  defp facet_text(values), do: Enum.join(values, ", ")
 end
