@@ -338,6 +338,7 @@ defmodule HiraethWeb.CatalogComponents do
   attr :total_pages, :integer, required: true
   attr :base_path, :string, required: true
   attr :query, :string, default: ""
+  attr :params, :map, default: %{}
 
   def pagination(assigns) do
     assigns = assign(assigns, :has_previous, assigns.page > 1)
@@ -350,7 +351,7 @@ defmodule HiraethWeb.CatalogComponents do
     >
       <.link
         :if={@has_previous}
-        navigate={page_path(@base_path, @page - 1, @query)}
+        navigate={page_path(@base_path, @page - 1, @query, @params)}
         id="catalog-prev-page"
         class="rounded-sm text-[#8C2D19] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8C2D19] dark:text-[#E05A47]"
       >
@@ -360,7 +361,7 @@ defmodule HiraethWeb.CatalogComponents do
       <span id="catalog-page-count">Page {@page} of {@total_pages}</span>
       <.link
         :if={@has_next}
-        navigate={page_path(@base_path, @page + 1, @query)}
+        navigate={page_path(@base_path, @page + 1, @query, @params)}
         id="catalog-next-page"
         class="rounded-sm text-[#8C2D19] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8C2D19] dark:text-[#E05A47]"
       >
@@ -470,6 +471,21 @@ defmodule HiraethWeb.CatalogComponents do
     """
   end
 
-  defp page_path(base_path, page, ""), do: "#{base_path}?page=#{page}"
-  defp page_path(base_path, page, query), do: "#{base_path}?page=#{page}&q=#{URI.encode(query)}"
+  defp page_path(base_path, page, _query, params) when map_size(params) > 0 do
+    params
+    |> Map.put("page", page)
+    |> drop_blank_params()
+    |> then(&(base_path <> "?" <> URI.encode_query(&1)))
+  end
+
+  defp page_path(base_path, page, "", _params), do: "#{base_path}?page=#{page}"
+
+  defp page_path(base_path, page, query, _params),
+    do: "#{base_path}?page=#{page}&q=#{URI.encode(query)}"
+
+  defp drop_blank_params(params) do
+    params
+    |> Enum.reject(fn {_key, value} -> value in [nil, ""] end)
+    |> Map.new()
+  end
 end

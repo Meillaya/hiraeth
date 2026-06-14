@@ -24,7 +24,12 @@ defmodule HiraethWeb.SearchLive do
 
   @impl true
   def handle_event("search", %{"search" => %{"query" => query}}, socket) do
-    {:noreply, push_patch(socket, to: ~p"/search?q=#{query}")}
+    filters = socket.assigns.filters |> Map.put("q", query)
+    {:noreply, push_patch(socket, to: filtered_path("/search", filters))}
+  end
+
+  def handle_event("filter", %{"filters" => filters}, socket) do
+    {:noreply, push_patch(socket, to: filtered_path("/search", filters))}
   end
 
   defp assign_results(socket, params) do
@@ -32,9 +37,13 @@ defmodule HiraethWeb.SearchLive do
     query = Map.get(filters, "q", "")
     results = PublicCatalog.book_page(filters, 1)
 
+    filter_form_params = blank_filter_params() |> Map.merge(filters) |> Map.put("q", query)
+
     socket
     |> assign(:query, query)
+    |> assign(:filters, filter_form_params)
     |> assign(:form, to_form(%{"query" => query}, as: :search))
+    |> assign(:filter_form, to_form(filter_form_params, as: :filters))
     |> assign(:results_count, results.total_count)
     |> stream(:results, results.entries, reset: true)
   end
@@ -60,6 +69,59 @@ defmodule HiraethWeb.SearchLive do
               id="catalog-search-input"
               placeholder="Enter title, contributor, publisher..."
               phx-debounce="200"
+            />
+          </.form>
+
+          <.form
+            for={@filter_form}
+            id="search-filter-form"
+            phx-change="filter"
+            class="mt-5 grid gap-3 sm:grid-cols-2"
+          >
+            <input type="hidden" name="filters[q]" value={@query} />
+            <.input
+              field={@filter_form[:publisher]}
+              type="text"
+              label="Publisher"
+              placeholder="deep-vellum"
+            />
+            <.input
+              field={@filter_form[:contributor]}
+              type="text"
+              label="Contributor"
+              placeholder="david-bowles"
+            />
+            <.input
+              field={@filter_form[:role]}
+              type="select"
+              label="Role"
+              options={[{"Any", ""}, {"Author", "author"}, {"Translator", "translator"}]}
+            />
+            <.input field={@filter_form[:format]} type="text" label="Format" placeholder="paperback" />
+            <.input field={@filter_form[:language]} type="text" label="Language" placeholder="eng" />
+            <.input field={@filter_form[:year]} type="text" label="Year" placeholder="2026" />
+            <.input
+              field={@filter_form[:subject]}
+              type="text"
+              label="Subject"
+              placeholder="translation"
+            />
+            <.input
+              field={@filter_form[:series]}
+              type="text"
+              label="Series"
+              placeholder="series slug"
+            />
+            <.input
+              field={@filter_form[:sort]}
+              type="select"
+              label="Sort"
+              options={[
+                {"Title", "title"},
+                {"Newest", "newest"},
+                {"Author", "author"},
+                {"Recently added", "recently_added"}
+              ]}
             />
           </.form>
           <div class="flex justify-between items-center text-[10px] font-mono text-stone-600 dark:text-stone-400 mt-3">
@@ -168,4 +230,21 @@ defmodule HiraethWeb.SearchLive do
   end
 
   defp role_names(_contributors), do: nil
+
+  defp blank_filter_params do
+    Map.new(@filter_params, &{&1, ""})
+  end
+
+  defp filtered_path(base_path, params) do
+    params =
+      params
+      |> Map.take(@filter_params)
+      |> Enum.reject(fn {_key, value} -> value in [nil, ""] end)
+      |> Map.new()
+
+    case params do
+      map when map == %{} -> base_path
+      map -> base_path <> "?" <> URI.encode_query(map)
+    end
+  end
 end

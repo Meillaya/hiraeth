@@ -881,3 +881,19 @@ Commit: 61b857b — `fix(covers): secure cacheable cover display`
   - `.omo/evidence/task-12-browser-regression.txt` — `STRICT_TIMING=1 make test-browser` passed with route timing, keyboard, viewport, overflow, image decode, and network checks.
   - `.omo/evidence/task-12-precommit.txt`, `.omo/evidence/task-12-compile-warnings.txt`, `.omo/evidence/task-12-format-check.txt`, and `.omo/evidence/task-12-diff-check.txt` — full precommit, warning-free compile, formatting, and whitespace gates passed.
   - `.omx/artifacts/claude-t12-rich-metadata-verification-20260614050252.md` — external verifier found implementation correct but requested evidence-package fixes; stale task-12 bootstrap evidence was replaced with current rich-metadata done/adversarial records.
+
+## Next roadmap — T13 browse/search filter controls
+
+- Date: 2026-06-14
+- Added shareable LiveView filter/sort controls for public discovery:
+  - `/browse` now exposes URL-backed controls for publisher, role, contributor, format, language, subject, series, year, and sort, while preserving search query and resetting pagination through `push_patch`.
+  - `/search` now exposes the same filter/sort controls and delegates all filtering to `PublicCatalog.book_page/3` instead of filtering streams in memory.
+  - Catalog pagination now preserves the full filter map when moving between pages.
+  - Over-constrained and malformed filters continue to render explicit empty states without wildcard expansion.
+- Verification evidence:
+  - `.omo/evidence/task-13-red-live-filter-controls.txt` — RED LiveView test failed before filter controls existed.
+  - `.omo/evidence/task-13-green-live-filter-controls.txt` and `.omo/evidence/task-13-focused-tests.txt` — LiveView and PublicCatalog filter/sort tests passed after implementation.
+  - `.omo/evidence/task-13-browse-filter-browser.txt` and `artifacts/qa/browser/task-13-browse-filter.png` — Chromium typed filter controls, URL updated, result count matched, and the selected book dossier stayed consistent.
+  - `.omo/evidence/task-13-malformed-http.txt` — `/browse?q=%25&format=ebook&page=999` returned HTTP 200 with a safe empty state.
+  - `.omo/evidence/task-13-browser-regression.txt` — strict browser timing/viewport/overflow/image/network regression passed.
+  - `.omo/evidence/task-13-precommit.txt`, `.omo/evidence/task-13-format-check.txt`, `.omo/evidence/task-13-compile.txt`, and `.omo/evidence/task-13-diff-check.txt` — full precommit, formatting, warning-free compile, and whitespace gates passed.

@@ -27,7 +27,12 @@ defmodule HiraethWeb.BrowseLive do
 
   @impl true
   def handle_event("search", %{"search" => %{"query" => query}}, socket) do
-    {:noreply, push_patch(socket, to: ~p"/browse?q=#{query}")}
+    filters = socket.assigns.filters |> Map.put("q", query) |> Map.delete("page")
+    {:noreply, push_patch(socket, to: filtered_path("/browse", filters))}
+  end
+
+  def handle_event("filter", %{"filters" => filters}, socket) do
+    {:noreply, push_patch(socket, to: filtered_path("/browse", filters))}
   end
 
   defp assign_catalog(socket, params) do
@@ -36,9 +41,13 @@ defmodule HiraethWeb.BrowseLive do
     page = Map.get(params, "page", "1")
     pagination = PublicCatalog.book_page(filters, page)
 
+    filter_form_params = blank_filter_params() |> Map.merge(filters) |> Map.put("q", query)
+
     socket
     |> assign(:query, query)
+    |> assign(:filters, filter_form_params)
     |> assign(:form, to_form(%{"query" => query}, as: :search))
+    |> assign(:filter_form, to_form(filter_form_params, as: :filters))
     |> assign(:all_count, pagination.total_count)
     |> assign(:pagination, pagination)
     |> assign(:selected_book, List.first(pagination.entries))
@@ -66,6 +75,63 @@ defmodule HiraethWeb.BrowseLive do
               label="Search catalog"
               placeholder="Title, contributor, ISBN…"
               phx-debounce="250"
+            />
+          </.form>
+
+          <.form for={@filter_form} id="catalog-filter-form" phx-change="filter" class="space-y-3">
+            <input type="hidden" name="filters[q]" value={@query} />
+            <.input
+              field={@filter_form[:publisher]}
+              type="text"
+              label="Publisher"
+              placeholder="deep-vellum"
+            />
+            <.input
+              field={@filter_form[:contributor]}
+              type="text"
+              label="Contributor"
+              placeholder="david-bowles"
+            />
+            <div class="grid grid-cols-2 gap-3">
+              <.input
+                field={@filter_form[:role]}
+                type="select"
+                label="Role"
+                options={[{"Any", ""}, {"Author", "author"}, {"Translator", "translator"}]}
+              />
+              <.input
+                field={@filter_form[:format]}
+                type="text"
+                label="Format"
+                placeholder="paperback"
+              />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <.input field={@filter_form[:language]} type="text" label="Language" placeholder="eng" />
+              <.input field={@filter_form[:year]} type="text" label="Year" placeholder="2026" />
+            </div>
+            <.input
+              field={@filter_form[:subject]}
+              type="text"
+              label="Subject"
+              placeholder="translation"
+            />
+            <.input
+              field={@filter_form[:series]}
+              type="text"
+              label="Series"
+              placeholder="series slug"
+            />
+            <.input
+              field={@filter_form[:sort]}
+              type="select"
+              label="Sort"
+              options={[
+                {"Title", "title"},
+                {"Newest", "newest"},
+                {"Author", "author"},
+                {"Recently added", "recently_added"}
+              ]}
             />
           </.form>
           <div class="rounded-sm border border-[#D8CFC0] bg-[#FCFAF7]/70 p-4 text-xs text-stone-700 dark:border-[#2E2A27] dark:bg-[#12110F]/70 dark:text-stone-300 space-y-2">
@@ -105,6 +171,7 @@ defmodule HiraethWeb.BrowseLive do
               total_pages={@pagination.total_pages}
               base_path="/browse"
               query={@query}
+              params={@filters}
             />
           <% end %>
         </section>
@@ -137,4 +204,21 @@ defmodule HiraethWeb.BrowseLive do
 
   defp query_context(""), do: nil
   defp query_context(query), do: "Current search: #{query}"
+
+  defp blank_filter_params do
+    Map.new(@filter_params, &{&1, ""})
+  end
+
+  defp filtered_path(base_path, params) do
+    params =
+      params
+      |> Map.take(@filter_params)
+      |> Enum.reject(fn {_key, value} -> value in [nil, ""] end)
+      |> Map.new()
+
+    case params do
+      map when map == %{} -> base_path
+      map -> base_path <> "?" <> URI.encode_query(map)
+    end
+  end
 end

@@ -3,7 +3,17 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
 
   import Phoenix.LiveViewTest
 
-  alias Hiraeth.Catalog.{Edition, Identifier, Publisher, Series, SeriesMembership, Work}
+  alias Hiraeth.Catalog.{
+    Contribution,
+    Contributor,
+    Edition,
+    Identifier,
+    Publisher,
+    Series,
+    SeriesMembership,
+    Work
+  }
+
   alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
   alias Hiraeth.RealCatalog.Dataset
   alias Hiraeth.Sources.SourceRecord
@@ -151,6 +161,91 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert has_element?(view, "#search-results", "Immigrant")
     assert has_element?(view, "#search-results", "9781646054541")
     refute render(view) =~ "Nelly's Version"
+  end
+
+  test "browse and search expose shareable filters and sorting controls", %{conn: conn} do
+    fixture = create_filterable_book!()
+
+    filtered_path =
+      "/browse?" <>
+        URI.encode_query(%{
+          "publisher" => fixture.publisher_slug,
+          "role" => "translator",
+          "contributor" => fixture.translator_slug,
+          "format" => "paperback",
+          "language" => "eng",
+          "subject" => "filter-ui",
+          "series" => fixture.series_slug,
+          "year" => "2026",
+          "sort" => "author",
+          "page" => "999"
+        })
+
+    {:ok, browse, _html} = live(conn, filtered_path)
+
+    assert has_element?(browse, "#catalog-index", "1 books")
+    assert has_element?(browse, "#catalog-grid", "Filter UI Novel")
+    assert has_element?(browse, "#catalog-page-count", "Page 1 of 1")
+
+    assert has_element?(
+             browse,
+             ~s|#catalog-filter-form input[name="filters[publisher]"][value="#{fixture.publisher_slug}"]|
+           )
+
+    assert has_element?(
+             browse,
+             ~s|#catalog-filter-form input[name="filters[series]"][value="#{fixture.series_slug}"]|
+           )
+
+    assert has_element?(
+             browse,
+             ~s|#catalog-filter-form select[name="filters[sort]"] option[selected][value="author"]|
+           )
+
+    refute has_element?(browse, "#catalog-grid", "Immigrant")
+
+    browse
+    |> form("#catalog-filter-form",
+      filters: %{
+        publisher: fixture.publisher_slug,
+        role: "translator",
+        contributor: fixture.translator_slug,
+        format: "ebook",
+        language: "eng",
+        subject: "filter-ui",
+        series: fixture.series_slug,
+        year: "2026",
+        sort: "newest"
+      }
+    )
+    |> render_change()
+
+    assert_patch(
+      browse,
+      "/browse?" <>
+        URI.encode_query(%{
+          "contributor" => fixture.translator_slug,
+          "format" => "ebook",
+          "language" => "eng",
+          "publisher" => fixture.publisher_slug,
+          "role" => "translator",
+          "series" => fixture.series_slug,
+          "sort" => "newest",
+          "subject" => "filter-ui",
+          "year" => "2026"
+        })
+    )
+
+    search_path = String.replace(filtered_path, "/browse?", "/search?")
+    {:ok, search, _html} = live(conn, search_path)
+
+    assert has_element?(search, "#search-results", "1 matches")
+    assert has_element?(search, "#search-results", "Filter UI Novel")
+
+    assert has_element?(
+             search,
+             ~s|#search-filter-form input[name="filters[subject]"][value="filter-ui"]|
+           )
   end
 
   test "search interaction stays within local render_change budget", %{conn: conn} do
@@ -365,6 +460,116 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert LazyHTML.attribute(hero_img, "src") == ["/covers/cache/cached-cover-book.jpg"]
     assert LazyHTML.attribute(hero_img, "loading") == ["eager"]
     assert LazyHTML.attribute(hero_img, "fetchpriority") == ["high"]
+  end
+
+  defp create_filterable_book! do
+    suffix = System.unique_integer([:positive])
+    isbn = "9781777#{String.pad_leading(Integer.to_string(rem(suffix, 1_000_000)), 6, "0")}"
+    publisher_slug = "filter-ui-press-#{suffix}"
+    work_slug = "filter-ui-novel-#{suffix}"
+    edition_slug = "#{work_slug}-paperback-#{isbn}"
+    series_slug = "filter-ui-series-#{suffix}"
+    translator_slug = "filter-ui-translator-#{suffix}"
+
+    publisher =
+      Publisher
+      |> Ash.Changeset.for_create(:create, %{
+        name: "Filter UI Press",
+        slug: publisher_slug,
+        description: "A fixture press for filter controls."
+      })
+      |> Ash.create!(authorize?: false)
+
+    work =
+      Work
+      |> Ash.Changeset.for_create(:create, %{
+        title: "Filter UI Novel",
+        slug: work_slug,
+        publication_state: "published",
+        original_language_code: "fra",
+        subjects: ["filter-ui", "metadata"]
+      })
+      |> Ash.create!(authorize?: false)
+
+    edition =
+      Edition
+      |> Ash.Changeset.for_create(:create, %{
+        title: "Filter UI Novel",
+        slug: edition_slug,
+        format: "paperback",
+        language_code: "eng",
+        published_on: ~D[2026-06-01],
+        work_id: work.id,
+        publisher_id: publisher.id
+      })
+      |> Ash.create!(authorize?: false)
+
+    Identifier
+    |> Ash.Changeset.for_create(:create, %{
+      identifier_type: "isbn_13",
+      value: isbn,
+      edition_id: edition.id
+    })
+    |> Ash.create!(authorize?: false)
+
+    translator =
+      Contributor
+      |> Ash.Changeset.for_create(:create, %{
+        display_name: "Filter UI Translator",
+        sort_name: "Translator, Filter UI",
+        slug: translator_slug
+      })
+      |> Ash.create!(authorize?: false)
+
+    Contribution
+    |> Ash.Changeset.for_create(:create, %{
+      contributor_id: translator.id,
+      work_id: work.id,
+      role: "translator",
+      position: 1
+    })
+    |> Ash.create!(authorize?: false)
+
+    series =
+      Series
+      |> Ash.Changeset.for_create(:create, %{
+        title: "Filter UI Series",
+        slug: series_slug,
+        publisher_id: publisher.id
+      })
+      |> Ash.create!(authorize?: false)
+
+    SeriesMembership
+    |> Ash.Changeset.for_create(:create, %{
+      series_id: series.id,
+      work_id: work.id,
+      position: 1
+    })
+    |> Ash.create!(authorize?: false)
+
+    SourceRecord
+    |> Ash.Changeset.for_create(:create, %{
+      provider: "deep_vellum_official_store",
+      source_type: "publisher_dataset",
+      source_uri: "https://www.deepvellum.org/fixture/filter-ui-#{suffix}",
+      file_checksum: "sha256:filter-ui-#{suffix}",
+      license_note: "filter UI provenance fixture",
+      imported_at: DateTime.utc_now(:second),
+      raw_payload: %{
+        "edition" => %{"isbn_13" => isbn},
+        "field_sources" => %{
+          "subjects" => field_source("subjects", suffix),
+          "language_code" => field_source("language_code", suffix)
+        }
+      }
+    })
+    |> Ash.create!(authorize?: false)
+
+    %{
+      publisher_slug: publisher_slug,
+      translator_slug: translator_slug,
+      series_slug: series_slug
+    }
   end
 
   defp create_rich_metadata_book! do
