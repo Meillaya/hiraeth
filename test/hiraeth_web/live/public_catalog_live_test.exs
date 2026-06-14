@@ -187,6 +187,27 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert has_element?(publisher, "#publisher-editions", "Immigrant")
   end
 
+  test "contributor index/detail routes render author and translator discovery", %{conn: conn} do
+    {:ok, contributors, _html} = live(conn, ~p"/contributors")
+
+    assert has_element?(contributors, "#contributors-shell")
+    assert has_element?(contributors, "#contributor-david-bowles", "David Bowles")
+    assert has_element?(contributors, "#contributor-joaquin-zihuatanejo", "Joaquín Zihuatanejo")
+    refute render(contributors) =~ "/authors"
+    refute render(contributors) =~ "/translators"
+
+    {:ok, translators, _html} = live(conn, ~p"/contributors?role=translator")
+    assert has_element?(translators, "#contributors-shell", "Translators")
+    assert has_element?(translators, "#contributor-david-bowles", "translator")
+    refute has_element?(translators, "#contributor-joaquin-zihuatanejo")
+
+    {:ok, contributor, _html} = live(conn, ~p"/contributors/david-bowles")
+    assert has_element?(contributor, "#contributor-detail-shell")
+    assert has_element?(contributor, "#contributor-title", "David Bowles")
+    assert has_element?(contributor, "#contributor-roles", "translator")
+    assert has_element?(contributor, "#contributor-books", "Immigrant")
+  end
+
   test "edition route redirects to canonical book detail with provenance and formats", %{
     conn: conn
   } do

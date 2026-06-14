@@ -32,6 +32,8 @@ defmodule HiraethWeb.Router do
       live "/", HomeLive, :index
       live "/browse", BrowseLive, :index
       live "/search", SearchLive, :index
+      live "/contributors", ContributorsLive, :index
+      live "/contributors/:slug", ContributorsLive, :show
       live "/publishers", PublishersLive, :index
       live "/publishers/:slug", PublishersLive, :show
       live "/series", SeriesLive, :index

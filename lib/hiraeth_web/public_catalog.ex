@@ -356,6 +356,30 @@ defmodule HiraethWeb.PublicCatalog do
     end
   end
 
+  def contributors(role \\ nil) do
+    role
+    |> contributor_summary_rows()
+    |> Enum.map(&contributor_summary_from_row/1)
+    |> Enum.sort_by(&String.downcase(&1.name))
+  end
+
+  def contributor(slug) do
+    case contributor_summary_by_slug(slug) do
+      nil ->
+        nil
+
+      contributor ->
+        books =
+          slug
+          |> contributor_work_ids()
+          |> books_for_work_ids()
+
+        contributor
+        |> Map.put(:books, books)
+        |> Map.put(:books_count, length(books))
+    end
+  end
+
   def series do
     series_summary_rows()
     |> Enum.map(&series_summary_from_row/1)
@@ -454,6 +478,108 @@ defmodule HiraethWeb.PublicCatalog do
       description: description,
       editions: [],
       editions_count: editions_count
+    }
+  end
+
+  defp contributor_summary_rows(role) do
+    {where, params} = contributor_role_where(role)
+
+    {:ok, %{rows: rows}} =
+      Hiraeth.Repo.query(
+        """
+        select
+          ct.id,
+          ct.display_name,
+          ct.slug,
+          coalesce(jsonb_agg(distinct c.role) filter (where c.role is not null), '[]'::jsonb),
+          count(distinct e.work_id) as books_count
+        from contributors ct
+        join contributions c on c.contributor_id = ct.id
+        join editions e on e.work_id = c.work_id or e.id = c.edition_id
+        join identifiers source_identifier on source_identifier.edition_id = e.id
+        join source_records sr
+          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+        #{where}
+        group by ct.id, ct.display_name, ct.slug
+        """,
+        params
+      )
+
+    rows
+  end
+
+  defp contributor_summary_by_slug(slug) do
+    {:ok, %{rows: rows}} =
+      Hiraeth.Repo.query(
+        """
+        select
+          ct.id,
+          ct.display_name,
+          ct.slug,
+          coalesce(jsonb_agg(distinct c.role) filter (where c.role is not null), '[]'::jsonb),
+          count(distinct e.work_id) as books_count
+        from contributors ct
+        join contributions c on c.contributor_id = ct.id
+        join editions e on e.work_id = c.work_id or e.id = c.edition_id
+        join identifiers source_identifier on source_identifier.edition_id = e.id
+        join source_records sr
+          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+        where ct.slug = $1
+        group by ct.id, ct.display_name, ct.slug
+        limit 1
+        """,
+        [slug]
+      )
+
+    rows |> List.first() |> then(&(&1 && contributor_summary_from_row(&1)))
+  end
+
+  defp contributor_work_ids(slug) do
+    {:ok, %{rows: rows}} =
+      Hiraeth.Repo.query(
+        """
+        select e.work_id
+        from contributors ct
+        join contributions c on c.contributor_id = ct.id
+        join editions e on e.work_id = c.work_id or e.id = c.edition_id
+        join identifiers source_identifier on source_identifier.edition_id = e.id
+        join source_records sr
+          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+        where ct.slug = $1
+        group by e.work_id
+        order by min(coalesce(c.position, 0)), min(e.title)
+        """,
+        [slug]
+      )
+
+    Enum.map(rows, fn [work_id] -> work_id end)
+  end
+
+  defp contributor_role_where(role) do
+    case normalize_contributor_role(role) do
+      nil -> {"", []}
+      role -> {"where c.role = $1", [role]}
+    end
+  end
+
+  defp normalize_contributor_role(role) when role in [nil, ""], do: nil
+
+  defp normalize_contributor_role(role) do
+    case normalize_text(role) do
+      role when role in ["author", "translator"] -> role
+      _other -> "__none__"
+    end
+  end
+
+  defp contributor_summary_from_row([id, display_name, slug, roles, books_count]) do
+    %{
+      id: uuid_text(id),
+      name: display_name,
+      display_name: display_name,
+      slug: slug,
+      roles: Enum.sort(roles || []),
+      books: [],
+      books_count: books_count
     }
   end
 

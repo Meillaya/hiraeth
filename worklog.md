@@ -847,3 +847,18 @@ Commit: 61b857b — `fix(covers): secure cacheable cover display`
   - `.omo/evidence/task-10-provenance-audit-tmux.txt` — tmux audit CLI exported seeded provenance artifacts with zero invalid public covers.
   - `.omo/evidence/task-10-source-ledger-inspection.txt` — seeded audit artifact inspection reported 1,059 source-ledger rows, 79 cover-cache rows, and zero missing provenance, invalid covers, or long copied text.
   - `.omx/artifacts/claude-t10-provenance-verification-20260614003944.md` — external verifier confirmed T10 after native verifier subagents were unavailable.
+
+## Next roadmap — T11 contributor discovery pages
+
+- Date: 2026-06-14
+- Added public contributor discovery without adding separate author/translator resources or routes:
+  - `PublicCatalog.contributors/1` and `PublicCatalog.contributor/1` expose sourced contributor summaries and related books through bounded SQL backed by source-record provenance.
+  - Added LiveView routes `/contributors` and `/contributors/:slug` in the existing optional-user public live session.
+  - Added role-filter affordances via `/contributors?role=author` and `/contributors?role=translator` while preserving a single canonical contributor route namespace.
+  - `ContributorsLive` uses streams with stable DOM IDs for contributor cards and related book cards.
+- Verification evidence:
+  - `.omo/evidence/task-11-red-contributor-routes.txt` — RED LiveView test failed because `/contributors` routes did not exist.
+  - `.omo/evidence/task-11-green-contributor-routes-attempt-1.txt` — public catalog LiveView suite passed after route/read-model implementation.
+  - `.omo/evidence/task-11-focused-tests.txt` — public LiveView, route shell, and no-scope-creep tests passed: 20 tests, 0 failures.
+  - `.omo/evidence/task-11-contributor-browser.txt` — Chromium rendered `/contributors`, `/contributors?role=translator`, and `/contributors/david-bowles`; screenshots exist, David Bowles and Immigrant render where expected, and no `/authors` or `/translators` routes leaked.
+  - `.omo/evidence/task-11-route-scope.txt`, `.omo/evidence/task-11-format-check.txt`, `.omo/evidence/task-11-compile-2.txt`, and `.omo/evidence/task-11-diff-check.txt` — adjacent route/no-scope tests, formatting, warning-free compile, and whitespace checks passed.
