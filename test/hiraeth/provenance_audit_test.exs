@@ -77,6 +77,96 @@ defmodule Hiraeth.ProvenanceAuditTest do
     end
   end
 
+  test "exports every field source entry for enriched metadata", %{
+    admin: admin,
+    output_dir: output_dir
+  } do
+    source_record =
+      source_record!(admin, %{
+        raw_payload: %{
+          "displayed_fields" => ["title"],
+          "field_sources" => rich_field_sources(),
+          "work" => %{
+            "title" => "Provenance Contract",
+            "original_title" => "Contrat de provenance",
+            "original_language_code" => "fra",
+            "subjects" => ["audit", "metadata"]
+          },
+          "edition" => %{
+            "title" => "Provenance Contract",
+            "format" => "paperback",
+            "language_code" => "eng",
+            "page_count" => 144,
+            "height_mm" => 203,
+            "width_mm" => 127,
+            "depth_mm" => 20
+          }
+        }
+      })
+
+    ledger_entry!(admin, source_record)
+
+    audit = Hiraeth.ProvenanceAudit.run!(output_dir: output_dir, fail_on_error?: true)
+    rows = Enum.filter(audit.source_ledger, &(&1.source_record_id == source_record.id))
+    fields = MapSet.new(rows, & &1.field)
+
+    for field <- Map.keys(rich_field_sources()) do
+      assert field in fields
+      row = Enum.find(rows, &(&1.field == field))
+      assert row.provenance_source_uri == "https://example.test/provenance-contract"
+      assert row.provenance_source_type == "publisher_dataset"
+      assert row.license_or_rights_basis == "field-level fixture provenance"
+      refute row.value_hash == empty_hash()
+    end
+
+    csv = File.read!(Path.join(output_dir, "source-ledger.csv"))
+    assert csv =~ "provenance_source_uri"
+    assert csv =~ "work.original_language_code"
+    assert csv =~ "edition.page_count"
+  end
+
+  test "exports cover cache decision rows for public cover assets", %{
+    admin: admin,
+    output_dir: output_dir
+  } do
+    File.mkdir_p!("priv/static/covers/cache")
+    File.write!("priv/static/covers/cache/provenance-cache.jpg", "fixture cover")
+    File.write!("priv/static/covers/cache/provenance-cache-thumb.jpg", "fixture thumbnail")
+
+    on_exit(fn ->
+      File.rm("priv/static/covers/cache/provenance-cache.jpg")
+      File.rm("priv/static/covers/cache/provenance-cache-thumb.jpg")
+    end)
+
+    cover =
+      cover_asset!(admin, %{
+        source_url: "https://cdn.shopify.com/s/files/1/0433/1651/0883/files/provenance-cache.jpg",
+        provider: "deep_vellum_official_store",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed",
+        cached_file_path: "priv/static/covers/cache/provenance-cache.jpg",
+        thumbnail_file_path: "priv/static/covers/cache/provenance-cache-thumb.jpg",
+        cached_at: DateTime.utc_now(:second)
+      })
+
+    audit = Hiraeth.ProvenanceAudit.run!(output_dir: output_dir, fail_on_error?: true)
+
+    assert [
+             %{
+               cover_asset_id: cover_id,
+               cache_policy: "cache_allowed",
+               cache_decision: "cached_public_cover",
+               provenance_valid?: true
+             }
+           ] = Enum.filter(audit.cover_cache_audit, &(&1.cover_asset_id == cover.id))
+
+    assert cover_id == cover.id
+
+    csv = File.read!(Path.join(output_dir, "cover-cache-audit.csv"))
+    assert csv =~ "cover_asset_id,provider,cache_policy,cache_decision"
+    assert csv =~ "cached_public_cover"
+  end
+
   test "public cover missing rights basis fails the provenance gate", %{
     admin: admin,
     output_dir: output_dir
@@ -254,6 +344,64 @@ defmodule Hiraeth.ProvenanceAuditTest do
   defp dump_uuid!(uuid) do
     {:ok, dumped} = Ecto.UUID.dump(uuid)
     dumped
+  end
+
+  defp source_record!(admin, attrs) do
+    attrs =
+      Map.merge(
+        %{
+          provider: "deep_vellum_official_store",
+          source_type: "publisher_dataset",
+          source_uri: "https://store.deepvellum.org/products/provenance-contract",
+          file_checksum: "provenance-contract",
+          license_note: "record-level fixture provenance",
+          imported_at: DateTime.utc_now(:second),
+          raw_payload: %{}
+        },
+        attrs
+      )
+
+    SourceRecord
+    |> Ash.Changeset.for_create(:create, attrs)
+    |> Ash.create!(actor: admin)
+  end
+
+  defp ledger_entry!(admin, source_record) do
+    SourceLedgerEntry
+    |> Ash.Changeset.for_create(:create, %{
+      source_record_id: source_record.id,
+      event_type: "ingested",
+      message: "fixture provenance ledger",
+      occurred_at: DateTime.utc_now(:second)
+    })
+    |> Ash.create!(actor: admin)
+  end
+
+  defp rich_field_sources do
+    for field <- ~w(
+          title
+          work.original_title
+          work.original_language_code
+          work.subjects
+          edition.language_code
+          edition.page_count
+          edition.height_mm
+          edition.width_mm
+          edition.depth_mm
+        ),
+        into: %{} do
+      {field,
+       %{
+         "provider" => "deep_vellum_official_store",
+         "source_uri" => "https://example.test/provenance-contract",
+         "source_type" => "publisher_dataset",
+         "rights_basis" => "field-level fixture provenance"
+       }}
+    end
+  end
+
+  defp empty_hash do
+    :crypto.hash(:sha256, "") |> Base.encode16(case: :lower)
   end
 
   defp clear_catalog! do

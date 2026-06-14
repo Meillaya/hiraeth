@@ -831,3 +831,19 @@ Commit: 61b857b — `fix(covers): secure cacheable cover display`
   - `.omo/evidence/task-9-explain-post-review-fix.txt` — post-fix EXPLAIN output shows aligned role, format, subject, ISBN/source, and join index usage.
   - `.omo/evidence/task-9-focused-post-review-fix.txt` — migration, PublicCatalog performance, and public LiveView tests passed after remediation: 25 tests, 0 failures.
   - `.omo/evidence/task-9-search-http-post-review-fix.txt` — post-fix `/search?q=9781646054541&format=paperback&sort=newest` returned HTTP 200 with one matching work.
+
+## Next roadmap — T10 enriched provenance and cover cache audit
+
+- Date: 2026-06-14
+- Hardened the provenance audit contract for enriched metadata and cover cache decisions:
+  - Source ledger export now unions `displayed_fields` with every `field_sources` key, so rich fields such as `work.original_language_code`, `work.subjects`, and `edition.page_count` are audited even when they are not listed in display order.
+  - Source ledger rows now include field-level provenance source URI, provider, and source type while preserving record-level fallbacks.
+  - Audit output now writes `cover-cache-audit.csv` and includes `cover_cache_audit` rows for every cover asset with cache policy, cache decision, rights basis, public/provenance validity, and rejection reason.
+  - Strict failure gates remain active for missing provenance rows, missing source-ledger events, invalid public covers, and long copied text.
+- Verification evidence:
+  - `.omo/evidence/task-10-red-enriched-provenance-audit.txt` — RED tests reproduced missing field-source rows and missing cover-cache audit output.
+  - `.omo/evidence/task-10-green-enriched-provenance-audit-final.txt` — provenance audit tests passed after implementation.
+  - `.omo/evidence/task-10-focused-tests-after-format.txt` — provenance and cover suites passed: 26 tests, 0 failures.
+  - `.omo/evidence/task-10-provenance-audit-tmux.txt` — tmux audit CLI exported seeded provenance artifacts with zero invalid public covers.
+  - `.omo/evidence/task-10-source-ledger-inspection.txt` — seeded audit artifact inspection reported 1,059 source-ledger rows, 79 cover-cache rows, and zero missing provenance, invalid covers, or long copied text.
+  - `.omx/artifacts/claude-t10-provenance-verification-20260614003944.md` — external verifier confirmed T10 after native verifier subagents were unavailable.

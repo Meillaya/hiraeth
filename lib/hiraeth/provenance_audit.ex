@@ -28,6 +28,11 @@ defmodule Hiraeth.ProvenanceAudit do
     File.write!(Path.join(output_dir, "takedown-audit.csv"), takedown_csv(audit.takedown_audit))
 
     File.write!(
+      Path.join(output_dir, "cover-cache-audit.csv"),
+      cover_cache_csv(audit.cover_cache_audit)
+    )
+
+    File.write!(
       Path.join(output_dir, "audit-provenance.json"),
       Jason.encode!(audit, pretty: true)
     )
@@ -61,6 +66,7 @@ defmodule Hiraeth.ProvenanceAudit do
       missing_provenance: missing_source_provenance(source_records, source_ledger),
       source_ledger_missing: source_ledger_missing(source_records, source_record_ids_with_ledger),
       invalid_public_covers: invalid_public_covers(cover_assignments),
+      cover_cache_audit: cover_cache_audit(cover_assets),
       takedown_audit: takedown_audit(cover_assets, cover_assignments, audit_events),
       audit_events: audit_event_rows(audit_events),
       long_copied_text: copied_text_findings(source_records)
@@ -90,10 +96,13 @@ defmodule Hiraeth.ProvenanceAudit do
   end
 
   defp source_rows(%SourceRecord{} = source_record) do
+    payload = source_record.raw_payload || %{}
+
     source_record
     |> displayed_fields()
     |> Enum.map(fn field ->
-      value = payload_value(source_record.raw_payload || %{}, field)
+      value = payload_value(payload, field)
+      field_source = field_source(payload, field)
 
       %{
         entity: entity_from_source_uri(source_record.source_uri),
@@ -103,7 +112,12 @@ defmodule Hiraeth.ProvenanceAudit do
         source_uri: source_record.source_uri,
         provider: source_record.provider,
         source_type: source_record.source_type,
-        license_or_rights_basis: source_record.license_note,
+        license_or_rights_basis:
+          field_source["rights_basis"] || field_source["license_note"] ||
+            source_record.license_note,
+        provenance_source_uri: field_source["source_uri"] || source_record.source_uri,
+        provenance_provider: field_source["provider"] || source_record.provider,
+        provenance_source_type: field_source["source_type"] || source_record.source_type,
         import_run_id: source_record.import_run_id,
         imported_at: source_record.imported_at && DateTime.to_iso8601(source_record.imported_at)
       }
@@ -111,18 +125,45 @@ defmodule Hiraeth.ProvenanceAudit do
   end
 
   defp displayed_fields(%SourceRecord{raw_payload: payload}) when is_map(payload) do
-    case payload["displayed_fields"] do
-      fields when is_list(fields) and fields != [] ->
-        fields
+    fields =
+      case payload["displayed_fields"] do
+        displayed when is_list(displayed) and displayed != [] ->
+          displayed
 
-      _ ->
-        payload
-        |> Map.keys()
-        |> Enum.reject(&(&1 in ["displayed_fields", "fixture_note", "provenance"]))
-    end
+        _ ->
+          payload
+          |> Map.keys()
+          |> Enum.reject(
+            &(&1 in [
+                "displayed_fields",
+                "field_sources",
+                "provider_permissions",
+                "fixture_note",
+                "provenance"
+              ])
+          )
+      end
+
+    field_source_fields =
+      case payload["field_sources"] do
+        field_sources when is_map(field_sources) -> Map.keys(field_sources)
+        _ -> []
+      end
+
+    fields
+    |> Kernel.++(field_source_fields)
+    |> Enum.uniq()
+    |> Enum.sort()
   end
 
   defp displayed_fields(_source_record), do: []
+
+  defp field_source(payload, field) do
+    case get_in(payload, ["field_sources", field]) do
+      field_source when is_map(field_source) -> field_source
+      _ -> %{}
+    end
+  end
 
   defp payload_value(payload, field) do
     value =
@@ -255,6 +296,41 @@ defmodule Hiraeth.ProvenanceAudit do
     end)
   end
 
+  defp cover_cache_audit(cover_assets) do
+    Enum.map(cover_assets, fn asset ->
+      %{
+        cover_asset_id: asset.id,
+        provider: asset.provider,
+        cache_policy: asset.cache_policy,
+        cache_decision: cover_cache_decision(asset),
+        rights_basis: asset.rights_basis,
+        source_url_hash: value_hash(asset.source_url),
+        cached_file_path: asset.cached_file_path,
+        thumbnail_file_path: asset.thumbnail_file_path,
+        cached_at: asset.cached_at && DateTime.to_iso8601(asset.cached_at),
+        public?: Covers.public_cover_asset?(asset),
+        provenance_valid?: Covers.public_cover_provenance_valid?(asset),
+        rejection_reason:
+          if(Covers.public_cover_provenance_valid?(asset),
+            do: nil,
+            else: Covers.public_cover_rejection_reason(asset)
+          )
+      }
+    end)
+  end
+
+  defp cover_cache_decision(%CoverAsset{cache_policy: "cache_allowed"} = asset) do
+    if present?(asset.cached_file_path), do: "cached_public_cover", else: "cache_allowed_pending"
+  end
+
+  defp cover_cache_decision(%CoverAsset{cache_policy: "link_only"} = asset) do
+    if present?(asset.cached_file_path) or present?(asset.thumbnail_file_path),
+      do: "invalid_link_only_cache",
+      else: "remote_link_only"
+  end
+
+  defp cover_cache_decision(_asset), do: "invalid_cover_cache_policy"
+
   defp audit_event_rows(audit_events) do
     audit_events
     |> Enum.filter(
@@ -296,7 +372,10 @@ defmodule Hiraeth.ProvenanceAudit do
       "source_type",
       "license_or_rights_basis",
       "import_run_id",
-      "imported_at"
+      "imported_at",
+      "provenance_source_uri",
+      "provenance_provider",
+      "provenance_source_type"
     ]
 
     csv(header, rows, fn row ->
@@ -310,7 +389,44 @@ defmodule Hiraeth.ProvenanceAudit do
         row.source_type,
         row.license_or_rights_basis,
         row.import_run_id,
-        row.imported_at
+        row.imported_at,
+        row.provenance_source_uri,
+        row.provenance_provider,
+        row.provenance_source_type
+      ]
+    end)
+  end
+
+  defp cover_cache_csv(rows) do
+    header = [
+      "cover_asset_id",
+      "provider",
+      "cache_policy",
+      "cache_decision",
+      "rights_basis",
+      "source_url_hash",
+      "cached_file_path",
+      "thumbnail_file_path",
+      "cached_at",
+      "public?",
+      "provenance_valid?",
+      "rejection_reason"
+    ]
+
+    csv(header, rows, fn row ->
+      [
+        row.cover_asset_id,
+        row.provider,
+        row.cache_policy,
+        row.cache_decision,
+        row.rights_basis,
+        row.source_url_hash,
+        row.cached_file_path,
+        row.thumbnail_file_path,
+        row.cached_at,
+        row.public?,
+        row.provenance_valid?,
+        row.rejection_reason
       ]
     end)
   end
