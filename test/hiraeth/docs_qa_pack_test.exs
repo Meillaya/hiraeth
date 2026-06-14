@@ -16,6 +16,10 @@ defmodule Hiraeth.DocsQaPackTest do
     assert readme =~ "## Verify/build"
     assert readme =~ "mix compile --warnings-as-errors"
     assert readme =~ "make verify"
+    assert readme =~ "/contributors?role=translator"
+    assert readme =~ "mix hiraeth.cache_covers"
+    assert readme =~ "mix hiraeth.audit_provenance"
+    assert readme =~ "New Directions"
   end
 
   test "architecture docs explain Oban deferral and cover legal review boundary" do
@@ -27,6 +31,8 @@ defmodule Hiraeth.DocsQaPackTest do
     assert policy =~ "legal review required before production"
     assert policy =~ "link-only"
     assert policy =~ "takedown"
+    assert policy =~ "field-level provenance"
+    assert policy =~ "New Directions"
   end
 
   test "qa-pack target creates a tarball and manifest" do

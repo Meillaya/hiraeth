@@ -927,3 +927,10 @@ Commit: 61b857b — `fix(covers): secure cacheable cover display`
 - Added deterministic DOM assertions for contributor role filtering, Deep Vellum translator/paperback filter+sort, malformed query empty state, enriched metadata display, provenance thread motif, New Directions fallback covers, no remote image dependencies, cached cover decode, and mobile overflow.
 - Ran `STRICT_TIMING=1 make test-browser`: 60 screenshots, all route timings under budget, network/image/overflow checks passed.
 - Captured cleanup evidence proving Docker browser QA resources were stopped and port 4014 was free.
+
+## 2026-06-14 — T18 docs and operator guidance
+
+- Rewrote README into concise operator guidance covering local run, discovery surfaces, real providers, import, cover cache, provenance audit, strict browser QA, and verify/build commands.
+- Updated architecture docs with current public discovery surfaces and URL-backed filters.
+- Updated provenance/cover policy docs with field-level provenance, enriched metadata, New Directions no-cover policy, and cache-task guardrails.
+- Updated browser QA docs with the hardened strict browser contract for contributors, filters, malformed queries, New Directions fallbacks, enriched metadata, provenance motif, network/image/overflow checks, and screenshots.

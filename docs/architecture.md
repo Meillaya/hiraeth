@@ -28,6 +28,13 @@ Hiraeth is an Elixir-first Phoenix application for browsing carefully curated in
 - Do not scrape publisher or bookstore websites. Use explicit fixtures, user-provided files, documented public APIs, or sources with clear permission.
 - Every imported metadata value and cover asset should be traceable to a source provider, source record, and import run.
 
+
+## Public discovery surfaces
+
+The public LiveView catalog currently exposes home, browse, search, publisher, series, contributor, and book detail routes. Contributor discovery is role-aware through query filters such as `/contributors?role=translator`; author and translator pages remain one contributor surface instead of separate social/profile systems. Browse and search filters are URL-backed so publisher, contributor role, format, language, year, subject, series, and sort state can be shared without client-side in-memory filtering.
+
+Book detail, publisher, and series pages surface enriched source-backed metadata only when present: descriptions, storefront links, original language/title, subjects, edition language, page counts, dimensions, ISBNs, formats, and field-level provenance.
+
 ## v1 product scope
 
 - Focus on elegant browsing for indie publishers and selected bookstore catalogs.

@@ -4,7 +4,7 @@ Hiraeth stores source evidence separately from canonical catalog records. Source
 
 ## Metadata provenance
 
-- Every public displayed field should have a source record, provider, source URI, source type, and license or rights basis.
+- Every public displayed field should have a source record, provider, source URI, source type, and license or rights basis. Rich fields use field-level provenance in `field_sources` so descriptions, storefront links, original-language metadata, subjects, page counts, dimensions, ISBNs, and formats can be audited independently.
 - `make audit-provenance` exports `artifacts/qa/provenance/source-ledger.csv` and fails on missing provenance, missing source ledger entries, invalid public cover records, and long copied-text risk signals.
 - These checks are completeness/risk checks only. They do not make legal conclusions.
 
@@ -44,7 +44,9 @@ observed cover host `cdn.sanity.io`.
 This gate does not grant local cover-cache rights. New Directions records use
 explicit no-cover fallbacks and covers remain
 `link_only_until_explicit_cache_permission` until a later provider policy records
-explicit cache permission and provenance. The gate also excludes raw HTML,
+explicit cache permission and provenance. The cover resolver and cache task also
+reject accidental New Directions link-only/cache attempts before explicit cache
+permission, so public pages render typographic fallbacks instead of remote images. The gate also excludes raw HTML,
 jacket-copy dumps, author bios, reviews, prices, inventory, and storefront or
 account data. It is an engineering safeguard and not legal advice.
 
