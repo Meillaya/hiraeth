@@ -1,10 +1,10 @@
 # Real publisher catalog sources
 
-This directory contains Hiraeth's first curated real-book pilot dataset: 50 factual edition records each for Deep Vellum, Dalkey Archive, and Archipelago Books.
+This directory contains Hiraeth's curated real-book pilot dataset: 50 factual edition records each for Deep Vellum, Dalkey Archive, Archipelago Books, and New Directions.
 
-## Next provider gate: New Directions
+## New Directions provider gate and fixture
 
-New Directions is the default next expansion candidate, but this gate is not an import authorization by itself. It is a preflight record that must stay machine-checkable before any New Directions fixture or cover data is added.
+New Directions is the fourth curated provider. The checked-in fixture is a deterministic 50-record factual metadata batch derived from official New Directions catalog/book pages under the gate below. It keeps covers as explicit no-cover fallbacks because local cover-cache permission has not been recorded.
 
 - Provider slug: `new_directions_official_site`.
 - Official source URL: `https://www.ndbooks.com/books/`.
@@ -21,22 +21,23 @@ New Directions is the default next expansion candidate, but this gate is not an 
 
 `Hiraeth.RealCatalog.SourcePolicy` also exposes the machine-readable expansion
 policy for this single next provider. Its `provider_permission_metadata!/1`
-projection mirrors the JSON `provider_permissions` shape expected by future
-fixtures, while `source_uri_allowed?/2` and `cover_uri_allowed?/2` keep New
+projection mirrors the JSON `provider_permissions` shape included in the
+fixture, while `source_uri_allowed?/2` and `cover_uri_allowed?/2` keep New
 Directions sources limited to `www.ndbooks.com` and `cdn.sanity.io`. The current
-New Directions cover policy remains `link_only_until_explicit_cache_permission`.
-Do not add a New Directions data fixture until the later expansion task supplies
-deterministic records with per-field provenance.
+New Directions cover policy remains `link_only_until_explicit_cache_permission`;
+records therefore use `no_cover_reason` and do not create cover assignments until
+a later task records explicit cache permission or link-only rendering behavior.
 
 ## Source URLs
 
 - Deep Vellum: official Shopify product JSON and product pages under `https://store.deepvellum.org/products/...`; source probe: `https://store.deepvellum.org/products.json?limit=250`.
 - Dalkey Archive: official Shopify product JSON and product pages under `https://dalkeyarchive.store/products/...`; source probes: `https://dalkeyarchive.store/products.json?limit=250` and `https://dalkeyarchive.store/collections/dalkey-archive-essentials/products.json?limit=250`.
 - Archipelago Books: official WooCommerce/WordPress product data and product pages under `https://archipelagobooks.org/book/...`; source probe: `https://archipelagobooks.org/wp-json/wc/store/products?per_page=100&page=1`.
+- New Directions: official catalog and book pages under `https://www.ndbooks.com/books/` and `https://www.ndbooks.com/book/...`; cover URLs are observed from `cdn.sanity.io` but are not cached in this fixture.
 
 ## Included metadata
 
-Only factual bibliographic/display metadata is stored by default: title, contributor names and roles, publisher/imprint, edition format, publication date when structured, ISBN-13, source URL, and cacheable cover provenance. The schema also permits public prose fields (`description`, `synopsis`, `editorial_praise`, and `storefront_url`) only when they are explicitly sourced to the same allowlisted official source URI and covered by the dataset license note. The tracked publisher records currently omit prose unless a curated source payload supplies it; do not fabricate missing descriptions or add user reviews.
+Only factual bibliographic/display metadata is stored by default: title, contributor names and roles, publisher/imprint, edition format, publication date when structured, ISBN-13, source URL, and cacheable cover provenance or explicit no-cover fallback reason. The schema also permits public prose fields (`description`, `synopsis`, `editorial_praise`, and `storefront_url`) only when they are explicitly sourced to the same allowlisted official source URI and covered by the dataset license note. The tracked publisher records currently omit prose unless a curated source payload supplies it; do not fabricate missing descriptions or add user reviews.
 
 ## Excluded content
 
@@ -44,7 +45,7 @@ The dataset intentionally excludes unsourced jacket copy, blurbs, author bios, u
 
 ## Cover and rights assumptions
 
-Covers are imported from explicit source URLs in this repository dataset and marked `cache_allowed` so the app can maintain local cached originals and card thumbnails. Each cover carries provider, rights basis, attribution text/link, and is subject to takedown handling in the application.
+Covers are imported from explicit source URLs in the first three provider fixtures and marked `cache_allowed` so the app can maintain local cached originals and card thumbnails. New Directions records intentionally omit cover assets and carry `no_cover_reason` until a later policy records safe link-only or local-cache behavior. Each imported cover carries provider, rights basis, attribution text/link, and is subject to takedown handling in the application.
 
 The tracked records use `rights_basis: local_cache_permitted` only for cover URLs explicitly included in this repository dataset. Any future publisher, bookstore, or bulk-source expansion must document the source permission model before switching covers to `cache_allowed`.
 
@@ -60,4 +61,4 @@ Run:
 MIX_ENV=test mix test test/hiraeth/real_catalog_dataset_test.exs --trace
 ```
 
-The validator requires exactly 50 approved records per provider, valid ISBN-13 values, approved formats, HTTPS allowlisted source/cover hosts, no duplicate ISBNs, no non-book formats/SKUs, no commerce state, no raw HTML/content dumps, and provenance for every approved public prose field.
+The validator requires exactly 50 approved records per provider, valid ISBN-13 values, approved formats, HTTPS allowlisted source/cover hosts or explicit no-cover reasons, no duplicate ISBNs, no non-book formats/SKUs, no commerce state, no raw HTML/content dumps, and provenance for every approved public prose field.

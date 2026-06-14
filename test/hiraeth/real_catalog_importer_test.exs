@@ -28,12 +28,13 @@ defmodule Hiraeth.RealCatalogImporterTest do
       |> Ash.create!(authorize?: false)
 
     assert {:ok, first_summary} = Hiraeth.RealCatalog.Importer.seed!()
-    assert first_summary.editions == 150
-    assert first_summary.publishers == 3
+    assert first_summary.editions == 200
+    assert first_summary.publishers == 4
 
     assert Enum.any?(Ash.read!(Publisher, authorize?: false), &(&1.name == "Deep Vellum"))
     assert Enum.any?(Ash.read!(Publisher, authorize?: false), &(&1.name == "Dalkey Archive"))
     assert Enum.any?(Ash.read!(Publisher, authorize?: false), &(&1.name == "Archipelago Books"))
+    assert Enum.any?(Ash.read!(Publisher, authorize?: false), &(&1.name == "New Directions"))
 
     editions = Ash.read!(Edition, authorize?: false)
     identifiers = Ash.read!(Identifier, authorize?: false)
@@ -43,13 +44,13 @@ defmodule Hiraeth.RealCatalogImporterTest do
     cover_assignments = Ash.read!(CoverAssignment, authorize?: false)
     import_runs = Ash.read!(ImportRun, authorize?: false)
 
-    assert length(editions) == 150
-    assert length(identifiers) == 150
-    assert length(source_records) == 150
-    assert length(source_ledger) >= 150
+    assert length(editions) == 200
+    assert length(identifiers) == 200
+    assert length(source_records) == 200
+    assert length(source_ledger) >= 200
     assert length(cover_assets) >= 3
     assert length(cover_assignments) == 150
-    assert length(import_runs) == 3
+    assert length(import_runs) == 4
 
     refute Enum.any?(
              Ash.read!(User, authorize?: false),
@@ -85,15 +86,16 @@ defmodule Hiraeth.RealCatalogImporterTest do
     assert Enum.any?(editions, &(&1.title == "Immigrant" and &1.format == "paperback"))
     assert Enum.any?(editions, &(&1.title == "The Tunnel" and &1.format == "paperback"))
     assert Enum.any?(editions, &(&1.title == "Bob and Hilbert" and &1.format == "hardcover"))
+    assert Enum.any?(editions, &(&1.title == "Cold Mountain Zen" and &1.format == "paperback"))
 
     assert {:ok, second_summary} = Hiraeth.RealCatalog.Importer.seed!()
-    assert second_summary.editions == 150
+    assert second_summary.editions == 200
 
-    assert length(Ash.read!(Edition, authorize?: false)) == 150
-    assert length(Ash.read!(Identifier, authorize?: false)) == 150
-    assert length(Ash.read!(SourceRecord, authorize?: false)) == 150
+    assert length(Ash.read!(Edition, authorize?: false)) == 200
+    assert length(Ash.read!(Identifier, authorize?: false)) == 200
+    assert length(Ash.read!(SourceRecord, authorize?: false)) == 200
     assert length(Ash.read!(CoverAssignment, authorize?: false)) == 150
-    assert length(Ash.read!(ImportRun, authorize?: false)) == 3
+    assert length(Ash.read!(ImportRun, authorize?: false)) == 4
   end
 
   test "real catalog importer accepts validated no-cover records without creating cover assignments" do

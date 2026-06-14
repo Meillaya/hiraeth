@@ -897,3 +897,10 @@ Commit: 61b857b — `fix(covers): secure cacheable cover display`
   - `.omo/evidence/task-13-malformed-http.txt` — `/browse?q=%25&format=ebook&page=999` returned HTTP 200 with a safe empty state.
   - `.omo/evidence/task-13-browser-regression.txt` — strict browser timing/viewport/overflow/image/network regression passed.
   - `.omo/evidence/task-13-precommit.txt`, `.omo/evidence/task-13-format-check.txt`, `.omo/evidence/task-13-compile.txt`, and `.omo/evidence/task-13-diff-check.txt` — full precommit, formatting, warning-free compile, and whitespace gates passed.
+
+## 2026-06-14 — T14 New Directions fixture
+
+- Added RED expectations for a fourth provider and captured failing evidence before the fixture existed.
+- Added `new_directions.json` with 50 deterministic official New Directions records, no local cover caching, explicit `no_cover_reason`, provider permission metadata, and field-level provenance for every displayed field.
+- Updated source README and provenance/cover policy docs to describe the New Directions fixture and link-only/no-cover cover policy.
+- Verified dataset/importer/UI counts, provenance audit, tmux clean seed counts, browser QA, and `mix precommit` before committing the T14 milestone.

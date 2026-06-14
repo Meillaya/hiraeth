@@ -32,16 +32,17 @@ bookstores, monetized cover display, or bulk jacket-copy/description imports,
 perform a separate source-permission review and update the provider policy
 records accordingly.
 
-## New Directions preflight gate
+## New Directions fixture gate
 
-The default next expansion candidate is New Directions
-(`new_directions_official_site`). Its current preflight gate allows factual
+New Directions (`new_directions_official_site`) is the fourth checked-in
+provider fixture. Its gate allows factual
 source references under `https://www.ndbooks.com/books/`, permission/contact
 documentation under `https://www.ndbooks.com/permissions/` and
 `https://www.ndbooks.com/about/contact/`, source host `www.ndbooks.com`, and
 observed cover host `cdn.sanity.io`.
 
-This gate does not grant local cover-cache rights. New Directions covers remain
+This gate does not grant local cover-cache rights. New Directions records use
+explicit no-cover fallbacks and covers remain
 `link_only_until_explicit_cache_permission` until a later provider policy records
 explicit cache permission and provenance. The gate also excludes raw HTML,
 jacket-copy dumps, author bios, reviews, prices, inventory, and storefront or
@@ -49,7 +50,7 @@ account data. It is an engineering safeguard and not legal advice.
 
 The checked-in source policy currently marks New Directions as the only
 expansion provider slug. Its provider-permission projection is intended to be
-copied into the future deterministic JSON fixture, so source URLs, source hosts,
+mirrored in the deterministic JSON fixture, so source URLs, source hosts,
 cover hosts, excluded content, takedown contact, cover-cache policy, and the
 not-legal-advice note remain machine-checkable before import.
 

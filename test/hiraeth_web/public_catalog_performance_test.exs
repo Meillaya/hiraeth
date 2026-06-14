@@ -60,7 +60,7 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     %{result: page} = warm_measure(fn -> PublicCatalog.book_page(nil, 1) end)
     measurement = warm_measure(fn -> PublicCatalog.book_page(nil, 1) end)
 
-    assert page.total_count == 79
+    assert page.total_count == 129
     assert length(page.entries) == PublicCatalog.page_size()
     assert measurement.query_count <= @list_query_budget
     assert measurement.elapsed_microseconds <= @warm_elapsed_budget_microseconds

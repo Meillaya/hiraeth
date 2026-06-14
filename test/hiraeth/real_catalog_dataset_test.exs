@@ -7,11 +7,12 @@ defmodule Hiraeth.RealCatalogDatasetTest do
   @expected_files %{
     "deep_vellum_official_store" => "deep_vellum.json",
     "dalkey_archive_official_store" => "dalkey_archive.json",
-    "archipelago_books_official_store" => "archipelago_books.json"
+    "archipelago_books_official_store" => "archipelago_books.json",
+    "new_directions_official_site" => "new_directions.json"
   }
 
   describe "real publisher dataset contract" do
-    test "tracked dataset files exist for the three approved publishers" do
+    test "tracked dataset files exist for the four approved publishers" do
       assert File.dir?(@dataset_dir)
       assert File.exists?(Path.join(@dataset_dir, "README.md"))
       assert File.exists?(Path.join(@dataset_dir, "schema.json"))
@@ -32,7 +33,7 @@ defmodule Hiraeth.RealCatalogDatasetTest do
                  summary.providers[provider]
       end
 
-      assert summary.total_records == 150
+      assert summary.total_records == 200
       assert summary.duplicate_isbns == []
       assert summary.copy_risk_findings == []
       assert summary.cover_findings == []
