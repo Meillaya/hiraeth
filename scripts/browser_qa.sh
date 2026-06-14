@@ -124,6 +124,7 @@ timing_routes=(
   "/search?q=9781646054541"
   "/publishers"
   "/publishers/deep-vellum"
+  "/publishers/new-directions"
   "/series"
   "/books/deep-vellum-immigrant"
 )
@@ -150,6 +151,8 @@ pages=(
   "/search?q=9781646054541"
   "/publishers"
   "/publishers/deep-vellum"
+  "/publishers/new-directions"
+  "/browse?publisher=new-directions"
   "/series"
   "/books/deep-vellum-immigrant"
 )
@@ -202,6 +205,8 @@ done
 BROWSE_DOM="${QA_DIR}/desktop-browse.html"
 IMMIGRANT_BROWSE_DOM="${QA_DIR}/desktop-browse-q-Immigrant.html"
 IMMIGRANT_BOOK_DOM="${QA_DIR}/desktop-books-deep-vellum-immigrant.html"
+NEW_DIRECTIONS_PUBLISHER_DOM="${QA_DIR}/desktop-publishers-new-directions.html"
+NEW_DIRECTIONS_BROWSE_DOM="${QA_DIR}/desktop-browse-publisher-new-directions.html"
 
 node - "${BROWSE_DOM}" <<'NODE' | tee -a "${TRANSCRIPT}"
 const fs = require('node:fs');
@@ -246,6 +251,13 @@ if grep -RhoE '<img[^>]+src="https?://[^"]+"' "${QA_DIR}"/*.html; then
   exit 1
 else
   log "remote_image_dependencies=pass scope=all_captured_pages"
+fi
+
+if grep -q '50 sourced books' "${NEW_DIRECTIONS_PUBLISHER_DOM}" && grep -q '50 books' "${NEW_DIRECTIONS_BROWSE_DOM}" && grep -q 'Typographic cover fallback; no cover asset is available.' "${NEW_DIRECTIONS_BROWSE_DOM}"; then
+  log "new_directions_cover_fallback=pass publisher_count=50 browse_count=50 remote_dependency=none"
+else
+  log "new_directions_cover_fallback=fail expected=50_books_typographic_fallback"
+  exit 1
 fi
 
 node - "${IMMIGRANT_BOOK_DOM}" <<'NODE' | tee -a "${TRANSCRIPT}"

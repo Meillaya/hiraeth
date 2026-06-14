@@ -116,6 +116,9 @@ defmodule Hiraeth.Covers do
       not SourcePolicy.cover_host_allowed?(asset.provider, uri.host) ->
         "cover source URL host is not allowlisted for provider"
 
+      not provider_cover_policy_allows_public?(asset) ->
+        "cover provider policy does not allow public cover display without explicit cache permission"
+
       asset.cache_policy == "link_only" and
           (present?(asset.cached_file_path) or present?(asset.thumbnail_file_path)) ->
         "cover cache file path is not allowed for link-only public display"
@@ -308,21 +311,27 @@ defmodule Hiraeth.Covers do
   end
 
   defp cache_policy_public?(%CoverAsset{cache_policy: "link_only"} = asset),
-    do: not present?(asset.cached_file_path) and not present?(asset.thumbnail_file_path)
+    do:
+      provider_cover_policy_allows_public?(asset) and not present?(asset.cached_file_path) and
+        not present?(asset.thumbnail_file_path)
 
   defp cache_policy_public?(%CoverAsset{cache_policy: "cache_allowed"} = asset),
     do:
-      asset.rights_basis == "local_cache_permitted" and
+      provider_cover_policy_allows_public?(asset) and
+        asset.rights_basis == "local_cache_permitted" and
         safe_cached_file_path?(asset.cached_file_path)
 
   defp cache_policy_public?(_asset), do: false
 
   defp cache_policy_provenance_valid?(%CoverAsset{cache_policy: "link_only"} = asset),
-    do: not present?(asset.cached_file_path) and not present?(asset.thumbnail_file_path)
+    do:
+      provider_cover_policy_allows_public?(asset) and not present?(asset.cached_file_path) and
+        not present?(asset.thumbnail_file_path)
 
   defp cache_policy_provenance_valid?(%CoverAsset{cache_policy: "cache_allowed"} = asset),
     do:
-      asset.rights_basis == "local_cache_permitted" and
+      provider_cover_policy_allows_public?(asset) and
+        asset.rights_basis == "local_cache_permitted" and
         (not present?(asset.cached_file_path) or safe_cached_file_path?(asset.cached_file_path))
 
   defp cache_policy_provenance_valid?(_asset), do: false
@@ -384,7 +393,18 @@ defmodule Hiraeth.Covers do
 
     asset.takedown_state == "visible" and asset.cache_policy == "cache_allowed" and
       asset.rights_basis == "local_cache_permitted" and present?(asset.source_url) and
-      uri.scheme == "https" and SourcePolicy.cover_host_allowed?(asset.provider, uri.host)
+      uri.scheme == "https" and SourcePolicy.cover_host_allowed?(asset.provider, uri.host) and
+      provider_cover_policy_allows_public?(asset)
+  end
+
+  defp provider_cover_policy_allows_public?(%CoverAsset{provider: provider} = asset) do
+    case SourcePolicy.provider_permission_metadata!(provider).cover_cache_policy do
+      "cache_allowed" -> true
+      "link_only_until_explicit_cache_permission" -> false
+      _policy -> asset.cache_policy == "link_only"
+    end
+  rescue
+    ArgumentError -> true
   end
 
   defp safe_cached_file_path?(path) when is_binary(path) do

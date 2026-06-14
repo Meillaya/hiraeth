@@ -904,3 +904,10 @@ Commit: 61b857b — `fix(covers): secure cacheable cover display`
 - Added `new_directions.json` with 50 deterministic official New Directions records, no local cover caching, explicit `no_cover_reason`, provider permission metadata, and field-level provenance for every displayed field.
 - Updated source README and provenance/cover policy docs to describe the New Directions fixture and link-only/no-cover cover policy.
 - Verified dataset/importer/UI counts, provenance audit, tmux clean seed counts, browser QA, and `mix precommit` before committing the T14 milestone.
+
+## 2026-06-14 — T15 cover policy validation
+
+- Added failing cover-resource coverage for New Directions link-only/cache-attempt records so the resolver and cache task cannot expose or fetch cover URLs while provider policy remains `link_only_until_explicit_cache_permission`.
+- Updated cover policy logic so New Directions cover assets fall back publicly and are skipped by cache warmup until explicit cache permission is recorded; legacy approved cache/link behavior remains covered.
+- Extended browser QA to include New Directions publisher/browse surfaces and assert typographic fallback covers with no remote image dependencies.
+- Verified RED/GREEN cover policy tests, strict browser QA, strict cache warmup via tmux, and `mix precommit` before committing the T15 milestone.

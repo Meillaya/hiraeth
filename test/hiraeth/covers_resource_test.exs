@@ -407,6 +407,54 @@ defmodule Hiraeth.CoversResourceTest do
     assert Covers.public_cover_asset?(refreshed)
   end
 
+  test "new directions link-only cover policy falls back without remote public image dependency",
+       %{
+         admin: admin,
+         edition: edition
+       } do
+    link_only =
+      cover_asset!(admin, %{
+        source_url: "https://cdn.sanity.io/images/new-directions-link-only.jpg",
+        provider: "new_directions_official_site",
+        rights_basis: "provider_link_allowed",
+        cache_policy: "link_only",
+        cached_file_path: nil,
+        thumbnail_file_path: nil
+      })
+
+    assignment!(admin, edition, link_only)
+
+    refute Covers.public_cover_asset?(link_only)
+    refute Covers.public_cover_provenance_valid?(link_only)
+
+    assert Covers.public_cover_rejection_reason(link_only) ==
+             "cover provider policy does not allow public cover display without explicit cache permission"
+
+    assert Covers.public_cover_for_edition(edition.id) == Covers.fallback_cover()
+  end
+
+  test "cover cache task skips new directions covers until explicit cache permission", %{
+    admin: admin
+  } do
+    _new_directions =
+      cover_asset!(admin, %{
+        source_url: "https://cdn.sanity.io/images/new-directions-cache-attempt.jpg",
+        provider: "new_directions_official_site",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed"
+      })
+
+    summary =
+      Covers.cache_public_covers!(
+        source_urls: ["https://cdn.sanity.io/images/new-directions-cache-attempt.jpg"],
+        fetch: fn _url ->
+          raise "new directions covers must not be fetched without explicit cache permission"
+        end
+      )
+
+    assert %{cached: 0, skipped: 0, failed: 0, assets: []} = summary
+  end
+
   test "cache task skips unsafe source URLs before fetching", %{admin: admin} do
     _unsafe =
       cover_asset!(admin, %{
