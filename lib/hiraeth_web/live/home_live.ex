@@ -21,7 +21,7 @@ defmodule HiraethWeb.HomeLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
-      <div id="home-shell" class="space-y-16">
+      <div id="home-shell" class="archive-wash space-y-16">
         <div class="text-center max-w-2xl mx-auto space-y-4 pt-4">
           <div class="text-stone-300 dark:text-stone-700 text-3xl font-serif">❧</div>
           <h1 class="font-serif text-4xl md:text-5xl font-light tracking-tight text-stone-900 dark:text-stone-100">
@@ -33,7 +33,7 @@ defmodule HiraethWeb.HomeLive do
         </div>
 
         <%= if @spotlight do %>
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center border-y border-[#E7E2D8] dark:border-[#2E2A27] py-12">
+          <div class="hiraeth-surface grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center rounded-sm border border-[#E7E2D8] dark:border-[#2E2A27] p-6 md:p-10">
             <div class="md:col-span-5 max-w-xs mx-auto md:w-full">
               <CatalogComponents.book_cover
                 book={@spotlight}

@@ -23,14 +23,14 @@ defmodule HiraethWeb.BookLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
-      <div id="book-detail-shell" class="space-y-10">
+      <div id="book-detail-shell" class="archive-wash space-y-10">
         <%= if @book do %>
           <.link
             navigate={~p"/browse"}
             class="inline-flex rounded-sm font-mono text-xs uppercase tracking-wider text-stone-900 transition hover:text-[#8C2D19] dark:text-stone-900 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#8C2D19] dark:hover:text-[#E05A47]"
           >← Browse catalog</.link>
 
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start rounded-sm border border-[#D8CFC0] bg-[#FCFAF7] p-4 shadow-[0_28px_90px_-60px_rgba(28,25,23,0.65)] dark:border-[#2E2A27] dark:bg-[#12110F] sm:p-6">
+          <div class="hiraeth-surface grid grid-cols-1 lg:grid-cols-12 gap-10 items-start rounded-sm border border-[#D8CFC0] bg-[#FCFAF7] p-4 shadow-[0_28px_90px_-60px_rgba(28,25,23,0.65)] dark:border-[#2E2A27] dark:bg-[#12110F] sm:p-6">
             <aside class="lg:col-span-4 space-y-4 lg:sticky lg:top-24">
               <CatalogComponents.book_cover
                 book={@book}

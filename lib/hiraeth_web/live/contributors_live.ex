@@ -37,7 +37,7 @@ defmodule HiraethWeb.ContributorsLive do
   defp render_index(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
-      <div id="contributors-shell" class="space-y-10">
+      <div id="contributors-shell" class="archive-wash space-y-10">
         <div class="border-b border-[#E7E2D8] pb-5 dark:border-[#2E2A27]">
           <span class="font-mono text-xs uppercase tracking-wider text-stone-500">
             Role-aware directory
@@ -66,7 +66,7 @@ defmodule HiraethWeb.ContributorsLive do
           <article
             :for={{dom_id, contributor} <- @streams.contributors}
             id={dom_id}
-            class="rounded-sm border border-[#E7E2D8] bg-[#F5F2EB]/70 p-6 dark:border-[#2E2A27] dark:bg-[#1C1917]/70"
+            class="hiraeth-surface rounded-sm border border-[#E7E2D8] bg-[#F5F2EB]/70 p-6 dark:border-[#2E2A27] dark:bg-[#1C1917]/70"
           >
             <div class="space-y-3">
               <div class="flex flex-wrap gap-2" aria-label="Contributor roles">
@@ -96,7 +96,7 @@ defmodule HiraethWeb.ContributorsLive do
   defp render_show(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
-      <div id="contributor-detail-shell" class="space-y-10">
+      <div id="contributor-detail-shell" class="archive-wash space-y-10">
         <%= if @contributor do %>
           <div class="space-y-3 border-b border-[#E7E2D8] pb-5 dark:border-[#2E2A27]">
             <.link

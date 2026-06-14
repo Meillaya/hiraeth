@@ -34,7 +34,7 @@ defmodule HiraethWeb.PublishersLive do
   defp render_index(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
-      <div id="publishers-shell" class="space-y-12">
+      <div id="publishers-shell" class="archive-wash space-y-12">
         <div class="border-b border-[#E7E2D8] dark:border-[#2E2A27] pb-5">
           <span class="font-mono text-xs uppercase tracking-wider text-stone-500">Editorial Directory</span>
           <h1 class="font-serif text-3xl font-medium tracking-tight text-stone-900 dark:text-stone-100 mt-1">
@@ -49,7 +49,7 @@ defmodule HiraethWeb.PublishersLive do
           <article
             :for={{dom_id, pub} <- @streams.publishers}
             id={dom_id}
-            class="bg-[#F5F2EB] dark:bg-[#1C1917] p-8 border border-[#E7E2D8] dark:border-[#2E2A27] rounded-sm space-y-4 flex flex-col justify-between"
+            class="hiraeth-surface bg-[#F5F2EB] dark:bg-[#1C1917] p-8 border border-[#E7E2D8] dark:border-[#2E2A27] rounded-sm space-y-4 flex flex-col justify-between"
           >
             <div class="space-y-3">
               <h2 class="font-serif text-2xl font-medium text-[#8C2D19] dark:text-[#E05A47]">
@@ -82,7 +82,7 @@ defmodule HiraethWeb.PublishersLive do
   defp render_show(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
-      <div id="publisher-detail-shell" class="space-y-10">
+      <div id="publisher-detail-shell" class="archive-wash space-y-10">
         <%= if @publisher do %>
           <div class="border-b border-[#E7E2D8] dark:border-[#2E2A27] pb-5 space-y-2">
             <.link
@@ -105,7 +105,7 @@ defmodule HiraethWeb.PublishersLive do
 
           <section
             id="publisher-context"
-            class="grid gap-4 rounded-sm border border-[#E7E2D8] bg-[#F5F2EB]/70 p-5 text-sm text-stone-700 dark:border-[#2E2A27] dark:bg-[#1C1917]/70 dark:text-stone-300 sm:grid-cols-3"
+            class="hiraeth-surface grid gap-4 rounded-sm border border-[#E7E2D8] bg-[#F5F2EB]/70 p-5 text-sm text-stone-700 dark:border-[#2E2A27] dark:bg-[#1C1917]/70 dark:text-stone-300 sm:grid-cols-3"
           >
             <div>
               <p class="font-mono text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400">

@@ -34,7 +34,7 @@ defmodule HiraethWeb.SeriesLive do
   defp render_index(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
-      <div id="series-shell" class="space-y-12">
+      <div id="series-shell" class="archive-wash space-y-12">
         <div class="border-b border-[#E7E2D8] dark:border-[#2E2A27] pb-5">
           <span class="font-mono text-xs uppercase tracking-wider text-stone-500">Curated Imprints</span>
           <h1 class="font-serif text-3xl font-medium tracking-tight text-stone-900 dark:text-stone-100 mt-1">
@@ -88,7 +88,7 @@ defmodule HiraethWeb.SeriesLive do
   defp render_show(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
-      <div id="series-detail-shell" class="space-y-10">
+      <div id="series-detail-shell" class="archive-wash space-y-10">
         <%= if @series do %>
           <div class="border-b border-[#E7E2D8] dark:border-[#2E2A27] pb-5 space-y-2">
             <.link
@@ -111,7 +111,7 @@ defmodule HiraethWeb.SeriesLive do
 
           <section
             id="series-context"
-            class="grid gap-4 rounded-sm border border-[#E7E2D8] bg-[#F5F2EB]/70 p-5 text-sm text-stone-700 dark:border-[#2E2A27] dark:bg-[#1C1917]/70 dark:text-stone-300 sm:grid-cols-3"
+            class="hiraeth-surface grid gap-4 rounded-sm border border-[#E7E2D8] bg-[#F5F2EB]/70 p-5 text-sm text-stone-700 dark:border-[#2E2A27] dark:bg-[#1C1917]/70 dark:text-stone-300 sm:grid-cols-3"
           >
             <div>
               <p class="font-mono text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400">

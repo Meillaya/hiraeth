@@ -911,3 +911,11 @@ Commit: 61b857b — `fix(covers): secure cacheable cover display`
 - Updated cover policy logic so New Directions cover assets fall back publicly and are skipped by cache warmup until explicit cache permission is recorded; legacy approved cache/link behavior remains covered.
 - Extended browser QA to include New Directions publisher/browse surfaces and assert typographic fallback covers with no remote image dependencies.
 - Verified RED/GREEN cover policy tests, strict browser QA, strict cache warmup via tmux, and `mix precommit` before committing the T15 milestone.
+
+## 2026-06-14 — T16 public discovery design polish
+
+- Ran `agy` read-only for public UI design direction; it exited successfully with no output, so the prompt and empty-output fallback note are captured in `.omo/evidence/task-16-agy-ui-design.txt`.
+- Applied an editorial “source-thread” polish pass: shared CSS tokens, archive wash, reusable paper/ink surfaces, typographic fallback-cover grain, and a visible provenance thread motif.
+- Kept provenance/source details visible and added LiveView coverage for `#edition-provenance[data-provenance-motif="source-thread"]`.
+- Captured desktop/tablet/mobile screenshots for home, browse, search, book detail, publisher detail, series, and contributors, plus a contact sheet and visual QA verdict.
+- Verified focused LiveView tests, `mix precommit`, warning-free compile, formatting, and whitespace checks.

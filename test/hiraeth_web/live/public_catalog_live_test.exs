@@ -399,6 +399,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert has_element?(book, "#book-format-#{fixture.edition_slug}", "eng")
     assert has_element?(book, "#book-format-#{fixture.edition_slug}", "203 × 127 × 24 mm")
     assert has_element?(book, "#edition-provenance", "field-level provenance")
+    assert has_element?(book, ~s|#edition-provenance[data-provenance-motif="source-thread"]|)
 
     {:ok, publisher, _html} = live(conn, ~p"/publishers/#{fixture.publisher_slug}")
     assert has_element?(publisher, "#publisher-context", "1 sourced books")

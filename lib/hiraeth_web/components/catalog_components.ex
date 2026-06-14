@@ -37,7 +37,7 @@ defmodule HiraethWeb.CatalogComponents do
       :if={!@book[:cover]}
       id={"missing-cover-#{@book.slug}"}
       class={[
-        "aspect-[2/3] w-full rounded-sm border p-4 flex flex-col justify-between shadow-sm relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-md select-none",
+        "fallback-cover-grain aspect-[2/3] w-full rounded-sm border p-4 flex flex-col justify-between shadow-sm relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-md select-none",
         @book[:cover_bg] ||
           "bg-[#FCFAF7] text-stone-900 border-[#E7E2D8] dark:bg-[#1C1917] dark:text-stone-100 dark:border-[#2E2A27]",
         @book[:cover_border] || "border-[#E7E2D8]",
@@ -85,7 +85,7 @@ defmodule HiraethWeb.CatalogComponents do
       >
         <.book_cover book={@edition} />
       </.link>
-      <div class="space-y-2 rounded-sm bg-[#FCFAF7]/95 p-3 ring-1 ring-[#E7E2D8]/80 transition duration-300 group-hover:-translate-y-0.5 group-hover:ring-[#8C2D19]/35 group-hover:shadow-[0_18px_45px_-32px_rgba(28,25,23,0.8)] dark:bg-[#12110F]/90 dark:ring-[#2E2A27]">
+      <div class="hiraeth-surface space-y-2 rounded-sm bg-[#FCFAF7]/95 p-3 ring-1 ring-[#E7E2D8]/80 transition duration-300 group-hover:-translate-y-0.5 group-hover:ring-[#8C2D19]/35 group-hover:shadow-[0_18px_45px_-32px_rgba(28,25,23,0.8)] dark:bg-[#12110F]/90 dark:ring-[#2E2A27]">
         <h4 class="font-serif text-base font-bold tracking-tight !text-stone-950 dark:!text-stone-50 leading-snug">
           <.link
             navigate={~p"/books/#{@edition.slug}"}
@@ -289,7 +289,8 @@ defmodule HiraethWeb.CatalogComponents do
     ~H"""
     <div
       id="edition-provenance"
-      class="rounded-sm border border-[#D8CFC0] bg-[#F5F2EB] p-4 text-xs text-stone-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] dark:border-[#2E2A27] dark:bg-[#1C1917] dark:text-stone-200 space-y-1 break-words"
+      data-provenance-motif="source-thread"
+      class="provenance-thread rounded-sm border border-[#D8CFC0] bg-[#F5F2EB] py-4 pl-6 pr-4 text-xs text-stone-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] dark:border-[#2E2A27] dark:bg-[#1C1917] dark:text-stone-200 space-y-1 break-words"
     >
       <p class="font-mono uppercase tracking-wider text-stone-600 dark:text-stone-300">
         Source provenance
@@ -402,7 +403,7 @@ defmodule HiraethWeb.CatalogComponents do
     ~H"""
     <div
       id={@id}
-      class="border border-dashed border-[#D8CFC0] bg-[#FCFAF7]/85 p-10 text-center max-w-lg mx-auto rounded-sm space-y-4 my-8 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.45)] dark:border-[#2E2A27] dark:bg-[#12110F]/70"
+      class="hiraeth-surface border border-dashed border-[#D8CFC0] bg-[#FCFAF7]/85 p-10 text-center max-w-lg mx-auto rounded-sm space-y-4 my-8 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.45)] dark:border-[#2E2A27] dark:bg-[#12110F]/70"
     >
       <div class="flex justify-center">
         <span class="font-serif text-3xl text-stone-300 dark:text-stone-700">❧</span>

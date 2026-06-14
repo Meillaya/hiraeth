@@ -58,12 +58,12 @@ defmodule HiraethWeb.BrowseLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
-      <div id="browse-shell" class="grid grid-cols-1 gap-8 lg:grid-cols-12">
+      <div id="browse-shell" class="archive-wash grid grid-cols-1 gap-8 lg:grid-cols-12">
         <h1 class="sr-only">Browse Catalog</h1>
 
         <aside
           id="catalog-filters"
-          class="space-y-6 rounded-sm border border-[#E7E2D8] bg-[#F5F2EB]/45 p-4 dark:border-[#2E2A27] dark:bg-[#1C1917]/35 lg:col-span-3 lg:sticky lg:top-24 lg:self-start"
+          class="hiraeth-surface space-y-6 rounded-sm border border-[#E7E2D8] bg-[#F5F2EB]/45 p-4 dark:border-[#2E2A27] dark:bg-[#1C1917]/35 lg:col-span-3 lg:sticky lg:top-24 lg:self-start"
         >
           <div class="border-b border-[#E7E2D8] dark:border-[#2E2A27] pb-3">
             <h2 class="font-serif text-lg font-medium">Filter Stacks</h2>
@@ -182,7 +182,7 @@ defmodule HiraethWeb.BrowseLive do
           </div>
 
           <%= if @selected_book do %>
-            <div class="sticky top-24 space-y-6 rounded-sm border border-[#E7E2D8] bg-[#FCFAF7]/65 p-4 shadow-sm dark:border-[#2E2A27] dark:bg-[#12110F]/55">
+            <div class="hiraeth-surface sticky top-24 space-y-6 rounded-sm border border-[#E7E2D8] bg-[#FCFAF7]/65 p-4 shadow-sm dark:border-[#2E2A27] dark:bg-[#12110F]/55">
               <CatalogComponents.metadata_table book={@selected_book} />
               <CatalogComponents.provenance_badge source={@selected_book.source} />
             </div>

@@ -52,7 +52,7 @@ defmodule HiraethWeb.SearchLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
-      <div id="search-shell" class="space-y-8 max-w-4xl mx-auto">
+      <div id="search-shell" class="archive-wash space-y-8 max-w-4xl mx-auto">
         <div class="text-center space-y-2">
           <span class="font-mono text-xs uppercase tracking-wider text-stone-500">Union Catalog Search</span>
           <h1 class="font-serif text-3xl font-medium tracking-tight">Index Search</h1>
@@ -61,7 +61,7 @@ defmodule HiraethWeb.SearchLive do
           </p>
         </div>
 
-        <div class="bg-[#F5F2EB] p-8 border border-[#D8CFC0] dark:bg-[#1C1917] dark:border-[#2E2A27] rounded-sm shadow-[0_24px_70px_-55px_rgba(28,25,23,0.7)]">
+        <div class="hiraeth-surface bg-[#F5F2EB] p-8 border border-[#D8CFC0] dark:bg-[#1C1917] dark:border-[#2E2A27] rounded-sm shadow-[0_24px_70px_-55px_rgba(28,25,23,0.7)]">
           <.form for={@form} id="catalog-search-form" phx-change="search">
             <.input
               field={@form[:query]}
