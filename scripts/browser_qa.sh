@@ -125,8 +125,12 @@ timing_routes=(
   "/publishers"
   "/publishers/deep-vellum"
   "/publishers/new-directions"
+  "/contributors"
+  "/contributors?role=translator"
   "/series"
   "/books/deep-vellum-immigrant"
+  "/browse?publisher=deep-vellum&role=translator&format=paperback&sort=newest"
+  "/browse?q=%25&format=ebook&page=999"
 )
 for route in "${timing_routes[@]}"; do
   curl -fsS "${BASE_URL}${route}" > /dev/null
@@ -153,6 +157,10 @@ pages=(
   "/publishers/deep-vellum"
   "/publishers/new-directions"
   "/browse?publisher=new-directions"
+  "/contributors"
+  "/contributors?role=translator"
+  "/browse?publisher=deep-vellum&role=translator&format=paperback&sort=newest"
+  "/browse?q=%25&format=ebook&page=999"
   "/series"
   "/books/deep-vellum-immigrant"
 )
@@ -207,6 +215,10 @@ IMMIGRANT_BROWSE_DOM="${QA_DIR}/desktop-browse-q-Immigrant.html"
 IMMIGRANT_BOOK_DOM="${QA_DIR}/desktop-books-deep-vellum-immigrant.html"
 NEW_DIRECTIONS_PUBLISHER_DOM="${QA_DIR}/desktop-publishers-new-directions.html"
 NEW_DIRECTIONS_BROWSE_DOM="${QA_DIR}/desktop-browse-publisher-new-directions.html"
+CONTRIBUTORS_DOM="${QA_DIR}/desktop-contributors.html"
+TRANSLATORS_DOM="${QA_DIR}/desktop-contributors-role-translator.html"
+FILTER_SORT_DOM="${QA_DIR}/desktop-browse-publisher-deep-vellum-role-translator-format-paperback-sort-newest.html"
+MALFORMED_QUERY_DOM="${QA_DIR}/desktop-browse-q-%25-format-ebook-page-999.html"
 
 node - "${BROWSE_DOM}" <<'NODE' | tee -a "${TRANSCRIPT}"
 const fs = require('node:fs');
@@ -260,6 +272,27 @@ else
   exit 1
 fi
 
+if grep -q 'Role-aware directory' "${CONTRIBUTORS_DOM}" && grep -q 'Translators' "${TRANSLATORS_DOM}" && grep -q 'sourced books' "${TRANSLATORS_DOM}"; then
+  log "contributors_role_filter=pass routes=/contributors,/contributors?role=translator"
+else
+  log "contributors_role_filter=fail expected=role_directory_and_translator_results"
+  exit 1
+fi
+
+if grep -q 'Catalog Index' "${FILTER_SORT_DOM}" && grep -q 'Deep Vellum' "${FILTER_SORT_DOM}" && grep -q 'translated by' "${FILTER_SORT_DOM}"; then
+  log "filter_sort_url=pass route=/browse?publisher=deep-vellum&role=translator&format=paperback&sort=newest"
+else
+  log "filter_sort_url=fail expected=deep_vellum_translator_paperback_results"
+  exit 1
+fi
+
+if grep -q 'No catalog entries match' "${MALFORMED_QUERY_DOM}"; then
+  log "malformed_query=pass route=/browse?q=%25&format=ebook&page=999"
+else
+  log "malformed_query=fail expected=safe_empty_state"
+  exit 1
+fi
+
 node - "${IMMIGRANT_BOOK_DOM}" <<'NODE' | tee -a "${TRANSCRIPT}"
 const fs = require('node:fs');
 const html = fs.readFileSync(process.argv[2], 'utf8');
@@ -268,11 +301,14 @@ const required = [
   ['description_prose', 'trilingual collection'],
   ['storefront_cta_id', 'id="book-storefront-cta"'],
   ['storefront_cta_href', 'href="https://store.deepvellum.org/products/immigrant"'],
-  ['source_provenance', 'Source provenance']
+  ['source_provenance', 'Source provenance'],
+  ['source_thread_motif', 'data-provenance-motif="source-thread"']
 ];
 const missing = required.filter(([, marker]) => !html.includes(marker)).map(([name]) => name);
 if (missing.length === 0) {
   console.log('prose_cta_presence=pass ids=book-description,book-storefront-cta source_provenance=pass');
+  console.log('enriched_metadata_presence=pass description=pass storefront=pass');
+  console.log('provenance_thread=pass data-provenance-motif=source-thread');
 } else {
   console.log(`prose_cta_presence=fail missing=${JSON.stringify(missing)}`);
   process.exit(1);

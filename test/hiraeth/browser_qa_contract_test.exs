@@ -47,6 +47,20 @@ defmodule Hiraeth.BrowserQaContractTest do
     assert script_text =~ ~s|"/publishers/deep-vellum"|
     assert script_text =~ ~s|"/series"|
     assert script_text =~ "cover_image_attrs=pass"
+    assert script_text =~ "new_directions_cover_fallback=pass"
+    assert script_text =~ "filter_sort_url=pass"
+    assert script_text =~ "enriched_metadata_presence=pass"
+    assert script_text =~ "provenance_thread=pass"
+    assert script_text =~ "malformed_query=pass"
+    assert script_text =~ "contributors_role_filter=pass"
+    assert script_text =~ ~s|"/contributors"|
+    assert script_text =~ ~s|"/contributors?role=translator"|
+    assert script_text =~ ~s|"/browse?publisher=new-directions"|
+
+    assert script_text =~
+             ~s|"/browse?publisher=deep-vellum&role=translator&format=paperback&sort=newest"|
+
+    assert script_text =~ ~s|"/browse?q=%25&format=ebook&page=999"|
     assert File.exists?(focus_script)
     assert File.exists?(admin_script)
     assert File.exists?(image_decode_script)

@@ -919,3 +919,11 @@ Commit: 61b857b — `fix(covers): secure cacheable cover display`
 - Kept provenance/source details visible and added LiveView coverage for `#edition-provenance[data-provenance-motif="source-thread"]`.
 - Captured desktop/tablet/mobile screenshots for home, browse, search, book detail, publisher detail, series, and contributors, plus a contact sheet and visual QA verdict.
 - Verified focused LiveView tests, `mix precommit`, warning-free compile, formatting, and whitespace checks.
+
+## 2026-06-14 — T17 hardened browser QA
+
+- Added RED browser QA contract expectations for contributor pages, translator role route, New Directions browse route, filter/sort URL, malformed query URL, enriched metadata assertions, and provenance-thread assertions.
+- Extended `scripts/browser_qa.sh` to time and screenshot those public discovery surfaces across desktop/tablet/mobile.
+- Added deterministic DOM assertions for contributor role filtering, Deep Vellum translator/paperback filter+sort, malformed query empty state, enriched metadata display, provenance thread motif, New Directions fallback covers, no remote image dependencies, cached cover decode, and mobile overflow.
+- Ran `STRICT_TIMING=1 make test-browser`: 60 screenshots, all route timings under budget, network/image/overflow checks passed.
+- Captured cleanup evidence proving Docker browser QA resources were stopped and port 4014 was free.
