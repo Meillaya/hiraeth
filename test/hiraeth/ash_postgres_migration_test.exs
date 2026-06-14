@@ -25,6 +25,16 @@ defmodule Hiraeth.AshPostgresMigrationTest do
     contributors_public_catalog_display_name_trgm_index
     series_public_catalog_title_trgm_index
     identifiers_public_catalog_normalized_value_trgm_index
+    editions_public_catalog_format_lower_index
+    editions_public_catalog_language_lower_index
+    editions_public_catalog_published_year_index
+    editions_public_catalog_published_on_index
+    works_public_catalog_original_language_lower_index
+    works_public_catalog_subjects_gin_index
+    works_public_catalog_title_sort_index
+    contributions_public_catalog_role_work_index
+    contributions_public_catalog_role_edition_index
+    source_records_public_catalog_imported_at_index
   )
 
   @expected_tables ~w(

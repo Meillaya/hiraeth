@@ -142,6 +142,16 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert has_element?(view, "#search-empty", "No catalog entries match")
   end
 
+  test "search route accepts indexed catalog filter params from the URL", %{conn: conn} do
+    {:ok, view, _html} =
+      live(conn, ~p"/search?q=9781646054541&format=paperback&sort=newest")
+
+    assert has_element?(view, "#search-results", "1 matches")
+    assert has_element?(view, "#search-results", "Immigrant")
+    assert has_element?(view, "#search-results", "9781646054541")
+    refute render(view) =~ "Nelly's Version"
+  end
+
   test "search interaction stays within local render_change budget", %{conn: conn} do
     {:ok, view, _html} = live(conn, ~p"/search")
 

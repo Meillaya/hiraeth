@@ -154,7 +154,7 @@ defmodule HiraethWeb.PublicCatalog do
       {[], []}
       |> add_text_filter(filters.q)
       |> add_slug_or_name_filter(filters.publisher, "p.slug", "p.name")
-      |> add_exact_filter(filters.role, "lower(coalesce(c.role, ''))")
+      |> add_exact_filter(filters.role, "c.role")
       |> add_slug_or_name_filter(filters.contributor, "ct.slug", "ct.display_name")
       |> add_exact_filter(filters.format, "lower(coalesce(e.format, ''))")
       |> add_language_filter(filters.language)
@@ -237,8 +237,7 @@ defmodule HiraethWeb.PublicCatalog do
   defp add_subject_filter({conditions, params}, value) do
     index = length(params) + 1
 
-    {["$#{index} = any(coalesce(w.subjects, ARRAY[]::text[]))" | conditions],
-     params ++ [to_string(value)]}
+    {["w.subjects @> ARRAY[$#{index}]::text[]" | conditions], params ++ [to_string(value)]}
   end
 
   defp add_year_filter({conditions, params}, value) when value in [nil, ""],

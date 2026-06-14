@@ -4,29 +4,39 @@ defmodule HiraethWeb.SearchLive do
   alias HiraethWeb.CatalogComponents
   alias HiraethWeb.PublicCatalog
 
+  @filter_params ~w(q publisher role contributor format language subject series year sort)
+
   @impl true
   def mount(_params, _session, socket) do
-    results = PublicCatalog.book_page("", 1)
-
     {:ok,
      socket
      |> assign(:page_title, "Search Catalog")
      |> assign(:query, "")
      |> assign(:form, to_form(%{"query" => ""}, as: :search))
-     |> assign(:results_count, results.total_count)
-     |> stream(:results, results.entries)}
+     |> assign(:results_count, 0)
+     |> stream(:results, [])}
+  end
+
+  @impl true
+  def handle_params(params, _uri, socket) do
+    {:noreply, assign_results(socket, params)}
   end
 
   @impl true
   def handle_event("search", %{"search" => %{"query" => query}}, socket) do
-    results = PublicCatalog.book_page(query, 1)
+    {:noreply, push_patch(socket, to: ~p"/search?q=#{query}")}
+  end
 
-    {:noreply,
-     socket
-     |> assign(:query, query)
-     |> assign(:form, to_form(%{"query" => query}, as: :search))
-     |> assign(:results_count, results.total_count)
-     |> stream(:results, results.entries, reset: true)}
+  defp assign_results(socket, params) do
+    filters = Map.take(params, @filter_params)
+    query = Map.get(filters, "q", "")
+    results = PublicCatalog.book_page(filters, 1)
+
+    socket
+    |> assign(:query, query)
+    |> assign(:form, to_form(%{"query" => query}, as: :search))
+    |> assign(:results_count, results.total_count)
+    |> stream(:results, results.entries, reset: true)
   end
 
   @impl true

@@ -803,3 +803,31 @@ Commit: 61b857b — `fix(covers): secure cacheable cover display`
   - `.omo/evidence/task-8-green-sourceless-directories.txt` — focused performance suite passed after SQL hardening.
   - `.omo/evidence/task-8-focused-post-review-fix.txt` — focused PublicCatalog and LiveView suite passed after remediation: 21 tests, 0 failures.
   - `.omo/evidence/task-8-public-read-http-post-review-fix.txt` and `.omo/evidence/task-8-publisher-browser-post-review-fix.json` — post-fix HTTP/browser QA remained green and did not expose the source-less test marker.
+
+## Next roadmap — T9 indexed Postgres facet/sort read paths
+
+- Date: 2026-06-14
+- Added indexed public catalog facet coverage for the bounded Postgres read path:
+  - New migration `priv/repo/migrations/20260614042219_add_indexed_public_catalog_facets.exs` adds btree/GIN/expression indexes for format, edition/original language, publication year/date, work subjects/title sort, contribution role joins, and source-record imported-at sorting.
+  - `Hiraeth.AshPostgresMigrationTest` now asserts the facet/sort indexes exist in the migrated database.
+  - `SearchLive` now accepts URL filter params (`q`, `publisher`, `role`, `contributor`, `format`, `language`, `subject`, `series`, `year`, `sort`) and delegates to `PublicCatalog.book_page/3`; the search form updates shareable query URLs instead of filtering streams in memory.
+- Verification evidence:
+  - `.omo/evidence/task-9-red-indexed-facets.txt` — RED migration/search URL tests before the facet indexes and `/search` param handling existed.
+  - `.omo/evidence/task-9-test-migrate.txt` and `.omo/evidence/task-9-dev-migrate.txt` — test/dev databases applied the indexed facet migration.
+  - `.omo/evidence/task-9-focused-tests.txt` — migration, PublicCatalog performance, and public LiveView tests passed: 25 tests, 0 failures.
+  - `.omo/evidence/task-9-explain-clean.txt` — parameterized EXPLAIN probes captured representative publisher+translator, language+format, and ISBN/text search plans.
+  - `.omo/evidence/task-9-search-http.txt` — `/search?q=9781646054541&format=paperback&sort=newest` returned HTTP 200 with exactly one matching work.
+  - `.omo/evidence/task-9-format-check.txt`, `.omo/evidence/task-9-compile.txt`, `.omo/evidence/task-9-diff-check.txt`, and `.omo/evidence/task-9-ash-codegen-check.txt` — formatting, warning-free compile, whitespace, and AshPostgres codegen checks passed.
+
+### T9 index-alignment remediation
+
+- Independent verification found two indexes were present but not aligned with the predicates that should use them.
+- Updated the public SQL filter predicates so:
+  - Role filters compare `c.role = $n`, allowing the contribution role indexes to be used.
+  - Subject filters use `w.subjects @> ARRAY[$n]::text[]`, allowing the work subjects GIN index to be used.
+- Captured post-fix EXPLAIN evidence showing `Bitmap Index Scan` usage for `contributions_public_catalog_role_edition_index`, `editions_public_catalog_format_lower_index`, and `works_public_catalog_subjects_gin_index`.
+- Verification evidence:
+  - `.omo/evidence/task-9-green-index-alignment-tests.txt` — PublicCatalog performance tests remained green after predicate alignment.
+  - `.omo/evidence/task-9-explain-post-review-fix.txt` — post-fix EXPLAIN output shows aligned role, format, subject, ISBN/source, and join index usage.
+  - `.omo/evidence/task-9-focused-post-review-fix.txt` — migration, PublicCatalog performance, and public LiveView tests passed after remediation: 25 tests, 0 failures.
+  - `.omo/evidence/task-9-search-http-post-review-fix.txt` — post-fix `/search?q=9781646054541&format=paperback&sort=newest` returned HTTP 200 with one matching work.
