@@ -244,7 +244,7 @@ defmodule Hiraeth.CoversResourceTest do
       Covers.cache_public_covers!(
         cache_root: cache_root,
         source_urls: ["https://covers.example.test/cache-task.jpg"],
-        fetch: fn "https://covers.example.test/cache-task.jpg" -> "fake image bytes" end,
+        fetch: fn "https://covers.example.test/cache-task.jpg" -> jpeg_bytes() end,
         thumbnailer: fn _cache_path, thumbnail_path ->
           File.write!(thumbnail_path, "fake thumbnail bytes")
           {:ok, thumbnail_path}
@@ -252,7 +252,7 @@ defmodule Hiraeth.CoversResourceTest do
       )
 
     assert %{cached: 1, skipped: 0, assets: [cached_asset]} = summary
-    assert File.read!(cached_asset.cached_file_path) == "fake image bytes"
+    assert File.read!(cached_asset.cached_file_path) == jpeg_bytes()
     assert String.starts_with?(cached_asset.cached_file_path, cache_root)
 
     assert %{
@@ -277,11 +277,194 @@ defmodule Hiraeth.CoversResourceTest do
         cache_root: cache_root,
         source_urls: ["https://covers.example.test/cache-task.jpg"],
         force?: true,
-        fetch: fn "https://covers.example.test/cache-task.jpg" -> "new fake image bytes" end
+        fetch: fn "https://covers.example.test/cache-task.jpg" -> alternate_jpeg_bytes() end
       )
 
     assert %{cached: 1, skipped: 0, assets: [forced_asset]} = forced
-    assert File.read!(forced_asset.cached_file_path) == "new fake image bytes"
+    assert File.read!(forced_asset.cached_file_path) == alternate_jpeg_bytes()
+  end
+
+  test "cover cache task rejects oversized response bodies before writing cache files", %{
+    admin: admin
+  } do
+    cache_root = unique_cache_root("oversized-body")
+    on_exit(fn -> File.rm_rf!(cache_root) end)
+
+    oversized_body = png_bytes() <> String.duplicate("x", 64)
+
+    oversized =
+      cover_asset!(admin, %{
+        source_url: "https://covers.example.test/oversized-body.png",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed",
+        cached_file_path: nil
+      })
+
+    expected_cache_path = Covers.cache_path(oversized, cache_root)
+
+    summary =
+      Covers.cache_public_covers!(
+        cache_root: cache_root,
+        source_urls: ["https://covers.example.test/oversized-body.png"],
+        max_body_size: byte_size(png_bytes()),
+        fetch: fn "https://covers.example.test/oversized-body.png" -> oversized_body end,
+        thumbnailer: fn _cache_path, _thumbnail_path -> nil end
+      )
+
+    assert %{cached: 0, skipped: 0, failed: 1, failures: [%{reason: reason}]} = summary
+    assert reason =~ "body size"
+    assert reason =~ "exceeds"
+    refute File.exists?(expected_cache_path)
+  end
+
+  test "cover cache task rejects invalid content type responses before writing cache files", %{
+    admin: admin
+  } do
+    cache_root = unique_cache_root("invalid-content-type")
+    on_exit(fn -> File.rm_rf!(cache_root) end)
+
+    invalid =
+      cover_asset!(admin, %{
+        source_url: "https://covers.example.test/not-a-cover.jpg",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed",
+        cached_file_path: nil
+      })
+
+    expected_cache_path = Covers.cache_path(invalid, cache_root)
+
+    plug = fn conn ->
+      conn
+      |> Plug.Conn.put_resp_content_type("text/html")
+      |> Plug.Conn.resp(200, "<html><body>not a raster cover</body></html>")
+    end
+
+    summary =
+      Covers.cache_public_covers!(
+        cache_root: cache_root,
+        source_urls: ["https://covers.example.test/not-a-cover.jpg"],
+        req_options: [plug: plug],
+        thumbnailer: fn _cache_path, _thumbnail_path -> nil end
+      )
+
+    assert %{cached: 0, skipped: 0, failed: 1, failures: [%{reason: reason}]} = summary
+    assert reason =~ "content-type"
+    assert reason =~ "image/"
+    refute File.exists?(expected_cache_path)
+  end
+
+  test "cover cache task validates raster magic bytes before writing cache files", %{
+    admin: admin
+  } do
+    cache_root = unique_cache_root("invalid-magic-bytes")
+    on_exit(fn -> File.rm_rf!(cache_root) end)
+
+    invalid =
+      cover_asset!(admin, %{
+        source_url: "https://covers.example.test/not-a-real-jpeg.jpg",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed",
+        cached_file_path: nil
+      })
+
+    expected_cache_path = Covers.cache_path(invalid, cache_root)
+
+    summary =
+      Covers.cache_public_covers!(
+        cache_root: cache_root,
+        source_urls: ["https://covers.example.test/not-a-real-jpeg.jpg"],
+        fetch: fn "https://covers.example.test/not-a-real-jpeg.jpg" ->
+          "%PDF-1.7\nnot a raster cover"
+        end,
+        thumbnailer: fn _cache_path, _thumbnail_path -> nil end
+      )
+
+    assert %{cached: 0, skipped: 0, failed: 1, failures: [%{reason: reason}]} = summary
+    assert reason =~ "magic bytes"
+    assert reason =~ "raster"
+    refute File.exists?(expected_cache_path)
+  end
+
+  test "cover cache task rejects allowed raster content-type mismatch before writing cache files",
+       %{
+         admin: admin
+       } do
+    cache_root = unique_cache_root("content-type-mismatch")
+    on_exit(fn -> File.rm_rf!(cache_root) end)
+
+    mismatched =
+      cover_asset!(admin, %{
+        source_url: "https://covers.example.test/mismatched-raster.png",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed",
+        cached_file_path: nil
+      })
+
+    expected_cache_path = Covers.cache_path(mismatched, cache_root)
+
+    plug = fn conn ->
+      conn
+      |> Plug.Conn.put_resp_content_type("image/png")
+      |> Plug.Conn.resp(200, jpeg_bytes())
+    end
+
+    summary =
+      Covers.cache_public_covers!(
+        cache_root: cache_root,
+        source_urls: ["https://covers.example.test/mismatched-raster.png"],
+        req_options: [plug: plug],
+        thumbnailer: fn _cache_path, _thumbnail_path -> nil end
+      )
+
+    assert %{cached: 0, skipped: 0, failed: 1, failures: [%{reason: reason}]} = summary
+    assert reason =~ "content-type"
+    assert reason =~ "does not match"
+    refute File.exists?(expected_cache_path)
+  end
+
+  test "cover cache task rejects symlinked cache-root path components before writing outside cache",
+       %{
+         admin: admin
+       } do
+    symlink_parent = unique_cache_root("symlink-root")
+
+    outside_dir =
+      Path.join(
+        System.tmp_dir!(),
+        "hiraeth-cover-cache-outside-#{System.unique_integer([:positive])}"
+      )
+
+    File.mkdir_p!(symlink_parent)
+    File.mkdir_p!(outside_dir)
+
+    symlink_cache_root = Path.join(symlink_parent, "linked-cache-root")
+    :ok = File.ln_s(outside_dir, symlink_cache_root)
+
+    on_exit(fn ->
+      File.rm_rf!(symlink_parent)
+      File.rm_rf!(outside_dir)
+    end)
+
+    symlinked_root =
+      cover_asset!(admin, %{
+        source_url: "https://covers.example.test/symlink-root.jpg",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed",
+        cached_file_path: nil
+      })
+
+    expected_outside_path = Covers.cache_path(symlinked_root, symlink_cache_root)
+
+    assert_raise ArgumentError, ~r/symlink|cache_root/i, fn ->
+      Covers.cache_public_covers!(
+        cache_root: symlink_cache_root,
+        source_urls: ["https://covers.example.test/symlink-root.jpg"],
+        fetch: fn "https://covers.example.test/symlink-root.jpg" -> jpeg_bytes() end,
+        thumbnailer: fn _cache_path, _thumbnail_path -> nil end
+      )
+    end
+
+    refute File.exists?(expected_outside_path)
   end
 
   test "cover cache task backfills missing thumbnails from already cached originals", %{
@@ -328,6 +511,55 @@ defmodule Hiraeth.CoversResourceTest do
     assert Covers.public_cover_asset?(updated)
   end
 
+  test "cover cache task does not write thumbnails through symlinked output paths", %{
+    admin: admin
+  } do
+    cache_root = unique_cache_root("thumbnail-symlink")
+
+    outside_dir =
+      Path.join(
+        System.tmp_dir!(),
+        "hiraeth-thumbnail-outside-#{System.unique_integer([:positive])}"
+      )
+
+    outside_path = Path.join(outside_dir, "outside-thumb.jpg")
+
+    File.mkdir_p!(cache_root)
+    File.mkdir_p!(outside_dir)
+
+    on_exit(fn ->
+      File.rm_rf!(cache_root)
+      File.rm_rf!(outside_dir)
+    end)
+
+    cacheable =
+      cover_asset!(admin, %{
+        source_url: "https://covers.example.test/thumbnail-symlink.jpg",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed",
+        cached_file_path: nil
+      })
+
+    thumbnail_path = Covers.thumbnail_path(cacheable, cache_root)
+    :ok = File.ln_s(outside_path, thumbnail_path)
+
+    summary =
+      Covers.cache_public_covers!(
+        cache_root: cache_root,
+        source_urls: ["https://covers.example.test/thumbnail-symlink.jpg"],
+        fetch: fn "https://covers.example.test/thumbnail-symlink.jpg" -> jpeg_bytes() end,
+        thumbnailer: fn _source_path, ^thumbnail_path ->
+          File.write!(thumbnail_path, "thumbnail written through symlink")
+          {:ok, thumbnail_path}
+        end
+      )
+
+    assert %{cached: 1, skipped: 0, failed: 0, assets: [cached_asset]} = summary
+    assert File.read!(cached_asset.cached_file_path) == jpeg_bytes()
+    assert cached_asset.thumbnail_file_path == nil
+    refute File.exists?(outside_path)
+  end
+
   test "cover cache task bounds hung thumbnail generation", %{admin: admin, edition: edition} do
     cache_root =
       Path.join(
@@ -352,7 +584,7 @@ defmodule Hiraeth.CoversResourceTest do
         Covers.cache_public_covers!(
           cache_root: cache_root,
           source_urls: ["https://covers.example.test/hung-thumbnail.jpg"],
-          fetch: fn "https://covers.example.test/hung-thumbnail.jpg" -> "fake image bytes" end,
+          fetch: fn "https://covers.example.test/hung-thumbnail.jpg" -> jpeg_bytes() end,
           thumbnail_timeout: 25,
           thumbnailer: fn _source_path, _thumbnail_path ->
             receive do
@@ -364,7 +596,7 @@ defmodule Hiraeth.CoversResourceTest do
 
     assert elapsed_microseconds < 750_000
     assert %{cached: 1, skipped: 0, assets: [cached_asset]} = summary
-    assert File.read!(cached_asset.cached_file_path) == "fake image bytes"
+    assert File.read!(cached_asset.cached_file_path) == jpeg_bytes()
     assert cached_asset.thumbnail_file_path == nil
   end
 
@@ -399,11 +631,11 @@ defmodule Hiraeth.CoversResourceTest do
       Covers.cache_public_covers!(
         cache_root: cache_root,
         source_urls: ["https://covers.example.test/stale-cache.jpg"],
-        fetch: fn "https://covers.example.test/stale-cache.jpg" -> "restored bytes" end
+        fetch: fn "https://covers.example.test/stale-cache.jpg" -> jpeg_bytes() end
       )
 
     assert %{cached: 1, skipped: 0, assets: [refreshed]} = summary
-    assert File.read!(refreshed.cached_file_path) == "restored bytes"
+    assert File.read!(refreshed.cached_file_path) == jpeg_bytes()
     assert Covers.public_cover_asset?(refreshed)
   end
 
@@ -689,6 +921,25 @@ defmodule Hiraeth.CoversResourceTest do
       visible?: true
     })
     |> Ash.create!(actor: admin)
+  end
+
+  defp unique_cache_root(prefix) do
+    Path.join(
+      "priv/static/covers/cache",
+      "#{prefix}-#{System.unique_integer([:positive])}"
+    )
+  end
+
+  defp png_bytes do
+    <<0x89, ?P, ?N, ?G, 0x0D, 0x0A, 0x1A, 0x0A, "fixture-png-raster-bytes">>
+  end
+
+  defp jpeg_bytes do
+    <<0xFF, 0xD8, 0xFF, 0xE0, "fixture-jpeg-raster-bytes", 0xFF, 0xD9>>
+  end
+
+  defp alternate_jpeg_bytes do
+    <<0xFF, 0xD8, 0xFF, 0xE1, "new-fixture-jpeg-raster-bytes", 0xFF, 0xD9>>
   end
 
   defp unique_slug(prefix), do: "#{prefix}-#{System.unique_integer([:positive])}"

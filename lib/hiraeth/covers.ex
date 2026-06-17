@@ -7,6 +7,15 @@ defmodule Hiraeth.Covers do
   @cache_root "priv/static/covers/cache"
   @thumbnail_timeout 5_000
   @thumbnail_command_timeout "5s"
+  @default_max_body_size 5 * 1024 * 1024
+
+  @accepted_content_types %{
+    "image/jpeg" => :jpeg,
+    "image/jpg" => :jpeg,
+    "image/png" => :png,
+    "image/webp" => :webp,
+    "image/gif" => :gif
+  }
 
   resources do
     resource Hiraeth.Covers.CoverAsset
@@ -145,7 +154,8 @@ defmodule Hiraeth.Covers do
     cache_root = opts |> Keyword.get(:cache_root, @cache_root) |> ensure_safe_cache_root!()
     force? = Keyword.get(opts, :force?, false)
     req_options = Keyword.get(opts, :req_options, [])
-    fetch = Keyword.get(opts, :fetch, fn url -> req_fetch!(url, req_options) end)
+    max_body_size = Keyword.get(opts, :max_body_size, @default_max_body_size)
+    fetch = Keyword.get(opts, :fetch, fn url -> req_fetch!(url, req_options, max_body_size) end)
     max_concurrency = Keyword.get(opts, :max_concurrency, 4)
     timeout = Keyword.get(opts, :timeout, 15_000)
     thumbnailer = Keyword.get(opts, :thumbnailer, &generate_thumbnail/2)
@@ -154,13 +164,14 @@ defmodule Hiraeth.Covers do
     source_urls = Keyword.get(opts, :source_urls, :all)
 
     File.mkdir_p!(cache_root)
+    verify_safe_cache_root!(cache_root)
 
     CoverAsset
     |> Ash.read!(authorize?: false)
     |> filter_source_urls(source_urls)
     |> Enum.filter(&cache_candidate?/1)
     |> Task.async_stream(
-      &cover_cache_plan(&1, cache_root, force?, fetch),
+      &cover_cache_plan(&1, cache_root, force?, fetch, max_body_size),
       max_concurrency: max_concurrency,
       timeout: timeout,
       on_timeout: :kill_task
@@ -181,6 +192,7 @@ defmodule Hiraeth.Covers do
         %{summary | cached: summary.cached + 1, assets: [cached_asset | summary.assets]}
 
       {:ok, {:cache, asset, cache_path, body}}, summary ->
+        ensure_safe_cache_write_path!(cache_path, cache_root)
         File.write!(cache_path, body)
 
         thumbnail_file_path =
@@ -220,7 +232,7 @@ defmodule Hiraeth.Covers do
     Enum.filter(assets, &MapSet.member?(allowed, &1.source_url))
   end
 
-  defp cover_cache_plan(%CoverAsset{} = asset, cache_root, force?, fetch) do
+  defp cover_cache_plan(%CoverAsset{} = asset, cache_root, force?, fetch, max_body_size) do
     cache_path = cache_path(asset, cache_root)
     thumbnail_path = thumbnail_path(asset, cache_root)
 
@@ -234,7 +246,8 @@ defmodule Hiraeth.Covers do
 
       true ->
         try do
-          {:cache, asset, cache_path, fetch.(asset.source_url)}
+          {:cache, asset, cache_path,
+           fetch.(asset.source_url) |> validate_fetched_cover!(asset.source_url, max_body_size)}
         rescue
           exception -> {:error, asset, Exception.message(exception)}
         catch
@@ -338,7 +351,7 @@ defmodule Hiraeth.Covers do
 
   defp maybe_generate_thumbnail(source_path, thumbnail_path, thumbnailer, timeout) do
     with true <- safe_cached_file_path?(source_path),
-         true <- String.starts_with?(Path.expand(thumbnail_path), expanded_cache_root() <> "/"),
+         true <- safe_cache_write_path?(thumbnail_path, expanded_cache_root()),
          {:ok, generated_path} <-
            run_thumbnailer(thumbnailer, source_path, thumbnail_path, timeout),
          true <- safe_cached_file_path?(generated_path) do
@@ -467,11 +480,18 @@ defmodule Hiraeth.Covers do
     expanded_root = Path.expand(cache_root)
     allowed_root = expanded_cache_root()
 
-    if expanded_root == allowed_root or String.starts_with?(expanded_root, allowed_root <> "/") do
-      cache_root
-    else
-      raise ArgumentError,
-            "cover cache_root must stay under #{@cache_root}, got: #{cache_root}"
+    cond do
+      expanded_root != allowed_root and
+          not String.starts_with?(expanded_root, allowed_root <> "/") ->
+        raise ArgumentError,
+              "cover cache_root must stay under #{@cache_root}, got: #{cache_root}"
+
+      symlink_path_component?(expanded_root, allowed_root) ->
+        raise ArgumentError,
+              "cover cache_root must not include symlink path components, got: #{cache_root}"
+
+      true ->
+        cache_root
     end
   end
 
@@ -479,9 +499,76 @@ defmodule Hiraeth.Covers do
     raise ArgumentError, "cover cache_root must be a path string, got: #{inspect(cache_root)}"
   end
 
+  defp verify_safe_cache_root!(cache_root) do
+    expanded_root = Path.expand(cache_root)
+    allowed_root = expanded_cache_root()
+
+    with true <-
+           expanded_root == allowed_root or
+             String.starts_with?(expanded_root, allowed_root <> "/"),
+         false <- symlink_path_component?(expanded_root, allowed_root),
+         {:ok, %{type: :directory}} <- File.lstat(expanded_root) do
+      :ok
+    else
+      _ ->
+        raise ArgumentError,
+              "cover cache_root must be a non-symlink directory under #{@cache_root}, got: #{cache_root}"
+    end
+  end
+
+  defp ensure_safe_cache_write_path!(cache_path, cache_root) do
+    unless safe_cache_write_path?(cache_path, cache_root) do
+      raise ArgumentError,
+            "cover cache path must stay under a non-symlink cache_root before writes: #{cache_path}"
+    end
+  end
+
+  defp safe_cache_write_path?(cache_path, cache_root)
+       when is_binary(cache_path) and is_binary(cache_root) do
+    expanded_path = Path.expand(cache_path)
+    expanded_root = Path.expand(cache_root)
+
+    with true <- String.starts_with?(expanded_path, expanded_root <> "/"),
+         false <- symlink_path_component?(Path.dirname(expanded_path), expanded_root),
+         false <- symlink_file?(expanded_path) do
+      true
+    else
+      _ -> false
+    end
+  end
+
+  defp safe_cache_write_path?(_cache_path, _cache_root), do: false
+
+  defp symlink_path_component?(path, root) do
+    root = Path.expand(root)
+
+    path
+    |> Path.expand()
+    |> Path.relative_to(root)
+    |> Path.split()
+    |> Enum.reduce_while(root, fn component, parent ->
+      current = Path.join(parent, component)
+
+      case File.lstat(current) do
+        {:ok, %{type: :symlink}} -> {:halt, true}
+        {:ok, _stat} -> {:cont, current}
+        {:error, :enoent} -> {:halt, false}
+        {:error, _reason} -> {:halt, false}
+      end
+    end)
+    |> Kernel.==(true)
+  end
+
+  defp symlink_file?(path) do
+    case File.lstat(path) do
+      {:ok, %{type: :symlink}} -> true
+      _ -> false
+    end
+  end
+
   defp expanded_cache_root, do: Path.expand(@cache_root)
 
-  defp req_fetch!(url, req_options) do
+  defp req_fetch!(url, req_options, max_body_size) do
     req_options =
       req_options
       |> Keyword.put(:decode_body, false)
@@ -490,11 +577,124 @@ defmodule Hiraeth.Covers do
     response = Req.get!(url, req_options)
 
     if response.status in 200..299 do
-      response.body
+      validate_fetched_cover!(response, url, max_body_size)
     else
       raise "cover cache request failed with status #{response.status} for #{url}"
     end
   end
+
+  defp validate_fetched_cover!(fetched, url, max_body_size) do
+    {body, content_type} = fetched_cover_body_and_content_type(fetched)
+
+    unless is_binary(body) do
+      raise "cover cache body for #{url} must be binary raster image bytes"
+    end
+
+    body_size = byte_size(body)
+
+    if body_size > max_body_size do
+      raise "cover cache body size #{body_size} exceeds max body size #{max_body_size} for #{url}"
+    end
+
+    expected_type = validate_content_type!(content_type, url)
+    detected_type = validate_raster_magic_bytes!(body, url)
+
+    if expected_type && expected_type != detected_type do
+      raise "cover cache content-type #{content_type} does not match raster magic bytes #{detected_type} for #{url}"
+    end
+
+    body
+  end
+
+  defp fetched_cover_body_and_content_type(%Req.Response{} = response) do
+    content_type = response |> Req.Response.get_header("content-type") |> List.first()
+    {response.body, content_type}
+  end
+
+  defp fetched_cover_body_and_content_type(%{body: body} = fetched) do
+    content_type =
+      fetched
+      |> fetched_content_type()
+      |> first_header_value()
+
+    {body, content_type}
+  end
+
+  defp fetched_cover_body_and_content_type(body), do: {body, nil}
+
+  defp fetched_content_type(fetched) do
+    Map.get(fetched, :content_type) ||
+      Map.get(fetched, "content-type") ||
+      content_type_from_headers(Map.get(fetched, :headers))
+  end
+
+  defp content_type_from_headers(nil), do: nil
+
+  defp content_type_from_headers(headers) when is_map(headers) do
+    headers["content-type"] || headers["Content-Type"]
+  end
+
+  defp content_type_from_headers(headers) when is_list(headers) do
+    headers
+    |> Enum.find_value(fn
+      {name, value} when is_binary(name) ->
+        if String.downcase(name) == "content-type", do: value
+
+      _entry ->
+        nil
+    end)
+  end
+
+  defp content_type_from_headers(_headers), do: nil
+
+  defp first_header_value([value | _rest]), do: value
+  defp first_header_value(value), do: value
+
+  defp validate_content_type!(nil, _url), do: nil
+
+  defp validate_content_type!(content_type, url) when is_binary(content_type) do
+    normalized =
+      content_type
+      |> String.split(";", parts: 2)
+      |> hd()
+      |> String.trim()
+      |> String.downcase()
+
+    case Map.fetch(@accepted_content_types, normalized) do
+      {:ok, type} ->
+        type
+
+      :error ->
+        raise "cover cache content-type must be image/jpeg, image/png, image/webp, or image/gif raster image/ bytes for #{url}; got #{content_type}"
+    end
+  end
+
+  defp validate_content_type!(content_type, url) do
+    raise "cover cache content-type must be an image/ raster value for #{url}; got #{inspect(content_type)}"
+  end
+
+  defp validate_raster_magic_bytes!(body, url) do
+    cond do
+      jpeg?(body) -> :jpeg
+      png?(body) -> :png
+      webp?(body) -> :webp
+      gif?(body) -> :gif
+      true -> raise "cover cache magic bytes do not identify an accepted raster image for #{url}"
+    end
+  end
+
+  defp jpeg?(<<0xFF, 0xD8, 0xFF, _rest::binary>>), do: true
+  defp jpeg?(_body), do: false
+
+  defp png?(<<0x89, ?P, ?N, ?G, 0x0D, 0x0A, 0x1A, 0x0A, _rest::binary>>), do: true
+  defp png?(_body), do: false
+
+  defp webp?(<<"RIFF", _size::little-32, "WEBP", _rest::binary>>), do: true
+  defp webp?(_body), do: false
+
+  defp gif?(<<"GIF87a", _rest::binary>>), do: true
+  defp gif?(<<"GIF89a", _rest::binary>>), do: true
+  defp gif?(_body), do: false
 
   defp extension_from_path(path) when is_binary(path) do
     case path |> Path.extname() |> String.downcase() do
