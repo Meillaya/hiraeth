@@ -18,10 +18,14 @@ defmodule HiraethWeb.PublishersLive do
   end
 
   def handle_params(_params, _uri, socket) do
+    publishers = PublicCatalog.publishers()
+
     {:noreply,
      socket
      |> assign(:page_title, "Curated Publishers")
-     |> stream(:publishers, PublicCatalog.publishers(),
+     |> assign(:publisher_count, length(publishers))
+     |> assign(:publisher_editions_count, Enum.sum(Enum.map(publishers, & &1.editions_count)))
+     |> stream(:publishers, publishers,
        reset: true,
        dom_id: &"publisher-#{&1.slug}"
      )}
@@ -34,42 +38,53 @@ defmodule HiraethWeb.PublishersLive do
   defp render_index(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
-      <div id="publishers-shell" class="archive-wash space-y-12">
-        <div class="border-b border-[#E7E2D8] dark:border-[#2E2A27] pb-5">
-          <span class="font-mono text-xs uppercase tracking-wider text-stone-500">Editorial Directory</span>
-          <h1 class="font-serif text-3xl font-medium tracking-tight text-stone-900 dark:text-stone-100 mt-1">
-            Curated Presses
-          </h1>
-          <p class="text-sm text-stone-600 dark:text-stone-400 mt-2">
-            Public publishers currently represented by sourced local catalog metadata.
+      <div id="publishers-shell" class="archive-wash space-y-10">
+        <header class="flex flex-col gap-5 border-b border-[var(--hiraeth-line)] pb-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p class="font-sans text-[11px] font-semibold uppercase tracking-[0.26em] text-[var(--hiraeth-thread)]">
+              Independent presses
+            </p>
+            <h1 class="mt-2 font-serif text-4xl font-light tracking-tight text-[var(--hiraeth-ink)] sm:text-5xl">
+              Publishers
+            </h1>
+          </div>
+          <p class="font-mono text-[11px] text-[var(--hiraeth-muted)]">
+            {@publisher_count} houses · {@publisher_editions_count} sourced editions
           </p>
-        </div>
+        </header>
 
-        <div id="publishers-grid" phx-update="stream" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div id="publishers-grid" phx-update="stream" class="divide-y divide-[var(--hiraeth-line)]">
           <article
             :for={{dom_id, pub} <- @streams.publishers}
             id={dom_id}
-            class="hiraeth-surface bg-[#F5F2EB] dark:bg-[#1C1917] p-8 border border-[#E7E2D8] dark:border-[#2E2A27] rounded-sm space-y-4 flex flex-col justify-between"
+            class="group grid gap-5 py-8 transition-colors duration-200 hover:bg-[var(--hiraeth-warm)]/70 sm:grid-cols-[4rem_minmax(0,1fr)_8rem] sm:px-3"
           >
-            <div class="space-y-3">
-              <h2 class="font-serif text-2xl font-medium text-[#8C2D19] dark:text-[#E05A47]">
-                <.link navigate={~p"/publishers/#{pub.slug}"} class="hover:underline">{pub.name}</.link>
+            <div class="font-mono text-xs text-[var(--hiraeth-label)]">Press</div>
+            <div class="min-w-0 space-y-3">
+              <h2 class="font-serif text-3xl font-light leading-none text-[var(--hiraeth-ink)] sm:text-[34px]">
+                <.link
+                  navigate={~p"/publishers/#{pub.slug}"}
+                  class="transition-colors duration-200 group-hover:text-[var(--hiraeth-thread)]"
+                >
+                  {pub.name}
+                </.link>
               </h2>
               <p
                 :if={pub[:description]}
-                class="text-sm text-stone-700 dark:text-stone-300 leading-relaxed font-sans pt-2"
+                class="max-w-2xl font-serif text-base italic leading-relaxed text-[var(--hiraeth-muted)]"
               >
                 {pub.description}
               </p>
+              <p class="font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--hiraeth-label)]">
+                {pub.editions_count} sourced editions · local catalog metadata
+              </p>
             </div>
-
-            <div class="border-t border-[#E7E2D8] dark:border-[#2E2A27] pt-4 flex justify-between items-center text-xs font-mono text-stone-500">
-              <span>{pub.editions_count} Cataloged Books</span>
+            <div class="flex items-center justify-start sm:justify-end">
               <.link
                 navigate={~p"/publishers/#{pub.slug}"}
-                class="text-[#8C2D19] dark:text-[#E05A47] hover:underline font-bold"
+                class="border border-[var(--hiraeth-line)] bg-[var(--hiraeth-paper)] px-4 py-3 font-sans text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--hiraeth-thread)] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--hiraeth-thread)] focus:outline-none focus:ring-2 focus:ring-[var(--hiraeth-thread)] focus:ring-offset-2 focus:ring-offset-[var(--hiraeth-paper)]"
               >
-                Browse Imprint →
+                View shelf
               </.link>
             </div>
           </article>
@@ -84,55 +99,103 @@ defmodule HiraethWeb.PublishersLive do
     <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
       <div id="publisher-detail-shell" class="archive-wash space-y-10">
         <%= if @publisher do %>
-          <div class="border-b border-[#E7E2D8] dark:border-[#2E2A27] pb-5 space-y-2">
+          <header id="publisher-masthead" class="border-b border-[var(--hiraeth-line)] pb-7">
             <.link
               navigate={~p"/publishers"}
-              class="font-mono text-xs uppercase tracking-wider text-stone-500 hover:underline"
+              class="font-mono text-[11px] uppercase tracking-[0.16em] text-[var(--hiraeth-muted)] transition-colors hover:text-[var(--hiraeth-thread)]"
             >← Publishers</.link>
-            <h1
-              id="publisher-title"
-              class="font-serif text-4xl font-medium tracking-tight text-stone-900 dark:text-stone-100"
-            >
-              {@publisher.name}
-            </h1>
-            <p
-              :if={@publisher[:description]}
-              class="max-w-2xl text-sm text-stone-600 dark:text-stone-400 leading-relaxed"
-            >
-              {@publisher.description}
-            </p>
-          </div>
+            <div class="mt-7 grid gap-8 lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-end">
+              <div class="space-y-4">
+                <p class="font-sans text-[11px] font-semibold uppercase tracking-[0.26em] text-[var(--hiraeth-thread)]">
+                  Publisher dossier
+                </p>
+                <h1
+                  id="publisher-title"
+                  class="max-w-4xl font-serif text-5xl font-light leading-none tracking-tight text-[var(--hiraeth-ink)] md:text-6xl"
+                >
+                  {@publisher.name}
+                </h1>
+                <p
+                  :if={@publisher[:description]}
+                  class="max-w-3xl font-serif text-lg italic leading-relaxed text-[var(--hiraeth-muted)]"
+                >
+                  {@publisher.description}
+                </p>
+                <p class="max-w-2xl font-sans text-sm leading-6 text-[var(--hiraeth-muted)]">
+                  This page summarizes only sourced local catalog metadata currently attached to the press.
+                </p>
+              </div>
+              <.link
+                id="publisher-browse-cta"
+                navigate={~p"/browse?publisher=#{@publisher.slug}"}
+                class="inline-flex items-center justify-center border border-[var(--hiraeth-thread)] bg-[var(--hiraeth-ink)] px-5 py-3 text-center font-sans text-xs font-semibold uppercase tracking-[0.14em] text-[var(--hiraeth-paper)] transition duration-200 hover:-translate-y-0.5 hover:bg-[var(--hiraeth-thread)] focus:outline-none focus:ring-2 focus:ring-[var(--hiraeth-thread)] focus:ring-offset-2 focus:ring-offset-[var(--hiraeth-paper)]"
+              >
+                Browse this press
+              </.link>
+            </div>
+          </header>
 
           <section
             id="publisher-context"
-            class="hiraeth-surface grid gap-4 rounded-sm border border-[#E7E2D8] bg-[#F5F2EB]/70 p-5 text-sm text-stone-700 dark:border-[#2E2A27] dark:bg-[#1C1917]/70 dark:text-stone-300 sm:grid-cols-3"
+            class="grid gap-0 overflow-hidden rounded-sm border border-[var(--hiraeth-line)] bg-[var(--hiraeth-wash)]/70 sm:grid-cols-3"
           >
-            <div>
-              <p class="font-mono text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                Sourced shelf
-              </p>
-              <p class="mt-1 font-serif text-xl text-stone-950 dark:text-stone-50">
-                {@publisher.editions_count} sourced books
-              </p>
-            </div>
-            <div :if={facet_text(format_facets(@publisher.editions))}>
-              <p class="font-mono text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                Formats
-              </p>
-              <p class="mt-1">{facet_text(format_facets(@publisher.editions))}</p>
-            </div>
-            <div :if={facet_text(language_facets(@publisher.editions))}>
-              <p class="font-mono text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                Languages
-              </p>
-              <p class="mt-1 font-mono text-xs uppercase tracking-wider">
-                {facet_text(language_facets(@publisher.editions))}
-              </p>
-            </div>
+            <.stat_block
+              label="Sourced shelf"
+              value={plural_count(@publisher.editions_count, "edition")}
+            />
+            <.stat_block label="Formats" value={group_summary(@publisher.groupings.formats)} />
+            <.stat_block label="Languages" value={group_summary(@publisher.groupings.languages)} />
+          </section>
+
+          <section id="publisher-groups" class="grid gap-6 lg:grid-cols-2">
+            <.group_panel
+              id="publisher-formats"
+              title="Format shelf"
+              note="Edition formats present in this publisher's sourced records."
+              groups={@publisher.groupings.formats}
+              empty="No format metadata is sourced yet."
+            />
+            <.group_panel
+              id="publisher-languages"
+              title="Language register"
+              note="Edition and original-language values appear only when source records provide them."
+              groups={@publisher.groupings.languages}
+              secondary_groups={@publisher.groupings.original_languages}
+              secondary_title="Original languages"
+              empty="No language metadata is sourced yet."
+            />
+            <.group_panel
+              id="publisher-series"
+              title="Collections and series"
+              note="Series groupings are bounded to currently attached sourced editions."
+              groups={@publisher.groupings.series}
+              empty="No series or collection memberships are sourced yet."
+            />
+            <.group_panel
+              id="publisher-translations"
+              title="Translation signals"
+              note="Translation groupings are inferred only from sourced languages and contributor roles."
+              groups={@publisher.groupings.translations}
+              secondary_groups={@publisher.groupings.contributor_roles}
+              secondary_title="Contributor roles"
+              empty="No translation metadata is sourced yet."
+            />
           </section>
 
           <section id="publisher-editions" class="space-y-6">
-            <h2 class="font-serif text-2xl font-medium">Cataloged editions</h2>
+            <div class="flex flex-col gap-2 border-b border-[var(--hiraeth-line)] pb-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p class="font-sans text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--hiraeth-thread)]">
+                  Current editions
+                </p>
+                <h2 class="mt-1 font-serif text-3xl font-light text-[var(--hiraeth-ink)]">
+                  Cataloged editions
+                </h2>
+              </div>
+              <p class="font-mono text-[11px] text-[var(--hiraeth-muted)]">
+                Streamed from the public catalog projection
+              </p>
+            </div>
             <%= if @publisher.editions_count == 0 do %>
               <CatalogComponents.empty_state
                 id="publisher-no-editions"
@@ -145,7 +208,7 @@ defmodule HiraethWeb.PublishersLive do
               <div
                 id="publisher-editions-stream"
                 phx-update="stream"
-                class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6"
+                class="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4"
               >
                 <CatalogComponents.edition_card
                   :for={{dom_id, edition} <- @streams.publisher_editions}
@@ -170,6 +233,74 @@ defmodule HiraethWeb.PublishersLive do
     """
   end
 
+  attr :label, :string, required: true
+  attr :value, :string, required: true
+
+  defp stat_block(assigns) do
+    ~H"""
+    <div class="border-b border-[var(--hiraeth-line)] p-5 sm:border-b-0 sm:border-r last:border-r-0">
+      <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--hiraeth-label)]">
+        {@label}
+      </p>
+      <p class="mt-2 font-serif text-xl text-[var(--hiraeth-ink)]">{@value}</p>
+    </div>
+    """
+  end
+
+  attr :id, :string, required: true
+  attr :title, :string, required: true
+  attr :note, :string, required: true
+  attr :groups, :list, required: true
+  attr :empty, :string, required: true
+  attr :secondary_groups, :list, default: []
+  attr :secondary_title, :string, default: nil
+
+  defp group_panel(assigns) do
+    ~H"""
+    <article
+      id={@id}
+      class="hiraeth-surface space-y-5 rounded-sm border border-[var(--hiraeth-line)] p-6"
+    >
+      <div>
+        <h3 class="font-serif text-2xl font-light text-[var(--hiraeth-ink)]">{@title}</h3>
+        <p class="mt-2 font-sans text-sm leading-6 text-[var(--hiraeth-muted)]">{@note}</p>
+      </div>
+
+      <%= if @groups == [] do %>
+        <p class="border border-dashed border-[var(--hiraeth-line)] bg-[var(--hiraeth-warm)] px-4 py-3 font-serif text-sm italic text-[var(--hiraeth-muted)]">
+          {@empty}
+        </p>
+      <% else %>
+        <ul class="space-y-2">
+          <li
+            :for={group <- @groups}
+            class="flex items-baseline justify-between gap-4 border-t border-[var(--hiraeth-line)] pt-2"
+          >
+            <span class="font-serif text-base text-[var(--hiraeth-ink)]">{group.label}</span>
+            <span class="font-mono text-[11px] text-[var(--hiraeth-label)]">
+              {plural_count(group.count, "record")}
+            </span>
+          </li>
+        </ul>
+      <% end %>
+
+      <div :if={@secondary_groups != []} class="space-y-2 border-t border-[var(--hiraeth-line)] pt-4">
+        <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--hiraeth-label)]">
+          {@secondary_title}
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <span
+            :for={group <- @secondary_groups}
+            class="border border-[var(--hiraeth-line)] bg-[var(--hiraeth-warm)] px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--hiraeth-muted)]"
+          >
+            {group.label} · {group.count}
+          </span>
+        </div>
+      </div>
+    </article>
+    """
+  end
+
   defp assign_publisher(socket, nil) do
     socket
     |> assign(:publisher, nil)
@@ -182,18 +313,15 @@ defmodule HiraethWeb.PublishersLive do
     |> stream(:publisher_editions, publisher.editions, reset: true)
   end
 
-  defp format_facets(editions), do: facet_values(editions, :format)
+  defp group_summary([]), do: "Not sourced"
 
-  defp language_facets(editions), do: facet_values(editions, :language_code)
-
-  defp facet_values(editions, key) do
-    editions
-    |> Enum.map(&Map.get(&1, key))
-    |> Enum.reject(&(&1 in [nil, ""]))
-    |> Enum.uniq()
-    |> Enum.sort()
+  defp group_summary(groups) do
+    groups
+    |> Enum.take(3)
+    |> Enum.map(& &1.label)
+    |> Enum.join(" · ")
   end
 
-  defp facet_text([]), do: nil
-  defp facet_text(values), do: Enum.join(values, ", ")
+  defp plural_count(1, singular), do: "1 #{singular}"
+  defp plural_count(count, singular), do: "#{count} #{singular}s"
 end

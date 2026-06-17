@@ -194,7 +194,9 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     series_detail = warm_measure(fn -> PublicCatalog.series_by_slug(series_slug) end)
 
     assert Enum.any?(publisher_index.result, &(&1.slug == "deep-vellum"))
-    assert %{slug: "deep-vellum"} = publisher_detail.result
+    assert %{slug: "deep-vellum", groupings: publisher_groupings} = publisher_detail.result
+    assert Enum.all?(Map.values(publisher_groupings), &(length(&1) <= 8))
+    assert Enum.any?(publisher_groupings.formats, &(&1.label == "Paperback"))
     assert is_list(series_index.result)
     refute broad_edition_projection_query?(publisher_index)
     refute broad_edition_projection_query?(series_index)

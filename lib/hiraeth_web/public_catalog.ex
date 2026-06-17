@@ -9,6 +9,7 @@ defmodule HiraethWeb.PublicCatalog do
   alias Hiraeth.RealCatalog.SourcePolicy
 
   @page_size 24
+  @publisher_group_limit 8
 
   def page_size, do: @page_size
 
@@ -353,6 +354,7 @@ defmodule HiraethWeb.PublicCatalog do
         publisher
         |> Map.put(:editions, editions)
         |> Map.put(:editions_count, length(editions))
+        |> Map.put(:groupings, publisher_groupings(editions))
     end
   end
 
@@ -494,8 +496,118 @@ defmodule HiraethWeb.PublicCatalog do
       slug: slug,
       description: description,
       editions: [],
-      editions_count: editions_count
+      editions_count: editions_count,
+      groupings: empty_publisher_groupings()
     }
+  end
+
+  defp empty_publisher_groupings do
+    %{
+      formats: [],
+      languages: [],
+      original_languages: [],
+      series: [],
+      translations: [],
+      contributor_roles: []
+    }
+  end
+
+  defp publisher_groupings(editions) do
+    %{
+      formats: edition_count_group(editions, &format_label(&1.format)),
+      languages: edition_count_group(editions, & &1.language_code),
+      original_languages: edition_count_group(editions, & &1.original_language_code),
+      series: publisher_series_groupings(editions),
+      translations: publisher_translation_groupings(editions),
+      contributor_roles: publisher_contributor_role_groupings(editions)
+    }
+  end
+
+  defp edition_count_group(editions, value_fun) do
+    editions
+    |> Enum.map(value_fun)
+    |> Enum.reject(&blank?/1)
+    |> bounded_count_group()
+  end
+
+  defp publisher_series_groupings(editions) do
+    editions
+    |> Enum.flat_map(fn edition ->
+      edition.series_titles
+      |> Enum.with_index()
+      |> Enum.map(fn {title, index} ->
+        slug = if index == 0, do: edition.series_slug
+        {title, slug, edition.work_id}
+      end)
+    end)
+    |> Enum.reject(fn {title, _slug, _work_id} -> blank?(title) end)
+    |> Enum.group_by(fn {title, slug, _work_id} -> {title, slug} end, fn {_title, _slug, work_id} ->
+      work_id
+    end)
+    |> Enum.map(fn {{title, slug}, work_ids} ->
+      %{label: title, slug: slug, count: work_ids |> Enum.uniq() |> length()}
+    end)
+    |> sort_and_bound_groups()
+  end
+
+  defp publisher_translation_groupings(editions) do
+    editions
+    |> Enum.filter(&translated_edition?/1)
+    |> Enum.map(fn edition ->
+      cond do
+        present?(edition.original_language_code) and present?(edition.language_code) ->
+          "#{edition.original_language_code} → #{edition.language_code}"
+
+        present?(edition.original_language_code) ->
+          "from #{edition.original_language_code}"
+
+        present?(edition.language_code) ->
+          "translated into #{edition.language_code}"
+
+        true ->
+          "translated works"
+      end
+    end)
+    |> bounded_count_group()
+  end
+
+  defp translated_edition?(edition) do
+    (map_size(edition.contributors_by_role || %{}) > 0 and
+       Map.has_key?(edition.contributors_by_role || %{}, "translator")) or
+      (present?(edition.original_language_code) and present?(edition.language_code) and
+         edition.original_language_code != edition.language_code)
+  end
+
+  defp publisher_contributor_role_groupings(editions) do
+    editions
+    |> Enum.flat_map(fn edition ->
+      edition.contributors_by_role
+      |> Enum.flat_map(fn {role, contributors} ->
+        contributors
+        |> Enum.map(fn contributor -> {role, contributor.slug || contributor.name} end)
+      end)
+    end)
+    |> Enum.reject(fn {role, contributor_key} -> blank?(role) or blank?(contributor_key) end)
+    |> Enum.group_by(fn {role, _contributor_key} -> role end, fn {_role, contributor_key} ->
+      contributor_key
+    end)
+    |> Enum.map(fn {role, contributor_keys} ->
+      %{label: role, count: contributor_keys |> Enum.uniq() |> length()}
+    end)
+    |> sort_and_bound_groups()
+  end
+
+  defp bounded_count_group(values) do
+    values
+    |> Enum.group_by(& &1)
+    |> Enum.map(fn {value, entries} -> %{label: value, count: length(entries)} end)
+    |> sort_and_bound_groups()
+  end
+
+  defp sort_and_bound_groups(groups) do
+    groups
+    |> Enum.sort_by(&{-&1.count, String.downcase(to_string(&1.label))})
+    |> Enum.take(@publisher_group_limit)
   end
 
   defp contributor_summary_rows(role) do

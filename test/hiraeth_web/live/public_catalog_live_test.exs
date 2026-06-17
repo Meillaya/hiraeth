@@ -272,6 +272,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     {:ok, publishers, _html} = live(conn, ~p"/publishers")
 
     assert has_element?(publishers, "#publishers-shell")
+    assert has_element?(publishers, "#publishers-grid")
     assert has_element?(publishers, "#publisher-deep-vellum")
     assert has_element?(publishers, "#publisher-dalkey-archive")
     assert has_element?(publishers, "#publisher-archipelago-books")
@@ -279,7 +280,40 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     {:ok, publisher, _html} = live(conn, ~p"/publishers/deep-vellum")
     assert has_element?(publisher, "#publisher-detail-shell")
     assert has_element?(publisher, "#publisher-title", "Deep Vellum")
+
+    assert has_element?(
+             publisher,
+             ~s|a#publisher-browse-cta[href="/browse?publisher=deep-vellum"]|
+           )
+
+    assert has_element?(publisher, "#publisher-context", "edition")
+    assert has_element?(publisher, "#publisher-groups")
+    assert has_element?(publisher, "#publisher-formats", "Paperback")
+    assert has_element?(publisher, "#publisher-languages")
+    assert has_element?(publisher, "#publisher-series")
+    assert has_element?(publisher, "#publisher-translations")
     assert has_element?(publisher, "#publisher-editions", "Immigrant")
+    assert has_element?(publisher, "#publisher-editions-stream")
+  end
+
+  test "public publisher projection exposes bounded editorial groupings" do
+    publisher = PublicCatalog.publisher("deep-vellum")
+
+    assert %{groupings: groupings, editions: editions} = publisher
+    assert length(editions) > 0
+
+    assert Enum.all?(Map.values(groupings), &(length(&1) <= 8))
+    assert Enum.any?(groupings.formats, &(&1.label == "Paperback" and &1.count > 0))
+    assert Enum.any?(groupings.contributor_roles, &(&1.label == "translator" and &1.count > 0))
+
+    rich_fixture = create_rich_metadata_book!()
+    rich_publisher = PublicCatalog.publisher(rich_fixture.publisher_slug)
+    rich_groupings = rich_publisher.groupings
+
+    assert Enum.any?(rich_groupings.languages, &(&1.label == "eng" and &1.count > 0))
+    assert Enum.any?(rich_groupings.original_languages, &(&1.label == "fra" and &1.count > 0))
+    assert Enum.any?(rich_groupings.series, &(&1.label == "Metadata Series" and &1.count > 0))
+    assert Enum.any?(rich_groupings.translations, &(&1.label == "fra → eng" and &1.count > 0))
   end
 
   test "contributor index/detail routes render author and translator discovery", %{conn: conn} do
@@ -401,8 +435,8 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert has_element?(book, ~s|#edition-provenance[data-provenance-motif="source-thread"]|)
 
     {:ok, publisher, _html} = live(conn, ~p"/publishers/#{fixture.publisher_slug}")
-    assert has_element?(publisher, "#publisher-context", "1 sourced books")
-    assert has_element?(publisher, "#publisher-context", "paperback")
+    assert has_element?(publisher, "#publisher-context", "1 edition")
+    assert has_element?(publisher, "#publisher-context", "Paperback")
     assert has_element?(publisher, "#publisher-context", "eng")
 
     {:ok, series, _html} = live(conn, ~p"/series/#{fixture.series_slug}")
