@@ -2,7 +2,7 @@
 # The data is local, fictional, provenance-safe, and reset by browser_qa.sh before each run.
 
 alias Hiraeth.Accounts.User
-alias Hiraeth.Catalog.Edition
+alias Hiraeth.Catalog.{Edition, Series, SeriesMembership}
 alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
 alias Hiraeth.Imports.{ImportRun, ReviewItem, StagedImportRow}
 
@@ -30,6 +30,30 @@ edition =
   |> Ash.read!(authorize?: false)
   |> Enum.find(&(&1.slug == "deep-vellum-immigrant-paperback-9781646054541")) ||
     raise "real catalog edition missing; run priv/repo/seeds.exs first"
+
+series =
+  Series
+  |> Ash.read!(authorize?: false)
+  |> Enum.find(&(&1.slug == "browser-qa-series")) ||
+    Series
+    |> Ash.Changeset.for_create(:create, %{
+      title: "Browser QA Series",
+      slug: "browser-qa-series",
+      publisher_id: edition.publisher_id
+    })
+    |> Ash.create!(actor: admin)
+
+SeriesMembership
+|> Ash.read!(authorize?: false)
+|> Enum.find(&(&1.series_id == series.id and &1.work_id == edition.work_id)) ||
+  SeriesMembership
+  |> Ash.Changeset.for_create(:create, %{
+    series_id: series.id,
+    work_id: edition.work_id,
+    position: 1,
+    label: "1"
+  })
+  |> Ash.create!(actor: admin)
 
 run =
   ImportRun

@@ -59,8 +59,20 @@ mix ash.migrate >> "${TRANSCRIPT}" 2>&1
 mix run priv/repo/seeds.exs >> "${TRANSCRIPT}" 2>&1
 mix run scripts/seed_browser_qa.exs >> "${TRANSCRIPT}" 2>&1
 log "warming local cover cache"
-mix hiraeth.cache_covers >> "${TRANSCRIPT}" 2>&1
-log "cover_cache_warmup=pass task=mix_hiraeth.cache_covers"
+cover_cache_report="${QA_DIR}/cover-cache-warmup.txt"
+: > "${cover_cache_report}"
+set +e
+mix hiraeth.cache_covers 2>&1 | tee -a "${cover_cache_report}" | tee -a "${TRANSCRIPT}"
+cover_cache_status="${PIPESTATUS[0]}"
+set -e
+cover_cache_failed="$(
+  awk -F= '/^cover_cache_failed=/ { value=$2 } END { if (value == "") { print "unknown" } else { print value } }' "${cover_cache_report}"
+)"
+if [[ "${cover_cache_status}" -ne 0 || ! "${cover_cache_failed}" =~ ^[0-9]+$ || "${cover_cache_failed}" -ne 0 ]]; then
+  log "cover_cache_warmup=fail task=mix_hiraeth.cache_covers status=${cover_cache_status} cover_cache_failed=${cover_cache_failed} artifact=${cover_cache_report}"
+  exit 1
+fi
+log "cover_cache_warmup=pass task=mix_hiraeth.cache_covers status=${cover_cache_status} cover_cache_failed=0 artifact=${cover_cache_report}"
 
 log "starting Phoenix server"
 PORT="${PORT}" PHX_SERVER=true mix phx.server > "${QA_DIR}/server.log" 2>&1 &
@@ -127,8 +139,12 @@ timing_routes=(
   "/publishers/new-directions"
   "/contributors"
   "/contributors?role=translator"
+  "/contributors/david-bowles"
   "/series"
+  "/series/browser-qa-series"
   "/books/deep-vellum-immigrant"
+  "/editions/deep-vellum-immigrant-paperback-9781646054541"
+  "/editions/not-a-real-edition"
   "/browse?publisher=deep-vellum&role=translator&format=paperback&sort=newest"
   "/browse?q=%25&format=ebook&page=999"
 )
@@ -159,10 +175,14 @@ pages=(
   "/browse?publisher=new-directions"
   "/contributors"
   "/contributors?role=translator"
+  "/contributors/david-bowles"
   "/browse?publisher=deep-vellum&role=translator&format=paperback&sort=newest"
   "/browse?q=%25&format=ebook&page=999"
   "/series"
+  "/series/browser-qa-series"
   "/books/deep-vellum-immigrant"
+  "/editions/deep-vellum-immigrant-paperback-9781646054541"
+  "/editions/not-a-real-edition"
 )
 
 viewports=("desktop:1440,1000" "tablet:768,1024" "mobile:390,844")
@@ -170,6 +190,51 @@ page_failures=()
 resource_failures=()
 allowed_external_resource_references=()
 disallowed_external_resource_references=()
+
+expected_marker_for_page() {
+  local page="$1"
+  case "${page}" in
+    "/")
+      printf '%s\n' "#home-shell"
+      ;;
+    /browse*)
+      printf '%s\n' "#browse-shell"
+      ;;
+    /search*)
+      printf '%s\n' "#search-shell"
+      ;;
+    "/publishers")
+      printf '%s\n' "#publishers-shell"
+      ;;
+    /publishers/*)
+      printf '%s\n' "#publisher-detail-shell"
+      ;;
+    "/contributors"|/contributors\?*)
+      printf '%s\n' "#contributors-shell"
+      ;;
+    /contributors/*)
+      printf '%s\n' "#contributor-detail-shell"
+      ;;
+    "/series")
+      printf '%s\n' "#series-shell"
+      ;;
+    /series/*)
+      printf '%s\n' "#series-detail-shell"
+      ;;
+    /books/*)
+      printf '%s\n' "#book-detail-shell"
+      ;;
+    /editions/not-a-real-edition)
+      printf '%s\n' "#edition-detail-shell"
+      ;;
+    /editions/*)
+      printf '%s\n' "#book-detail-shell"
+      ;;
+    *)
+      printf '%s\n' "main"
+      ;;
+  esac
+}
 
 for page in "${pages[@]}"; do
   status="$(curl -sS -o /dev/null -w '%{http_code}' -L "${BASE_URL}${page}" || true)"
@@ -179,33 +244,30 @@ for page in "${pages[@]}"; do
 
   safe_name="$(printf '%s' "${page}" | sed 's#[/?=&:]#-#g; s#^-##; s#-$##')"
   [[ -n "${safe_name}" ]] || safe_name="home"
+  marker="$(expected_marker_for_page "${page}")"
 
   for viewport in "${viewports[@]}"; do
     label="${viewport%%:*}"
     size="${viewport#*:}"
+    width="${size%,*}"
+    height="${size#*,}"
     screenshot="${QA_DIR}/${label}-${safe_name}.png"
     dom="${QA_DIR}/${label}-${safe_name}.html"
+    render_report="${QA_DIR}/${label}-${safe_name}-render.json"
 
-    "${CHROME_BIN}" \
-      --headless=new \
-      --disable-gpu \
-      --no-sandbox \
-      --hide-scrollbars \
-      --window-size="${size}" \
-      --screenshot="${screenshot}" \
-      "${BASE_URL}${page}" >> "${TRANSCRIPT}" 2>&1
-
-    "${CHROME_BIN}" \
-      --headless=new \
-      --disable-gpu \
-      --no-sandbox \
-      --window-size="${size}" \
-      --dump-dom \
-      "${BASE_URL}${page}" > "${dom}" 2>> "${TRANSCRIPT}"
+    CHROME_BIN="${CHROME_BIN}" node scripts/responsive_overflow_check.mjs \
+      "${BASE_URL}${page}" \
+      "${render_report}" \
+      "${width}" \
+      "${height}" \
+      "${marker}" \
+      "${screenshot}" \
+      "${dom}" >> "${TRANSCRIPT}" 2>&1
 
     test -s "${screenshot}"
     test -s "${dom}"
-    log "captured=${screenshot} dom=${dom}"
+    grep -q '"passed": true' "${render_report}"
+    log "captured=${screenshot} dom=${dom} marker=${marker} render=${render_report}"
   done
 done
 
@@ -217,6 +279,10 @@ NEW_DIRECTIONS_PUBLISHER_DOM="${QA_DIR}/desktop-publishers-new-directions.html"
 NEW_DIRECTIONS_BROWSE_DOM="${QA_DIR}/desktop-browse-publisher-new-directions.html"
 CONTRIBUTORS_DOM="${QA_DIR}/desktop-contributors.html"
 TRANSLATORS_DOM="${QA_DIR}/desktop-contributors-role-translator.html"
+CONTRIBUTOR_DETAIL_DOM="${QA_DIR}/desktop-contributors-david-bowles.html"
+SERIES_DETAIL_DOM="${QA_DIR}/desktop-series-browser-qa-series.html"
+EDITION_REDIRECT_DOM="${QA_DIR}/desktop-editions-deep-vellum-immigrant-paperback-9781646054541.html"
+EDITION_NOT_FOUND_DOM="${QA_DIR}/desktop-editions-not-a-real-edition.html"
 FILTER_SORT_DOM="${QA_DIR}/desktop-browse-publisher-deep-vellum-role-translator-format-paperback-sort-newest.html"
 MALFORMED_QUERY_DOM="${QA_DIR}/desktop-browse-q-%25-format-ebook-page-999.html"
 
@@ -265,17 +331,45 @@ else
   log "remote_image_dependencies=pass scope=all_captured_pages"
 fi
 
-if grep -q '50 sourced books' "${NEW_DIRECTIONS_PUBLISHER_DOM}" && grep -q '50 books' "${NEW_DIRECTIONS_BROWSE_DOM}" && grep -q 'Typographic cover fallback; no cover asset is available.' "${NEW_DIRECTIONS_BROWSE_DOM}"; then
-  log "new_directions_cover_fallback=pass publisher_count=50 browse_count=50 remote_dependency=none"
+if grep -q '50 editions' "${NEW_DIRECTIONS_PUBLISHER_DOM}" && grep -q '50 books' "${NEW_DIRECTIONS_BROWSE_DOM}" && grep -q 'Typographic cover fallback; no cover asset is available.' "${NEW_DIRECTIONS_BROWSE_DOM}"; then
+  log "new_directions_cover_fallback=pass publisher_count=50_editions browse_count=50_books remote_dependency=none"
 else
-  log "new_directions_cover_fallback=fail expected=50_books_typographic_fallback"
+  log "new_directions_cover_fallback=fail expected=50_editions_50_books_typographic_fallback"
   exit 1
 fi
 
-if grep -q 'Role-aware directory' "${CONTRIBUTORS_DOM}" && grep -q 'Translators' "${TRANSLATORS_DOM}" && grep -q 'sourced books' "${TRANSLATORS_DOM}"; then
+if grep -q 'Role-aware directory' "${CONTRIBUTORS_DOM}" && grep -q 'Translators' "${TRANSLATORS_DOM}" && grep -q 'David Bowles' "${TRANSLATORS_DOM}" && grep -q 'translator' "${TRANSLATORS_DOM}"; then
   log "contributors_role_filter=pass routes=/contributors,/contributors?role=translator"
 else
-  log "contributors_role_filter=fail expected=role_directory_and_translator_results"
+  log "contributors_role_filter=fail expected=role_directory_translator_results_and_role_badge"
+  exit 1
+fi
+
+if grep -q 'id="contributor-detail-shell"' "${CONTRIBUTOR_DETAIL_DOM}" && grep -q 'David Bowles' "${CONTRIBUTOR_DETAIL_DOM}" && grep -q 'Immigrant' "${CONTRIBUTOR_DETAIL_DOM}"; then
+  log "contributor_detail=pass route=/contributors/david-bowles shell=contributor-detail-shell"
+else
+  log "contributor_detail=fail expected=detail_shell_david_bowles_immigrant"
+  exit 1
+fi
+
+if grep -q 'id="series-detail-shell"' "${SERIES_DETAIL_DOM}" && grep -q 'Browser QA Series' "${SERIES_DETAIL_DOM}" && grep -q 'Immigrant' "${SERIES_DETAIL_DOM}"; then
+  log "series_detail=pass route=/series/browser-qa-series shell=series-detail-shell"
+else
+  log "series_detail=fail expected=browser_qa_series_detail_with_immigrant"
+  exit 1
+fi
+
+if grep -q 'id="book-detail-shell"' "${EDITION_REDIRECT_DOM}" && grep -q 'Immigrant' "${EDITION_REDIRECT_DOM}"; then
+  log "edition_redirect=pass route=/editions/deep-vellum-immigrant-paperback-9781646054541 canonical=/books/deep-vellum-immigrant"
+else
+  log "edition_redirect=fail expected=canonical_book_detail"
+  exit 1
+fi
+
+if grep -q 'id="edition-detail-shell"' "${EDITION_NOT_FOUND_DOM}" && grep -q 'id="edition-not-found"' "${EDITION_NOT_FOUND_DOM}"; then
+  log "edition_not_found=pass route=/editions/not-a-real-edition shell=edition-detail-shell"
+else
+  log "edition_not_found=fail expected=edition_not_found_shell"
   exit 1
 fi
 
@@ -333,14 +427,36 @@ node scripts/image_decode_check.mjs \
 grep -q '"passed": true' "${QA_DIR}/thumbnail-image-decode.json"
 log "thumbnail_image_decode=pass artifact=${QA_DIR}/thumbnail-image-decode.json card_uses_derivative=pass"
 
-log "running mobile search overflow audit"
-node scripts/responsive_overflow_check.mjs \
-  "${BASE_URL}/search" \
-  "${QA_DIR}/mobile-search-overflow.json" \
-  390 \
-  844 | tee -a "${TRANSCRIPT}"
-grep -q '"passed": true' "${QA_DIR}/mobile-search-overflow.json"
-log "mobile_search_overflow=pass artifact=${QA_DIR}/mobile-search-overflow.json"
+log "running public route responsive overflow audits"
+responsive_routes=(
+  "home|/|#home-shell"
+  "browse|/browse|#browse-shell"
+  "search|/search|#search-shell"
+  "publishers|/publishers|#publishers-shell"
+  "publisher-detail|/publishers/deep-vellum|#publisher-detail-shell"
+  "contributors|/contributors|#contributors-shell"
+  "contributor-detail|/contributors/david-bowles|#contributor-detail-shell"
+  "series|/series|#series-shell"
+  "series-detail|/series/browser-qa-series|#series-detail-shell"
+  "book-detail|/books/deep-vellum-immigrant|#book-detail-shell"
+  "edition-not-found|/editions/not-a-real-edition|#edition-detail-shell"
+)
+
+for route_spec in "${responsive_routes[@]}"; do
+  IFS='|' read -r route_label route_path marker <<< "${route_spec}"
+  for viewport_spec in "mobile|390|844" "tablet|768|1024"; do
+    IFS='|' read -r viewport_label viewport_width viewport_height <<< "${viewport_spec}"
+    overflow_artifact="${QA_DIR}/${viewport_label}-${route_label}-overflow.json"
+    CHROME_BIN="${CHROME_BIN}" node scripts/responsive_overflow_check.mjs \
+      "${BASE_URL}${route_path}" \
+      "${overflow_artifact}" \
+      "${viewport_width}" \
+      "${viewport_height}" \
+      "${marker}" | tee -a "${TRANSCRIPT}"
+    grep -q '"passed": true' "${overflow_artifact}"
+    log "responsive_overflow=pass viewport=${viewport_label} route=${route_path} marker=${marker} artifact=${overflow_artifact}"
+  done
+done
 
 log "running authenticated admin browser audit"
 node scripts/admin_browser_check.mjs "${BASE_URL}" "${QA_DIR}" 2>&1 | tee -a "${TRANSCRIPT}"

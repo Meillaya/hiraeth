@@ -8,13 +8,17 @@ const targetUrl = process.argv[2];
 const outputPath = process.argv[3];
 const width = Number.parseInt(process.argv[4] || "390", 10);
 const height = Number.parseInt(process.argv[5] || "844", 10);
+const expectedSelector = process.argv[6] || "#search-shell";
+const screenshotPath = process.argv[7];
+const domPath = process.argv[8];
 const chromeBin = process.env.CHROME_BIN || "chromium";
+const colorScheme = process.env.OVERFLOW_CHECK_COLOR_SCHEME || "light";
 const debugPort = Number.parseInt(process.env.CHROME_OVERFLOW_DEBUG_PORT || "9231", 10);
 const globalDeadlineMs = Number.parseInt(process.env.OVERFLOW_CHECK_DEADLINE_MS || "15000", 10);
 const cdpCommandTimeoutMs = Number.parseInt(process.env.OVERFLOW_CHECK_CDP_TIMEOUT_MS || "5000", 10);
 
 if (!targetUrl || !outputPath) {
-  console.error("usage: responsive_overflow_check.mjs <url> <output-json> [width] [height]");
+  console.error("usage: responsive_overflow_check.mjs <url> <output-json> [width] [height] [expected-css-selector] [screenshot-png] [dom-html]");
   process.exit(2);
 }
 
@@ -33,6 +37,7 @@ const chrome = spawn(chromeBin, [
   "--remote-debugging-address=127.0.0.1",
   `--remote-debugging-port=${debugPort}`,
   `--user-data-dir=${userDataDir}`,
+  `--force-prefers-color-scheme=${colorScheme}`,
   `--window-size=${width},${height}`,
   "about:blank"
 ], {stdio: ["ignore", "ignore", "pipe"]});
@@ -130,22 +135,24 @@ class CdpClient {
 }
 
 async function waitForLoadAndMarker(client) {
+  const selectorJson = JSON.stringify(expectedSelector);
+
   for (let attempt = 0; attempt < 80; attempt += 1) {
     const result = await client.send("Runtime.evaluate", {
       expression: `(() => ({
         readyState: document.readyState,
         url: location.href,
-        hasShell: Boolean(document.querySelector('#search-shell'))
+        hasMarker: Boolean(document.querySelector(${selectorJson}))
       }))()`,
       returnByValue: true
     });
 
     const value = result.result.value;
-    if (value.readyState === "complete" && value.url === targetUrl && value.hasShell) return;
+    if (value.readyState === "complete" && value.hasMarker) return value.url;
     await delay(125);
   }
 
-  throw new Error("target page did not load the expected #search-shell marker before overflow probe");
+  throw new Error(`target page did not load the expected ${expectedSelector} marker before overflow probe`);
 }
 
 function overflowProbeExpression() {
@@ -189,9 +196,20 @@ try {
       await client.connect();
       await client.send("Page.enable");
       await client.send("Runtime.enable");
-      await client.send("Emulation.setDeviceMetricsOverride", {width, height, deviceScaleFactor: 1, mobile: true});
+      await client.send("Emulation.setEmulatedMedia", {
+        features: [{name: "prefers-color-scheme", value: colorScheme}]
+      });
+      await client.send("Page.addScriptToEvaluateOnNewDocument", {
+        source: `try { localStorage.setItem("phx:theme", ${JSON.stringify(colorScheme)}); } catch (_error) {}`
+      });
+      await client.send("Emulation.setDeviceMetricsOverride", {
+        width,
+        height,
+        deviceScaleFactor: 1,
+        mobile: width <= 480
+      });
       await client.send("Page.navigate", {url: targetUrl});
-      await waitForLoadAndMarker(client);
+      const finalUrl = await waitForLoadAndMarker(client);
 
       const result = await client.send("Runtime.evaluate", {
         expression: overflowProbeExpression(),
@@ -199,7 +217,32 @@ try {
         awaitPromise: true
       });
       probe = result.result.value;
-      await writeFile(outputPath, JSON.stringify({passed: Boolean(probe.passed), targetUrl, width, height, ...probe}, null, 2));
+      if (screenshotPath) {
+        const screenshot = await client.send("Page.captureScreenshot", {
+          format: "png",
+          captureBeyondViewport: false
+        });
+        await writeFile(screenshotPath, Buffer.from(screenshot.data, "base64"));
+      }
+      if (domPath) {
+        const dom = await client.send("Runtime.evaluate", {
+          expression: "document.documentElement.outerHTML",
+          returnByValue: true
+        });
+        await writeFile(domPath, dom.result.value);
+      }
+      await writeFile(outputPath, JSON.stringify({
+        passed: Boolean(probe.passed),
+        targetUrl,
+        finalUrl,
+        width,
+        height,
+        expectedSelector,
+        colorScheme,
+        screenshotPath,
+        domPath,
+        ...probe
+      }, null, 2));
       if (!probe.passed) exitCode = 1;
     })(),
     new Promise((_, reject) => setTimeout(() => reject(new Error("responsive overflow check exceeded global deadline")), globalDeadlineMs))
@@ -211,6 +254,7 @@ try {
     targetUrl,
     width,
     height,
+    expectedSelector,
     error: error.message,
     chromeStderrTail: stderr.join("").slice(-1200)
   }, null, 2));

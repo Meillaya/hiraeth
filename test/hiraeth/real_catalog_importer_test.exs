@@ -14,6 +14,9 @@ defmodule Hiraeth.RealCatalogImporterTest do
     {:ok, datasets} = Dataset.load_dir()
     first_cover = datasets |> hd() |> Map.fetch!(:records) |> hd() |> Map.fetch!(:cover)
 
+    {:ok, archipelago_dataset} =
+      Dataset.load_file(Path.join(Dataset.default_dir(), "archipelago_books.json"))
+
     legacy_asset =
       CoverAsset
       |> Ash.Changeset.for_create(:create, %{
@@ -87,6 +90,13 @@ defmodule Hiraeth.RealCatalogImporterTest do
     assert Enum.any?(editions, &(&1.title == "The Tunnel" and &1.format == "paperback"))
     assert Enum.any?(editions, &(&1.title == "Bob and Hilbert" and &1.format == "hardcover"))
     assert Enum.any?(editions, &(&1.title == "Cold Mountain Zen" and &1.format == "paperback"))
+
+    assert archipelago_dataset.records
+           |> Enum.filter(&(&1.source_sku in ["9781962770651", "9781962770668"]))
+           |> Enum.map(&get_in(&1, [:cover, :source_url]))
+           |> Enum.uniq() == [
+             "https://archipelagobooks.org/wp-content/uploads/2026/06/BobAndHilbert_Compiled_MB_May22_NOBLEED_FLIPPPED_WEB-pdf.jpg"
+           ]
 
     assert {:ok, second_summary} = Hiraeth.RealCatalog.Importer.seed!()
     assert second_summary.editions == 200
