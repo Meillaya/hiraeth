@@ -42,7 +42,7 @@ defmodule HiraethWeb.RouteShellLiveTest do
     |> form("#catalog-search-form", search: %{query: "Archipelago"})
     |> render_change()
 
-    assert has_element?(view, "#search-results td", "Archipelago Books")
+    assert has_element?(view, "#search-results", "Archipelago Books")
 
     view
     |> form("#catalog-search-form", search: %{query: "][\'<>☃"})
@@ -65,6 +65,15 @@ defmodule HiraethWeb.RouteShellLiveTest do
   } do
     {:ok, view, _html} = live(conn, ~p"/series")
     assert has_element?(view, "#series-shell")
+  end
+
+  test "Todo 7 route shells do not nest main landmarks inside the app layout", %{conn: conn} do
+    assert_single_main(conn, ~p"/search", "#search-shell")
+    assert_single_main(conn, ~p"/contributors", "#contributors-shell")
+    assert_single_main(conn, ~p"/contributors/david-bowles", "#contributor-detail-shell")
+    assert_single_main(conn, ~p"/series", "#series-shell")
+    assert_single_main(conn, ~p"/books/deep-vellum-immigrant", "#book-detail-shell")
+    assert_single_main(conn, ~p"/editions/not-a-real-edition", "#edition-detail-shell")
   end
 
   test "GET /admin renders the authenticated admin shell", %{conn: conn} do
@@ -98,5 +107,16 @@ defmodule HiraethWeb.RouteShellLiveTest do
     User
     |> Ash.Query.for_read(:sign_in_with_password, %{email: user.email, password: password})
     |> Ash.read_one!()
+  end
+
+  defp assert_single_main(conn, path, shell_selector) do
+    {:ok, _view, html} = live(conn, path)
+    document = LazyHTML.from_fragment(html)
+
+    assert document |> LazyHTML.query(shell_selector) |> LazyHTML.to_tree() |> length() == 1
+    assert document |> LazyHTML.query("main") |> LazyHTML.to_tree() |> length() == 1
+
+    assert document |> LazyHTML.query("main #{shell_selector}") |> LazyHTML.to_tree() |> length() ==
+             1
   end
 end
