@@ -63,9 +63,9 @@ defmodule HiraethWeb.CoreComponents do
       {@rest}
     >
       <div class={[
-        "flex w-80 max-w-80 gap-3 rounded-sm border p-4 text-sm shadow-lg sm:w-96 sm:max-w-96",
+        "qi-panel flex w-80 max-w-80 gap-3 p-4 text-sm shadow-lg sm:w-96 sm:max-w-96",
         @kind == :info &&
-          "border-[#E7E2D8] bg-[#FCFAF7] text-stone-800 dark:border-[#2E2A27] dark:bg-[#1C1917] dark:text-stone-100",
+          "text-[var(--hiraeth-ink)]",
         @kind == :error &&
           "border-red-200 bg-red-50 text-red-800 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-200"
       ]}>
@@ -100,16 +100,14 @@ defmodule HiraethWeb.CoreComponents do
 
   def button(%{rest: rest} = assigns) do
     variants = %{
-      "primary" =>
-        "border-[#8C2D19] bg-[#8C2D19] text-white hover:bg-[#6F2415] dark:border-[#E05A47] dark:bg-[#E05A47] dark:text-[#12110F] dark:hover:bg-[#F07362]",
-      nil =>
-        "border-[#E7E2D8] bg-[#FCFAF7] text-stone-800 hover:border-[#8C2D19] hover:text-[#8C2D19] dark:border-[#2E2A27] dark:bg-[#1C1917] dark:text-stone-100 dark:hover:border-[#E05A47] dark:hover:text-[#E05A47]"
+      "primary" => "qi-button",
+      nil => "qi-button-secondary"
     }
 
     assigns =
       assign_new(assigns, :class, fn ->
         [
-          "inline-flex items-center justify-center rounded-sm border px-3 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50",
+          "disabled:cursor-not-allowed disabled:opacity-50",
           Map.fetch!(variants, assigns[:variant])
         ]
       end)
@@ -227,14 +225,17 @@ defmodule HiraethWeb.CoreComponents do
           disabled={@rest[:disabled]}
           form={@rest[:form]}
         />
-        <span class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-300">
+        <span class="qi-muted flex items-center gap-2 text-sm">
           <input
             type="checkbox"
             id={@id}
             name={@name}
             value="true"
             checked={@checked}
-            class={@class || "size-4 rounded border-stone-300 text-[#8C2D19] focus:ring-[#8C2D19]"}
+            class={
+              @class ||
+                "size-4 rounded border-[var(--hiraeth-line)] text-[var(--hiraeth-thread)] focus:ring-[var(--hiraeth-thread)]"
+            }
             {@rest}
           />{@label}
         </span>
@@ -248,13 +249,13 @@ defmodule HiraethWeb.CoreComponents do
     ~H"""
     <div class="mb-2">
       <label for={@id}>
-        <span :if={@label} class="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">{@label}</span>
+        <span :if={@label} class="qi-muted mb-1 block text-sm font-medium">{@label}</span>
         <select
           id={@id}
           name={@name}
           class={[
             @class ||
-              "w-full rounded-sm border border-[#E7E2D8] bg-[#FCFAF7] px-3 py-2 text-sm text-stone-900 focus:border-[#8C2D19] focus:outline-none focus:ring-1 focus:ring-[#8C2D19] dark:border-[#2E2A27] dark:bg-[#12110F] dark:text-stone-100 placeholder:text-stone-500 dark:placeholder:text-stone-400",
+              "qi-select w-full px-3 py-2 text-sm",
             @errors != [] &&
               (@error_class || "border-red-500 focus:border-red-500 focus:ring-red-500")
           ]}
@@ -274,13 +275,13 @@ defmodule HiraethWeb.CoreComponents do
     ~H"""
     <div class="mb-2">
       <label for={@id}>
-        <span :if={@label} class="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">{@label}</span>
+        <span :if={@label} class="qi-muted mb-1 block text-sm font-medium">{@label}</span>
         <textarea
           id={@id}
           name={@name}
           class={[
             @class ||
-              "w-full rounded-sm border border-[#E7E2D8] bg-[#FCFAF7] px-3 py-2 text-sm text-stone-900 focus:border-[#8C2D19] focus:outline-none focus:ring-1 focus:ring-[#8C2D19] dark:border-[#2E2A27] dark:bg-[#12110F] dark:text-stone-100 placeholder:text-stone-500 dark:placeholder:text-stone-400",
+              "qi-input w-full px-3 py-2 text-sm",
             @errors != [] &&
               (@error_class || "border-red-500 focus:border-red-500 focus:ring-red-500")
           ]}
@@ -297,7 +298,7 @@ defmodule HiraethWeb.CoreComponents do
     ~H"""
     <div class="mb-2">
       <label for={@id}>
-        <span :if={@label} class="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">{@label}</span>
+        <span :if={@label} class="qi-muted mb-1 block text-sm font-medium">{@label}</span>
         <input
           type={@type}
           name={@name}
@@ -305,7 +306,7 @@ defmodule HiraethWeb.CoreComponents do
           value={Phoenix.HTML.Form.normalize_value(@type, @value)}
           class={[
             @class ||
-              "w-full rounded-sm border border-[#E7E2D8] bg-[#FCFAF7] px-3 py-2 text-sm text-stone-900 focus:border-[#8C2D19] focus:outline-none focus:ring-1 focus:ring-[#8C2D19] dark:border-[#2E2A27] dark:bg-[#12110F] dark:text-stone-100 placeholder:text-stone-500 dark:placeholder:text-stone-400",
+              "qi-input w-full px-3 py-2 text-sm",
             @errors != [] &&
               (@error_class || "border-red-500 focus:border-red-500 focus:ring-red-500")
           ]}
@@ -383,7 +384,7 @@ defmodule HiraethWeb.CoreComponents do
 
     ~H"""
     <table class="w-full border-collapse text-left text-sm">
-      <thead class="border-b border-[#E7E2D8] text-xs uppercase tracking-wider text-stone-500 dark:border-[#2E2A27]">
+      <thead class="qi-label border-b qi-divider text-xs">
         <tr>
           <th :for={col <- @col} class="px-3 py-3 font-semibold">{col[:label]}</th>
           <th :if={@action != []} class="px-3 py-3">
@@ -394,19 +395,19 @@ defmodule HiraethWeb.CoreComponents do
       <tbody
         id={@id}
         phx-update={is_struct(@rows, Phoenix.LiveView.LiveStream) && "stream"}
-        class="divide-y divide-[#E7E2D8]/70 dark:divide-[#2E2A27]/70"
+        class="divide-y divide-[var(--hiraeth-line)]/70"
       >
         <tr
           :for={row <- @rows}
           id={@row_id && @row_id.(row)}
-          class="odd:bg-[#F5F2EB]/35 dark:odd:bg-[#1C1917]/35"
+          class="odd:bg-[var(--hiraeth-wash)]/35"
         >
           <td
             :for={col <- @col}
             phx-click={@row_click && @row_click.(row)}
             class={[
               "px-3 py-3",
-              @row_click && "hover:cursor-pointer hover:bg-[#F5F2EB] dark:hover:bg-[#1C1917]"
+              @row_click && "hover:cursor-pointer hover:bg-[var(--hiraeth-wash)]"
             ]}
           >
             {render_slot(col, @row_item.(row))}
@@ -440,7 +441,7 @@ defmodule HiraethWeb.CoreComponents do
 
   def list(assigns) do
     ~H"""
-    <ul class="divide-y divide-[#E7E2D8] rounded-sm border border-[#E7E2D8] dark:divide-[#2E2A27] dark:border-[#2E2A27]">
+    <ul class="divide-y divide-[var(--hiraeth-line)] rounded-sm border border-[var(--hiraeth-line)]">
       <li :for={item <- @item} class="px-4 py-3">
         <div>
           <div class="font-bold">{item.title}</div>

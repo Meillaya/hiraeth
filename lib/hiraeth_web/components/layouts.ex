@@ -37,66 +37,57 @@ defmodule HiraethWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <header class="border-b border-[#E7E2D8] dark:border-[#2E2A27] bg-[#FCFAF7]/95 dark:bg-[#12110F]/95 backdrop-blur sticky top-0 z-40 transition-colors duration-300">
-      <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div class="flex h-16 items-center justify-between">
-          <div class="flex items-center gap-8">
-            <a href="/" class="flex items-center gap-2">
-              <span class="font-serif text-2xl font-semibold tracking-tight text-[#8C2D19] dark:text-[#E05A47]">Hiraeth</span>
-              <span class="text-[10px] font-mono uppercase tracking-widest text-stone-600 dark:text-stone-400 border border-stone-200 dark:border-stone-800 px-1.5 py-0.5 rounded">Archive</span>
-            </a>
+    <header class="qi-header sticky top-0 z-40 transition-colors duration-300">
+      <div class="qi-container">
+        <div class="flex min-h-[var(--hiraeth-header-height)] items-center justify-between gap-6">
+          <div class="flex min-w-0 items-center gap-8">
+            <.link navigate={~p"/"} class="qi-focus flex min-w-0 items-center gap-2">
+              <span class="qi-wordmark truncate text-2xl font-semibold">Hiraeth</span>
+              <span class="qi-kicker hidden border px-1.5 py-0.5 sm:inline-block">Archive</span>
+            </.link>
             <nav
-              class="hidden md:flex items-center gap-6 text-sm font-medium text-stone-700 dark:text-stone-200"
+              class="hidden items-center gap-6 text-sm font-semibold md:flex"
               aria-label="Primary navigation"
             >
-              <a
-                href="/browse"
-                class="hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
-              >Browse</a>
-              <a
-                href="/search"
-                class="hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
-              >Search</a>
-              <a
-                href="/publishers"
-                class="hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
-              >Publishers</a>
-              <a
-                href="/series"
-                class="hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
-              >Series</a>
+              <.link navigate={~p"/browse"} class="qi-nav-link">Browse</.link>
+              <.link navigate={~p"/search"} class="qi-nav-link">Search</.link>
+              <.link navigate={~p"/publishers"} class="qi-nav-link">Publishers</.link>
+              <.link navigate={~p"/series"} class="qi-nav-link">Series</.link>
             </nav>
           </div>
 
           <div class="hidden min-w-0 items-center gap-4 sm:flex">
-            <nav class="flex min-w-0 items-center gap-4">
+            <nav class="flex min-w-0 items-center gap-4" aria-label="Account navigation">
               <%= if @current_user do %>
-                <div class="hidden min-w-0 items-center gap-2 text-xs font-mono text-stone-500 xl:flex">
-                  <span class="max-w-44 truncate" title={@current_user.email}>
+                <div class="hidden min-w-0 items-center gap-2 text-xs xl:flex">
+                  <span class="qi-muted max-w-44 truncate font-mono" title={@current_user.email}>
                     {@current_user.email}
                   </span>
                   <%= if @current_user.admin? do %>
-                    <span class="bg-[#8C2D19]/10 text-[#8C2D19] dark:bg-[#E05A47]/10 dark:text-[#E05A47] text-[10px] px-1.5 py-0.5 rounded font-sans uppercase font-bold tracking-wider">Admin</span>
+                    <span class="qi-kicker bg-[var(--hiraeth-thread-soft)] px-1.5 py-0.5 text-[var(--hiraeth-thread)]">
+                      Admin
+                    </span>
                   <% end %>
                 </div>
-                <a
-                  href="/admin"
-                  class="whitespace-nowrap text-sm font-medium text-stone-700 dark:text-stone-200 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
-                >Dashboard</a>
+                <.link
+                  navigate={~p"/admin"}
+                  class="qi-nav-link whitespace-nowrap text-sm font-semibold"
+                >
+                  Dashboard
+                </.link>
                 <.link
                   href={~p"/sign-out"}
-                  class="whitespace-nowrap text-sm font-medium text-[#8C2D19] dark:text-[#E05A47] hover:underline"
+                  class="qi-action-link whitespace-nowrap text-sm font-semibold"
                   method="delete"
                 >
                   Sign out
                 </.link>
               <% else %>
-                <a
-                  href="/sign-in"
-                  class="text-sm font-medium text-stone-700 dark:text-stone-200 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
-                >Sign in</a>
+                <.link navigate={~p"/sign-in"} class="qi-nav-link text-sm font-semibold">
+                  Sign in
+                </.link>
               <% end %>
-              <div class="border-l border-[#E7E2D8] dark:border-[#2E2A27] pl-4">
+              <div class="border-l qi-divider pl-4">
                 <.theme_toggle />
               </div>
             </nav>
@@ -106,43 +97,43 @@ defmodule HiraethWeb.Layouts do
     </header>
 
     <nav
-      class="md:hidden border-b border-[#E7E2D8] dark:border-[#2E2A27] bg-[#FCFAF7]/95 dark:bg-[#12110F]/95 px-4 py-3"
+      class="qi-mobile-nav border-b px-4 py-3 md:hidden"
       aria-label="Mobile primary navigation"
     >
-      <div class="mx-auto flex max-w-6xl items-center gap-4 overflow-x-auto text-sm font-medium text-stone-700 dark:text-stone-200">
-        <a href="/browse" class="shrink-0 hover:text-stone-900 dark:hover:text-stone-100">Browse</a>
-        <a href="/search" class="shrink-0 hover:text-stone-900 dark:hover:text-stone-100">Search</a>
-        <a href="/publishers" class="shrink-0 hover:text-stone-900 dark:hover:text-stone-100">Publishers</a>
-        <a href="/series" class="shrink-0 hover:text-stone-900 dark:hover:text-stone-100">Series</a>
+      <div class="mx-auto flex max-w-[var(--hiraeth-measure)] items-center gap-4 overflow-x-auto text-sm font-semibold">
+        <.link navigate={~p"/browse"} class="qi-nav-link shrink-0">Browse</.link>
+        <.link navigate={~p"/search"} class="qi-nav-link shrink-0">Search</.link>
+        <.link navigate={~p"/publishers"} class="qi-nav-link shrink-0">Publishers</.link>
+        <.link navigate={~p"/series"} class="qi-nav-link shrink-0">Series</.link>
         <%= if @current_user do %>
-          <a href="/admin" class="shrink-0 hover:text-stone-900 dark:hover:text-stone-100">
-            Dashboard
-          </a>
+          <.link navigate={~p"/admin"} class="qi-nav-link shrink-0">Dashboard</.link>
           <.link
             href={~p"/sign-out"}
-            class="shrink-0 text-[#8C2D19] dark:text-[#E05A47] hover:underline"
+            class="qi-action-link shrink-0"
             method="delete"
           >
             Sign out
           </.link>
         <% else %>
-          <a href="/sign-in" class="shrink-0 hover:text-stone-900 dark:hover:text-stone-100">
-            Sign in
-          </a>
+          <.link navigate={~p"/sign-in"} class="qi-nav-link shrink-0">Sign in</.link>
         <% end %>
       </div>
     </nav>
 
-    <main class="flex-grow py-12 px-4 sm:px-6 lg:px-8">
-      <div class="mx-auto max-w-6xl">
+    <main class="flex-grow px-4 py-12 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-[var(--hiraeth-measure)]">
         {render_slot(@inner_block)}
       </div>
     </main>
 
-    <footer class="border-t border-[#E7E2D8] dark:border-[#2E2A27] py-8 mt-auto bg-[#F5F2EB]/50 dark:bg-[#1C1917]/50 text-stone-700 dark:text-stone-300 text-xs">
-      <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
-        <p class="font-serif">Hiraeth &mdash; A quiet editorial archive of independent publishers.</p>
-        <p class="font-mono">© {DateTime.utc_now().year} Hiraeth Project. All rights reserved.</p>
+    <footer class="qi-footer mt-auto border-t py-8 text-xs">
+      <div class="mx-auto flex max-w-[var(--hiraeth-measure)] flex-col items-center justify-between gap-4 px-4 sm:px-6 md:flex-row lg:px-10">
+        <p class="font-serif qi-muted">
+          Hiraeth &mdash; A quiet editorial archive of independent publishers.
+        </p>
+        <p class="font-mono qi-label">
+          © {DateTime.utc_now().year} Hiraeth Project. All rights reserved.
+        </p>
       </div>
     </footer>
 
@@ -206,11 +197,11 @@ defmodule HiraethWeb.Layouts do
   """
   def theme_toggle(assigns) do
     ~H"""
-    <div class="relative flex w-24 flex-row items-center rounded-full border border-[#E7E2D8] bg-[#F5F2EB] p-0.5 dark:border-[#2E2A27] dark:bg-[#1C1917]">
-      <div class="absolute left-0.5 top-0.5 h-[calc(100%-0.25rem)] w-1/3 rounded-full border border-[#E7E2D8] bg-[#FCFAF7] shadow-sm transition-[left] dark:border-[#2E2A27] dark:bg-[#12110F] [[data-theme=light]_&]:left-1/3 [[data-theme=dark]_&]:left-[calc(66.666%-0.125rem)] [[data-theme-source=system]_&]:!left-0.5" />
+    <div class="qi-panel-soft relative flex w-24 flex-row items-center p-0.5">
+      <div class="absolute left-0.5 top-0.5 h-[calc(100%-0.25rem)] w-1/3 rounded-[var(--hiraeth-radius)] border border-[var(--hiraeth-line)] bg-[var(--hiraeth-paper)] shadow-sm transition-[left] [[data-theme=light]_&]:left-1/3 [[data-theme=dark]_&]:left-[calc(66.666%-0.125rem)] [[data-theme-source=system]_&]:!left-0.5" />
 
       <button
-        class="relative z-10 flex w-1/3 cursor-pointer justify-center p-2 text-stone-600 transition hover:text-stone-950 dark:text-stone-300 dark:hover:text-stone-50"
+        class="qi-focus qi-muted relative z-10 flex w-1/3 cursor-pointer justify-center rounded-[var(--hiraeth-radius)] p-2 transition hover:text-[var(--hiraeth-ink)]"
         phx-click={JS.dispatch("phx:set-theme")}
         data-phx-theme="system"
         aria-label="Use system theme"
@@ -220,7 +211,7 @@ defmodule HiraethWeb.Layouts do
       </button>
 
       <button
-        class="relative z-10 flex w-1/3 cursor-pointer justify-center p-2 text-stone-600 transition hover:text-stone-950 dark:text-stone-300 dark:hover:text-stone-50"
+        class="qi-focus qi-muted relative z-10 flex w-1/3 cursor-pointer justify-center rounded-[var(--hiraeth-radius)] p-2 transition hover:text-[var(--hiraeth-ink)]"
         phx-click={JS.dispatch("phx:set-theme")}
         data-phx-theme="light"
         aria-label="Use light theme"
@@ -230,7 +221,7 @@ defmodule HiraethWeb.Layouts do
       </button>
 
       <button
-        class="relative z-10 flex w-1/3 cursor-pointer justify-center p-2 text-stone-600 transition hover:text-stone-950 dark:text-stone-300 dark:hover:text-stone-50"
+        class="qi-focus qi-muted relative z-10 flex w-1/3 cursor-pointer justify-center rounded-[var(--hiraeth-radius)] p-2 transition hover:text-[var(--hiraeth-ink)]"
         phx-click={JS.dispatch("phx:set-theme")}
         data-phx-theme="dark"
         aria-label="Use dark theme"

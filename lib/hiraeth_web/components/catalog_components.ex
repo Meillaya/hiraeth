@@ -24,11 +24,11 @@ defmodule HiraethWeb.CatalogComponents do
         fetchpriority={@fetchpriority}
         width="400"
         height="600"
-        class="aspect-[2/3] w-full rounded-sm border border-[#D8CFC0] object-cover shadow-[0_18px_50px_-30px_rgba(28,25,23,0.75)] transition duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_28px_70px_-34px_rgba(28,25,23,0.9)] dark:border-[#3A332D]"
+        class="qi-cover-frame aspect-[2/3] w-full object-cover transition duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_28px_70px_-34px_rgba(28,25,23,0.9)]"
       />
       <figcaption
         id={"cover-attribution-#{@book.slug}"}
-        class="text-[10px] font-mono uppercase tracking-wider text-stone-600 dark:text-stone-400"
+        class="qi-label text-[10px]"
       >
         {@book.cover.attribution_text || @book.cover.provider}
       </figcaption>
@@ -37,10 +37,9 @@ defmodule HiraethWeb.CatalogComponents do
       :if={!@book[:cover]}
       id={"missing-cover-#{@book.slug}"}
       class={[
-        "fallback-cover-grain aspect-[2/3] w-full rounded-sm border p-4 flex flex-col justify-between shadow-sm relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-md select-none",
-        @book[:cover_bg] ||
-          "bg-[#FCFAF7] text-stone-900 border-[#E7E2D8] dark:bg-[#1C1917] dark:text-stone-100 dark:border-[#2E2A27]",
-        @book[:cover_border] || "border-[#E7E2D8]",
+        "fallback-cover-grain qi-panel aspect-[2/3] w-full p-4 flex flex-col justify-between shadow-sm relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-md select-none",
+        @book[:cover_bg] || "bg-[var(--hiraeth-paper)] text-[var(--hiraeth-ink)]",
+        @book[:cover_border] || "border-[var(--hiraeth-line)]",
         @class
       ]}
     >
@@ -81,46 +80,46 @@ defmodule HiraethWeb.CatalogComponents do
     <article id={@dom_id || "#{@id_prefix}-#{@edition.slug}"} class="group space-y-3">
       <.link
         navigate={~p"/books/#{@edition.slug}"}
-        class="block rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#8C2D19]"
+        class="qi-focus block rounded-sm"
       >
         <.book_cover book={@edition} />
       </.link>
-      <div class="hiraeth-surface space-y-2 rounded-sm bg-[#FCFAF7]/95 p-3 ring-1 ring-[#E7E2D8]/80 transition duration-300 group-hover:-translate-y-0.5 group-hover:ring-[#8C2D19]/35 group-hover:shadow-[0_18px_45px_-32px_rgba(28,25,23,0.8)] dark:bg-[#12110F]/90 dark:ring-[#2E2A27]">
-        <h4 class="font-serif text-base font-bold tracking-tight !text-stone-950 dark:!text-stone-50 leading-snug">
+      <div class="qi-card space-y-2 p-3 ring-1 ring-[var(--hiraeth-line)]/80 transition duration-300 group-hover:-translate-y-0.5 group-hover:ring-[var(--hiraeth-thread)]/35 group-hover:shadow-[0_18px_45px_-32px_rgba(28,25,23,0.8)]">
+        <h4 class="font-serif text-base font-bold tracking-tight !text-[var(--hiraeth-ink)] leading-snug">
           <.link
             navigate={~p"/books/#{@edition.slug}"}
-            class="rounded-sm hover:text-[#8C2D19] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8C2D19] dark:hover:text-[#E05A47]"
+            class="qi-focus rounded-sm hover:text-[var(--hiraeth-thread)]"
           >
             {@edition.title}
           </.link>
         </h4>
-        <div class="space-y-0.5 font-sans text-sm font-medium text-stone-800 dark:text-stone-200">
+        <div class="space-y-0.5 text-sm font-medium text-[var(--hiraeth-ink)]">
           <p :if={role_names(@edition[:authors])} class="truncate">
             by {role_names(@edition[:authors])}
           </p>
           <p
             :if={role_names(@edition[:translators])}
-            class="truncate text-stone-600 dark:text-stone-400"
+            class="qi-muted truncate"
           >
             translated by {role_names(@edition[:translators])}
           </p>
         </div>
-        <p class="font-mono text-[11px] font-semibold uppercase tracking-wider !text-stone-700 dark:!text-stone-300 truncate">
+        <p class="qi-label truncate text-[11px] font-semibold">
           {@edition.publisher || "Publisher unknown"}
         </p>
         <p
           :if={@edition[:description]}
-          class="line-clamp-3 border-l border-[#D8CFC0] pl-2 font-serif text-xs leading-relaxed text-stone-700 dark:border-[#3A332D] dark:text-stone-300"
+          class="qi-muted line-clamp-3 border-l border-[var(--hiraeth-line-strong)] pl-2 font-serif text-xs leading-relaxed"
         >
           {description_excerpt(@edition.description)}
         </p>
         <div
           :if={Enum.any?(@edition[:formats] || [])}
-          class="flex flex-wrap gap-1.5 pt-1 font-mono text-[9px] leading-relaxed text-stone-600 dark:text-stone-400"
+          class="qi-muted flex flex-wrap gap-1.5 pt-1 font-mono text-[9px] leading-relaxed"
         >
           <span
             :for={format <- @edition.formats}
-            class="rounded-full border border-[#D8CFC0] bg-[#F5F2EB]/70 px-2 py-0.5 uppercase tracking-wider dark:border-[#3A332D] dark:bg-[#1C1917]/80"
+            class="rounded-full border border-[var(--hiraeth-line-strong)] bg-[var(--hiraeth-wash)]/70 px-2 py-0.5 uppercase tracking-wider"
           >
             {format.format} · {Enum.join(format.identifiers, ", ")}
           </span>
@@ -156,10 +155,10 @@ defmodule HiraethWeb.CatalogComponents do
   def metadata_table(assigns) do
     ~H"""
     <div class="space-y-4">
-      <h3 class="font-serif text-lg font-medium border-b border-[#E7E2D8] pb-2 text-stone-950 dark:border-[#2E2A27] dark:text-stone-50">
+      <h3 class="border-b qi-divider pb-2 font-serif text-lg font-medium text-[var(--hiraeth-ink)]">
         Bibliographic Data
       </h3>
-      <dl class="divide-y divide-[#E7E2D8]/60 dark:divide-[#2E2A27]/60 text-sm">
+      <dl class="divide-y divide-[var(--hiraeth-line)]/60 text-sm">
         <.metadata_row label="Title" value={@book.title} serif />
         <.metadata_row
           :if={present?(@book[:original_title])}
@@ -200,10 +199,10 @@ defmodule HiraethWeb.CatalogComponents do
         />
         <.metadata_row :if={@book[:isbn]} label="ISBN" value={@book.isbn} mono />
         <div id="publication-date" class="grid grid-cols-3 py-3">
-          <dt class="font-mono text-xs uppercase tracking-wider text-stone-600 font-bold dark:text-stone-300">
+          <dt class="qi-label text-xs font-bold">
             Publication Date
           </dt>
-          <dd class="col-span-2 font-medium text-stone-900 dark:text-stone-100">
+          <dd class="col-span-2 font-medium text-[var(--hiraeth-ink)]">
             {if @book[:published_on],
               do: Calendar.strftime(@book.published_on, "%Y-%m-%d"),
               else: "Publication date unknown"}
@@ -223,12 +222,12 @@ defmodule HiraethWeb.CatalogComponents do
   def metadata_row(assigns) do
     ~H"""
     <div id={@id} class="grid grid-cols-3 py-3">
-      <dt class="font-mono text-xs uppercase tracking-wider text-stone-600 font-bold dark:text-stone-300">
+      <dt class="qi-label text-xs font-bold">
         {@label}
       </dt>
       <dd class={[
-        "col-span-2 break-words font-medium text-stone-900 dark:text-stone-100",
-        @serif && "font-serif text-stone-900 dark:text-stone-100 font-medium",
+        "col-span-2 break-words font-medium text-[var(--hiraeth-ink)]",
+        @serif && "font-serif font-medium",
         @mono && "font-mono text-xs"
       ]}>
         {@value}
@@ -290,27 +289,25 @@ defmodule HiraethWeb.CatalogComponents do
     <div
       id="edition-provenance"
       data-provenance-motif="source-thread"
-      class="provenance-thread rounded-sm border border-[#D8CFC0] bg-[#F5F2EB] py-4 pl-6 pr-4 text-xs text-stone-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] dark:border-[#2E2A27] dark:bg-[#1C1917] dark:text-stone-200 space-y-1 break-words"
+      class="provenance-thread qi-panel-soft space-y-1 break-words py-4 pl-6 pr-4 text-xs text-[var(--hiraeth-ink)] shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]"
     >
-      <p class="font-mono uppercase tracking-wider text-stone-600 dark:text-stone-300">
+      <p class="qi-label">
         Source provenance
       </p>
       <%= if @source do %>
         <p>
-          Provider:
-          <span class="font-semibold text-stone-900 dark:text-stone-100">{@source.provider}</span>
+          Provider: <span class="font-semibold text-[var(--hiraeth-ink)]">{@source.provider}</span>
         </p>
         <p :if={@source[:source_type]}>
-          Source type:
-          <span class="font-mono text-stone-900 dark:text-stone-100">{@source.source_type}</span>
+          Source type: <span class="font-mono text-[var(--hiraeth-ink)]">{@source.source_type}</span>
         </p>
         <p :if={@source[:source_uri]}>
           Source record:
-          <span class="font-mono text-stone-900 break-all dark:text-stone-100">{@source.source_uri}</span>
+          <span class="break-all font-mono text-[var(--hiraeth-ink)]">{@source.source_uri}</span>
         </p>
         <p :if={@source[:imported_at]}>
           Imported:
-          <span class="font-mono text-stone-900 dark:text-stone-100">{Calendar.strftime(
+          <span class="font-mono text-[var(--hiraeth-ink)]">{Calendar.strftime(
             @source.imported_at,
             "%Y-%m-%d %H:%M:%S UTC"
           )}</span>
@@ -320,10 +317,10 @@ defmodule HiraethWeb.CatalogComponents do
           id="edition-field-provenance"
           class="pt-2"
         >
-          <p class="font-mono text-[10px] uppercase tracking-wider text-stone-600 dark:text-stone-300">
+          <p class="qi-label text-[10px]">
             Field-level provenance
           </p>
-          <p class="mt-1 text-stone-700 dark:text-stone-300">
+          <p class="qi-muted mt-1">
             {Enum.join(field_source_notes(@source.field_sources), "; ")}
           </p>
         </div>
@@ -348,27 +345,27 @@ defmodule HiraethWeb.CatalogComponents do
     ~H"""
     <nav
       id="catalog-pagination"
-      class="flex items-center justify-between border-t border-[#E7E2D8] dark:border-[#2E2A27] pt-4 text-xs font-mono text-stone-500"
+      class="qi-muted flex items-center justify-between border-t qi-divider pt-4 text-xs font-mono"
     >
       <.link
         :if={@has_previous}
         navigate={page_path(@base_path, @page - 1, @query, @params)}
         id="catalog-prev-page"
-        class="rounded-sm text-[#8C2D19] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8C2D19] dark:text-[#E05A47]"
+        class="qi-action-link rounded-sm hover:underline"
       >
         ← Previous
       </.link>
-      <span :if={!@has_previous} class="text-stone-500 dark:text-stone-500">← Previous</span>
+      <span :if={!@has_previous} class="qi-muted opacity-70">← Previous</span>
       <span id="catalog-page-count">Page {@page} of {@total_pages}</span>
       <.link
         :if={@has_next}
         navigate={page_path(@base_path, @page + 1, @query, @params)}
         id="catalog-next-page"
-        class="rounded-sm text-[#8C2D19] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8C2D19] dark:text-[#E05A47]"
+        class="qi-action-link rounded-sm hover:underline"
       >
         Next →
       </.link>
-      <span :if={!@has_next} class="text-stone-500 dark:text-stone-500">Next →</span>
+      <span :if={!@has_next} class="qi-muted opacity-70">Next →</span>
     </nav>
     """
   end
@@ -382,9 +379,9 @@ defmodule HiraethWeb.CatalogComponents do
       <span class="sr-only">{@label}</span>
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
         <div :for={_i <- 1..4} class="space-y-3">
-          <div class="aspect-[2/3] w-full bg-[#E7E2D8] dark:bg-[#2E2A27] rounded-sm"></div>
-          <div class="h-4 bg-[#E7E2D8] dark:bg-[#2E2A27] rounded w-3/4"></div>
-          <div class="h-3 bg-[#E7E2D8] dark:bg-[#2E2A27] rounded w-1/2"></div>
+          <div class="aspect-[2/3] w-full rounded-sm bg-[var(--hiraeth-line)]"></div>
+          <div class="h-4 w-3/4 rounded bg-[var(--hiraeth-line)]"></div>
+          <div class="h-3 w-1/2 rounded bg-[var(--hiraeth-line)]"></div>
         </div>
       </div>
     </div>
@@ -403,32 +400,32 @@ defmodule HiraethWeb.CatalogComponents do
     ~H"""
     <div
       id={@id}
-      class="hiraeth-surface border border-dashed border-[#D8CFC0] bg-[#FCFAF7]/85 p-10 text-center max-w-lg mx-auto rounded-sm space-y-4 my-8 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.45)] dark:border-[#2E2A27] dark:bg-[#12110F]/70"
+      class="qi-empty mx-auto my-8 max-w-lg space-y-4 p-10 text-center shadow-[inset_0_0_0_1px_rgba(255,255,255,0.45)]"
     >
       <div class="flex justify-center">
         <span class="font-serif text-3xl text-stone-300 dark:text-stone-700">❧</span>
       </div>
-      <p class="text-[10px] text-stone-500 font-mono uppercase tracking-[0.2em]">{@eyebrow}</p>
-      <h2 class="font-serif text-2xl font-medium text-stone-900 dark:text-stone-100">
+      <p class="qi-label text-[10px]">{@eyebrow}</p>
+      <h2 class="font-serif text-2xl font-medium text-[var(--hiraeth-ink)]">
         {@title}
       </h2>
-      <p class="font-serif text-stone-700 dark:text-stone-300">
+      <p class="qi-muted font-serif">
         {@message}
       </p>
       <p
         :if={@context}
-        class="rounded-sm bg-[#F5F2EB] px-3 py-2 text-xs font-mono text-stone-600 dark:bg-[#1C1917] dark:text-stone-400"
+        class="qi-panel-soft qi-muted px-3 py-2 text-xs font-mono"
       >
         {@context}
       </p>
       <.link
         :if={@action_label && @action_path}
         navigate={@action_path}
-        class="inline-flex rounded-sm border border-[#8C2D19] px-3 py-2 text-xs font-bold uppercase tracking-wider text-[#8C2D19] transition hover:bg-[#8C2D19] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8C2D19]"
+        class="qi-button-secondary qi-focus"
       >
         {@action_label}
       </.link>
-      <p class="text-xs text-stone-600 dark:text-stone-400 font-mono">HIRAETH EDITORIAL ARCHIVE</p>
+      <p class="qi-label text-xs">HIRAETH EDITORIAL ARCHIVE</p>
     </div>
     """
   end

@@ -27,23 +27,55 @@
 /* This file is for your main application CSS */
 
 :root {
+  color-scheme: light;
   --hiraeth-paper: #fcfaf7;
   --hiraeth-wash: #f5f2eb;
+  --hiraeth-warm: #f4efe6;
   --hiraeth-ink: #1c1917;
+  --hiraeth-muted: #7a7165;
+  --hiraeth-label: #a39a8c;
   --hiraeth-line: #e7e2d8;
+  --hiraeth-line-strong: #d8cfc0;
   --hiraeth-thread: #8c2d19;
+  --hiraeth-thread-hover: #6f2415;
   --hiraeth-thread-soft: rgba(140, 45, 25, 0.12);
   --hiraeth-shadow: 0 28px 90px -64px rgba(28, 25, 23, 0.72);
+  --hiraeth-radius: 2px;
+  --hiraeth-header-height: 68px;
+  --hiraeth-measure: 73.75rem;
+  --hiraeth-font-ui: "Space Grotesk", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --hiraeth-font-serif: "Newsreader", "Spectral", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --hiraeth-font-mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
 }
 
 [data-theme="dark"] {
+  color-scheme: dark;
   --hiraeth-paper: #12110f;
   --hiraeth-wash: #1c1917;
+  --hiraeth-warm: #211d18;
   --hiraeth-ink: #fafaf9;
+  --hiraeth-muted: #9a9184;
+  --hiraeth-label: #7a7165;
   --hiraeth-line: #2e2a27;
+  --hiraeth-line-strong: #3a332d;
   --hiraeth-thread: #e05a47;
+  --hiraeth-thread-hover: #f07362;
   --hiraeth-thread-soft: rgba(224, 90, 71, 0.14);
   --hiraeth-shadow: 0 28px 90px -68px rgba(0, 0, 0, 0.9);
+}
+
+body {
+  background: var(--hiraeth-paper);
+  color: var(--hiraeth-ink);
+  font-family: var(--hiraeth-font-ui);
+}
+
+.font-serif {
+  font-family: var(--hiraeth-font-serif);
+}
+
+.font-mono {
+  font-family: var(--hiraeth-font-mono);
 }
 
 ::selection {
@@ -97,4 +129,197 @@
   opacity: 0.18;
   pointer-events: none;
   position: absolute;
+}
+
+.qi-page {
+  background: var(--hiraeth-paper);
+  color: var(--hiraeth-ink);
+}
+
+.qi-container {
+  margin-inline: auto;
+  max-width: var(--hiraeth-measure);
+  padding-inline: 1rem;
+}
+
+@media (min-width: 640px) {
+  .qi-container {
+    padding-inline: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .qi-container {
+    padding-inline: 2.5rem;
+  }
+}
+
+.qi-header {
+  background: color-mix(in oklab, var(--hiraeth-paper) 92%, transparent);
+  border-bottom: 1px solid var(--hiraeth-line);
+  backdrop-filter: blur(18px);
+  min-height: var(--hiraeth-header-height);
+}
+
+.qi-mobile-nav,
+.qi-footer {
+  background: color-mix(in oklab, var(--hiraeth-wash) 58%, transparent);
+  border-color: var(--hiraeth-line);
+}
+
+.qi-wordmark {
+  color: var(--hiraeth-thread);
+  font-family: var(--hiraeth-font-serif);
+  letter-spacing: -0.035em;
+}
+
+.qi-kicker,
+.qi-label {
+  color: var(--hiraeth-label);
+  font-family: var(--hiraeth-font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.qi-muted {
+  color: var(--hiraeth-muted);
+}
+
+.qi-link,
+.qi-nav-link {
+  border-radius: var(--hiraeth-radius);
+  color: var(--hiraeth-muted);
+  transition: color 180ms ease, opacity 180ms ease, border-color 180ms ease, background-color 180ms ease;
+}
+
+.qi-link:hover,
+.qi-nav-link:hover {
+  color: var(--hiraeth-thread);
+}
+
+.qi-link:focus-visible,
+.qi-nav-link:focus-visible,
+.qi-focus:focus-visible {
+  outline: 2px solid var(--hiraeth-thread);
+  outline-offset: 3px;
+}
+
+.qi-panel,
+.qi-card,
+.qi-input,
+.qi-select {
+  border: 1px solid var(--hiraeth-line);
+  border-radius: var(--hiraeth-radius);
+}
+
+.qi-panel,
+.qi-card {
+  background: color-mix(in oklab, var(--hiraeth-paper) 90%, var(--hiraeth-wash) 10%);
+}
+
+.qi-panel-soft {
+  background: color-mix(in oklab, var(--hiraeth-wash) 72%, transparent);
+  border: 1px solid var(--hiraeth-line);
+  border-radius: var(--hiraeth-radius);
+}
+
+.qi-card {
+  box-shadow: var(--hiraeth-shadow);
+  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease, background-color 220ms ease;
+}
+
+.qi-card:hover,
+.qi-row:hover {
+  border-color: color-mix(in oklab, var(--hiraeth-thread) 42%, var(--hiraeth-line));
+  transform: translateY(-0.125rem);
+}
+
+.qi-button,
+.qi-button-secondary {
+  align-items: center;
+  border-radius: var(--hiraeth-radius);
+  display: inline-flex;
+  font-family: var(--hiraeth-font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  gap: 0.375rem;
+  justify-content: center;
+  letter-spacing: 0.14em;
+  padding: 0.625rem 0.875rem;
+  text-transform: uppercase;
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, opacity 180ms ease, transform 180ms ease;
+}
+
+.qi-button {
+  background: var(--hiraeth-thread);
+  border: 1px solid var(--hiraeth-thread);
+  color: var(--hiraeth-paper);
+}
+
+.qi-button:hover {
+  background: var(--hiraeth-thread-hover);
+  border-color: var(--hiraeth-thread-hover);
+  transform: translateY(-0.0625rem);
+}
+
+.qi-button-secondary {
+  background: transparent;
+  border: 1px solid var(--hiraeth-line-strong);
+  color: var(--hiraeth-thread);
+}
+
+.qi-button-secondary:hover {
+  background: var(--hiraeth-thread-soft);
+  border-color: var(--hiraeth-thread);
+}
+
+.qi-input,
+.qi-select {
+  background: color-mix(in oklab, var(--hiraeth-paper) 94%, var(--hiraeth-wash) 6%);
+  color: var(--hiraeth-ink);
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.qi-input::placeholder,
+.qi-select::placeholder {
+  color: var(--hiraeth-label);
+}
+
+.qi-input:focus,
+.qi-select:focus {
+  border-color: var(--hiraeth-thread);
+  box-shadow: 0 0 0 1px var(--hiraeth-thread);
+  outline: none;
+}
+
+.qi-divider {
+  border-color: var(--hiraeth-line);
+}
+
+.qi-cover-frame {
+  border: 1px solid var(--hiraeth-line-strong);
+  border-radius: var(--hiraeth-radius);
+  box-shadow: 0 18px 50px -30px rgba(28, 25, 23, 0.75);
+}
+
+.qi-empty {
+  background: color-mix(in oklab, var(--hiraeth-warm) 76%, var(--hiraeth-paper) 24%);
+  border: 1px dashed var(--hiraeth-line-strong);
+  border-radius: var(--hiraeth-radius);
+}
+
+.qi-action-link {
+  border-radius: var(--hiraeth-radius);
+  color: var(--hiraeth-thread);
+  transition: color 180ms ease, opacity 180ms ease, text-decoration-color 180ms ease;
+}
+
+.qi-action-link:hover {
+  color: var(--hiraeth-thread-hover);
+}
+
+.qi-action-link:focus-visible {
+  outline: 2px solid var(--hiraeth-thread);
+  outline-offset: 3px;
 }
