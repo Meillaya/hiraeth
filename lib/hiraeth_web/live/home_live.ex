@@ -6,85 +6,120 @@ defmodule HiraethWeb.HomeLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    editions = PublicCatalog.books()
-    spotlight = List.first(editions)
-    recent = Enum.slice(editions, 1, 4)
+    catalog = PublicCatalog.book_page(%{"sort" => "recently_added"}, 1, 4)
+    [spotlight | recent] = catalog.entries ++ [nil]
 
     {:ok,
      socket
      |> assign(:page_title, "Quiet Editorial Archive")
+     |> assign(:catalog_count, catalog.total_count)
      |> assign(:spotlight, spotlight)
-     |> stream(:recent, recent)}
+     |> stream(:recent, Enum.reject(recent, &is_nil/1))}
   end
 
   @impl true
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
-      <div id="home-shell" class="archive-wash space-y-16">
-        <div class="text-center max-w-2xl mx-auto space-y-4 pt-4">
-          <div class="text-stone-300 dark:text-stone-700 text-3xl font-serif">❧</div>
-          <h1 class="font-serif text-4xl md:text-5xl font-light tracking-tight text-stone-900 dark:text-stone-100">
-            Hiraeth Editorial Archive
-          </h1>
-          <p class="font-serif italic text-stone-600 dark:text-stone-400 text-lg leading-relaxed">
-            A quiet space dedicated to traceable metadata, typography, and independent book catalogs.
-          </p>
-        </div>
+      <main id="home-shell" class="archive-wash space-y-16 pb-8 md:space-y-20">
+        <section class="space-y-6 pt-4 md:pt-8">
+          <p class="qi-kicker text-[var(--hiraeth-thread)]">A quiet editorial archive</p>
+          <div class="max-w-4xl space-y-5">
+            <h1 class="text-balance font-serif text-5xl font-light leading-[1.02] tracking-tight text-[var(--hiraeth-ink)] md:text-7xl">
+              Traceable metadata for independent presses.
+            </h1>
+            <p class="max-w-2xl font-serif text-xl font-light italic leading-relaxed text-[var(--hiraeth-muted)] md:text-2xl">
+              A curated pilot of independent publisher catalogs — showing only what is sourced, and naming where every record came from.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-3 border-t qi-divider pt-5 font-mono text-[11px] uppercase tracking-[0.16em] text-[var(--hiraeth-label)]">
+            <span>{@catalog_count} sourced volumes</span>
+            <span aria-hidden="true">·</span>
+            <span>Local cover cache only</span>
+            <span aria-hidden="true">·</span>
+            <span>No fabricated fields</span>
+          </div>
+        </section>
 
         <%= if @spotlight do %>
-          <div class="hiraeth-surface grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center rounded-sm border border-[#E7E2D8] dark:border-[#2E2A27] p-6 md:p-10">
-            <div class="md:col-span-5 max-w-xs mx-auto md:w-full">
-              <CatalogComponents.book_cover
-                book={@spotlight}
-                class="shadow-md shadow-stone-900/10 dark:shadow-none"
-                loading="eager"
-                fetchpriority="high"
-                variant="hero"
-              />
-            </div>
-
-            <div id="home-spotlight" class="md:col-span-7 space-y-6">
-              <div>
-                <span class="font-mono text-xs uppercase tracking-wider text-stone-500">Spotlight Book</span>
-                <h2 class="font-serif text-3xl font-medium tracking-tight mt-1 text-stone-900 dark:text-stone-100">
-                  {@spotlight.title}
-                </h2>
+          <section
+            id="home-spotlight"
+            class="grid grid-cols-1 items-start gap-10 border-t qi-divider pt-10 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-16"
+          >
+            <div class="space-y-7">
+              <div class="space-y-4">
+                <p class="qi-kicker text-[var(--hiraeth-thread)]">
+                  Spotlight volume — {@spotlight.publisher || "Publisher unknown"}
+                </p>
+                <div class="space-y-2">
+                  <h2 class="text-balance font-serif text-5xl font-light leading-none tracking-tight text-[var(--hiraeth-ink)] md:text-7xl">
+                    {@spotlight.title}
+                  </h2>
+                  <p
+                    :if={role_names(@spotlight[:authors])}
+                    class="font-serif text-2xl font-light italic text-[var(--hiraeth-muted)]"
+                  >
+                    {role_names(@spotlight.authors)}
+                  </p>
+                  <p :if={role_names(@spotlight[:translators])} class="qi-muted text-sm">
+                    translated by {role_names(@spotlight.translators)}
+                  </p>
+                </div>
                 <p
-                  :if={@spotlight[:author]}
-                  class="font-sans text-sm italic text-stone-600 dark:text-stone-400 mt-1"
+                  :if={@spotlight[:description]}
+                  class="max-w-2xl font-serif text-lg font-light leading-8 text-[var(--hiraeth-ink)]"
                 >
-                  by {@spotlight.author}
+                  {description_excerpt(@spotlight.description, 260)}
                 </p>
               </div>
 
-              <div class="space-y-2 border-t border-[#E7E2D8] dark:border-[#2E2A27] pt-4 text-xs font-mono text-stone-500">
-                <div :if={@spotlight[:publisher]}>
-                  Publisher:
-                  <span class="text-stone-800 dark:text-stone-300 font-sans">{@spotlight.publisher}</span>
-                </div>
-                <div :if={@spotlight[:isbn]}>ISBN: <span>{@spotlight.isbn}</span></div>
-                <div :if={@spotlight[:source]}>
-                  Source: <span>{@spotlight.source.provider}</span>
-                </div>
+              <div
+                :if={praise_quote(@spotlight)}
+                class="max-w-xl border-l border-[var(--hiraeth-thread)] py-1 pl-5"
+              >
+                <p class="font-serif text-xl italic text-[var(--hiraeth-ink)]">
+                  “{praise_quote(@spotlight)}”
+                </p>
+                <p class="qi-label mt-2">
+                  {praise_source(@spotlight) || "Sourced praise"}
+                </p>
               </div>
 
-              <div class="flex gap-4">
-                <.link
-                  navigate={~p"/browse"}
-                  class="inline-flex items-center gap-1 font-mono text-xs uppercase tracking-wider text-[#8C2D19] dark:text-[#E05A47] hover:underline font-bold"
-                >
-                  Examine Catalog →
+              <div class="grid max-w-2xl grid-cols-1 gap-x-10 sm:grid-cols-2">
+                <.spotlight_meta label="Publisher" value={@spotlight[:publisher]} />
+                <.spotlight_meta label="Formats" value={format_line(@spotlight)} />
+                <.spotlight_meta label="ISBN-13" value={identifier_line(@spotlight)} mono />
+                <.spotlight_meta label="Published" value={published_date(@spotlight)} mono />
+              </div>
+
+              <p :if={@spotlight[:source]} class="qi-label max-w-2xl break-words">
+                Source · {@spotlight.source.provider} · imported {imported_date(@spotlight.source)}
+              </p>
+
+              <div class="flex flex-wrap items-center gap-5">
+                <.link navigate={~p"/browse"} class="qi-button qi-focus">
+                  Examine catalog
                 </.link>
                 <.link
                   navigate={~p"/books/#{@spotlight.slug}"}
-                  class="inline-flex items-center gap-1 font-mono text-xs uppercase tracking-wider text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 hover:underline"
+                  class="qi-action-link qi-focus font-semibold"
                 >
-                  Book Detail →
+                  Edition detail →
                 </.link>
               </div>
             </div>
-          </div>
+
+            <div class="mx-auto w-full max-w-xs lg:max-w-none">
+              <.link navigate={~p"/books/#{@spotlight.slug}"} class="group block qi-focus rounded-sm">
+                <CatalogComponents.book_cover
+                  book={@spotlight}
+                  loading="eager"
+                  fetchpriority="high"
+                  variant="hero"
+                />
+              </.link>
+            </div>
+          </section>
         <% else %>
           <CatalogComponents.empty_state
             id="home-empty"
@@ -95,18 +130,27 @@ defmodule HiraethWeb.HomeLive do
           />
         <% end %>
 
-        <div id="recent-acquisitions" class="space-y-6">
-          <div class="flex items-baseline justify-between border-b border-[#E7E2D8] dark:border-[#2E2A27] pb-3">
-            <h2 class="font-serif text-2xl font-medium tracking-tight">Recent Acquisitions</h2>
+        <section id="recent-acquisitions" class="space-y-7">
+          <div class="flex items-baseline justify-between gap-6 border-b qi-divider pb-4">
+            <div>
+              <p class="qi-kicker text-[var(--hiraeth-thread)]">Recently imported</p>
+              <h2 class="mt-2 font-serif text-3xl font-normal tracking-tight text-[var(--hiraeth-ink)]">
+                Recent acquisitions
+              </h2>
+            </div>
             <.link
-              navigate={~p"/browse"}
-              class="font-mono text-xs uppercase tracking-wider text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 hover:underline"
+              navigate={~p"/browse?sort=recently_added"}
+              class="qi-action-link qi-focus text-xs font-semibold uppercase tracking-[0.16em]"
             >
-              View All →
+              View all →
             </.link>
           </div>
 
-          <div id="recent-books" phx-update="stream" class="grid grid-cols-2 sm:grid-cols-4 gap-6">
+          <div
+            id="recent-books"
+            phx-update="stream"
+            class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3"
+          >
             <CatalogComponents.edition_card
               :for={{dom_id, edition} <- @streams.recent}
               dom_id={dom_id}
@@ -114,9 +158,93 @@ defmodule HiraethWeb.HomeLive do
               id_prefix="recent-book"
             />
           </div>
-        </div>
-      </div>
+        </section>
+      </main>
     </Layouts.app>
     """
   end
+
+  attr :label, :string, required: true
+  attr :value, :string, default: nil
+  attr :mono, :boolean, default: false
+
+  def spotlight_meta(assigns) do
+    ~H"""
+    <div :if={present?(@value)} class="border-t qi-divider py-4">
+      <dt class="qi-label">{@label}</dt>
+      <dd class={[
+        "mt-1 text-[var(--hiraeth-ink)]",
+        @mono && "font-mono text-sm",
+        !@mono && "font-serif text-lg"
+      ]}>
+        {@value}
+      </dd>
+    </div>
+    """
+  end
+
+  defp role_names(contributors) when is_list(contributors) do
+    contributors
+    |> Enum.map(& &1[:name])
+    |> Enum.reject(&is_nil/1)
+    |> Enum.join(", ")
+    |> case do
+      "" -> nil
+      names -> names
+    end
+  end
+
+  defp role_names(_contributors), do: nil
+
+  defp format_line(book) do
+    book
+    |> Map.get(:formats, [])
+    |> Enum.map(&(&1[:format_label] || &1[:format]))
+    |> Enum.reject(&is_nil/1)
+    |> Enum.uniq()
+    |> Enum.join(" · ")
+    |> blank_to_nil()
+  end
+
+  defp identifier_line(book) do
+    book
+    |> Map.get(:identifiers, [])
+    |> Enum.join(" · ")
+    |> blank_to_nil()
+  end
+
+  defp published_date(%{published_on: %Date{} = date}), do: Calendar.strftime(date, "%Y-%m-%d")
+  defp published_date(_book), do: nil
+
+  defp imported_date(%{imported_at: %DateTime{} = date}), do: Calendar.strftime(date, "%Y-%m-%d")
+  defp imported_date(_source), do: "unknown date"
+
+  defp praise_quote(book) do
+    case spotlight_praise(book) do
+      nil -> nil
+      praise -> praise[:quote] || praise["quote"]
+    end
+  end
+
+  defp praise_source(book) do
+    case spotlight_praise(book) do
+      nil -> nil
+      praise -> praise[:source] || praise["source"]
+    end
+  end
+
+  defp spotlight_praise(%{praise: [%{} = praise | _]}), do: praise
+  defp spotlight_praise(%{editorial_praise: [%{} = praise | _]}), do: praise
+  defp spotlight_praise(_book), do: nil
+
+  defp description_excerpt(description, length) when is_binary(description) do
+    description
+    |> String.trim()
+    |> String.slice(0, length)
+  end
+
+  defp present?(value), do: value not in [nil, "", []]
+
+  defp blank_to_nil(""), do: nil
+  defp blank_to_nil(value), do: value
 end

@@ -3,6 +3,6 @@ defmodule HiraethWeb.PageControllerTest do
 
   test "GET /", %{conn: conn} do
     conn = get(conn, ~p"/")
-    assert html_response(conn, 200) =~ "Hiraeth Editorial Archive"
+    assert html_response(conn, 200) =~ "Quiet Editorial Archive"
   end
 end

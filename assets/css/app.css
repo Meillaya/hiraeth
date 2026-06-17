@@ -64,9 +64,13 @@
   --hiraeth-shadow: 0 28px 90px -68px rgba(0, 0, 0, 0.9);
 }
 
+html,
 body {
   background: var(--hiraeth-paper);
   color: var(--hiraeth-ink);
+}
+
+body {
   font-family: var(--hiraeth-font-ui);
 }
 

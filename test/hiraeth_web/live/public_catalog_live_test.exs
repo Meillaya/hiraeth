@@ -47,8 +47,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert has_element?(browse, "#browse-shell")
     assert has_element?(browse, "#catalog-index", "129 books")
     assert has_element?(browse, "#catalog-page-count", "Page 1 of 6")
-    assert has_element?(browse, "#book-reader")
-    refute render(browse) =~ "Volume Reader"
+    assert has_element?(browse, "#book-reader", "Volume Reader")
 
     {:ok, filtered, _html} = live(conn, ~p"/browse?q=Immigrant")
     assert has_element?(filtered, "#catalog-index h4", "Immigrant")
