@@ -941,3 +941,8 @@ Commit: 61b857b — `fix(covers): secure cacheable cover display`
 - Added a failing `PublicCatalog` regression test that creates a sourced New Directions edition with a link-only `cdn.sanity.io` cover and verifies the public read model returns `cover: nil`.
 - Updated `PublicCatalog` cover projection to apply provider permission metadata before accepting link-only or cacheable cover data, keeping parity with `Hiraeth.Covers` resolver/cache policy.
 - Verified RED/GREEN targeted tests, affected public-catalog/cover suites, a real Chromium browser page showing the typographic fallback with the remote New Directions URL absent, full `mix precommit` (171 tests), strict browser QA, and no-scope-creep checks.
+
+## 2026-06-17 — Roadmap security/publisher transit Todo 13 deferrals
+
+- Drafted a New Directions cover-thumbnail permission request as a request-only artifact; New Directions covers remain disabled until written permission is received and recorded.
+- Importer lookup scalability remains deferred until the real catalog exceeds `>1000` records or there is failing query/performance evidence. There is explicitly no refactor of `find_or_create_by!/4` in this milestone.
