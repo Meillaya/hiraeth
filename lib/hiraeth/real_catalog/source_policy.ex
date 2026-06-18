@@ -4,7 +4,7 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
   """
 
   @allowed_formats MapSet.new(~w(paperback hardcover ebook audiobook))
-  @expansion_provider_slugs ["new_directions_official_site"]
+  @expansion_provider_slugs ["new_directions_official_site", "transit_books_official_site"]
 
   @cover_hosts %{
     "deep_vellum_official_store" => MapSet.new(["cdn.shopify.com"]),
@@ -18,7 +18,12 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
     "deep_vellum_official_store" => MapSet.new(["store.deepvellum.org"]),
     "dalkey_archive_official_store" => MapSet.new(["dalkeyarchive.store"]),
     "archipelago_books_official_store" => MapSet.new(["archipelagobooks.org"]),
-    "new_directions_official_site" => MapSet.new(["www.ndbooks.com"])
+    "new_directions_official_site" => MapSet.new(["www.ndbooks.com"]),
+    "transit_books_official_site" => MapSet.new(["www.transitbooks.org"])
+  }
+
+  @source_path_prefixes %{
+    "transit_books_official_site" => ~w(/books /catalogs /rights /about)
   }
 
   @required_gate_fields ~w(
@@ -64,6 +69,37 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
       takedown_contact:
         "Use the New Directions permissions/contact path: permissions [at] ndbooks.com, or the contact page at https://www.ndbooks.com/about/contact/.",
       not_legal_advice?: true
+    },
+    "transit_books_official_site" => %{
+      provider: "transit_books_official_site",
+      name: "Transit Books",
+      source_urls: [
+        "https://www.transitbooks.org/books",
+        "https://www.transitbooks.org/catalogs"
+      ],
+      permission_urls: ["https://www.transitbooks.org/rights"],
+      contact_urls: ["https://www.transitbooks.org/about"],
+      source_hosts: MapSet.new(["www.transitbooks.org"]),
+      cover_hosts: MapSet.new([]),
+      permission_basis:
+        "Official Transit Books pages expose public catalog facts and rights/contact surfaces for permission review; this gate records no covers and disallows local cover caching until explicit cache permission is documented.",
+      provenance_notes:
+        "Use only source-backed factual bibliographic metadata from official transitbooks.org catalog pages or a checked-in deterministic fixture derived from an approved source. Preserve provider, source URL, field provenance, and import-run evidence for every imported value. Do not import, link, or cache Transit cover images without a later explicit cover policy update.",
+      cover_cache_policy: "no_covers_until_explicit_permission",
+      excluded_content: [
+        "raw_html",
+        "jacket_copy_dumps",
+        "author_bios",
+        "reviews",
+        "user_reviews",
+        "prices",
+        "inventory",
+        "cart_checkout_account",
+        "cover_images"
+      ],
+      takedown_contact:
+        "Use the Transit Books rights/about paths for permission, correction, or takedown requests: https://www.transitbooks.org/rights and https://www.transitbooks.org/about.",
+      not_legal_advice?: true
     }
   }
 
@@ -88,11 +124,11 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
   def source_hosts(provider), do: Map.get(@source_hosts, provider, MapSet.new())
 
   def source_uri_allowed?(provider, uri_string) do
-    uri_allowed?(provider, uri_string, &source_host_allowed?/2)
+    uri_allowed?(provider, uri_string, &source_host_allowed?/2, &source_path_allowed?/2)
   end
 
   def cover_uri_allowed?(provider, uri_string) do
-    uri_allowed?(provider, uri_string, &cover_host_allowed?/2)
+    uri_allowed?(provider, uri_string, &cover_host_allowed?/2, fn _provider, _path -> true end)
   end
 
   def cover_cache_allowed?(provider) do
@@ -146,20 +182,48 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
     metadata = provider_permission_metadata!(provider)
 
     Enum.all?(
-      ~w(provider source_urls source_hosts cover_hosts permission_basis cover_cache_policy excluded_content takedown_contact not_legal_advice)a,
+      ~w(provider source_urls source_hosts permission_basis cover_cache_policy excluded_content takedown_contact not_legal_advice)a,
       &(metadata |> Map.get(&1) |> gate_field_present_value?())
-    ) and metadata.source_hosts == sorted_set(source_hosts(provider)) and
+    ) and cover_hosts_metadata_ready?(metadata) and
+      metadata.source_hosts == sorted_set(source_hosts(provider)) and
       metadata.cover_hosts == sorted_set(cover_hosts(provider))
   end
 
-  defp uri_allowed?(provider, uri_string, host_allowed?) do
+  defp cover_hosts_metadata_ready?(
+         %{cover_cache_policy: "no_covers_until_explicit_permission"} = metadata
+       ),
+       do: metadata.cover_hosts == []
+
+  defp cover_hosts_metadata_ready?(metadata), do: gate_field_present_value?(metadata.cover_hosts)
+
+  defp uri_allowed?(provider, uri_string, host_allowed?, path_allowed?) do
     case URI.parse(to_string(uri_string)) do
-      %URI{scheme: "https", host: host} when is_binary(host) -> host_allowed?.(provider, host)
-      _invalid -> false
+      %URI{scheme: "https", host: host, path: path} when is_binary(host) ->
+        host_allowed?.(provider, host) and path_allowed?.(provider, path)
+
+      _invalid ->
+        false
     end
   end
 
+  defp source_path_allowed?(provider, path) do
+    case Map.fetch(@source_path_prefixes, provider) do
+      {:ok, prefixes} -> Enum.any?(prefixes, &path_matches_prefix?(path || "/", &1))
+      :error -> true
+    end
+  end
+
+  defp path_matches_prefix?(path, prefix),
+    do: path == prefix or String.starts_with?(path, prefix <> "/")
+
   defp sorted_set(%MapSet{} = set), do: set |> MapSet.to_list() |> Enum.sort()
+
+  defp gate_field_present?(gate, :cover_hosts) do
+    case Map.get(gate, :cover_cache_policy) do
+      "no_covers_until_explicit_permission" -> Map.get(gate, :cover_hosts) == MapSet.new([])
+      _policy -> gate |> Map.get(:cover_hosts) |> gate_field_present_value?()
+    end
+  end
 
   defp gate_field_present?(gate, field) do
     value = Map.get(gate, field)

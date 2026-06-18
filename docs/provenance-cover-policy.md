@@ -50,11 +50,34 @@ permission, so public pages render typographic fallbacks instead of remote image
 jacket-copy dumps, author bios, reviews, prices, inventory, and storefront or
 account data. It is an engineering safeguard and not legal advice.
 
-The checked-in source policy currently marks New Directions as the only
-expansion provider slug. Its provider-permission projection is intended to be
-mirrored in the deterministic JSON fixture, so source URLs, source hosts,
-cover hosts, excluded content, takedown contact, cover-cache policy, and the
+The checked-in source policy currently marks New Directions and Transit Books as
+expansion provider slugs. Their provider-permission projections are intended to
+be mirrored in deterministic JSON fixtures, so source URLs, source hosts, cover
+hosts, excluded content, takedown contact, cover-cache policy, and the
 not-legal-advice note remain machine-checkable before import.
+
+
+## Transit Books future-provider gate
+
+Transit Books (`transit_books_official_site`) is approved only as a future
+source-policy gate. The gate allows factual source references under
+`https://www.transitbooks.org/books` and
+`https://www.transitbooks.org/catalogs`, with permission/contact/takedown review
+through `https://www.transitbooks.org/rights` and
+`https://www.transitbooks.org/about`. The only allowed source host is
+`www.transitbooks.org`.
+
+This gate records no approved cover hosts and does not grant remote cover
+linking or local cover-cache rights. Transit cover handling remains
+`no_covers_until_explicit_permission`: no Transit cover image should be imported,
+link-only rendered, downloaded, cached, or thumbnailed until a later policy
+records explicit permission and provenance. A future Transit fixture should use
+explicit no-cover fallbacks unless that permission review changes.
+
+Transit exclusions match the unsafe-content policy and additionally exclude
+cover images: raw HTML, jacket-copy dumps, author bios, reviews, user reviews,
+prices, inventory, cart/checkout/account data, cover images, and unsupported
+long prose. This is an engineering safeguard and not legal advice.
 
 ## Oban deferral
 
