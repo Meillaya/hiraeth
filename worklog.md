@@ -946,3 +946,10 @@ Commit: 61b857b — `fix(covers): secure cacheable cover display`
 
 - Drafted a New Directions cover-thumbnail permission request as a request-only artifact; New Directions covers remain disabled until written permission is received and recorded.
 - Importer lookup scalability remains deferred until the real catalog exceeds `>1000` records or there is failing query/performance evidence. There is explicitly no refactor of `find_or_create_by!/4` in this milestone.
+
+## 2026-06-18 — Publisher metadata and cover permission stance
+
+- User clarified the project stance for future catalog and cover policy work: separate publisher permission is not considered required for sourced book metadata or cover display because Hiraeth is a non-commerce discovery/catalog site, not a sales channel.
+- Each public book entry should link users to the official publisher purchase page rather than selling books directly.
+- Continue to preserve provenance for metadata/cover sources and use official/source-backed records; this note does not authorize scraping, unsourced metadata, or bypassing deterministic fixture/import discipline.
+- Existing implementation gates and provider policies remain code behavior until they are deliberately updated in a tested follow-up change.
