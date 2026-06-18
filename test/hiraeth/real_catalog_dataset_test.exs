@@ -417,6 +417,38 @@ defmodule Hiraeth.RealCatalogDatasetTest do
       assert "source_uri is not allowlisted for provider" in Enum.map(findings, & &1.reason)
     end
 
+    test "rejects Transit source URI dot-segment traversal before prefix allowlisting" do
+      assert {:ok, datasets} = Dataset.load_dir(@dataset_dir)
+      dataset = Enum.find(datasets, &(&1.provider == "transit_books_official_site"))
+      [record | remaining_records] = dataset.records
+
+      for traversal_uri <- [
+            "https://www.transitbooks.org/books/../account",
+            "https://www.transitbooks.org/books/%2e%2e%2faccount",
+            "https://www.transitbooks.org/catalogs/%2e%2e/checkout",
+            "https://www.transitbooks.org/catalogs/%2e%2e%2Fcheckout",
+            "https://www.transitbooks.org/catalogs/%2E%2e/checkout",
+            "https://www.transitbooks.org/s/../account.pdf",
+            "https://www.transitbooks.org/s/%2e%2e%2faccount.pdf",
+            "https://www.transitbooks.org/books/%2E%2E%5Caccount",
+            "https://www.transitbooks.org/books/%252e%252e%252faccount",
+            "https://www.transitbooks.org/books/%252E%252E%255Caccount",
+            "https://www.transitbooks.org/s/%252e%252e%252f...pdf"
+          ] do
+        unsafe_record =
+          record
+          |> Map.put(:source_uri, traversal_uri)
+          |> rewrite_field_source_uris(traversal_uri)
+
+        assert {:error, findings} =
+                 Validator.validate_datasets([
+                   %{dataset | records: [unsafe_record | remaining_records]}
+                 ])
+
+        assert "source_uri is not allowlisted for provider" in Enum.map(findings, & &1.reason)
+      end
+    end
+
     test "allows explicit no-cover reasons and rejects missing cover fallback evidence" do
       assert {:ok, [dataset | _datasets]} = Dataset.load_dir(@dataset_dir)
       [record | remaining_records] = dataset.records

@@ -186,6 +186,22 @@ defmodule Hiraeth.RealCatalogSourcePolicyTest do
       refute SourcePolicy.source_uri_allowed?(provider, "https://www.transitbooks.org/events")
       refute SourcePolicy.source_uri_allowed?(provider, "https://www.transitbooks.org/bookshelf")
 
+      for traversal_uri <- [
+            "https://www.transitbooks.org/books/../account",
+            "https://www.transitbooks.org/books/%2e%2e%2faccount",
+            "https://www.transitbooks.org/catalogs/%2e%2e/checkout",
+            "https://www.transitbooks.org/catalogs/%2e%2e%2Fcheckout",
+            "https://www.transitbooks.org/catalogs/%2E%2e/checkout",
+            "https://www.transitbooks.org/s/../account.pdf",
+            "https://www.transitbooks.org/s/%2e%2e%2faccount.pdf",
+            "https://www.transitbooks.org/books/%2E%2E%5Caccount",
+            "https://www.transitbooks.org/books/%252e%252e%252faccount",
+            "https://www.transitbooks.org/books/%252E%252E%255Caccount",
+            "https://www.transitbooks.org/s/%252e%252e%252f...pdf"
+          ] do
+        refute SourcePolicy.source_uri_allowed?(provider, traversal_uri)
+      end
+
       refute SourcePolicy.source_uri_allowed?(
                provider,
                "https://www.transitchildrenseditions.org/books"

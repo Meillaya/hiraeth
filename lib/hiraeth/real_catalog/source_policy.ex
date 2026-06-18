@@ -215,8 +215,9 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
 
     case Map.fetch(@source_path_prefixes, provider) do
       {:ok, prefixes} ->
-        Enum.any?(prefixes, &path_matches_prefix?(path, &1)) or
-          source_pdf_path_allowed?(provider, path)
+        safe_path_for_prefix_match?(path) and
+          (Enum.any?(prefixes, &path_matches_prefix?(path, &1)) or
+             source_pdf_path_allowed?(provider, path))
 
       :error ->
         true
@@ -233,6 +234,18 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
 
   defp path_matches_prefix?(path, prefix),
     do: path == prefix or String.starts_with?(path, prefix <> "/")
+
+  defp safe_path_for_prefix_match?(path) do
+    not String.contains?(path, "%") and
+      not String.contains?(path, "\\") and
+      not dot_segment_path?(path)
+  end
+
+  defp dot_segment_path?(path) do
+    path
+    |> String.split(~r{[/\\]})
+    |> Enum.any?(&(&1 in [".", ".."]))
+  end
 
   defp sorted_set(%MapSet{} = set), do: set |> MapSet.to_list() |> Enum.sort()
 
