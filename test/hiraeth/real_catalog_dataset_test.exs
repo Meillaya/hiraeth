@@ -387,7 +387,7 @@ defmodule Hiraeth.RealCatalogDatasetTest do
             {"http://store.deepvellum.org/products/not-https", "source_uri must be HTTPS"},
             {
               "https://unapproved.example.test/products/not-official",
-              "source_uri host is not allowlisted for provider"
+              "source_uri is not allowlisted for provider"
             }
           ] do
         record = Map.put(record_fixture(%{}), "source_uri", source_uri)
@@ -397,6 +397,24 @@ defmodule Hiraeth.RealCatalogDatasetTest do
         assert {:error, findings} = Validator.validate_dir(tmp)
         assert reason in Enum.map(findings, & &1.reason)
       end
+    end
+
+    test "rejects Transit source URIs outside the provider path policy" do
+      assert {:ok, datasets} = Dataset.load_dir(@dataset_dir)
+      dataset = Enum.find(datasets, &(&1.provider == "transit_books_official_site"))
+      [record | remaining_records] = dataset.records
+
+      unsafe_record =
+        record
+        |> Map.put(:source_uri, "https://www.transitbooks.org/shop")
+        |> rewrite_field_source_uris("https://www.transitbooks.org/shop")
+
+      assert {:error, findings} =
+               Validator.validate_datasets([
+                 %{dataset | records: [unsafe_record | remaining_records]}
+               ])
+
+      assert "source_uri is not allowlisted for provider" in Enum.map(findings, & &1.reason)
     end
 
     test "allows explicit no-cover reasons and rejects missing cover fallback evidence" do
@@ -617,6 +635,7 @@ defmodule Hiraeth.RealCatalogDatasetTest do
     isbn = Map.get(overrides, "isbn_13", "9781953861405")
     publisher = Map.get(overrides, "publisher", "Deep Vellum")
     format = Map.get(overrides, "format", "paperback")
+    source_uri = Map.get(overrides, "source_uri", provider_source_uri(provider))
 
     cover_url =
       Map.get(
@@ -626,7 +645,7 @@ defmodule Hiraeth.RealCatalogDatasetTest do
       )
 
     %{
-      "source_uri" => "https://example.test/book/#{System.unique_integer([:positive])}",
+      "source_uri" => source_uri,
       "source_product_id" => "fixture-#{System.unique_integer([:positive])}",
       "source_sku" => Map.get(overrides, "source_sku", isbn),
       "publisher" => publisher,
@@ -656,13 +675,13 @@ defmodule Hiraeth.RealCatalogDatasetTest do
         "cover"
       ],
       "field_sources" => %{
-        "title" => field_source_fixture(provider),
-        "contributors" => field_source_fixture(provider),
-        "publisher" => field_source_fixture(provider),
-        "format" => field_source_fixture(provider),
-        "published_on" => field_source_fixture(provider),
-        "isbn_13" => field_source_fixture(provider),
-        "cover" => field_source_fixture(provider)
+        "title" => field_source_fixture(provider, source_uri),
+        "contributors" => field_source_fixture(provider, source_uri),
+        "publisher" => field_source_fixture(provider, source_uri),
+        "format" => field_source_fixture(provider, source_uri),
+        "published_on" => field_source_fixture(provider, source_uri),
+        "isbn_13" => field_source_fixture(provider, source_uri),
+        "cover" => field_source_fixture(provider, source_uri)
       },
       "curation" => %{"status" => "approved", "notes" => "fixture"}
     }
@@ -682,13 +701,36 @@ defmodule Hiraeth.RealCatalogDatasetTest do
     }
   end
 
-  defp field_source_fixture(provider) do
+  defp field_source_fixture(provider, source_uri) do
     %{
       "provider" => provider,
-      "source_uri" => "https://example.test/book",
+      "source_uri" => source_uri,
       "source_type" => "publisher_dataset",
       "rights_basis" => "test"
     }
+  end
+
+  defp provider_source_uri("deep_vellum_official_store"),
+    do: "https://store.deepvellum.org/products/safe-test-book"
+
+  defp provider_source_uri("dalkey_archive_official_store"),
+    do: "https://dalkeyarchive.store/products/safe-test-book"
+
+  defp provider_source_uri("archipelago_books_official_store"),
+    do: "https://archipelagobooks.org/book/safe-test-book/"
+
+  defp provider_source_uri("new_directions_official_site"),
+    do: "https://www.ndbooks.com/book/safe-test-book/"
+
+  defp provider_source_uri("transit_books_official_site"),
+    do: "https://www.transitbooks.org/books/safe-test-book"
+
+  defp provider_source_uri(_provider), do: "https://example.test/book"
+
+  defp rewrite_field_source_uris(record, source_uri) do
+    Map.update!(record, :field_sources, fn sources ->
+      Map.new(sources, fn {field, source} -> {field, Map.put(source, :source_uri, source_uri)} end)
+    end)
   end
 
   defp field_source_for(record, provider) do

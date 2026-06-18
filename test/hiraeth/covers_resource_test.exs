@@ -317,6 +317,76 @@ defmodule Hiraeth.CoversResourceTest do
     refute File.exists?(expected_cache_path)
   end
 
+  test "default cover fetch streams and halts oversized responses before materializing the full body",
+       %{
+         admin: admin
+       } do
+    cache_root = unique_cache_root("streamed-oversized-body")
+    on_exit(fn -> File.rm_rf!(cache_root) end)
+
+    max_body_size = byte_size(png_bytes())
+    parent = self()
+
+    streaming =
+      cover_asset!(admin, %{
+        source_url: "https://covers.example.test/streamed-oversized-body.png",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed",
+        cached_file_path: nil
+      })
+
+    expected_cache_path = Covers.cache_path(streaming, cache_root)
+
+    chunks = [png_bytes(), "x", String.duplicate("unread", 2_000)]
+
+    adapter = fn request ->
+      response = Req.Response.new(status: 200, headers: [{"content-type", "image/png"}])
+
+      case request.into do
+        into when is_function(into, 2) ->
+          {request, response, delivered_chunks, delivered_bytes} =
+            Enum.reduce_while(chunks, {request, response, 0, 0}, fn chunk,
+                                                                    {request, response, count,
+                                                                     bytes} ->
+              delivered_chunks = count + 1
+              delivered_bytes = bytes + byte_size(chunk)
+
+              case into.({:data, chunk}, {request, response}) do
+                {:cont, {request, response}} ->
+                  {:cont, {request, response, delivered_chunks, delivered_bytes}}
+
+                {:halt, {request, response}} ->
+                  {:halt, {request, response, delivered_chunks, delivered_bytes}}
+              end
+            end)
+
+          send(parent, {:bounded_stream_adapter, delivered_chunks, delivered_bytes})
+          {request, response}
+
+        _not_streaming ->
+          body = IO.iodata_to_binary(chunks)
+          send(parent, {:bounded_stream_adapter, length(chunks), byte_size(body)})
+          {request, %{response | body: body}}
+      end
+    end
+
+    summary =
+      Covers.cache_public_covers!(
+        cache_root: cache_root,
+        source_urls: ["https://covers.example.test/streamed-oversized-body.png"],
+        max_body_size: max_body_size,
+        req_options: [adapter: adapter],
+        thumbnailer: fn _cache_path, _thumbnail_path -> nil end
+      )
+
+    assert %{cached: 0, skipped: 0, failed: 1, failures: [%{reason: reason}]} = summary
+    assert reason =~ "body size"
+    assert reason =~ "exceeds"
+    assert_received {:bounded_stream_adapter, 2, received_bytes}
+    assert received_bytes == max_body_size + 1
+    refute File.exists?(expected_cache_path)
+  end
+
   test "cover cache task rejects invalid content type responses before writing cache files", %{
     admin: admin
   } do

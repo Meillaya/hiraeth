@@ -153,6 +153,12 @@ defmodule Hiraeth.RealCatalogSourcePolicyTest do
              )
 
       assert SourcePolicy.source_uri_allowed?(provider, "https://www.transitbooks.org/catalogs")
+
+      assert SourcePolicy.source_uri_allowed?(
+               provider,
+               "https://www.transitbooks.org/s/SS26_TransitCatalog_Adult.pdf"
+             )
+
       assert SourcePolicy.source_uri_allowed?(provider, "https://www.transitbooks.org/rights")
       assert SourcePolicy.source_uri_allowed?(provider, "https://www.transitbooks.org/about")
 
@@ -168,6 +174,12 @@ defmodule Hiraeth.RealCatalogSourcePolicyTest do
       refute SourcePolicy.source_uri_allowed?(provider, "https://www.transitbooks.org/")
       refute SourcePolicy.source_uri_allowed?(provider, "https://www.transitbooks.org/shop")
       refute SourcePolicy.source_uri_allowed?(provider, "https://www.transitbooks.org/account")
+
+      refute SourcePolicy.source_uri_allowed?(
+               provider,
+               "https://www.transitbooks.org/s/not-a-pdf"
+             )
+
       refute SourcePolicy.source_uri_allowed?(provider, "https://www.transitbooks.org/cart")
       refute SourcePolicy.source_uri_allowed?(provider, "https://www.transitbooks.org/checkout")
       refute SourcePolicy.source_uri_allowed?(provider, "https://www.transitbooks.org/blog")

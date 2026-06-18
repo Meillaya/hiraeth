@@ -573,14 +573,54 @@ defmodule Hiraeth.Covers do
       req_options
       |> Keyword.put(:decode_body, false)
       |> Keyword.put(:redirect, false)
+      |> Keyword.put(:into, bounded_cover_body_collector(max_body_size))
 
     response = Req.get!(url, req_options)
 
-    if response.status in 200..299 do
-      validate_fetched_cover!(response, url, max_body_size)
-    else
-      raise "cover cache request failed with status #{response.status} for #{url}"
+    cond do
+      response.status not in 200..299 ->
+        raise "cover cache request failed with status #{response.status} for #{url}"
+
+      response.private[:hiraeth_cover_body_too_large?] ->
+        received_bytes = response.private[:hiraeth_cover_received_bytes] || 0
+
+        raise "cover cache body size #{received_bytes} exceeds max body size #{max_body_size} for #{url}"
+
+      true ->
+        response
+        |> put_streamed_cover_body()
+        |> validate_fetched_cover!(url, max_body_size)
     end
+  end
+
+  defp bounded_cover_body_collector(max_body_size) do
+    fn {:data, data}, {request, response} ->
+      received_bytes = (response.private[:hiraeth_cover_received_bytes] || 0) + byte_size(data)
+
+      private =
+        response.private
+        |> Map.put(:hiraeth_cover_received_bytes, received_bytes)
+
+      if received_bytes > max_body_size do
+        response = %{response | private: Map.put(private, :hiraeth_cover_body_too_large?, true)}
+        {:halt, {request, response}}
+      else
+        private =
+          Map.update(private, :hiraeth_cover_body_chunks, [data], fn chunks -> [data | chunks] end)
+
+        {:cont, {request, %{response | private: private}}}
+      end
+    end
+  end
+
+  defp put_streamed_cover_body(%Req.Response{} = response) do
+    body =
+      response.private
+      |> Map.get(:hiraeth_cover_body_chunks, [])
+      |> Enum.reverse()
+      |> IO.iodata_to_binary()
+
+    %{response | body: body}
   end
 
   defp validate_fetched_cover!(fetched, url, max_body_size) do

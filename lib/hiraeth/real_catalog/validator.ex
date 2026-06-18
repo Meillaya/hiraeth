@@ -191,10 +191,10 @@ defmodule Hiraeth.RealCatalog.Validator do
     )
     |> add_if(
       present?(source_uri) and uri.scheme == "https" and
-        not SourcePolicy.source_host_allowed?(dataset.provider, uri.host),
+        not SourcePolicy.source_uri_allowed?(dataset.provider, source_uri),
       dataset,
       record,
-      "source_uri host is not allowlisted for provider"
+      "source_uri is not allowlisted for provider"
     )
   end
 
@@ -450,7 +450,7 @@ defmodule Hiraeth.RealCatalog.Validator do
     )
     |> add_if(
       present?(storefront_url) and uri.scheme == "https" and
-        not SourcePolicy.source_host_allowed?(dataset.provider, uri.host),
+        not SourcePolicy.source_uri_allowed?(dataset.provider, storefront_url),
       dataset,
       record,
       "public prose requires source provenance"
@@ -487,7 +487,7 @@ defmodule Hiraeth.RealCatalog.Validator do
       )
       |> add_if(
         present?(source_uri) and uri.scheme == "https" and
-          not SourcePolicy.source_host_allowed?(dataset.provider, uri.host),
+          not SourcePolicy.source_uri_allowed?(dataset.provider, source_uri),
         dataset,
         record,
         "public prose requires source provenance"

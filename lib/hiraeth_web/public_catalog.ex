@@ -96,6 +96,31 @@ defmodule HiraethWeb.PublicCatalog do
   end
 
   defp count_books_for_filters(filters) do
+    if default_title_page_filters?(filters) do
+      count_default_title_books()
+    else
+      count_filtered_books(filters)
+    end
+  end
+
+  defp count_default_title_books do
+    {:ok, %{rows: [[count]]}} =
+      Hiraeth.Repo.query(
+        """
+        select count(distinct e.work_id)
+        from editions e
+        join works w on w.id = e.work_id
+        join identifiers source_identifier on source_identifier.edition_id = e.id
+        join source_records sr
+          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+        """,
+        []
+      )
+
+    count
+  end
+
+  defp count_filtered_books(filters) do
     {where, params} = work_filter_where(filters)
 
     {:ok, %{rows: [[count]]}} =
@@ -121,6 +146,36 @@ defmodule HiraethWeb.PublicCatalog do
   end
 
   defp work_ids_for_filters(filters, limit, offset) do
+    if default_title_page_filters?(filters) do
+      default_title_work_ids(limit, offset)
+    else
+      filtered_work_ids(filters, limit, offset)
+    end
+  end
+
+  defp default_title_work_ids(limit, offset) do
+    {limit_sql, params} = limit_params(limit, offset, [])
+
+    {:ok, %{rows: rows}} =
+      Hiraeth.Repo.query(
+        """
+        select e.work_id
+        from editions e
+        join works w on w.id = e.work_id
+        join identifiers source_identifier on source_identifier.edition_id = e.id
+        join source_records sr
+          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+        group by e.work_id, w.title
+        order by lower(w.title), min(e.slug)
+        #{limit_sql}
+        """,
+        params
+      )
+
+    Enum.map(rows, fn [work_id] -> work_id end)
+  end
+
+  defp filtered_work_ids(filters, limit, offset) do
     {where, params} = work_filter_where(filters)
     {limit_sql, params} = limit_params(limit, offset, params)
     order_sql = work_order_sql(filters.sort)
@@ -308,6 +363,17 @@ defmodule HiraethWeb.PublicCatalog do
 
   defp normalize_sort(sort) when sort in ~w(newest title author recently_added), do: sort
   defp normalize_sort(_sort), do: "title"
+
+  defp default_title_page_filters?(%{sort: "title"} = filters) do
+    Enum.all?(
+      ~w(q publisher role contributor format language subject series year)a,
+      fn key -> blank_filter_value?(Map.get(filters, key)) end
+    )
+  end
+
+  defp default_title_page_filters?(_filters), do: false
+
+  defp blank_filter_value?(value), do: value in [nil, ""]
 
   def editions do
     edition_rows("", [])

@@ -4,7 +4,7 @@ Hiraeth is a Phoenix LiveView and Ash catalog for browsing curated independent p
 
 Current public surfaces include `/browse`, `/search`, `/publishers`, `/series`, `/contributors`, contributor role filters such as `/contributors?role=translator`, and book detail pages with source provenance.
 
-The checked-in pilot catalog includes Deep Vellum, Dalkey Archive, Archipelago Books, and New Directions. New Directions records use explicit no-cover fallbacks until cover-cache permission is recorded.
+The checked-in pilot catalog includes Deep Vellum, Dalkey Archive, Archipelago Books, New Directions, and Transit Books. New Directions records use explicit no-cover fallbacks until cover-cache permission is recorded; Transit Books records are sourced from official catalog PDFs/pages and keep covers disabled until explicit cover permission is recorded.
 
 ## Run locally
 

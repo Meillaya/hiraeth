@@ -352,8 +352,6 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
              live(conn, ~p"/editions/#{@immigrant_slug}")
 
     {:ok, view, html} = live(conn, ~p"/books/deep-vellum-immigrant")
-    File.mkdir_p!(".omo/evidence")
-    File.write!(".omo/evidence/task-11-book-live-dom.html", render(view))
 
     assert has_element?(view, "#book-detail-shell")
     assert has_element?(view, "#book-title", "Immigrant")
@@ -407,8 +405,6 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
              live(conn, ~p"/editions/archipelago-books-bob-and-hilbert-hardcover-9781962770651")
 
     {:ok, view, _html} = live(conn, ~p"/books/archipelago-books-bob-and-hilbert")
-    File.mkdir_p!(".omo/evidence")
-    File.write!(".omo/evidence/task-11-book-live-dom.html", render(view))
 
     assert has_element?(view, "#book-description", "Sourced publisher synopsis")
     assert has_element?(view, "#book-editorial-praise", "Publisher official page")

@@ -26,6 +26,10 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
     "transit_books_official_site" => ~w(/books /catalogs /rights /about)
   }
 
+  @source_pdf_path_prefixes %{
+    "transit_books_official_site" => ["/s/"]
+  }
+
   @required_gate_fields ~w(
     provider
     name
@@ -207,10 +211,24 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
   end
 
   defp source_path_allowed?(provider, path) do
+    path = path || "/"
+
     case Map.fetch(@source_path_prefixes, provider) do
-      {:ok, prefixes} -> Enum.any?(prefixes, &path_matches_prefix?(path || "/", &1))
-      :error -> true
+      {:ok, prefixes} ->
+        Enum.any?(prefixes, &path_matches_prefix?(path, &1)) or
+          source_pdf_path_allowed?(provider, path)
+
+      :error ->
+        true
     end
+  end
+
+  defp source_pdf_path_allowed?(provider, path) do
+    @source_pdf_path_prefixes
+    |> Map.get(provider, [])
+    |> Enum.any?(fn prefix ->
+      String.starts_with?(path, prefix) and String.ends_with?(String.downcase(path), ".pdf")
+    end)
   end
 
   defp path_matches_prefix?(path, prefix),
