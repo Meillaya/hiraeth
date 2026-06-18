@@ -24,8 +24,8 @@ defmodule HiraethWeb.RouteShellLiveTest do
     {:ok, view, _html} = live(conn, ~p"/browse")
 
     assert has_element?(view, "#browse-shell")
-    assert has_element?(view, "#catalog-index", "129 books")
-    assert has_element?(view, "#catalog-page-count", "Page 1 of 6")
+    assert has_element?(view, "#catalog-index", "178 books")
+    assert has_element?(view, "#catalog-page-count", "Page 1 of 8")
 
     {:ok, filtered, _html} = live(conn, ~p"/browse?q=Tunnel")
     assert has_element?(filtered, "#catalog-index h4", "The Tunnel")
@@ -36,7 +36,7 @@ defmodule HiraethWeb.RouteShellLiveTest do
     {:ok, view, _html} = live(conn, ~p"/search")
 
     assert has_element?(view, "#search-shell")
-    assert has_element?(view, "#search-results", "129 matches")
+    assert has_element?(view, "#search-results", "178 matches")
 
     view
     |> form("#catalog-search-form", search: %{query: "Archipelago"})

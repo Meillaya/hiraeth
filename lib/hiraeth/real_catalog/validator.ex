@@ -137,7 +137,7 @@ defmodule Hiraeth.RealCatalog.Validator do
         "provider permission metadata is required"
       )
       |> add_if(
-        blank?(permissions[:cover_hosts]),
+        cover_hosts_missing?(permissions),
         dataset,
         nil,
         "provider permission metadata is required"
@@ -156,6 +156,13 @@ defmodule Hiraeth.RealCatalog.Validator do
   defp add_blank(findings, dataset, record, value, reason) do
     add_if(findings, blank?(value), dataset, record, reason)
   end
+
+  defp cover_hosts_missing?(
+         %{cover_cache_policy: "no_covers_until_explicit_permission"} = permissions
+       ),
+       do: permissions[:cover_hosts] != []
+
+  defp cover_hosts_missing?(permissions), do: blank?(permissions[:cover_hosts])
 
   defp add_if(findings, true, dataset, record, reason),
     do: [finding(dataset, record, reason) | findings]

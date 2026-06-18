@@ -31,13 +31,14 @@ defmodule Hiraeth.RealCatalogImporterTest do
       |> Ash.create!(authorize?: false)
 
     assert {:ok, first_summary} = Hiraeth.RealCatalog.Importer.seed!()
-    assert first_summary.editions == 200
-    assert first_summary.publishers == 4
+    assert first_summary.editions == 250
+    assert first_summary.publishers == 5
 
     assert Enum.any?(Ash.read!(Publisher, authorize?: false), &(&1.name == "Deep Vellum"))
     assert Enum.any?(Ash.read!(Publisher, authorize?: false), &(&1.name == "Dalkey Archive"))
     assert Enum.any?(Ash.read!(Publisher, authorize?: false), &(&1.name == "Archipelago Books"))
     assert Enum.any?(Ash.read!(Publisher, authorize?: false), &(&1.name == "New Directions"))
+    assert Enum.any?(Ash.read!(Publisher, authorize?: false), &(&1.name == "Transit Books"))
 
     editions = Ash.read!(Edition, authorize?: false)
     identifiers = Ash.read!(Identifier, authorize?: false)
@@ -47,13 +48,13 @@ defmodule Hiraeth.RealCatalogImporterTest do
     cover_assignments = Ash.read!(CoverAssignment, authorize?: false)
     import_runs = Ash.read!(ImportRun, authorize?: false)
 
-    assert length(editions) == 200
-    assert length(identifiers) == 200
-    assert length(source_records) == 200
-    assert length(source_ledger) >= 200
+    assert length(editions) == 250
+    assert length(identifiers) == 250
+    assert length(source_records) == 250
+    assert length(source_ledger) >= 250
     assert length(cover_assets) >= 3
     assert length(cover_assignments) == 150
-    assert length(import_runs) == 4
+    assert length(import_runs) == 5
 
     refute Enum.any?(
              Ash.read!(User, authorize?: false),
@@ -62,10 +63,16 @@ defmodule Hiraeth.RealCatalogImporterTest do
 
     assert Enum.all?(source_records, &(&1.source_type == "publisher_dataset"))
 
-    assert Enum.all?(
-             source_records,
-             &String.contains?(&1.license_note, "approved public prose metadata")
-           )
+    assert Enum.all?(source_records, fn
+             %{provider: "transit_books_official_site", license_note: license_note} ->
+               String.contains?(license_note, "catalog archive PDFs") and
+                 String.contains?(license_note, "factual bibliographic metadata only") and
+                 String.contains?(license_note, "no copied descriptions") and
+                 String.contains?(license_note, "covers")
+
+             %{license_note: license_note} ->
+               String.contains?(license_note, "approved public prose metadata")
+           end)
 
     assert Enum.all?(source_records, &is_binary(&1.import_run_id))
     assert Enum.all?(cover_assets, &(&1.cache_policy == "cache_allowed"))
@@ -90,6 +97,32 @@ defmodule Hiraeth.RealCatalogImporterTest do
     assert Enum.any?(editions, &(&1.title == "The Tunnel" and &1.format == "paperback"))
     assert Enum.any?(editions, &(&1.title == "Bob and Hilbert" and &1.format == "hardcover"))
     assert Enum.any?(editions, &(&1.title == "Cold Mountain Zen" and &1.format == "paperback"))
+    assert Enum.any?(editions, &(&1.title == "May We Feed the King" and &1.format == "paperback"))
+
+    transit_source_records =
+      Enum.filter(source_records, &(&1.provider == "transit_books_official_site"))
+
+    assert length(transit_source_records) == 50
+
+    assert Enum.all?(transit_source_records, fn source_record ->
+             payload = source_record.raw_payload || %{}
+
+             payload["no_cover_reason"] =~ "no explicit cover-cache permission" and
+               String.starts_with?(
+                 source_record.source_uri,
+                 "https://www.transitbooks.org/s/"
+               ) and
+               String.contains?(source_record.source_uri, ".pdf#isbn-") and
+               payload["provider_permissions"]["source_urls"] == [
+                 "https://www.transitbooks.org/books",
+                 "https://www.transitbooks.org/catalogs"
+               ] and
+               payload["provider_permissions"]["permission_basis"] =~ "catalog PDFs" and
+               payload["provider_permissions"]["cover_hosts"] == [] and
+               payload["provider_permissions"]["cover_cache_policy"] ==
+                 "no_covers_until_explicit_permission" and
+               not Map.has_key?(payload, "cover")
+           end)
 
     assert archipelago_dataset.records
            |> Enum.filter(&(&1.source_sku in ["9781962770651", "9781962770668"]))
@@ -99,13 +132,13 @@ defmodule Hiraeth.RealCatalogImporterTest do
            ]
 
     assert {:ok, second_summary} = Hiraeth.RealCatalog.Importer.seed!()
-    assert second_summary.editions == 200
+    assert second_summary.editions == 250
 
-    assert length(Ash.read!(Edition, authorize?: false)) == 200
-    assert length(Ash.read!(Identifier, authorize?: false)) == 200
-    assert length(Ash.read!(SourceRecord, authorize?: false)) == 200
+    assert length(Ash.read!(Edition, authorize?: false)) == 250
+    assert length(Ash.read!(Identifier, authorize?: false)) == 250
+    assert length(Ash.read!(SourceRecord, authorize?: false)) == 250
     assert length(Ash.read!(CoverAssignment, authorize?: false)) == 150
-    assert length(Ash.read!(ImportRun, authorize?: false)) == 4
+    assert length(Ash.read!(ImportRun, authorize?: false)) == 5
   end
 
   test "real catalog importer accepts validated no-cover records without creating cover assignments" do

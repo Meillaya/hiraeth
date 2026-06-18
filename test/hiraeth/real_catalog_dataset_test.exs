@@ -8,11 +8,12 @@ defmodule Hiraeth.RealCatalogDatasetTest do
     "deep_vellum_official_store" => "deep_vellum.json",
     "dalkey_archive_official_store" => "dalkey_archive.json",
     "archipelago_books_official_store" => "archipelago_books.json",
-    "new_directions_official_site" => "new_directions.json"
+    "new_directions_official_site" => "new_directions.json",
+    "transit_books_official_site" => "transit_books.json"
   }
 
   describe "real publisher dataset contract" do
-    test "tracked dataset files exist for the four approved publishers" do
+    test "tracked dataset files exist for the five approved publishers" do
       assert File.dir?(@dataset_dir)
       assert File.exists?(Path.join(@dataset_dir, "README.md"))
       assert File.exists?(Path.join(@dataset_dir, "schema.json"))
@@ -33,7 +34,7 @@ defmodule Hiraeth.RealCatalogDatasetTest do
                  summary.providers[provider]
       end
 
-      assert summary.total_records == 200
+      assert summary.total_records == 250
       assert summary.duplicate_isbns == []
       assert summary.copy_risk_findings == []
       assert summary.cover_findings == []
@@ -97,8 +98,13 @@ defmodule Hiraeth.RealCatalogDatasetTest do
 
       for dataset <- datasets do
         prose_records = Enum.filter(dataset.records, &Map.has_key?(&1, :description))
-        assert length(prose_records) >= 1
         assert get_in(dataset, [:prose_curation, :records_with_prose]) == length(prose_records)
+
+        if dataset.provider == "transit_books_official_site" do
+          assert prose_records == []
+        else
+          assert length(prose_records) >= 1
+        end
 
         for record <- prose_records do
           assert record.description |> String.length() |> Kernel.>(20)
@@ -135,6 +141,18 @@ defmodule Hiraeth.RealCatalogDatasetTest do
 
       assert get_in(schema, ["$defs", "provider_permissions", "required"]) |> Enum.sort() ==
                ~w(cover_cache_policy cover_hosts excluded_content not_legal_advice permission_basis provider source_hosts source_urls takedown_contact)
+
+      no_cover_rule = get_in(schema, ["$defs", "provider_permissions", "allOf"]) |> List.first()
+
+      assert get_in(no_cover_rule, [
+               "if",
+               "properties",
+               "cover_cache_policy",
+               "const"
+             ]) == "no_covers_until_explicit_permission"
+
+      assert get_in(no_cover_rule, ["then", "properties", "cover_hosts", "maxItems"]) == 0
+      assert get_in(no_cover_rule, ["else", "properties", "cover_hosts", "minItems"]) == 1
 
       assert get_in(schema, ["properties", "records", "items", "required"])
              |> Enum.member?("field_sources")

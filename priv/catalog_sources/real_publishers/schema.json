@@ -525,8 +525,7 @@
           "type": "array",
           "items": {
             "type": "string"
-          },
-          "minItems": 1
+          }
         },
         "permission_basis": {
           "type": "string"
@@ -547,7 +546,35 @@
         "not_legal_advice": {
           "type": "string"
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "cover_cache_policy": {
+                "const": "no_covers_until_explicit_permission"
+              }
+            },
+            "required": [
+              "cover_cache_policy"
+            ]
+          },
+          "then": {
+            "properties": {
+              "cover_hosts": {
+                "maxItems": 0
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "cover_hosts": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "additionalProperties": false

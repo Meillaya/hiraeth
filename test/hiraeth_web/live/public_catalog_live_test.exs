@@ -45,8 +45,8 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     {:ok, browse, _html} = live(conn, ~p"/browse")
 
     assert has_element?(browse, "#browse-shell")
-    assert has_element?(browse, "#catalog-index", "129 books")
-    assert has_element?(browse, "#catalog-page-count", "Page 1 of 6")
+    assert has_element?(browse, "#catalog-index", "178 books")
+    assert has_element?(browse, "#catalog-page-count", "Page 1 of 8")
     assert has_element?(browse, "#book-reader", "Volume Reader")
 
     {:ok, filtered, _html} = live(conn, ~p"/browse?q=Immigrant")
@@ -124,7 +124,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     {:ok, view, _html} = live(conn, ~p"/search")
 
     assert has_element?(view, "#search-shell")
-    assert has_element?(view, "#search-results", "129 matches")
+    assert has_element?(view, "#search-results", "178 matches")
 
     view
     |> form("#catalog-search-form", search: %{query: "Bob and Hilbert"})
