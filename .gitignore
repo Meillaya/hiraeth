@@ -2,6 +2,10 @@
 .omo/
 .omx/
 
+# Local code intelligence and debug journals
+.codegraph/
+.debug-journal.md
+
 # Generated QA artifacts
 artifacts/
 
@@ -29,6 +33,9 @@ artifacts/
 /tmp/
 *.log
 erl_crash.dump
+*.pyc
+__pycache__/
+.pytest_cache/
 
 # Local editor/cache files
 /.cache/

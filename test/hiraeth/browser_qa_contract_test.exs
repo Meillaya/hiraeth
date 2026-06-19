@@ -66,8 +66,9 @@ defmodule Hiraeth.BrowserQaContractTest do
     assert script =~ "chromium"
     assert script =~ "seed_browser_qa.exs"
     assert script =~ "keyboard_focus_check.mjs"
-    assert script =~ "admin_browser_check.mjs"
+    refute script =~ "admin_browser_check.mjs"
     assert script =~ "image_decode_check.mjs"
+    assert script =~ "public_resource_dependency_check.mjs"
     assert script =~ "responsive_overflow_check.mjs"
   end
 
@@ -120,11 +121,13 @@ defmodule Hiraeth.BrowserQaContractTest do
     assert script =~ "network_errors=pass"
     assert script =~ "remote_cover_dependencies=pass"
     assert script =~ "remote_image_dependencies=pass"
+    assert script =~ "public_resource_dependencies=pass"
+    assert script =~ "no_remote_images_css_fonts_scripts_styles=pass"
     assert script =~ "external_resource_references"
     assert script =~ "broken_local_resources"
   end
 
-  test "cover provenance and local image decode audits are required observable QA outcomes", %{
+  test "cover cache and local image decode audits are required observable QA outcomes", %{
     script: script,
     docs: docs
   } do
@@ -141,13 +144,13 @@ defmodule Hiraeth.BrowserQaContractTest do
     assert script =~ "cached_cover_paths=pass"
     assert script =~ "cover_image_attrs=pass"
     assert script =~ "new_directions_cover_fallback=pass"
-    assert script =~ "cover_attribution_takedown=pass"
+    refute script =~ "cover_attribution_takedown=pass"
 
     assert script =~ "image-decode.json"
     assert script =~ "thumbnail-image-decode.json"
     assert script =~ "image_decode=pass"
     assert script =~ "thumbnail_image_decode=pass"
-    assert script =~ "natural_width_gt_zero=pass"
+    assert script =~ "natural_dimensions_minimum=64x64"
   end
 
   test "cover cache warmup fails fast when the cache command reports failed covers" do

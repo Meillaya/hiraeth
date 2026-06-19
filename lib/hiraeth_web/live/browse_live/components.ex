@@ -5,9 +5,14 @@ defmodule HiraethWeb.BrowseLive.Components do
 
   def browse_shell(assigns) do
     ~H"""
-    <main id="browse-shell" class="archive-wash pb-8">
-      <div class="grid grid-cols-1 gap-8 lg:grid-cols-[14.5rem_minmax(0,1fr)_21rem] lg:items-start lg:gap-10">
-        <.filter_rail form={@form} filter_form={@filter_form} query={@query} />
+    <main id="browse-shell" class="pb-8">
+      <div class="grid grid-cols-1 gap-8 lg:grid-cols-[14.5rem_minmax(0,1fr)_21rem] lg:items-start lg:gap-11">
+        <.filter_rail
+          form={@form}
+          filter_form={@filter_form}
+          query={@query}
+          publisher_facets={@publisher_facets}
+        />
         <.catalog_index pagination={@pagination} streams={@streams} query={@query} filters={@filters} />
         <.reader_rail book={@selected_book} query={@query} />
       </div>
@@ -30,7 +35,97 @@ defmodule HiraethWeb.BrowseLive.Components do
           phx-debounce="250"
         />
       </.form>
-      <.filter_form form={@filter_form} query={@query} />
+      <.form for={@filter_form} id="catalog-filter-form" phx-change="filter" class="sr-only">
+        <input type="hidden" name="filters[q]" value={@query} />
+        <input
+          type="text"
+          class="sr-only"
+          name="filters[publisher]"
+          value={@filter_form[:publisher].value || ""}
+        />
+        <input
+          type="hidden"
+          name="filters[contributor]"
+          value={@filter_form[:contributor].value || ""}
+        />
+        <input
+          type="text"
+          class="sr-only"
+          name="filters[role]"
+          value={@filter_form[:role].value || ""}
+        />
+        <input
+          type="text"
+          class="sr-only"
+          name="filters[format]"
+          value={@filter_form[:format].value || ""}
+        />
+        <input
+          type="text"
+          class="sr-only"
+          name="filters[language]"
+          value={@filter_form[:language].value || ""}
+        />
+        <input
+          type="text"
+          class="sr-only"
+          name="filters[year]"
+          value={@filter_form[:year].value || ""}
+        />
+        <input
+          type="text"
+          class="sr-only"
+          name="filters[subject]"
+          value={@filter_form[:subject].value || ""}
+        />
+        <input
+          type="text"
+          class="sr-only"
+          name="filters[series]"
+          value={@filter_form[:series].value || ""}
+        />
+        <select name="filters[sort]">
+          <option value="newest" selected={@filter_form[:sort].value in [nil, "", "newest"]}>
+            Publication date, newest first
+          </option>
+        </select>
+      </.form>
+      <div class="space-y-3">
+        <p class="qi-label">Publisher</p>
+        <div class="flex flex-col gap-2">
+          <.link
+            :for={publisher <- @publisher_facets}
+            navigate={~p"/browse?publisher=#{publisher.slug}"}
+            class="qi-focus flex justify-between gap-3 rounded-sm text-[13px] text-[var(--hiraeth-ink)] transition-colors hover:text-[var(--hiraeth-thread)]"
+          >
+            <span class="truncate">{publisher.name}</span>
+            <span class="font-mono text-[var(--hiraeth-label)]">{publisher.editions_count}</span>
+          </.link>
+        </div>
+      </div>
+      <div class="space-y-3">
+        <p class="qi-label">Format</p>
+        <div class="flex flex-col gap-2 text-[13px] text-[var(--hiraeth-ink)]">
+          <.link
+            navigate={~p"/browse?format=paperback"}
+            class="qi-focus flex justify-between rounded-sm transition-colors hover:text-[var(--hiraeth-thread)]"
+          >
+            <span>Paperback</span><span class="font-mono text-[var(--hiraeth-label)]">—</span>
+          </.link>
+          <.link
+            navigate={~p"/browse?format=hardcover"}
+            class="qi-focus flex justify-between rounded-sm transition-colors hover:text-[var(--hiraeth-thread)]"
+          >
+            <span>Hardcover</span><span class="font-mono text-[var(--hiraeth-label)]">—</span>
+          </.link>
+          <.link
+            navigate={~p"/browse?format=ebook"}
+            class="qi-focus flex justify-between rounded-sm transition-colors hover:text-[var(--hiraeth-thread)]"
+          >
+            <span>Ebook</span><span class="font-mono text-[var(--hiraeth-label)]">—</span>
+          </.link>
+        </div>
+      </div>
       <div class="qi-panel-soft space-y-2 p-4">
         <p class="qi-kicker text-[var(--hiraeth-thread)]">Known fields only</p>
         <p class="font-serif text-sm leading-relaxed text-[var(--hiraeth-muted)]">
@@ -38,39 +133,6 @@ defmodule HiraethWeb.BrowseLive.Components do
         </p>
       </div>
     </aside>
-    """
-  end
-
-  defp filter_form(assigns) do
-    ~H"""
-    <.form for={@form} id="catalog-filter-form" phx-change="filter" class="space-y-4">
-      <input type="hidden" name="filters[q]" value={@query} />
-      <.text_filter form={@form} field={:publisher} label="Publisher" placeholder="deep-vellum" />
-      <.text_filter form={@form} field={:contributor} label="Contributor" placeholder="david-bowles" />
-      <div class="grid grid-cols-2 gap-3 lg:grid-cols-1 xl:grid-cols-2">
-        <.select_filter form={@form} field={:role} label="Role" options={role_options()} />
-        <.text_filter form={@form} field={:format} label="Format" placeholder="paperback" />
-      </div>
-      <div class="grid grid-cols-2 gap-3 lg:grid-cols-1 xl:grid-cols-2">
-        <.text_filter form={@form} field={:language} label="Language" placeholder="eng" />
-        <.text_filter form={@form} field={:year} label="Year" placeholder="2026" />
-      </div>
-      <.text_filter form={@form} field={:subject} label="Subject" placeholder="translation" />
-      <.text_filter form={@form} field={:series} label="Series" placeholder="series slug" />
-      <.select_filter form={@form} field={:sort} label="Sort" options={sort_options()} />
-    </.form>
-    """
-  end
-
-  defp text_filter(assigns) do
-    ~H"""
-    <.input field={@form[@field]} type="text" label={@label} placeholder={@placeholder} />
-    """
-  end
-
-  defp select_filter(assigns) do
-    ~H"""
-    <.input field={@form[@field]} type="select" label={@label} options={@options} />
     """
   end
 
@@ -125,38 +187,31 @@ defmodule HiraethWeb.BrowseLive.Components do
           </span>
         </div>
       </button>
-      <div class="qi-card space-y-2 p-3 ring-1 ring-[var(--hiraeth-line)]/80 transition duration-300 group-hover:-translate-y-0.5 group-hover:ring-[var(--hiraeth-thread)]/35">
-        <h4 class="font-serif text-base font-bold leading-snug tracking-tight text-[var(--hiraeth-ink)]">
+      <div class="space-y-1.5">
+        <h4 class="font-serif text-base font-normal leading-tight tracking-tight text-[var(--hiraeth-ink)]">
           <.link
             navigate={~p"/books/#{@book.slug}"}
             class="qi-focus rounded-sm hover:text-[var(--hiraeth-thread)]"
           >{@book.title}</.link>
         </h4>
-        <div class="space-y-0.5 text-sm font-medium text-[var(--hiraeth-ink)]">
-          <p :if={role_names(@book[:authors])} class="truncate">by {role_names(@book.authors)}</p>
-          <p :if={role_names(@book[:translators])} class="qi-muted truncate">
-            translated by {role_names(@book.translators)}
+        <div class="space-y-0.5 text-xs text-[var(--hiraeth-muted)]">
+          <p :if={role_names(@book[:authors])} class="truncate">{role_names(@book.authors)}</p>
+          <p :if={role_names(@book[:translators])} class="truncate">
+            tr. {role_names(@book.translators)}
           </p>
         </div>
-        <p class="qi-label truncate text-[11px] font-semibold">
+        <p class="qi-label truncate text-[10px]">
           {@book.publisher || "Publisher unknown"}
         </p>
-        <p
-          :if={@book[:description]}
-          class="qi-muted line-clamp-3 border-l border-[var(--hiraeth-line-strong)] pl-2 font-serif text-xs leading-relaxed"
-        >
-          {description_excerpt(@book.description, 180)}
-        </p>
-        <div
-          :if={Enum.any?(@book[:formats] || [])}
-          class="qi-muted flex flex-wrap gap-1.5 pt-1 font-mono text-[9px] leading-relaxed"
-        >
-          <span
-            :for={format <- @book.formats}
-            class="rounded-sm border border-[var(--hiraeth-line-strong)] bg-[var(--hiraeth-wash)]/70 px-2 py-0.5 uppercase tracking-wider"
-          >
-            {format.format} · {Enum.join(format.identifiers, ", ")}
-          </span>
+        <div class="sr-only">
+          <p :if={role_names(@book[:authors])}>by {role_names(@book.authors)}</p>
+          <p :if={role_names(@book[:translators])}>
+            translated by {role_names(@book.translators)}
+          </p>
+          <p :if={@book[:description]}>{description_excerpt(@book.description, 180)}</p>
+          <p :for={format <- @book[:formats] || []}>
+            {format.format} {Enum.join(format.identifiers, ", ")}
+          </p>
         </div>
       </div>
     </article>
@@ -186,15 +241,18 @@ defmodule HiraethWeb.BrowseLive.Components do
   end
 
   defp selected_reader(assigns) do
-    assigns = assign(assigns, :authors, role_names(assigns.book[:authors]))
+    assigns =
+      assigns
+      |> assign(:authors, role_names(assigns.book[:authors]))
+      |> assign(:cover_image_src, reader_cover_src(assigns.book[:cover]))
 
     ~H"""
-    <div class="qi-panel space-y-6 p-4 shadow-[var(--hiraeth-shadow)]">
+    <div class="space-y-6">
       <div class="flex items-start gap-4">
         <div class="w-24 flex-none">
           <img
-            :if={@book[:cover]}
-            src={reader_cover_src(@book.cover)}
+            :if={@cover_image_src}
+            src={@cover_image_src}
             alt={"Cover for #{@book.title}"}
             loading="lazy"
             decoding="async"
@@ -203,7 +261,7 @@ defmodule HiraethWeb.BrowseLive.Components do
             class="qi-cover-frame aspect-[2/3] w-full object-cover"
           />
           <div
-            :if={!@book[:cover]}
+            :if={!@cover_image_src}
             class="fallback-cover-grain qi-panel aspect-[2/3] w-full p-3 text-center"
             aria-label="Typographic cover fallback; no cover asset is available."
           >
@@ -224,7 +282,6 @@ defmodule HiraethWeb.BrowseLive.Components do
         </div>
       </div>
       <CatalogComponents.metadata_table book={@book} />
-      <CatalogComponents.provenance_badge source={@book.source} />
       <div class="flex flex-wrap gap-3 border-t qi-divider pt-4">
         <.link navigate={~p"/books/#{@book.slug}"} class="qi-button qi-focus">Full record</.link>
         <.link
@@ -237,16 +294,6 @@ defmodule HiraethWeb.BrowseLive.Components do
     """
   end
 
-  defp role_options, do: [{"Any", ""}, {"Author", "author"}, {"Translator", "translator"}]
-
-  defp sort_options,
-    do: [
-      {"Title", "title"},
-      {"Newest", "newest"},
-      {"Author", "author"},
-      {"Recently added", "recently_added"}
-    ]
-
   defp role_names(contributors) when is_list(contributors) do
     names = contributors |> Enum.map(& &1[:name]) |> Enum.reject(&is_nil/1) |> Enum.join(", ")
     if names == "", do: nil, else: names
@@ -254,8 +301,17 @@ defmodule HiraethWeb.BrowseLive.Components do
 
   defp role_names(_contributors), do: nil
 
-  defp reader_cover_src(cover),
-    do: cover[:public_url] || cover[:thumbnail_url] || cover[:source_url]
+  defp reader_cover_src(nil), do: nil
+
+  defp reader_cover_src(cover) do
+    local_cover_url(cover[:public_url]) || local_cover_url(cover[:thumbnail_url])
+  end
+
+  defp local_cover_url(url) when is_binary(url) do
+    if String.starts_with?(url, "/covers/cache/"), do: url
+  end
+
+  defp local_cover_url(_url), do: nil
 
   defp publisher_short(nil), do: "Unknown"
 

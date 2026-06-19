@@ -55,6 +55,9 @@ defmodule HiraethWeb.BookLive.Components do
                 <p :if={role_names(@book[:translators])} id="book-translators" class="qi-muted">
                   translated by {role_names(@book.translators)}
                 </p>
+                <p :if={format_summary(@book[:formats])} id="book-format-summary" class="qi-muted">
+                  Formats: {format_summary(@book.formats)}
+                </p>
               </div>
             </header>
 
@@ -83,10 +86,45 @@ defmodule HiraethWeb.BookLive.Components do
               >
                 <p>{praise["quote"] || praise[:quote]}</p>
                 <footer class="mt-2 font-mono text-[10px] not-italic uppercase tracking-wider text-[var(--hiraeth-muted)]">
-                  {praise["source"] || praise[:source]} · sourced quote
+                  {praise["source"] || praise[:source]}
                 </footer>
               </blockquote>
             </section>
+
+            <section
+              :if={Enum.any?(@book[:review_links] || [])}
+              id="book-review-links"
+              class="qi-panel-soft max-w-2xl space-y-4 p-5"
+            >
+              <h2 class="font-serif text-xl font-normal text-[var(--hiraeth-ink)]">
+                Reviews
+              </h2>
+              <article
+                :for={review <- @book.review_links}
+                class="border-t border-[var(--hiraeth-line)] pt-4 first:border-t-0 first:pt-0"
+              >
+                <.link
+                  href={review["source_uri"] || review[:source_uri]}
+                  class="qi-action-link font-mono text-xs uppercase tracking-wider"
+                >
+                  {review["source"] || review[:source]}
+                </.link>
+                <p
+                  :if={review["excerpt"] || review[:excerpt]}
+                  class="mt-2 font-serif text-lg italic leading-8 text-[var(--hiraeth-ink)]"
+                >
+                  “{review["excerpt"] || review[:excerpt]}”
+                </p>
+              </article>
+            </section>
+
+            <div
+              :if={Enum.empty?(@book[:review_links] || [])}
+              id="book-review-gap"
+              class="qi-panel-soft max-w-2xl p-4 font-mono text-[10px] uppercase tracking-wider text-[var(--hiraeth-muted)]"
+            >
+              No review links are recorded for this title.
+            </div>
 
             <section id="book-formats" class="space-y-4">
               <div class="flex items-baseline justify-between border-b qi-divider pb-3">
@@ -105,8 +143,17 @@ defmodule HiraethWeb.BookLive.Components do
                     {format.format_label}
                   </div>
                   <div class="space-y-1">
-                    <p class="break-all font-mono text-xs text-[var(--hiraeth-ink)]">
+                    <p
+                      :if={format.identifiers != []}
+                      class="break-all font-mono text-xs text-[var(--hiraeth-ink)]"
+                    >
                       {Enum.join(format.identifiers, ", ")}
+                    </p>
+                    <p
+                      :if={format.identifiers == []}
+                      class="font-mono text-xs text-[var(--hiraeth-muted)]"
+                    >
+                      No ISBN recorded · source identity route retained
                     </p>
                     <p
                       :if={format_detail_text(format)}
@@ -133,10 +180,15 @@ defmodule HiraethWeb.BookLive.Components do
               Publisher page
             </.link>
 
-            <div class="grid gap-8 xl:grid-cols-[minmax(0,1fr)_20rem] xl:items-start">
-              <CatalogComponents.metadata_table book={@book} />
-              <CatalogComponents.provenance_badge source={@book.source} />
-            </div>
+            <p
+              :if={!@book[:storefront_url]}
+              id="book-purchase-link-gap"
+              class="qi-panel-soft inline-flex max-w-2xl p-3 font-mono text-[10px] uppercase tracking-wider text-[var(--hiraeth-muted)]"
+            >
+              No provider purchase link is recorded for this title.
+            </p>
+
+            <CatalogComponents.metadata_table book={@book} />
           </section>
         </article>
       <% else %>
@@ -194,4 +246,18 @@ defmodule HiraethWeb.BookLive.Components do
   end
 
   defp dimensions_text(_dimensions), do: nil
+
+  defp format_summary(formats) when is_list(formats) do
+    formats
+    |> Enum.map(& &1[:format_label])
+    |> Enum.reject(&is_nil/1)
+    |> Enum.uniq()
+    |> Enum.join(", ")
+    |> case do
+      "" -> nil
+      summary -> summary
+    end
+  end
+
+  defp format_summary(_formats), do: nil
 end

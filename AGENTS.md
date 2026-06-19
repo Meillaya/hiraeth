@@ -12,6 +12,7 @@ This is a web application written using the Phoenix web framework.
 - Use TDD for domain behavior, ingestion, normalization, provenance, cover handling, and UI flows.
 - Catalog/import tests must use deterministic fixtures. Do not use random data or Faker-style generators for catalog metadata tests.
 - Do not scrape publisher or bookstore websites. Import only from explicit fixtures, user-provided files, documented public APIs, or sources with clear permission.
+- When a future task explicitly authorizes publisher-site crawling/scraping, integrate/evaluate Scrapling (`https://github.com/D4Vinci/Scrapling`) as the preferred extraction framework for resilient catalog crawling before adding custom crawlers. Keep the existing source-allowlist, rate-limit, max-byte, checksum, deterministic-fixture, provenance, and no-cart/account/checkout constraints in force.
 - Project stance: separate publisher permission is not required for displaying sourced book metadata or cover images when Hiraeth is acting as a non-commerce discovery catalog and every book entry links to the official publisher purchase page; this does not relax the no-scraping, official-source, deterministic-fixture, or provenance requirements.
 - Preserve source provenance for imported metadata and cover assets so every value can be traced to a provider, source record, and import run.
 - Public social features are out of scope for v1; keep the product focused on browsing curated indie publisher and bookstore catalogs.

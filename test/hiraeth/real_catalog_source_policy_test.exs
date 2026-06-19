@@ -13,10 +13,10 @@ defmodule Hiraeth.RealCatalogSourcePolicyTest do
       assert "https://www.ndbooks.com/permissions/" in gate.permission_urls
       assert "https://www.ndbooks.com/about/contact/" in gate.contact_urls
       assert gate.source_hosts == MapSet.new(["www.ndbooks.com"])
-      assert gate.cover_hosts == MapSet.new(["cdn.sanity.io"])
-      assert gate.cover_cache_policy == "link_only_until_explicit_cache_permission"
+      assert gate.cover_hosts == MapSet.new(["cdn.sanity.io", "covers.openlibrary.org"])
+      assert gate.cover_cache_policy == "cache_allowed"
       assert gate.not_legal_advice?
-      assert gate.permission_basis =~ "protected under copyright law"
+      assert gate.permission_basis =~ "public display depends on provenance"
       assert gate.takedown_contact =~ "permissions [at] ndbooks.com"
       assert "raw_html" in gate.excluded_content
       assert "prices" in gate.excluded_content
@@ -49,10 +49,10 @@ defmodule Hiraeth.RealCatalogSourcePolicyTest do
       metadata = SourcePolicy.provider_permission_metadata!("new_directions_official_site")
 
       assert metadata.provider == "new_directions_official_site"
-      assert metadata.source_urls == ["https://www.ndbooks.com/books/"]
+      assert "https://www.ndbooks.com/books/" in metadata.source_urls
       assert metadata.source_hosts == ["www.ndbooks.com"]
-      assert metadata.cover_hosts == ["cdn.sanity.io"]
-      assert metadata.cover_cache_policy == "link_only_until_explicit_cache_permission"
+      assert metadata.cover_hosts == ["cdn.sanity.io", "covers.openlibrary.org"]
+      assert metadata.cover_cache_policy == "cache_allowed"
       assert metadata.permission_basis =~ "Official New Directions pages"
       assert metadata.takedown_contact =~ "permissions [at] ndbooks.com"
       assert metadata.not_legal_advice =~ "not legal advice"
@@ -64,8 +64,9 @@ defmodule Hiraeth.RealCatalogSourcePolicyTest do
 
       assert SourcePolicy.source_uri_allowed?(provider, "https://www.ndbooks.com/books/a-book/")
       assert SourcePolicy.source_uri_allowed?(provider, "https://www.ndbooks.com/book/a-book/")
+      assert SourcePolicy.purchase_uri_allowed?(provider, "https://www.ndbooks.com/book/a-book/")
       assert SourcePolicy.cover_uri_allowed?(provider, "https://cdn.sanity.io/images/example.jpg")
-      refute SourcePolicy.cover_cache_allowed?(provider)
+      assert SourcePolicy.cover_cache_allowed?(provider)
 
       refute SourcePolicy.source_uri_allowed?(provider, "http://www.ndbooks.com/books/a-book/")
 
@@ -77,10 +78,46 @@ defmodule Hiraeth.RealCatalogSourcePolicyTest do
       refute SourcePolicy.cover_uri_allowed?(provider, "https://cdn.shopify.com/s/files/book.jpg")
       refute SourcePolicy.cover_uri_allowed?(provider, "https://www.ndbooks.com/images/book.jpg")
     end
+
+    test "allows only link-first or authorized publisher review excerpts" do
+      provider = "new_directions_official_site"
+
+      assert SourcePolicy.review_link_allowed?(provider, %{
+               source: "Publisher review page",
+               source_uri: "https://www.ndbooks.com/book/a-book/",
+               rights_basis: "link_only"
+             })
+
+      refute SourcePolicy.review_link_allowed?(provider, %{
+               source: "Publisher review page",
+               source_uri: "https://www.ndbooks.com/book/a-book/"
+             })
+
+      assert SourcePolicy.review_link_allowed?(provider, %{
+               source: "Publisher review page",
+               source_uri: "https://www.ndbooks.com/book/a-book/",
+               rights_basis: "publisher_supplied",
+               excerpt: "A short publisher-supplied editorial excerpt."
+             })
+
+      refute SourcePolicy.review_link_allowed?(provider, %{
+               source: "Reader",
+               source_uri: "https://www.ndbooks.com/book/a-book/",
+               rights_basis: "user_review",
+               excerpt: "A user review must not be displayed."
+             })
+
+      refute SourcePolicy.review_link_allowed?(provider, %{
+               source: "Off-host review",
+               source_uri: "https://reviews.example.test/a-book",
+               rights_basis: "publisher_supplied",
+               excerpt: "Off-host excerpts are not provider-authorized source links."
+             })
+    end
   end
 
   describe "Transit Books provider gate" do
-    test "records source, permission, no-cover, takedown, exclusion, and legal-review notes" do
+    test "records source, permission, cover, takedown, exclusion, and legal-review notes" do
       gate = SourcePolicy.provider_gate!("transit_books_official_site")
 
       assert gate.provider == "transit_books_official_site"
@@ -90,11 +127,18 @@ defmodule Hiraeth.RealCatalogSourcePolicyTest do
       assert "https://www.transitbooks.org/rights" in gate.permission_urls
       assert "https://www.transitbooks.org/about" in gate.contact_urls
       assert gate.source_hosts == MapSet.new(["www.transitbooks.org"])
-      assert gate.cover_hosts == MapSet.new([])
-      assert gate.cover_cache_policy == "no_covers_until_explicit_permission"
+
+      assert gate.cover_hosts ==
+               MapSet.new([
+                 "covers.openlibrary.org",
+                 "images.squarespace-cdn.com",
+                 "static1.squarespace.com"
+               ])
+
+      assert gate.cover_cache_policy == "cache_allowed"
       assert gate.not_legal_advice?
       assert gate.permission_basis =~ "Official Transit Books pages"
-      assert gate.permission_basis =~ "no covers"
+      assert gate.permission_basis =~ "allowlisted Squarespace image hosts"
       assert gate.takedown_contact =~ "https://www.transitbooks.org/rights"
       assert gate.takedown_contact =~ "https://www.transitbooks.org/about"
       assert "raw_html" in gate.excluded_content
@@ -103,7 +147,7 @@ defmodule Hiraeth.RealCatalogSourcePolicyTest do
       assert "reviews" in gate.excluded_content
       assert "prices" in gate.excluded_content
       assert "inventory" in gate.excluded_content
-      assert "cover_images" in gate.excluded_content
+      assert "unattributed_cover_images" in gate.excluded_content
 
       assert SourcePolicy.source_host_allowed?(gate.provider, "www.transitbooks.org")
       refute SourcePolicy.source_host_allowed?(gate.provider, "transitbooks.org")
@@ -114,16 +158,16 @@ defmodule Hiraeth.RealCatalogSourcePolicyTest do
              )
 
       refute SourcePolicy.cover_host_allowed?(gate.provider, "www.transitbooks.org")
-      refute SourcePolicy.cover_host_allowed?(gate.provider, "images.squarespace-cdn.com")
+      assert SourcePolicy.cover_host_allowed?(gate.provider, "images.squarespace-cdn.com")
     end
 
-    test "readiness allows an explicitly no-cover provider gate" do
+    test "readiness allows the Transit cover provider gate" do
       assert SourcePolicy.provider_gate_ready?("transit_books_official_site")
       assert SourcePolicy.provider_policy_ready?("transit_books_official_site")
-      refute SourcePolicy.cover_cache_allowed?("transit_books_official_site")
+      assert SourcePolicy.cover_cache_allowed?("transit_books_official_site")
     end
 
-    test "projects no-cover Transit metadata into dataset provider_permissions shape" do
+    test "projects Transit metadata into dataset provider_permissions shape" do
       metadata = SourcePolicy.provider_permission_metadata!("transit_books_official_site")
 
       assert metadata.provider == "transit_books_official_site"
@@ -134,18 +178,29 @@ defmodule Hiraeth.RealCatalogSourcePolicyTest do
              ]
 
       assert metadata.source_hosts == ["www.transitbooks.org"]
-      assert metadata.cover_hosts == []
-      assert metadata.cover_cache_policy == "no_covers_until_explicit_permission"
+
+      assert metadata.cover_hosts == [
+               "covers.openlibrary.org",
+               "images.squarespace-cdn.com",
+               "static1.squarespace.com"
+             ]
+
+      assert metadata.cover_cache_policy == "cache_allowed"
       assert metadata.permission_basis =~ "Official Transit Books pages"
       assert metadata.takedown_contact =~ "https://www.transitbooks.org/rights"
       assert metadata.not_legal_advice =~ "not legal advice"
-      assert "cover_images" in metadata.excluded_content
+      assert "unattributed_cover_images" in metadata.excluded_content
     end
 
-    test "validates Transit source URLs and rejects all cover URLs by default" do
+    test "validates Transit source and allowlisted cover URLs" do
       provider = "transit_books_official_site"
 
       assert SourcePolicy.source_uri_allowed?(provider, "https://www.transitbooks.org/books")
+
+      assert SourcePolicy.purchase_uri_allowed?(
+               provider,
+               "https://www.transitbooks.org/books/a-shining"
+             )
 
       assert SourcePolicy.source_uri_allowed?(
                provider,
@@ -167,7 +222,7 @@ defmodule Hiraeth.RealCatalogSourcePolicyTest do
                "https://www.transitbooks.org/about/contact"
              )
 
-      refute SourcePolicy.cover_cache_allowed?(provider)
+      assert SourcePolicy.cover_cache_allowed?(provider)
 
       refute SourcePolicy.source_uri_allowed?(provider, "http://www.transitbooks.org/books")
       refute SourcePolicy.source_uri_allowed?(provider, "https://transitbooks.org/books")
@@ -212,7 +267,7 @@ defmodule Hiraeth.RealCatalogSourcePolicyTest do
                "https://www.transitbooks.org/book-cover.jpg"
              )
 
-      refute SourcePolicy.cover_uri_allowed?(
+      assert SourcePolicy.cover_uri_allowed?(
                provider,
                "https://images.squarespace-cdn.com/book-cover.jpg"
              )

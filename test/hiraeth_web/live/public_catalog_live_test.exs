@@ -45,11 +45,39 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     {:ok, browse, _html} = live(conn, ~p"/browse")
 
     assert has_element?(browse, "#browse-shell")
-    assert has_element?(browse, "#catalog-index", "178 books")
-    assert has_element?(browse, "#catalog-page-count", "Page 1 of 8")
+
+    assert has_element?(
+             browse,
+             "#catalog-index",
+             "#{PublicCatalog.book_page(nil, 1).total_count} books"
+           )
+
+    assert has_element?(
+             browse,
+             "#catalog-page-count",
+             "Page 1 of #{ceil_div(PublicCatalog.book_page(nil, 1).total_count, PublicCatalog.page_size())}"
+           )
+
     assert has_element?(browse, "#book-reader", "Volume Reader")
 
-    {:ok, filtered, _html} = live(conn, ~p"/browse?q=Immigrant")
+    for {isbn, title} <- [
+          {"9781628976830", "My Paris"},
+          {"9781628976656", "The Terrible"},
+          {"9781628976816", "B/Moondocks"},
+          {"9781628976793", "The House of Ulysses"}
+        ] do
+      {:ok, one_book, _html} = live(conn, ~p"/browse?q=#{isbn}")
+      one_book_doc = one_book |> render() |> LazyHTML.from_fragment()
+
+      assert has_element?(one_book, "#catalog-grid", title)
+
+      assert one_book_doc
+             |> LazyHTML.query("#catalog-grid h4")
+             |> LazyHTML.to_tree()
+             |> length() == 1
+    end
+
+    {:ok, filtered, _html} = live(conn, ~p"/browse?q=9781646054541")
     assert has_element?(filtered, "#catalog-index h4", "Immigrant")
     assert has_element?(filtered, "#catalog-index", "trilingual collection")
     refute has_element?(filtered, "#catalog-empty")
@@ -62,9 +90,11 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert function_exported?(PublicCatalog, :search_books, 1),
            "PublicCatalog.search_books/1 must return work-centric public book projections"
 
-    books = apply(PublicCatalog, :search_books, ["Immigrant"])
+    books = apply(PublicCatalog, :search_books, ["9781646054541"])
 
-    assert [%{title: "Immigrant", formats: formats, identifiers: identifiers}] = books
+    assert %{title: "Immigrant", formats: formats, identifiers: identifiers} =
+             Enum.find(books, &(&1.title == "Immigrant"))
+
     assert length(formats) == 2
     assert Enum.map(formats, & &1.format) |> Enum.sort() == ["ebook", "paperback"]
 
@@ -108,7 +138,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert is_binary(source_record_id)
     assert is_binary(import_run_id)
 
-    {:ok, filtered, _html} = live(conn, ~p"/browse?q=Immigrant")
+    {:ok, filtered, _html} = live(conn, ~p"/browse?q=9781646054541")
     document = filtered |> render() |> LazyHTML.from_fragment()
 
     assert document |> LazyHTML.query("#catalog-index h4") |> LazyHTML.to_tree() |> length() == 1
@@ -124,7 +154,12 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     {:ok, view, _html} = live(conn, ~p"/search")
 
     assert has_element?(view, "#search-shell")
-    assert has_element?(view, "#search-results", "178 matches")
+
+    assert has_element?(
+             view,
+             "#search-results",
+             "#{PublicCatalog.book_page(nil, 1).total_count} matches"
+           )
 
     view
     |> form("#catalog-search-form", search: %{query: "Bob and Hilbert"})
@@ -176,7 +211,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
           "subject" => "filter-ui",
           "series" => fixture.series_slug,
           "year" => "2026",
-          "sort" => "author",
+          "sort" => "newest",
           "page" => "999"
         })
 
@@ -198,7 +233,8 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
 
     assert has_element?(
              browse,
-             ~s|#catalog-filter-form select[name="filters[sort]"] option[selected][value="author"]|
+             ~s|#catalog-filter-form select[name="filters[sort]"] option[selected][value="newest"]|,
+             "Publication date, newest first"
            )
 
     refute has_element?(browse, "#catalog-grid", "Immigrant")
@@ -286,7 +322,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
              ~s|a#publisher-browse-cta[href="/browse?publisher=deep-vellum"]|
            )
 
-    assert has_element?(publisher, "#publisher-context", "edition")
+    assert has_element?(publisher, "#publisher-context", "book")
     assert has_element?(publisher, "#publisher-groups")
     assert has_element?(publisher, "#publisher-formats", "Paperback")
     assert has_element?(publisher, "#publisher-languages")
@@ -294,6 +330,67 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert has_element?(publisher, "#publisher-translations")
     assert has_element?(publisher, "#publisher-editions", "Immigrant")
     assert has_element?(publisher, "#publisher-editions-stream")
+
+    {:ok, new_directions, _html} = live(conn, ~p"/publishers/new-directions")
+    new_directions_html = render(new_directions)
+
+    assert new_directions_html
+           |> LazyHTML.from_fragment()
+           |> LazyHTML.query(
+             ~s|#publisher-editions-stream h4 a[href*="new-directions-on-the-calculation-of-volume-book-v"]|
+           )
+           |> LazyHTML.attribute("href")
+           |> length() == 1
+
+    assert has_element?(new_directions, "#publisher-editions-stream", "Paperback")
+    assert has_element?(new_directions, "#publisher-editions-stream", "Ebook")
+
+    public_projection = PublicCatalog.publisher("new-directions")
+    book_titles = Enum.map(public_projection.editions, & &1.title)
+
+    assert Enum.uniq(book_titles) == book_titles
+
+    assert Enum.find(
+             public_projection.editions,
+             &(&1.title == "On the Calculation of Volume (Book V)")
+           )
+           |> Map.fetch!(:formats)
+           |> Enum.map(& &1.format)
+           |> Enum.sort() == ["ebook", "paperback"]
+
+    tilted_axis = PublicCatalog.publisher("tilted-axis-press")
+    tilted_titles = Enum.map(tilted_axis.editions, & &1.title)
+
+    assert Enum.uniq(tilted_titles) == tilted_titles
+
+    assert Enum.find(tilted_axis.editions, &(&1.title == "Annah, Infinite"))
+           |> Map.fetch!(:formats)
+           |> Enum.map(& &1.format)
+           |> Enum.sort() == ["ebook", "paperback"]
+
+    assert Enum.find(tilted_axis.editions, &String.contains?(&1.title, "Capitalists Must Starve"))
+           |> Map.fetch!(:formats)
+           |> Enum.map(& &1.format)
+           |> Enum.sort() == ["ebook", "paperback"]
+
+    fitzcarraldo = PublicCatalog.publisher("fitzcarraldo-editions")
+
+    assert %{formats: fitzcarraldo_formats} =
+             Enum.find(fitzcarraldo.editions, &(&1.title == "The Mulai"))
+
+    assert Enum.map(fitzcarraldo_formats, & &1.format) |> Enum.sort() == ["ebook", "paperback"]
+
+    unnamed = PublicCatalog.publisher("unnamed-press")
+
+    assert %{formats: short_intro_formats, isbn: nil} =
+             Enum.find(unnamed.editions, &(&1.title == "A Short Introduction to Anneliese"))
+
+    assert Enum.map(short_intro_formats, & &1.format) == ["hardcover"]
+
+    assert %{formats: stories_formats, isbn: "9781961884434"} =
+             Enum.find(unnamed.editions, &(&1.title == "Stories, Like Illnesses"))
+
+    assert Enum.map(stories_formats, & &1.format) == ["hardcover"]
   end
 
   test "public publisher projection exposes bounded editorial groupings" do
@@ -337,7 +434,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert has_element?(contributor, "#contributor-books", "Immigrant")
   end
 
-  test "edition route redirects to canonical book detail with provenance and formats", %{
+  test "edition route redirects to canonical book detail with hidden provenance and formats", %{
     conn: conn
   } do
     cache_cover_for_edition_slug!(
@@ -358,17 +455,16 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert has_element?(view, "#book-authors", "by Joaquín Zihuatanejo")
     assert has_element?(view, "#book-translators", "translated by David Bowles")
     assert has_element?(view, "#book-identifiers", "9781646054541")
-    assert has_element?(view, "#edition-provenance", "deep_vellum_official_store")
-    assert has_element?(view, "#edition-provenance", "publisher_dataset")
+    refute has_element?(view, "#edition-provenance")
 
-    assert has_element?(
-             view,
-             "#cover-attribution-deep-vellum-immigrant",
-             "Cover via Deep Vellum official source"
-           )
+    assert HiraethWeb.PublicCatalog.book("deep-vellum-immigrant").source.provider ==
+             "deep_vellum_official_store"
+
+    refute has_element?(view, "#cover-attribution-deep-vellum-immigrant")
 
     assert has_element?(view, "#publication-date", "2027-02-16")
     assert has_element?(view, "#book-description", "trilingual collection")
+    assert has_element?(view, "#book-format-summary", "Formats: Paperback, Ebook")
 
     assert has_element?(
              view,
@@ -384,9 +480,10 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     refute html =~ "inventory"
   end
 
-  test "book detail displays sourced prose, editorial praise, and publisher storefront CTA", %{
-    conn: conn
-  } do
+  test "book detail displays sourced prose, editorial praise, review links, and publisher storefront CTA",
+       %{
+         conn: conn
+       } do
     clear_catalog!()
     tmp = prose_dataset_dir!()
     on_exit(fn -> File.rm_rf!(tmp) end)
@@ -408,12 +505,51 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
 
     assert has_element?(view, "#book-description", "Sourced publisher synopsis")
     assert has_element?(view, "#book-editorial-praise", "Publisher official page")
+    refute has_element?(view, "#book-editorial-praise", "sourced quote")
+    refute has_element?(view, "#book-review-links", "Review provenance")
+    assert has_element?(view, "#book-review-links", "Reviews")
+    assert has_element?(view, "#book-review-links", "A sourced review excerpt")
+    refute render(view) =~ "approved rights basis"
+    refute render(view) =~ "test source fixture"
+    refute has_element?(view, "#book-review-gap")
 
     assert has_element?(
              view,
              ~s|a#book-storefront-cta[href="https://archipelagobooks.org/book/bob-and-hilbert/"]|,
              "Publisher page"
            )
+  end
+
+  test "book detail renders source-backed no-ISBN routes and metadata gaps", %{conn: conn} do
+    clear_catalog!()
+    tmp = no_isbn_dataset_dir!()
+    on_exit(fn -> File.rm_rf!(tmp) end)
+
+    assert {:ok, _summary} = Hiraeth.RealCatalog.Importer.seed!(tmp)
+
+    slug = "archipelago-books-bob-and-hilbert-hardcover-source-57168-9781962770651"
+    {:ok, view, _html} = live(conn, ~p"/books/#{slug}")
+
+    assert has_element?(view, "#book-format-#{slug}", "No ISBN recorded")
+    assert has_element?(view, "#book-review-gap", "No review links")
+    refute has_element?(view, "#edition-provenance")
+
+    assert HiraethWeb.PublicCatalog.book(slug).source.provider ==
+             "archipelago_books_official_store"
+
+    {:ok, browse, _html} = live(conn, ~p"/browse")
+    assert has_element?(browse, "#catalog-grid", "Bob and Hilbert")
+
+    {:ok, search, _html} = live(conn, ~p"/search?q=Bob")
+    assert has_element?(search, "#search-results", "Bob and Hilbert")
+
+    {:ok, publisher, _html} = live(conn, ~p"/publishers/archipelago-books")
+    assert has_element?(publisher, "#publisher-editions", "Bob and Hilbert")
+
+    expected_path = "/books/#{slug}"
+
+    assert {:error, {:live_redirect, %{to: ^expected_path}}} =
+             live(conn, ~p"/editions/#{slug}")
   end
 
   test "book, publisher, and series pages render sourced rich metadata", %{conn: conn} do
@@ -427,11 +563,11 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert has_element?(book, "#book-format-#{fixture.edition_slug}", "321 pages")
     assert has_element?(book, "#book-format-#{fixture.edition_slug}", "eng")
     assert has_element?(book, "#book-format-#{fixture.edition_slug}", "203 × 127 × 24 mm")
-    assert has_element?(book, "#edition-provenance", "field-level provenance")
-    assert has_element?(book, ~s|#edition-provenance[data-provenance-motif="source-thread"]|)
+    refute has_element?(book, "#edition-provenance")
+    assert HiraethWeb.PublicCatalog.book(fixture.book_slug).source.field_sources != %{}
 
     {:ok, publisher, _html} = live(conn, ~p"/publishers/#{fixture.publisher_slug}")
-    assert has_element?(publisher, "#publisher-context", "1 edition")
+    assert has_element?(publisher, "#publisher-context", "1 book")
     assert has_element?(publisher, "#publisher-context", "Paperback")
     assert has_element?(publisher, "#publisher-context", "eng")
 
@@ -439,6 +575,59 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert has_element?(series, "#series-context", "1 sourced books")
     assert has_element?(series, "#series-context", "Metadata Series")
     assert has_element?(series, "#series-editions", "Rich Metadata Novel")
+  end
+
+  test "series detail groups multiple formats under one sourced book", %{conn: conn} do
+    fixture = create_rich_metadata_book!()
+    ebook_slug = "#{fixture.book_slug}-ebook-source"
+
+    Edition
+    |> Ash.Changeset.for_create(:create, %{
+      title: "Rich Metadata Novel",
+      slug: ebook_slug,
+      format: "ebook",
+      published_on: ~D[2026-03-04],
+      work_id: fixture.work_id,
+      publisher_id: fixture.publisher_id
+    })
+    |> Ash.create!(authorize?: false)
+    |> then(fn edition ->
+      SourceRecord
+      |> Ash.Changeset.for_create(:create, %{
+        provider: "deep_vellum_official_store",
+        source_type: "publisher_dataset",
+        source_uri: "https://www.deepvellum.org/fixture/#{ebook_slug}",
+        file_checksum: "sha256:#{ebook_slug}",
+        license_note: "series format grouping fixture",
+        source_identity: "source:#{ebook_slug}",
+        edition_id: edition.id,
+        imported_at: DateTime.utc_now(:second),
+        raw_payload: %{
+          "edition" => %{"format" => "ebook"},
+          "field_sources" => %{},
+          "provider_permissions" => %{}
+        }
+      })
+      |> Ash.create!(authorize?: false)
+    end)
+
+    series_projection = PublicCatalog.series_by_slug(fixture.series_slug)
+
+    assert series_projection.editions_count == 1
+    assert [%{title: "Rich Metadata Novel", formats: formats}] = series_projection.editions
+    assert Enum.map(formats, & &1.format_label) |> Enum.sort() == ["Ebook", "Paperback"]
+
+    {:ok, series, _html} = live(conn, ~p"/series/#{fixture.series_slug}")
+    html = render(series)
+    document = LazyHTML.from_fragment(html)
+
+    assert has_element?(series, "#series-context", "1 sourced books")
+    assert has_element?(series, "#series-editions", "Formats: Paperback, Ebook")
+
+    assert document
+           |> LazyHTML.query("#series-editions h4")
+           |> LazyHTML.to_tree()
+           |> length() == 1
   end
 
   test "book cover component prefers optimized card derivatives and keeps hero originals" do
@@ -490,6 +679,32 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert LazyHTML.attribute(hero_img, "src") == ["/covers/cache/cached-cover-book.jpg"]
     assert LazyHTML.attribute(hero_img, "loading") == ["eager"]
     assert LazyHTML.attribute(hero_img, "fetchpriority") == ["high"]
+
+    remote_only_html =
+      render_component(&CatalogComponents.book_cover/1,
+        book: %{
+          slug: "remote-only-cover-book",
+          title: "Remote Only Cover Book",
+          publisher: "Fixture Press",
+          cover: %{
+            source_url: "https://covers.example.test/remote-only-cover-book.jpg",
+            public_url: "https://covers.example.test/remote-only-cover-book.jpg",
+            thumbnail_url: nil,
+            provider: "fixture-covers",
+            attribution_text: "Fixture cover provider"
+          }
+        }
+      )
+
+    remote_only_doc = LazyHTML.from_fragment(remote_only_html)
+
+    assert remote_only_doc
+           |> LazyHTML.query("#public-cover-remote-only-cover-book img")
+           |> LazyHTML.attribute("src") == []
+
+    assert remote_only_doc
+           |> LazyHTML.query("#missing-cover-remote-only-cover-book")
+           |> LazyHTML.attribute("id") == ["missing-cover-remote-only-cover-book"]
   end
 
   defp create_filterable_book! do
@@ -584,6 +799,8 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
       source_uri: "https://www.deepvellum.org/fixture/filter-ui-#{suffix}",
       file_checksum: "sha256:filter-ui-#{suffix}",
       license_note: "filter UI provenance fixture",
+      source_identity: isbn,
+      edition_id: edition.id,
       imported_at: DateTime.utc_now(:second),
       raw_payload: %{
         "edition" => %{"isbn_13" => isbn},
@@ -682,6 +899,8 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
       source_uri: "https://www.deepvellum.org/fixture/rich-metadata-#{suffix}",
       file_checksum: "sha256:rich-metadata-#{suffix}",
       license_note: "field-level provenance fixture",
+      source_identity: isbn,
+      edition_id: edition.id,
       imported_at: DateTime.utc_now(:second),
       raw_payload: %{
         "edition" => %{"isbn_13" => isbn},
@@ -702,7 +921,9 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
       book_slug: work_slug,
       edition_slug: edition_slug,
       publisher_slug: publisher_slug,
-      series_slug: series_slug
+      series_slug: series_slug,
+      work_id: work.id,
+      publisher_id: publisher.id
     }
   end
 
@@ -770,6 +991,8 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     end
   end
 
+  defp ceil_div(value, divisor), do: div(value + divisor - 1, divisor)
+
   defp prose_dataset_dir! do
     tmp =
       Path.join(
@@ -782,7 +1005,8 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     File.cp!(Path.join(Dataset.default_dir(), "schema.json"), Path.join(tmp, "schema.json"))
 
     {:ok, dataset} = Dataset.load_file(Path.join(Dataset.default_dir(), "archipelago_books.json"))
-    [record | remaining_records] = dataset.records
+    record = Enum.find(dataset.records, &(get_in(&1, [:edition, :isbn_13]) == "9781962770651"))
+    remaining_records = Enum.reject(dataset.records, &(&1 == record))
 
     prose_record =
       record
@@ -795,8 +1019,16 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
           source_uri: record.source_uri
         }
       ])
+      |> Map.put(:review_links, [
+        %{
+          source: "Publisher official page",
+          source_uri: record.source_uri,
+          rights_basis: "publisher_supplied",
+          excerpt: "A sourced review excerpt with explicit publisher-supplied rights."
+        }
+      ])
       |> Map.update!(:displayed_fields, fn fields ->
-        Enum.uniq(fields ++ ["description", "editorial_praise", "storefront_url"])
+        Enum.uniq(fields ++ ["description", "editorial_praise", "storefront_url", "review_links"])
       end)
       |> Map.update!(:field_sources, fn sources ->
         field_source = %{
@@ -810,6 +1042,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
         |> Map.put("description", field_source)
         |> Map.put("editorial_praise", field_source)
         |> Map.put("storefront_url", field_source)
+        |> Map.put("review_links", field_source)
       end)
 
     payload = %{
@@ -818,6 +1051,42 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
       license_note: dataset.license_note,
       provider_permissions: dataset.provider_permissions,
       records: [prose_record | remaining_records]
+    }
+
+    File.write!(Path.join(tmp, "archipelago_books.json"), Jason.encode!(payload, pretty: true))
+    tmp
+  end
+
+  defp no_isbn_dataset_dir! do
+    tmp =
+      Path.join(
+        System.tmp_dir!(),
+        "hiraeth-live-no-isbn-catalog-#{System.unique_integer([:positive])}"
+      )
+
+    File.mkdir_p!(tmp)
+    File.cp!(Path.join(Dataset.default_dir(), "README.md"), Path.join(tmp, "README.md"))
+    File.cp!(Path.join(Dataset.default_dir(), "schema.json"), Path.join(tmp, "schema.json"))
+
+    {:ok, dataset} = Dataset.load_file(Path.join(Dataset.default_dir(), "archipelago_books.json"))
+    record = Enum.find(dataset.records, &(get_in(&1, [:edition, :isbn_13]) == "9781962770651"))
+
+    no_isbn_record =
+      record
+      |> update_in([:edition], &Map.drop(&1, [:isbn_13, "isbn_13"]))
+      |> Map.put(:source_sku, "source-only-#{record.source_product_id}")
+      |> Map.put(:missing_fields, %{
+        "isbn_13" => "Approved source record has no ISBN for this edition."
+      })
+      |> Map.update!(:displayed_fields, &List.delete(&1, "isbn_13"))
+      |> Map.update!(:field_sources, &Map.delete(&1, "isbn_13"))
+
+    payload = %{
+      provider: dataset.provider,
+      retrieved_at: dataset.retrieved_at,
+      license_note: dataset.license_note,
+      provider_permissions: dataset.provider_permissions,
+      records: [no_isbn_record]
     }
 
     File.write!(Path.join(tmp, "archipelago_books.json"), Jason.encode!(payload, pretty: true))

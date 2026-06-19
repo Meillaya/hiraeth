@@ -10,6 +10,9 @@ defmodule HiraethWeb.PublicCatalog do
 
   @page_size 24
   @publisher_group_limit 8
+  @cache_missing :__hiraeth_public_catalog_cache_missing__
+  @default_cache_ttl_ms :timer.seconds(30)
+  @undated_sort_value Date.to_gregorian_days(~D[0001-01-01])
 
   def page_size, do: @page_size
 
@@ -23,12 +26,32 @@ defmodule HiraethWeb.PublicCatalog do
 
   def book_page(query, page, page_size \\ @page_size) do
     filters = normalize_book_filters(query)
-    total_count = count_books_for_filters(filters)
+    requested_page = page |> parse_page() |> max(1)
+    requested_offset = (requested_page - 1) * page_size
+    {total_count, work_ids} = work_page_for_filters(filters, page_size, requested_offset)
+
+    total_count =
+      if work_ids == [] and requested_page > 1 do
+        count_books_for_filters(filters)
+      else
+        total_count
+      end
+
     total_pages = max(ceil_div(max(total_count, 1), page_size), 1)
-    current_page = page |> parse_page() |> min(total_pages) |> max(1)
+    current_page = min(requested_page, total_pages)
+
+    work_ids =
+      if current_page == requested_page do
+        work_ids
+      else
+        {_total_count, work_ids} =
+          work_page_for_filters(filters, page_size, (current_page - 1) * page_size)
+
+        work_ids
+      end
 
     %{
-      entries: books_for_filters(filters, page_size, (current_page - 1) * page_size),
+      entries: books_for_work_ids(work_ids),
       page: current_page,
       page_size: page_size,
       total_count: total_count,
@@ -47,12 +70,6 @@ defmodule HiraethWeb.PublicCatalog do
           &(&1.slug == slug or Enum.any?(&1.formats, fn format -> format.edition_slug == slug end))
         )
     end
-  end
-
-  defp books_for_filters(filters, limit, offset) do
-    filters
-    |> work_ids_for_filters(limit, offset)
-    |> books_for_work_ids()
   end
 
   defp books_for_work_ids([]), do: []
@@ -76,6 +93,14 @@ defmodule HiraethWeb.PublicCatalog do
     |> Enum.map(&edition_projection_from_row/1)
   end
 
+  defp books_for_publisher_id(publisher_id) do
+    edition_rows("where e.publisher_id = $1::uuid", [uuid_param(publisher_id)])
+    |> Enum.map(&edition_projection_from_row/1)
+    |> Enum.group_by(& &1.work_id)
+    |> Enum.map(fn {_work_id, editions} -> book_projection(editions) end)
+    |> Enum.sort_by(&publication_date_sort_key/1)
+  end
+
   defp work_id_for_slug(slug) do
     {:ok, %{rows: rows}} =
       Hiraeth.Repo.query(
@@ -83,7 +108,16 @@ defmodule HiraethWeb.PublicCatalog do
         select e.work_id
         from editions e
         join works w on w.id = e.work_id
-        where e.slug = $1 or w.slug = $1 or regexp_replace(e.slug, '-(paperback|hardcover|ebook|audiobook)-[0-9xX-]+$', '') = $1
+        where (
+            e.slug = $1
+            or w.slug = $1
+            or regexp_replace(e.slug, '-(paperback|hardcover|ebook|audiobook)-[0-9xX-]+$', '') = $1
+          )
+          and exists (
+            select 1
+            from source_records sr
+            where sr.edition_id = e.id
+          )
         limit 1
         """,
         [slug]
@@ -110,9 +144,7 @@ defmodule HiraethWeb.PublicCatalog do
         select count(distinct e.work_id)
         from editions e
         join works w on w.id = e.work_id
-        join identifiers source_identifier on source_identifier.edition_id = e.id
-        join source_records sr
-          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+        join source_records sr on sr.edition_id = e.id
         """,
         []
       )
@@ -129,14 +161,10 @@ defmodule HiraethWeb.PublicCatalog do
         select count(distinct e.work_id)
         from editions e
         join works w on w.id = e.work_id
-        join identifiers source_identifier on source_identifier.edition_id = e.id
-        join source_records sr
-          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+        join source_records sr on sr.edition_id = e.id
+        left join identifiers display_identifier
+          on display_identifier.edition_id = e.id and display_identifier.identifier_type = 'isbn_13'
         left join publishers p on p.id = e.publisher_id
-        left join contributions c on c.work_id = w.id or c.edition_id = e.id
-        left join contributors ct on ct.id = c.contributor_id
-        left join series_memberships sm on sm.work_id = w.id
-        left join series s on s.id = sm.series_id
         #{where}
         """,
         params
@@ -145,64 +173,82 @@ defmodule HiraethWeb.PublicCatalog do
     count
   end
 
-  defp work_ids_for_filters(filters, limit, offset) do
+  defp work_page_for_filters(filters, limit, offset) do
     if default_title_page_filters?(filters) do
-      default_title_work_ids(limit, offset)
+      default_title_work_page(limit, offset)
     else
-      filtered_work_ids(filters, limit, offset)
+      filtered_work_page(filters, limit, offset)
     end
   end
 
-  defp default_title_work_ids(limit, offset) do
+  defp default_title_work_page(limit, offset) do
     {limit_sql, params} = limit_params(limit, offset, [])
 
     {:ok, %{rows: rows}} =
       Hiraeth.Repo.query(
         """
-        select e.work_id
-        from editions e
-        join works w on w.id = e.work_id
-        join identifiers source_identifier on source_identifier.edition_id = e.id
-        join source_records sr
-          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
-        group by e.work_id, w.title
-        order by lower(w.title), min(e.slug)
+        select work_id, count(*) over() as total_count
+        from (
+          select
+            e.work_id,
+            lower(w.title) as title_sort,
+            min(e.slug) as slug_sort,
+            max(e.published_on) as newest_sort
+          from editions e
+          join works w on w.id = e.work_id
+          join source_records sr on sr.edition_id = e.id
+          group by e.work_id, w.title
+        ) grouped_books
+        order by #{publication_date_order_sql()}
         #{limit_sql}
         """,
         params
       )
 
-    Enum.map(rows, fn [work_id] -> work_id end)
+    work_page_from_rows(rows)
   end
 
-  defp filtered_work_ids(filters, limit, offset) do
+  defp filtered_work_page(filters, limit, offset) do
     {where, params} = work_filter_where(filters)
     {limit_sql, params} = limit_params(limit, offset, params)
-    order_sql = work_order_sql(filters.sort)
+    order_sql = work_page_order_sql(filters.sort)
 
     {:ok, %{rows: rows}} =
       Hiraeth.Repo.query(
         """
-        select e.work_id
-        from editions e
-        join works w on w.id = e.work_id
-        join identifiers source_identifier on source_identifier.edition_id = e.id
-        join source_records sr
-          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
-        left join publishers p on p.id = e.publisher_id
-        left join contributions c on c.work_id = w.id or c.edition_id = e.id
-        left join contributors ct on ct.id = c.contributor_id
-        left join series_memberships sm on sm.work_id = w.id
-        left join series s on s.id = sm.series_id
-        #{where}
-        group by e.work_id, w.title
+        select work_id, count(*) over() as total_count
+        from (
+          select
+            e.work_id,
+            lower(w.title) as title_sort,
+            min(e.slug) as slug_sort,
+            max(e.published_on) as newest_sort,
+            max(sr.imported_at) as imported_sort
+          from editions e
+          join works w on w.id = e.work_id
+          join source_records sr on sr.edition_id = e.id
+          left join identifiers display_identifier
+            on display_identifier.edition_id = e.id and display_identifier.identifier_type = 'isbn_13'
+          left join publishers p on p.id = e.publisher_id
+          #{where}
+          group by e.work_id, w.title
+        ) grouped_books
         order by #{order_sql}
         #{limit_sql}
         """,
         params
       )
 
-    Enum.map(rows, fn [work_id] -> work_id end)
+    work_page_from_rows(rows)
+  end
+
+  defp work_page_from_rows([]), do: {0, []}
+
+  defp work_page_from_rows(rows) do
+    total_count = rows |> List.first() |> List.last()
+    work_ids = Enum.map(rows, fn [work_id, _total_count] -> work_id end)
+
+    {total_count, work_ids}
   end
 
   defp work_filter_where(filters) do
@@ -210,12 +256,12 @@ defmodule HiraethWeb.PublicCatalog do
       {[], []}
       |> add_text_filter(filters.q)
       |> add_slug_or_name_filter(filters.publisher, "p.slug", "p.name")
-      |> add_exact_filter(filters.role, "c.role")
-      |> add_slug_or_name_filter(filters.contributor, "ct.slug", "ct.display_name")
+      |> add_role_filter(filters.role)
+      |> add_contributor_filter(filters.contributor)
       |> add_exact_filter(filters.format, "lower(coalesce(e.format, ''))")
       |> add_language_filter(filters.language)
       |> add_subject_filter(filters.subject)
-      |> add_slug_or_name_filter(filters.series, "s.slug", "s.title")
+      |> add_series_filter(filters.series)
       |> add_year_filter(filters.year)
 
     case conditions do
@@ -241,9 +287,21 @@ defmodule HiraethWeb.PublicCatalog do
          or lower(coalesce(e.title, '')) like $#{text_index} escape '!'
          or lower(coalesce(e.subtitle, '')) like $#{text_index} escape '!'
          or lower(coalesce(p.name, '')) like $#{text_index} escape '!'
-         or lower(coalesce(ct.display_name, '')) like $#{text_index} escape '!'
-         or lower(coalesce(s.title, '')) like $#{text_index} escape '!'
-         or ($#{identifier_index} <> '' and regexp_replace(coalesce(source_identifier.value, ''), '[^0-9xX]', '', 'g') like $#{identifier_index}))
+         or exists (
+           select 1
+           from contributions c
+           join contributors ct on ct.id = c.contributor_id
+           where (c.work_id = w.id or c.edition_id = e.id)
+             and lower(coalesce(ct.display_name, '')) like $#{text_index} escape '!'
+         )
+         or exists (
+           select 1
+           from series_memberships sm
+           join series s on s.id = sm.series_id
+           where sm.work_id = w.id
+             and lower(coalesce(s.title, '')) like $#{text_index} escape '!'
+         )
+         or ($#{identifier_index} <> '' and regexp_replace(coalesce(display_identifier.value, ''), '[^0-9xX]', '', 'g') like $#{identifier_index}))
       """
 
     {[condition | conditions], params ++ [needle, identifier]}
@@ -273,6 +331,77 @@ defmodule HiraethWeb.PublicCatalog do
   defp add_exact_filter({conditions, params}, value, expression) do
     index = length(params) + 1
     {["#{expression} = $#{index}" | conditions], params ++ [normalize_text(value)]}
+  end
+
+  defp add_role_filter({conditions, params}, value) when value in [nil, ""],
+    do: {conditions, params}
+
+  defp add_role_filter({conditions, params}, value) do
+    index = length(params) + 1
+
+    condition =
+      """
+      exists (
+        select 1
+        from contributions c
+        where (c.work_id = w.id or c.edition_id = e.id)
+          and c.role = $#{index}
+      )
+      """
+
+    {[condition | conditions], params ++ [normalize_text(value)]}
+  end
+
+  defp add_contributor_filter({conditions, params}, value) when value in [nil, ""],
+    do: {conditions, params}
+
+  defp add_contributor_filter({conditions, params}, value) do
+    exact = normalize_text(value)
+    like = "%#{like_escape(exact)}%"
+    exact_index = length(params) + 1
+    like_index = length(params) + 2
+
+    condition =
+      """
+      exists (
+        select 1
+        from contributions c
+        join contributors ct on ct.id = c.contributor_id
+        where (c.work_id = w.id or c.edition_id = e.id)
+          and (
+            lower(coalesce(ct.slug, '')) = $#{exact_index}
+            or lower(coalesce(ct.display_name, '')) like $#{like_index} escape '!'
+          )
+      )
+      """
+
+    {[condition | conditions], params ++ [exact, like]}
+  end
+
+  defp add_series_filter({conditions, params}, value) when value in [nil, ""],
+    do: {conditions, params}
+
+  defp add_series_filter({conditions, params}, value) do
+    exact = normalize_text(value)
+    like = "%#{like_escape(exact)}%"
+    exact_index = length(params) + 1
+    like_index = length(params) + 2
+
+    condition =
+      """
+      exists (
+        select 1
+        from series_memberships sm
+        join series s on s.id = sm.series_id
+        where sm.work_id = w.id
+          and (
+            lower(coalesce(s.slug, '')) = $#{exact_index}
+            or lower(coalesce(s.title, '')) like $#{like_index} escape '!'
+          )
+      )
+      """
+
+    {[condition | conditions], params ++ [exact, like]}
   end
 
   defp add_language_filter({conditions, params}, value) when value in [nil, ""],
@@ -310,17 +439,9 @@ defmodule HiraethWeb.PublicCatalog do
     end
   end
 
-  defp work_order_sql("newest"),
-    do: "max(e.published_on) desc nulls last, lower(w.title), min(e.slug)"
+  defp work_page_order_sql(_sort), do: publication_date_order_sql()
 
-  defp work_order_sql("author"),
-    do:
-      "min(lower(ct.display_name)) filter (where c.role = 'author') nulls last, lower(w.title), min(e.slug)"
-
-  defp work_order_sql("recently_added"),
-    do: "max(sr.imported_at) desc nulls last, lower(w.title), min(e.slug)"
-
-  defp work_order_sql(_sort), do: "lower(w.title), min(e.slug)"
+  defp publication_date_order_sql, do: "newest_sort desc nulls last, title_sort, slug_sort"
 
   defp limit_params(:all, _offset, params), do: {"", params}
 
@@ -362,9 +483,9 @@ defmodule HiraethWeb.PublicCatalog do
   end
 
   defp normalize_sort(sort) when sort in ~w(newest title author recently_added), do: sort
-  defp normalize_sort(_sort), do: "title"
+  defp normalize_sort(_sort), do: "newest"
 
-  defp default_title_page_filters?(%{sort: "title"} = filters) do
+  defp default_title_page_filters?(%{sort: "newest"} = filters) do
     Enum.all?(
       ~w(q publisher role contributor format language subject series year)a,
       fn key -> blank_filter_value?(Map.get(filters, key)) end
@@ -378,7 +499,7 @@ defmodule HiraethWeb.PublicCatalog do
   def editions do
     edition_rows("", [])
     |> Enum.map(&edition_projection_from_row/1)
-    |> Enum.sort_by(&sort_key/1)
+    |> Enum.sort_by(&publication_date_sort_key/1)
   end
 
   def search_editions(query) do
@@ -401,26 +522,96 @@ defmodule HiraethWeb.PublicCatalog do
   end
 
   def publishers do
-    publisher_summary_rows()
-    |> Enum.map(&publisher_summary_from_row/1)
-    |> Enum.sort_by(&String.downcase(&1.name))
+    cached({:publishers}, fn ->
+      publisher_summary_rows()
+      |> Enum.map(&publisher_summary_from_row/1)
+      |> Enum.sort_by(&String.downcase(&1.name))
+    end)
   end
 
   def publisher(slug) do
-    case publisher_summary_by_slug(slug) do
-      nil ->
-        nil
+    cached({:publisher, slug}, fn ->
+      case publisher_summary_by_slug(slug) do
+        nil ->
+          nil
 
-      publisher ->
-        editions =
-          edition_rows("where e.publisher_id = $1::uuid", [uuid_param(publisher.id)])
-          |> Enum.map(&edition_projection_from_row/1)
-          |> Enum.sort_by(&sort_key/1)
+        publisher ->
+          books = books_for_publisher_id(publisher.id)
 
-        publisher
-        |> Map.put(:editions, editions)
-        |> Map.put(:editions_count, length(editions))
-        |> Map.put(:groupings, publisher_groupings(editions))
+          publisher
+          |> Map.put(:editions, books)
+          |> Map.put(:editions_count, length(books))
+          |> Map.put(:groupings, publisher_groupings(books))
+      end
+    end)
+  end
+
+  def clear_cache do
+    __MODULE__
+    |> cache_registry_key()
+    |> :persistent_term.get([])
+    |> Enum.each(&:persistent_term.erase/1)
+
+    :persistent_term.erase(cache_registry_key(__MODULE__))
+    :ok
+  end
+
+  defp cached(key, fun) do
+    if public_catalog_cache?() do
+      cache_key = cache_key(key)
+      now_ms = System.monotonic_time(:millisecond)
+
+      case :persistent_term.get(cache_key, @cache_missing) do
+        %{expires_at: expires_at, value: value} when expires_at == :infinity ->
+          value
+
+        %{expires_at: expires_at, value: value}
+        when is_integer(expires_at) and expires_at > now_ms ->
+          value
+
+        _expired_missing_or_legacy_cache ->
+          value = fun.()
+          :persistent_term.put(cache_key, %{expires_at: cache_expires_at(), value: value})
+          remember_cache_key(cache_key)
+          value
+      end
+    else
+      fun.()
+    end
+  end
+
+  defp public_catalog_cache? do
+    Application.get_env(:hiraeth, :public_catalog_cache, true)
+  end
+
+  defp cache_expires_at do
+    case Application.get_env(:hiraeth, :public_catalog_cache_ttl_ms, @default_cache_ttl_ms) do
+      :infinity ->
+        :infinity
+
+      ttl_ms when is_integer(ttl_ms) and ttl_ms > 0 ->
+        System.monotonic_time(:millisecond) + ttl_ms
+
+      _zero_or_invalid_ttl ->
+        System.monotonic_time(:millisecond)
+    end
+  end
+
+  defp cache_key(key), do: {__MODULE__, :cache, key}
+  defp cache_registry_key(module), do: {module, :cache_keys}
+
+  defp remember_cache_key(cache_key) do
+    registry_key = cache_registry_key(__MODULE__)
+
+    cache_keys =
+      registry_key
+      |> :persistent_term.get([])
+      |> List.wrap()
+
+    if cache_key in cache_keys do
+      :ok
+    else
+      :persistent_term.put(registry_key, [cache_key | cache_keys])
     end
   end
 
@@ -460,22 +651,18 @@ defmodule HiraethWeb.PublicCatalog do
         nil
 
       series ->
-        memberships = series.memberships
-        work_ids = Enum.map(memberships, & &1.work_id)
-        position_by_work_id = Map.new(memberships, &{&1.work_id, &1.position})
-
-        editions =
-          edition_rows("where e.work_id = any($1::uuid[])", [Enum.map(work_ids, &uuid_param/1)])
-          |> Enum.map(&edition_projection_from_row/1)
-          |> Enum.sort_by(fn edition ->
-            position = Map.get(position_by_work_id, edition.work_id)
-            {is_nil(position), position || 0, edition.title}
-          end)
+        books =
+          series.memberships
+          |> Enum.map(& &1.work_id)
+          |> Enum.uniq()
+          |> Enum.map(&uuid_param/1)
+          |> books_for_work_ids()
+          |> Enum.sort_by(&publication_date_sort_key/1)
 
         series
         |> Map.delete(:memberships)
-        |> Map.put(:editions, editions)
-        |> Map.put(:editions_count, length(editions))
+        |> Map.put(:editions, books)
+        |> Map.put(:editions_count, length(books))
     end
   end
 
@@ -496,17 +683,55 @@ defmodule HiraethWeb.PublicCatalog do
     {:ok, %{rows: rows}} =
       Hiraeth.Repo.query(
         """
-        select p.id, p.name, p.slug, p.description, count(distinct e.id) as editions_count
-        from publishers p
-        join editions e on e.publisher_id = p.id
-        where exists (
-          select 1
-          from identifiers source_identifier
-          join source_records sr
-            on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
-          where source_identifier.edition_id = e.id
+        with publisher_counts as (
+          select p.id, p.name, p.slug, p.description, count(distinct e.work_id) as editions_count
+          from publishers p
+          join editions e on e.publisher_id = p.id
+          where exists (
+            select 1
+            from source_records sr
+            where sr.edition_id = e.id
+          )
+          group by p.id, p.name, p.slug, p.description
         )
-        group by p.id, p.name, p.slug, p.description
+        select
+          pc.id,
+          pc.name,
+          pc.slug,
+          pc.description,
+          pc.editions_count,
+          sample_cover.data
+        from publisher_counts pc
+        left join lateral (
+          select jsonb_build_object(
+            'title', e.title,
+            'cover', jsonb_build_object(
+              'id', ca.id,
+              'position', ca.position,
+              'visible?', ca."visible?",
+              'source_url', cover.source_url,
+              'provider', cover.provider,
+              'rights_basis', cover.rights_basis,
+              'attribution_text', cover.attribution_text,
+              'attribution_url', cover.attribution_url,
+              'cache_policy', cover.cache_policy,
+              'cached_file_path', cover.cached_file_path,
+              'thumbnail_file_path', cover.thumbnail_file_path,
+              'takedown_state', cover.takedown_state
+            )
+          ) as data
+          from editions e
+          join source_records sr on sr.edition_id = e.id
+          join cover_assignments ca on ca.edition_id = e.id
+          join cover_assets cover on cover.id = ca.cover_asset_id
+          where e.publisher_id = pc.id
+            and ca."visible?" = true
+            and cover.takedown_state = 'visible'
+            and cover.cache_policy = 'cache_allowed'
+            and cover.rights_basis = 'local_cache_permitted'
+          order by e.published_on desc nulls last, e.slug, ca.position nulls last
+          limit 1
+        ) sample_cover on true
         """,
         []
       )
@@ -523,16 +748,14 @@ defmodule HiraethWeb.PublicCatalog do
           p.name,
           p.slug,
           p.description,
-          count(distinct e.id) filter (
+          count(distinct e.work_id) filter (
             where exists (
               select 1
-              from identifiers source_identifier
-              join source_records sr
-                on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
-              where source_identifier.edition_id = e.id
+              from source_records sr
+              where sr.edition_id = e.id
             )
           ) as editions_count,
-          count(distinct e.id) as total_editions_count
+          count(distinct e.work_id) as total_editions_count
         from publishers p
         left join editions e on e.publisher_id = p.id
         where p.slug = $1
@@ -551,11 +774,15 @@ defmodule HiraethWeb.PublicCatalog do
         nil
 
       [id, name, slug, description, editions_count, _total_editions_count] ->
-        publisher_summary_from_row([id, name, slug, description, editions_count])
+        publisher_summary_from_row([id, name, slug, description, editions_count, nil])
     end
   end
 
   defp publisher_summary_from_row([id, name, slug, description, editions_count]) do
+    publisher_summary_from_row([id, name, slug, description, editions_count, nil])
+  end
+
+  defp publisher_summary_from_row([id, name, slug, description, editions_count, cover_sample]) do
     %{
       id: uuid_text(id),
       name: name,
@@ -563,9 +790,19 @@ defmodule HiraethWeb.PublicCatalog do
       description: description,
       editions: [],
       editions_count: editions_count,
+      cover_sample: publisher_cover_sample_from_data(cover_sample),
       groupings: empty_publisher_groupings()
     }
   end
+
+  defp publisher_cover_sample_from_data(%{"title" => title, "cover" => cover}) do
+    case cover_projection_from_data(cover) do
+      nil -> nil
+      cover -> %{title: title, cover: cover}
+    end
+  end
+
+  defp publisher_cover_sample_from_data(_cover_sample), do: nil
 
   defp empty_publisher_groupings do
     %{
@@ -578,15 +815,31 @@ defmodule HiraethWeb.PublicCatalog do
     }
   end
 
-  defp publisher_groupings(editions) do
+  defp publisher_groupings(books) do
     %{
-      formats: edition_count_group(editions, &format_label(&1.format)),
-      languages: edition_count_group(editions, & &1.language_code),
-      original_languages: edition_count_group(editions, & &1.original_language_code),
-      series: publisher_series_groupings(editions),
-      translations: publisher_translation_groupings(editions),
-      contributor_roles: publisher_contributor_role_groupings(editions)
+      formats: publisher_format_groupings(books),
+      languages: publisher_language_groupings(books),
+      original_languages: edition_count_group(books, & &1.original_language_code),
+      series: publisher_series_groupings(books),
+      translations: publisher_translation_groupings(books),
+      contributor_roles: publisher_contributor_role_groupings(books)
     }
+  end
+
+  defp publisher_format_groupings(books) do
+    books
+    |> Enum.flat_map(&Map.get(&1, :formats, []))
+    |> Enum.map(&format_label(&1.format))
+    |> Enum.reject(&blank?/1)
+    |> bounded_count_group()
+  end
+
+  defp publisher_language_groupings(books) do
+    books
+    |> Enum.flat_map(&Map.get(&1, :formats, []))
+    |> Enum.map(& &1.language_code)
+    |> Enum.reject(&blank?/1)
+    |> bounded_count_group()
   end
 
   defp edition_count_group(editions, value_fun) do
@@ -620,15 +873,18 @@ defmodule HiraethWeb.PublicCatalog do
     editions
     |> Enum.filter(&translated_edition?/1)
     |> Enum.map(fn edition ->
+      language_codes = edition_language_codes(edition)
+
       cond do
-        present?(edition.original_language_code) and present?(edition.language_code) ->
-          "#{edition.original_language_code} → #{edition.language_code}"
+        present?(edition.original_language_code) and language_codes != [] ->
+          edition_language = List.first(language_codes)
+          "#{edition.original_language_code} → #{edition_language}"
 
         present?(edition.original_language_code) ->
           "from #{edition.original_language_code}"
 
-        present?(edition.language_code) ->
-          "translated into #{edition.language_code}"
+        language_codes != [] ->
+          "translated into #{List.first(language_codes)}"
 
         true ->
           "translated works"
@@ -638,10 +894,20 @@ defmodule HiraethWeb.PublicCatalog do
   end
 
   defp translated_edition?(edition) do
+    language_codes = edition_language_codes(edition)
+
     (map_size(edition.contributors_by_role || %{}) > 0 and
        Map.has_key?(edition.contributors_by_role || %{}, "translator")) or
-      (present?(edition.original_language_code) and present?(edition.language_code) and
-         edition.original_language_code != edition.language_code)
+      (present?(edition.original_language_code) and
+         Enum.any?(language_codes, &(&1 != edition.original_language_code)))
+  end
+
+  defp edition_language_codes(edition) do
+    edition
+    |> Map.get(:formats, [])
+    |> Enum.map(& &1.language_code)
+    |> Enum.reject(&blank?/1)
+    |> Enum.uniq()
   end
 
   defp publisher_contributor_role_groupings(editions) do
@@ -691,9 +957,7 @@ defmodule HiraethWeb.PublicCatalog do
         from contributors ct
         join contributions c on c.contributor_id = ct.id
         join editions e on e.work_id = c.work_id or e.id = c.edition_id
-        join identifiers source_identifier on source_identifier.edition_id = e.id
-        join source_records sr
-          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+        join source_records sr on sr.edition_id = e.id
         #{where}
         group by ct.id, ct.display_name, ct.slug
         """,
@@ -716,9 +980,7 @@ defmodule HiraethWeb.PublicCatalog do
         from contributors ct
         join contributions c on c.contributor_id = ct.id
         join editions e on e.work_id = c.work_id or e.id = c.edition_id
-        join identifiers source_identifier on source_identifier.edition_id = e.id
-        join source_records sr
-          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+        join source_records sr on sr.edition_id = e.id
         where ct.slug = $1
         group by ct.id, ct.display_name, ct.slug
         limit 1
@@ -737,12 +999,10 @@ defmodule HiraethWeb.PublicCatalog do
         from contributors ct
         join contributions c on c.contributor_id = ct.id
         join editions e on e.work_id = c.work_id or e.id = c.edition_id
-        join identifiers source_identifier on source_identifier.edition_id = e.id
-        join source_records sr
-          on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
+        join source_records sr on sr.edition_id = e.id
         where ct.slug = $1
         group by e.work_id
-        order by min(coalesce(c.position, 0)), min(e.title)
+        order by max(e.published_on) desc nulls last, min(lower(e.title)), min(e.slug)
         """,
         [slug]
       )
@@ -788,7 +1048,7 @@ defmodule HiraethWeb.PublicCatalog do
           s.slug,
           p.name,
           p.slug,
-          count(distinct e.id) as editions_count,
+          count(distinct e.work_id) as editions_count,
           coalesce(bool_or(sm.position is null) filter (where sm.id is not null), false) as unknown_order
         from series s
         left join publishers p on p.id = s.publisher_id
@@ -796,10 +1056,8 @@ defmodule HiraethWeb.PublicCatalog do
         join editions e on e.work_id = sm.work_id
         where exists (
           select 1
-          from identifiers source_identifier
-          join source_records sr
-            on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
-          where source_identifier.edition_id = e.id
+          from source_records sr
+          where sr.edition_id = e.id
         )
         group by s.id, s.title, s.slug, p.name, p.slug
         """,
@@ -819,7 +1077,7 @@ defmodule HiraethWeb.PublicCatalog do
           s.slug,
           p.name,
           p.slug,
-          count(distinct e.id) as editions_count,
+          count(distinct e.work_id) as editions_count,
           coalesce(bool_or(sm.position is null) filter (where sm.id is not null), false) as unknown_order,
           coalesce(
             jsonb_agg(
@@ -835,10 +1093,8 @@ defmodule HiraethWeb.PublicCatalog do
         where s.slug = $1
           and exists (
             select 1
-            from identifiers source_identifier
-            join source_records sr
-              on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
-            where source_identifier.edition_id = e.id
+            from source_records sr
+            where sr.edition_id = e.id
           )
         group by s.id, s.title, s.slug, p.name, p.slug
         limit 1
@@ -918,9 +1174,9 @@ defmodule HiraethWeb.PublicCatalog do
         join works w on w.id = e.work_id
         join publishers p on p.id = e.publisher_id
         join lateral (
-          select jsonb_agg(i.value order by i.identifier_type, i.value) as data
+          select jsonb_agg(i.value order by i.value) as data
           from identifiers i
-          where i.edition_id = e.id
+          where i.edition_id = e.id and i.identifier_type = 'isbn_13'
         ) identifiers on true
         join lateral (
           select jsonb_build_object(
@@ -933,12 +1189,13 @@ defmodule HiraethWeb.PublicCatalog do
             'import_run_id', sr.import_run_id,
             'imported_at', sr.imported_at,
             'field_sources', sr.raw_payload->'field_sources',
-            'provider_permissions', sr.raw_payload->'provider_permissions'
+            'provider_permissions', sr.raw_payload->'provider_permissions',
+            'source_identity', coalesce(sr.source_identity, sr.raw_payload->>'source_identity'),
+            'review_links', sr.raw_payload->'review_links',
+            'missing_fields', sr.raw_payload->'missing_fields'
           ) as data
-          from identifiers source_identifier
-          join source_records sr
-            on coalesce(sr.raw_payload->'edition'->>'isbn_13', sr.raw_payload->'identifier'->>'isbn_13') = source_identifier.value
-          where source_identifier.edition_id = e.id
+          from source_records sr
+          where sr.edition_id = e.id
           order by sr.imported_at desc nulls last, sr.id
           limit 1
         ) source on true
@@ -1069,13 +1326,16 @@ defmodule HiraethWeb.PublicCatalog do
       depth_mm: depth_mm,
       dimensions: dimensions_projection(height_mm, width_mm, depth_mm),
       source: atomize_source(source),
-      source_uri: source && source["source_uri"]
+      source_uri: source && source["source_uri"],
+      review_links: source_review_links(source),
+      missing_fields: source_missing_fields(source)
     }
   end
 
   defp book_projection(editions) do
     editions = Enum.sort_by(editions, &format_sort_key/1)
     primary = List.first(editions)
+    latest_published_on = latest_published_on(editions)
 
     %{}
     |> Map.merge(
@@ -1105,6 +1365,8 @@ defmodule HiraethWeb.PublicCatalog do
     |> Map.put(:editorial_praise, first_present(editions, :editorial_praise) || [])
     |> Map.put(:praise, first_present(editions, :editorial_praise) || [])
     |> Map.put(:storefront_url, first_present(editions, :storefront_url))
+    |> Map.put(:review_links, first_present(editions, :review_links) || [])
+    |> Map.put(:missing_fields, merge_missing_fields(editions))
     |> Map.put(:formats, Enum.map(editions, &format_projection/1))
     |> Map.put(
       :identifiers,
@@ -1112,8 +1374,15 @@ defmodule HiraethWeb.PublicCatalog do
     )
     |> Map.put(:isbn, editions |> Enum.flat_map(& &1.identifiers) |> Enum.uniq() |> List.first())
     |> Map.put(:sources, editions |> Enum.map(& &1.source) |> Enum.reject(&is_nil/1))
-    |> Map.put(:published_on, first_present(editions, :published_on))
-    |> Map.put(:year, primary.year)
+    |> Map.put(:published_on, latest_published_on)
+    |> Map.put(:year, latest_published_on && latest_published_on.year)
+  end
+
+  defp latest_published_on(editions) do
+    editions
+    |> Enum.map(& &1.published_on)
+    |> Enum.reject(&is_nil/1)
+    |> Enum.max(Date, fn -> nil end)
   end
 
   defp format_projection(edition) do
@@ -1122,6 +1391,11 @@ defmodule HiraethWeb.PublicCatalog do
       format: edition.format,
       format_label: format_label(edition.format),
       identifiers: edition.identifiers,
+      source_identity:
+        if(edition.identifiers == [],
+          do: get_in(edition, [:source, :source_identity]) || edition.slug,
+          else: nil
+        ),
       published_on: edition.published_on,
       language_code: edition.language_code,
       page_count: edition.page_count,
@@ -1140,6 +1414,18 @@ defmodule HiraethWeb.PublicCatalog do
       width_mm: width_mm,
       depth_mm: depth_mm
     }
+  end
+
+  defp source_review_links(source) when is_map(source), do: source["review_links"] || []
+  defp source_review_links(_source), do: []
+
+  defp source_missing_fields(source) when is_map(source), do: source["missing_fields"] || %{}
+  defp source_missing_fields(_source), do: %{}
+
+  defp merge_missing_fields(editions) do
+    editions
+    |> Enum.map(&Map.get(&1, :missing_fields, %{}))
+    |> Enum.reduce(%{}, &Map.merge(&2, &1))
   end
 
   defp first_present(editions, key) do
@@ -1195,10 +1481,10 @@ defmodule HiraethWeb.PublicCatalog do
          "cached_file_path" => path
        })
        when is_binary(path) do
-    static_cover_path(path) || path
+    static_cover_path(path)
   end
 
-  defp cover_public_url_from_data(asset), do: asset["source_url"]
+  defp cover_public_url_from_data(_asset), do: nil
 
   defp thumbnail_url_from_data(path) do
     if safe_cached_file_path?(path), do: static_cover_path(path)
@@ -1218,25 +1504,7 @@ defmodule HiraethWeb.PublicCatalog do
       present?(asset["source_url"]) and present?(asset["provider"]) and
       present?(asset["rights_basis"]) and uri.scheme == "https" and
       SourcePolicy.cover_host_allowed?(asset["provider"], uri.host) and
-      provider_cover_policy_allows_public_data?(asset) and
       public_cache_policy_data?(asset)
-  end
-
-  defp provider_cover_policy_allows_public_data?(%{
-         "provider" => provider,
-         "cache_policy" => cache_policy
-       }) do
-    case SourcePolicy.provider_permission_metadata!(provider).cover_cache_policy do
-      "cache_allowed" -> true
-      "link_only_until_explicit_cache_permission" -> false
-      _policy -> cache_policy == "link_only"
-    end
-  rescue
-    ArgumentError -> true
-  end
-
-  defp public_cache_policy_data?(%{"cache_policy" => "link_only"} = asset) do
-    not present?(asset["cached_file_path"]) and not present?(asset["thumbnail_file_path"])
   end
 
   defp public_cache_policy_data?(%{
@@ -1339,13 +1607,15 @@ defmodule HiraethWeb.PublicCatalog do
       (identifier_needle != "" and String.contains?(searchable_identifiers, identifier_needle))
   end
 
-  defp sort_key(edition),
-    do: {demo_fixture_order(edition.slug), String.downcase(edition.title), edition.slug}
+  defp publication_date_sort_key(edition) do
+    published_rank =
+      case edition.published_on do
+        %Date{} = date -> -Date.to_gregorian_days(date)
+        _missing -> -@undated_sort_value
+      end
 
-  defp demo_fixture_order("the-orchard-of-minor-moons-paperback"), do: 0
-  defp demo_fixture_order("index-of-borrowed-harbors-first"), do: 1
-  defp demo_fixture_order("rooms-for-unwritten-letters-classic"), do: 2
-  defp demo_fixture_order(_slug), do: 100
+    {published_rank, String.downcase(edition.title || ""), edition.slug}
+  end
 
   defp ceil_div(value, divisor), do: div(value + divisor - 1, divisor)
 
@@ -1371,6 +1641,7 @@ defmodule HiraethWeb.PublicCatalog do
       provider: source["provider"],
       source_type: source["source_type"],
       source_uri: source["source_uri"],
+      source_identity: source["source_identity"],
       license_note: source["license_note"],
       import_run_id: source["import_run_id"],
       imported_at: parse_imported_at(source["imported_at"]),

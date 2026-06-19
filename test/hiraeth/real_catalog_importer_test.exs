@@ -1,13 +1,13 @@
 defmodule Hiraeth.RealCatalogImporterTest do
   use Hiraeth.DataCase, async: false
 
-  alias Hiraeth.Accounts.User
   alias Hiraeth.Catalog.{Edition, Identifier, Publisher, Work}
   alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
   alias Hiraeth.Imports.ImportRun
-  alias Hiraeth.RealCatalog.Dataset
+  alias Hiraeth.RealCatalog.{Dataset, Slug}
   alias Hiraeth.Sources.{SourceLedgerEntry, SourceRecord}
 
+  @tag timeout: 180_000
   test "real catalog importer seeds approved publisher records with provenance and covers idempotently" do
     clear_catalog!()
 
@@ -30,15 +30,38 @@ defmodule Hiraeth.RealCatalogImporterTest do
       })
       |> Ash.create!(authorize?: false)
 
-    assert {:ok, first_summary} = Hiraeth.RealCatalog.Importer.seed!()
-    assert first_summary.editions == 250
-    assert first_summary.publishers == 5
+    expected_total = Enum.sum(Enum.map(datasets, &length(&1.records)))
+    expected_cover_assignments = count_cover_records(datasets)
+    expected_transit_count = provider_record_count(datasets, "transit_books_official_site")
 
-    assert Enum.any?(Ash.read!(Publisher, authorize?: false), &(&1.name == "Deep Vellum"))
-    assert Enum.any?(Ash.read!(Publisher, authorize?: false), &(&1.name == "Dalkey Archive"))
-    assert Enum.any?(Ash.read!(Publisher, authorize?: false), &(&1.name == "Archipelago Books"))
-    assert Enum.any?(Ash.read!(Publisher, authorize?: false), &(&1.name == "New Directions"))
-    assert Enum.any?(Ash.read!(Publisher, authorize?: false), &(&1.name == "Transit Books"))
+    assert {:ok, first_summary} = Hiraeth.RealCatalog.Importer.seed!()
+    assert first_summary.editions == expected_total
+    assert first_summary.publishers == length(datasets)
+
+    publisher_names = Ash.read!(Publisher, authorize?: false) |> Enum.map(& &1.name)
+
+    for name <- [
+          "Deep Vellum",
+          "Dalkey Archive",
+          "Archipelago Books",
+          "New Directions",
+          "Transit Books",
+          "Historical Materialism",
+          "Semiotext(e)",
+          "Phoneme Media",
+          "A Strange Object",
+          "La Reunion",
+          "Fum d'Estampa",
+          "Fitzcarraldo Editions",
+          "NYRB",
+          "Tilted Axis Press",
+          "McNally Editions",
+          "Seven Stories Press",
+          "Unnamed Press",
+          "Pushkin Press"
+        ] do
+      assert name in publisher_names
+    end
 
     editions = Ash.read!(Edition, authorize?: false)
     identifiers = Ash.read!(Identifier, authorize?: false)
@@ -48,33 +71,28 @@ defmodule Hiraeth.RealCatalogImporterTest do
     cover_assignments = Ash.read!(CoverAssignment, authorize?: false)
     import_runs = Ash.read!(ImportRun, authorize?: false)
 
-    assert length(editions) == 250
-    assert length(identifiers) == 250
-    assert length(source_records) == 250
-    assert length(source_ledger) >= 250
-    assert length(cover_assets) >= 3
-    assert length(cover_assignments) == 150
-    assert length(import_runs) == 5
+    assert length(editions) == expected_total
+    assert length(identifiers) == expected_total
+    assert length(source_records) == expected_total
+    assert length(source_ledger) >= expected_total
+    assert length(cover_assets) >= 5
+    assert length(cover_assignments) == expected_cover_assignments
+    assert length(import_runs) == length(datasets)
 
-    refute Enum.any?(
-             Ash.read!(User, authorize?: false),
-             &(to_string(&1.email) == "real-catalog-admin@example.test")
-           )
+    dataset_providers = MapSet.new(Enum.map(datasets, & &1.provider))
 
-    assert Enum.all?(source_records, &(&1.source_type == "publisher_dataset"))
+    assert Enum.all?(source_records, fn source_record ->
+             source_record.source_type in ["publisher_dataset", "publisher_official_page"] and
+               MapSet.member?(dataset_providers, source_record.provider)
+           end)
 
-    assert Enum.all?(source_records, fn
-             %{provider: "transit_books_official_site", license_note: license_note} ->
-               String.contains?(license_note, "catalog archive PDFs") and
-                 String.contains?(license_note, "factual bibliographic metadata only") and
-                 String.contains?(license_note, "no copied descriptions") and
-                 String.contains?(license_note, "covers")
-
-             %{license_note: license_note} ->
-               String.contains?(license_note, "approved public prose metadata")
+    assert Enum.all?(source_records, fn %{license_note: license_note} ->
+             String.contains?(license_note, "Operator-authorized public catalog refresh")
            end)
 
     assert Enum.all?(source_records, &is_binary(&1.import_run_id))
+    assert Enum.all?(source_records, &is_binary(&1.source_identity))
+    assert Enum.all?(source_records, &is_binary(&1.edition_id))
     assert Enum.all?(cover_assets, &(&1.cache_policy == "cache_allowed"))
     assert Enum.all?(cover_assets, &is_nil(&1.cached_file_path))
 
@@ -97,48 +115,55 @@ defmodule Hiraeth.RealCatalogImporterTest do
     assert Enum.any?(editions, &(&1.title == "The Tunnel" and &1.format == "paperback"))
     assert Enum.any?(editions, &(&1.title == "Bob and Hilbert" and &1.format == "hardcover"))
     assert Enum.any?(editions, &(&1.title == "Cold Mountain Zen" and &1.format == "paperback"))
-    assert Enum.any?(editions, &(&1.title == "May We Feed the King" and &1.format == "paperback"))
+
+    assert Enum.any?(
+             editions,
+             &(&1.title == "May We Feed the King" and &1.format == "paperback")
+           )
 
     transit_source_records =
       Enum.filter(source_records, &(&1.provider == "transit_books_official_site"))
 
-    assert length(transit_source_records) == 50
+    assert length(transit_source_records) == expected_transit_count
 
     assert Enum.all?(transit_source_records, fn source_record ->
              payload = source_record.raw_payload || %{}
 
-             payload["no_cover_reason"] =~ "no explicit cover-cache permission" and
-               String.starts_with?(
-                 source_record.source_uri,
-                 "https://www.transitbooks.org/s/"
-               ) and
-               String.contains?(source_record.source_uri, ".pdf#isbn-") and
+             String.starts_with?(source_record.source_uri, "https://www.transitbooks.org/books/") and
                payload["provider_permissions"]["source_urls"] == [
-                 "https://www.transitbooks.org/books",
-                 "https://www.transitbooks.org/catalogs"
+                 "https://www.transitbooks.org/sitemap.xml",
+                 "https://www.transitbooks.org/books"
                ] and
-               payload["provider_permissions"]["permission_basis"] =~ "catalog PDFs" and
-               payload["provider_permissions"]["cover_hosts"] == [] and
-               payload["provider_permissions"]["cover_cache_policy"] ==
-                 "no_covers_until_explicit_permission" and
-               not Map.has_key?(payload, "cover")
+               payload["provider_permissions"]["permission_basis"] =~
+                 "Operator-authorized public catalog refresh" and
+               payload["provider_permissions"]["cover_hosts"] == [
+                 "images.squarespace-cdn.com",
+                 "static1.squarespace.com",
+                 "covers.openlibrary.org"
+               ] and
+               payload["provider_permissions"]["cover_cache_policy"] == "cache_allowed" and
+               Map.has_key?(payload, "cover") and
+               not Map.has_key?(payload, "no_cover_reason")
            end)
 
-    assert archipelago_dataset.records
-           |> Enum.filter(&(&1.source_sku in ["9781962770651", "9781962770668"]))
-           |> Enum.map(&get_in(&1, [:cover, :source_url]))
-           |> Enum.uniq() == [
-             "https://archipelagobooks.org/wp-content/uploads/2026/06/BobAndHilbert_Compiled_MB_May22_NOBLEED_FLIPPPED_WEB-pdf.jpg"
-           ]
+    bob_cover_urls =
+      archipelago_dataset.records
+      |> Enum.filter(&(&1.source_sku in ["9781962770651", "9781962770668"]))
+      |> Enum.map(&get_in(&1, [:cover, :source_url]))
+      |> Enum.uniq()
+
+    assert length(bob_cover_urls) == 1
+    assert [bob_cover_url] = bob_cover_urls
+    assert String.starts_with?(bob_cover_url, "https://archipelagobooks.org/wp-content/uploads/")
 
     assert {:ok, second_summary} = Hiraeth.RealCatalog.Importer.seed!()
-    assert second_summary.editions == 250
+    assert second_summary.editions == expected_total
 
-    assert length(Ash.read!(Edition, authorize?: false)) == 250
-    assert length(Ash.read!(Identifier, authorize?: false)) == 250
-    assert length(Ash.read!(SourceRecord, authorize?: false)) == 250
-    assert length(Ash.read!(CoverAssignment, authorize?: false)) == 150
-    assert length(Ash.read!(ImportRun, authorize?: false)) == 5
+    assert length(Ash.read!(Edition, authorize?: false)) == expected_total
+    assert length(Ash.read!(Identifier, authorize?: false)) == expected_total
+    assert length(Ash.read!(SourceRecord, authorize?: false)) == expected_total
+    assert length(Ash.read!(CoverAssignment, authorize?: false)) == expected_cover_assignments
+    assert length(Ash.read!(ImportRun, authorize?: false)) == length(datasets)
   end
 
   test "real catalog importer accepts validated no-cover records without creating cover assignments" do
@@ -147,14 +172,15 @@ defmodule Hiraeth.RealCatalogImporterTest do
     on_exit(fn -> File.rm_rf!(tmp) end)
 
     assert {:ok, summary} = Hiraeth.RealCatalog.Importer.seed!(tmp)
-    assert summary.editions == 50
-    assert summary.cover_assignments == 49
+    assert summary.editions == archipelago_record_count()
+    assert summary.cover_assignments == archipelago_cover_count() - 1
 
     source_record =
       SourceRecord
       |> Ash.read!(authorize?: false)
       |> Enum.find(fn source_record ->
-        get_in(source_record.raw_payload || %{}, ["edition", "isbn_13"]) == "9781962770651"
+        source_record.raw_payload["no_cover_reason"] ==
+          "Official public source exposes no cover image."
       end)
 
     assert source_record
@@ -169,14 +195,15 @@ defmodule Hiraeth.RealCatalogImporterTest do
     on_exit(fn -> File.rm_rf!(tmp) end)
 
     assert {:ok, summary} = Hiraeth.RealCatalog.Importer.seed!(tmp)
-    assert summary.editions == 50
-    assert summary.cover_assignments == 49
+    assert summary.editions == archipelago_record_count()
+    assert summary.cover_assignments == archipelago_cover_count() - 1
 
     source_record =
       SourceRecord
       |> Ash.read!(authorize?: false)
       |> Enum.find(fn source_record ->
-        get_in(source_record.raw_payload || %{}, ["edition", "isbn_13"]) == "9781962770651"
+        source_record.raw_payload["no_cover_reason"] ==
+          "Official public source exposes no cover image."
       end)
 
     assert source_record
@@ -184,6 +211,87 @@ defmodule Hiraeth.RealCatalogImporterTest do
 
     assert source_record.raw_payload["no_cover_reason"] ==
              "Official public source exposes no cover image."
+  end
+
+  test "real catalog importer accepts source-only no-ISBN editions with stable provenance" do
+    clear_catalog!()
+
+    tmp =
+      Path.join(
+        System.tmp_dir!(),
+        "hiraeth-no-isbn-real-catalog-#{System.unique_integer([:positive])}"
+      )
+
+    File.mkdir_p!(tmp)
+    File.cp!(Path.join(Dataset.default_dir(), "README.md"), Path.join(tmp, "README.md"))
+    File.cp!(Path.join(Dataset.default_dir(), "schema.json"), Path.join(tmp, "schema.json"))
+    on_exit(fn -> File.rm_rf!(tmp) end)
+
+    {:ok, dataset} = Dataset.load_file(Path.join(Dataset.default_dir(), "archipelago_books.json"))
+    [record | remaining_records] = dataset.records
+
+    no_isbn_record =
+      record
+      |> update_in([:edition], &Map.delete(&1, :isbn_13))
+      |> Map.put(:source_sku, "source-only-#{record.source_product_id}")
+      |> Map.put(:missing_fields, %{
+        "isbn_13" => "Approved source record has no ISBN for this edition."
+      })
+      |> Map.update!(:displayed_fields, &List.delete(&1, "isbn_13"))
+      |> Map.update!(:field_sources, &Map.delete(&1, "isbn_13"))
+
+    write_archipelago_payload!(tmp, dataset, no_isbn_record, remaining_records)
+
+    assert {:ok, summary} = Hiraeth.RealCatalog.Importer.seed!(tmp)
+    assert summary.editions == archipelago_record_count()
+    assert summary.identifiers == archipelago_record_count()
+    assert summary.source_records == archipelago_record_count()
+
+    edition =
+      Edition
+      |> Ash.read!(authorize?: false)
+      |> Enum.find(&(&1.title == record.edition.title))
+
+    assert edition
+
+    assert Enum.any?(
+             Ash.read!(Identifier, authorize?: false),
+             &(&1.edition_id == edition.id and &1.identifier_type == "source_record" and
+                 &1.value == "source:#{dataset.provider}:#{record.source_product_id}")
+           )
+
+    assert String.ends_with?(
+             edition.slug,
+             "source-#{Slug.slugify(record.source_product_id)}"
+           )
+
+    source_record =
+      SourceRecord
+      |> Ash.read!(authorize?: false)
+      |> Enum.find(fn source_record ->
+        source_record.raw_payload["source_product_id"] == record.source_product_id
+      end)
+
+    assert source_record
+    assert String.ends_with?(source_record.source_uri, "#source-#{record.source_product_id}")
+
+    assert source_record.source_identity ==
+             "source:#{dataset.provider}:#{record.source_product_id}"
+
+    assert source_record.edition_id == edition.id
+
+    assert source_record.raw_payload["source_identity"] ==
+             "source:#{dataset.provider}:#{record.source_product_id}"
+
+    assert source_record.raw_payload["identifier"]["source_identity"] ==
+             "source:#{dataset.provider}:#{record.source_product_id}"
+
+    refute Map.has_key?(source_record.raw_payload["identifier"], "isbn_13")
+
+    refute Map.has_key?(source_record.raw_payload["edition"], "isbn_13")
+
+    assert source_record.raw_payload["missing_fields"]["isbn_13"] ==
+             "Approved source record has no ISBN for this edition."
   end
 
   test "real catalog importer creates checksum-versioned source records and updates missing work prose" do
@@ -202,13 +310,20 @@ defmodule Hiraeth.RealCatalogImporterTest do
 
     {:ok, dataset} = Dataset.load_file(Path.join(Dataset.default_dir(), "archipelago_books.json"))
 
-    record = Enum.find(dataset.records, &(not Map.has_key?(&1, :description)))
-    remaining_records = List.delete(dataset.records, record)
+    record =
+      dataset.records
+      |> unique_title_record!()
+      |> Map.delete(:description)
+      |> Map.update!(:displayed_fields, &List.delete(&1, "description"))
+      |> Map.update!(:field_sources, &Map.delete(&1, "description"))
+
+    remaining_records =
+      Enum.reject(dataset.records, &(&1.source_product_id == record.source_product_id))
 
     write_archipelago_payload!(tmp, dataset, record, remaining_records)
 
     assert {:ok, first_summary} = Hiraeth.RealCatalog.Importer.seed!(tmp)
-    assert first_summary.source_records == 50
+    assert first_summary.source_records == archipelago_record_count()
 
     work = Work |> Ash.read!(authorize?: false) |> Enum.find(&(&1.title == record.work.title))
     assert is_nil(work.description)
@@ -232,8 +347,8 @@ defmodule Hiraeth.RealCatalogImporterTest do
     write_archipelago_payload!(tmp, dataset, prose_record, remaining_records)
 
     assert {:ok, second_summary} = Hiraeth.RealCatalog.Importer.seed!(tmp)
-    assert second_summary.editions == 50
-    assert second_summary.source_records == 100
+    assert second_summary.editions == archipelago_record_count()
+    assert second_summary.source_records == archipelago_record_count() * 2
 
     updated_work =
       Work
@@ -254,7 +369,7 @@ defmodule Hiraeth.RealCatalogImporterTest do
     write_archipelago_payload!(tmp, dataset, overwrite_attempt, remaining_records)
 
     assert {:ok, third_summary} = Hiraeth.RealCatalog.Importer.seed!(tmp)
-    assert third_summary.source_records == 150
+    assert third_summary.source_records == archipelago_record_count() * 3
 
     preserved_work =
       Work |> Ash.read!(authorize?: false) |> Enum.find(&(&1.title == record.work.title))
@@ -320,7 +435,7 @@ defmodule Hiraeth.RealCatalogImporterTest do
     write_archipelago_payload!(tmp, dataset, enriched_record, remaining_records)
 
     assert {:ok, summary} = Hiraeth.RealCatalog.Importer.seed!(tmp)
-    assert summary.editions == 50
+    assert summary.editions == archipelago_record_count()
 
     work = Work |> Ash.read!(authorize?: false) |> Enum.find(&(&1.title == record.work.title))
     edition = Edition |> Ash.read!(authorize?: false) |> Enum.find(&(&1.work_id == work.id))
@@ -338,7 +453,8 @@ defmodule Hiraeth.RealCatalogImporterTest do
       SourceRecord
       |> Ash.read!(authorize?: false)
       |> Enum.find(fn source_record ->
-        get_in(source_record.raw_payload || %{}, ["edition", "isbn_13"]) == "9781962770651"
+        get_in(source_record.raw_payload || %{}, ["edition", "isbn_13"]) ==
+          record.edition.isbn_13
       end)
 
     assert source_record.raw_payload["field_sources"]["dimensions"]["provider"] ==
@@ -389,25 +505,27 @@ defmodule Hiraeth.RealCatalogImporterTest do
 
     assert {:ok, _summary} = Hiraeth.RealCatalog.Importer.seed!(tmp)
 
-    work = Work |> Ash.read!(authorize?: false) |> Enum.find(&(&1.title == "Bob and Hilbert"))
+    {:ok, dataset} = Dataset.load_file(Path.join(Dataset.default_dir(), "archipelago_books.json"))
+    record = unique_title_record!(dataset.records)
+
+    work = Work |> Ash.read!(authorize?: false) |> Enum.find(&(&1.title == record.work.title))
     assert work.description == "A sourced synopsis carried from the official publisher page."
 
     source_record =
       SourceRecord
       |> Ash.read!(authorize?: false)
       |> Enum.find(fn source_record ->
-        get_in(source_record.raw_payload || %{}, ["work", "title"]) == "Bob and Hilbert"
+        get_in(source_record.raw_payload || %{}, ["work", "title"]) == record.work.title
       end)
 
     assert source_record.raw_payload["description"] ==
              "A sourced synopsis carried from the official publisher page."
 
-    assert source_record.raw_payload["storefront_url"] ==
-             "https://archipelagobooks.org/book/bob-and-hilbert/"
+    assert source_record.raw_payload["storefront_url"] == record.source_uri
 
     assert [praise] = source_record.raw_payload["editorial_praise"]
     assert praise["quote"] == "A precise, source-attributed editorial praise excerpt."
-    assert praise["source_uri"] == "https://archipelagobooks.org/book/bob-and-hilbert/"
+    assert praise["source_uri"] == record.source_uri
   end
 
   defp clear_catalog! do
@@ -419,11 +537,12 @@ defmodule Hiraeth.RealCatalogImporterTest do
           CoverAsset,
           Identifier,
           Hiraeth.Catalog.Contribution,
+          Hiraeth.Catalog.SeriesMembership,
           Edition,
           Hiraeth.Catalog.Work,
+          Hiraeth.Catalog.Series,
           Hiraeth.Catalog.Imprint,
-          Publisher,
-          User
+          Publisher
         ] do
       Hiraeth.Repo.delete_all(resource)
     end
@@ -488,7 +607,10 @@ defmodule Hiraeth.RealCatalogImporterTest do
     File.cp!(Path.join(Dataset.default_dir(), "schema.json"), Path.join(tmp, "schema.json"))
 
     {:ok, dataset} = Dataset.load_file(Path.join(Dataset.default_dir(), "archipelago_books.json"))
-    [record | remaining_records] = dataset.records
+    record = unique_title_record!(dataset.records)
+
+    remaining_records =
+      Enum.reject(dataset.records, &(&1.source_product_id == record.source_product_id))
 
     prose_record =
       record
@@ -529,5 +651,43 @@ defmodule Hiraeth.RealCatalogImporterTest do
     Map.update!(record, :field_sources, fn sources ->
       Enum.reduce(fields, sources, fn field, sources -> Map.put(sources, field, source) end)
     end)
+  end
+
+  defp archipelago_record_count do
+    archipelago_dataset!().records |> length()
+  end
+
+  defp archipelago_cover_count do
+    archipelago_dataset!().records |> Enum.count(&cover_record?/1)
+  end
+
+  defp archipelago_dataset! do
+    {:ok, dataset} = Dataset.load_file(Path.join(Dataset.default_dir(), "archipelago_books.json"))
+    dataset
+  end
+
+  defp count_cover_records(datasets) do
+    datasets
+    |> Enum.flat_map(& &1.records)
+    |> Enum.count(&cover_record?/1)
+  end
+
+  defp cover_record?(record) do
+    cover = Map.get(record, :cover) || %{}
+    is_binary(Map.get(cover, :source_url)) and Map.get(cover, :source_url) != ""
+  end
+
+  defp provider_record_count(datasets, provider) do
+    datasets
+    |> Enum.find(&(&1.provider == provider))
+    |> Map.fetch!(:records)
+    |> length()
+  end
+
+  defp unique_title_record!(records) do
+    title_counts = Enum.frequencies_by(records, & &1.work.title)
+
+    Enum.find(records, &(Map.fetch!(title_counts, &1.work.title) == 1)) ||
+      raise "expected at least one unique-title record"
   end
 end

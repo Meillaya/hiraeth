@@ -120,8 +120,8 @@ defmodule Hiraeth.Covers.CoverAsset do
     end
 
     policy action_type([:create, :update, :destroy]) do
-      description "Only admin actors can govern cover assets and takedown state."
-      authorize_if actor_attribute_equals(:admin?, true)
+      description "Only trusted catalog write actors can govern cover assets and takedown state."
+      authorize_if actor_attribute_equals(:catalog_write?, true)
     end
   end
 

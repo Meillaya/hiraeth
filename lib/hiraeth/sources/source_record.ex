@@ -11,6 +11,8 @@ defmodule Hiraeth.Sources.SourceRecord do
     custom_indexes do
       index :source_uri, name: "source_records_public_catalog_source_uri_index"
       index [:provider, :source_type], name: "source_records_public_catalog_provider_type_index"
+      index :edition_id, name: "source_records_public_catalog_edition_id_index"
+      index :source_identity, name: "source_records_public_catalog_source_identity_index"
     end
   end
 
@@ -32,6 +34,10 @@ defmodule Hiraeth.Sources.SourceRecord do
     end
 
     attribute :file_checksum, :string do
+      public? true
+    end
+
+    attribute :source_identity, :string do
       public? true
     end
 
@@ -57,6 +63,11 @@ defmodule Hiraeth.Sources.SourceRecord do
       allow_nil? true
     end
 
+    belongs_to :edition, Hiraeth.Catalog.Edition do
+      public? true
+      allow_nil? true
+    end
+
     has_many :curation_overrides, Hiraeth.Sources.CurationOverride
     has_many :ledger_entries, Hiraeth.Sources.SourceLedgerEntry
   end
@@ -77,9 +88,11 @@ defmodule Hiraeth.Sources.SourceRecord do
         :source_uri,
         :file_checksum,
         :license_note,
+        :source_identity,
         :raw_payload,
         :imported_at,
-        :import_run_id
+        :import_run_id,
+        :edition_id
       ]
     end
   end
@@ -91,8 +104,8 @@ defmodule Hiraeth.Sources.SourceRecord do
     end
 
     policy action_type(:create) do
-      description "Only admin actors can ingest source records."
-      authorize_if actor_attribute_equals(:admin?, true)
+      description "Only trusted catalog write actors can ingest source records."
+      authorize_if actor_attribute_equals(:catalog_write?, true)
     end
 
     policy action_type(:update) do

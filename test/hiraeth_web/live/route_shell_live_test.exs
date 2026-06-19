@@ -2,7 +2,7 @@ defmodule HiraethWeb.RouteShellLiveTest do
   use HiraethWeb.ConnCase, async: false
 
   import Phoenix.LiveViewTest
-  alias Hiraeth.Accounts.User
+  alias HiraethWeb.PublicCatalog
 
   setup_all do
     Ecto.Adapters.SQL.Sandbox.unboxed_run(Hiraeth.Repo, fn ->
@@ -24,8 +24,18 @@ defmodule HiraethWeb.RouteShellLiveTest do
     {:ok, view, _html} = live(conn, ~p"/browse")
 
     assert has_element?(view, "#browse-shell")
-    assert has_element?(view, "#catalog-index", "178 books")
-    assert has_element?(view, "#catalog-page-count", "Page 1 of 8")
+
+    assert has_element?(
+             view,
+             "#catalog-index",
+             "#{PublicCatalog.book_page(nil, 1).total_count} books"
+           )
+
+    assert has_element?(
+             view,
+             "#catalog-page-count",
+             "Page 1 of #{ceil_div(PublicCatalog.book_page(nil, 1).total_count, PublicCatalog.page_size())}"
+           )
 
     {:ok, filtered, _html} = live(conn, ~p"/browse?q=Tunnel")
     assert has_element?(filtered, "#catalog-index h4", "The Tunnel")
@@ -36,7 +46,12 @@ defmodule HiraethWeb.RouteShellLiveTest do
     {:ok, view, _html} = live(conn, ~p"/search")
 
     assert has_element?(view, "#search-shell")
-    assert has_element?(view, "#search-results", "178 matches")
+
+    assert has_element?(
+             view,
+             "#search-results",
+             "#{PublicCatalog.book_page(nil, 1).total_count} matches"
+           )
 
     view
     |> form("#catalog-search-form", search: %{query: "Archipelago"})
@@ -76,39 +91,6 @@ defmodule HiraethWeb.RouteShellLiveTest do
     assert_single_main(conn, ~p"/editions/not-a-real-edition", "#edition-detail-shell")
   end
 
-  test "GET /admin renders the authenticated admin shell", %{conn: conn} do
-    signed_in =
-      seed_admin!("route-shell-admin@example.test", "correct horse battery staple")
-      |> sign_in!("correct horse battery staple")
-
-    conn =
-      conn
-      |> init_test_session(%{})
-      |> AshAuthentication.Plug.Helpers.store_in_session(signed_in)
-
-    {:ok, view, html} = live(conn, ~p"/admin")
-
-    assert html =~ "Admin dashboard"
-    assert has_element?(view, "#admin-dashboard-shell")
-    assert has_element?(view, "#admin-import-runs")
-  end
-
-  defp seed_admin!(email, password) do
-    User
-    |> Ash.Changeset.for_create(:seed_admin, %{
-      email: email,
-      password: password,
-      display_name: "Route Shell Admin"
-    })
-    |> Ash.create!(authorize?: false)
-  end
-
-  defp sign_in!(user, password) do
-    User
-    |> Ash.Query.for_read(:sign_in_with_password, %{email: user.email, password: password})
-    |> Ash.read_one!()
-  end
-
   defp assert_single_main(conn, path, shell_selector) do
     {:ok, _view, html} = live(conn, path)
     document = LazyHTML.from_fragment(html)
@@ -119,4 +101,6 @@ defmodule HiraethWeb.RouteShellLiveTest do
     assert document |> LazyHTML.query("main #{shell_selector}") |> LazyHTML.to_tree() |> length() ==
              1
   end
+
+  defp ceil_div(value, divisor), do: div(value + divisor - 1, divisor)
 end

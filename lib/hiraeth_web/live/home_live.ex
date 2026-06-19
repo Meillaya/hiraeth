@@ -6,58 +6,60 @@ defmodule HiraethWeb.HomeLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    catalog = PublicCatalog.book_page(%{"sort" => "recently_added"}, 1, 4)
-    [spotlight | recent] = catalog.entries ++ [nil]
+    catalog = PublicCatalog.book_page(%{"sort" => "recently_added"}, 1, 160)
+    spotlight = spotlight_entry(catalog.entries)
+
+    recent =
+      catalog.entries
+      |> Enum.reject(&(&1[:slug] == spotlight[:slug]))
+      |> Enum.take(3)
 
     {:ok,
      socket
      |> assign(:page_title, "Quiet Editorial Archive")
      |> assign(:catalog_count, catalog.total_count)
      |> assign(:spotlight, spotlight)
-     |> stream(:recent, Enum.reject(recent, &is_nil/1))}
+     |> stream(:recent, recent)}
   end
 
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
-      <main id="home-shell" class="archive-wash space-y-16 pb-8 md:space-y-20">
-        <section class="space-y-6 pt-4 md:pt-8">
+    <Layouts.app
+      flash={@flash}
+      current_scope={%{}}
+      catalog_count={@catalog_count}
+    >
+      <main id="home-shell" class="archive-wash space-y-10 pb-8 md:space-y-12">
+        <section class="space-y-5 pt-0">
           <p class="qi-kicker text-[var(--hiraeth-thread)]">A quiet editorial archive</p>
-          <div class="max-w-4xl space-y-5">
-            <h1 class="text-balance font-serif text-5xl font-light leading-[1.02] tracking-tight text-[var(--hiraeth-ink)] md:text-7xl">
+          <div class="max-w-4xl space-y-4">
+            <h1 class="text-balance font-serif text-5xl font-light leading-[1.02] tracking-tight text-[var(--hiraeth-ink)] md:text-[4.125rem]">
               Traceable metadata for independent presses.
             </h1>
             <p class="max-w-2xl font-serif text-xl font-light italic leading-relaxed text-[var(--hiraeth-muted)] md:text-2xl">
               A curated pilot of independent publisher catalogs — showing only what is sourced, and naming where every record came from.
             </p>
           </div>
-          <div class="flex flex-wrap gap-3 border-t qi-divider pt-5 font-mono text-[11px] uppercase tracking-[0.16em] text-[var(--hiraeth-label)]">
-            <span>{@catalog_count} sourced volumes</span>
-            <span aria-hidden="true">·</span>
-            <span>Local cover cache only</span>
-            <span aria-hidden="true">·</span>
-            <span>No fabricated fields</span>
-          </div>
         </section>
 
         <%= if @spotlight do %>
           <section
             id="home-spotlight"
-            class="grid grid-cols-1 items-start gap-10 border-t qi-divider pt-10 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-16"
+            class="grid grid-cols-1 items-start gap-10 border-t qi-divider pt-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-16"
           >
-            <div class="space-y-7">
+            <div class="space-y-5">
               <div class="space-y-4">
                 <p class="qi-kicker text-[var(--hiraeth-thread)]">
                   Spotlight volume — {@spotlight.publisher || "Publisher unknown"}
                 </p>
                 <div class="space-y-2">
-                  <h2 class="text-balance font-serif text-5xl font-light leading-none tracking-tight text-[var(--hiraeth-ink)] md:text-7xl">
+                  <h2 class="text-balance font-serif text-5xl font-light leading-none tracking-tight text-[var(--hiraeth-ink)] md:text-[4rem]">
                     {@spotlight.title}
                   </h2>
                   <p
                     :if={role_names(@spotlight[:authors])}
-                    class="font-serif text-2xl font-light italic text-[var(--hiraeth-muted)]"
+                    class="font-serif text-xl font-light italic text-[var(--hiraeth-muted)]"
                   >
                     {role_names(@spotlight.authors)}
                   </p>
@@ -67,7 +69,7 @@ defmodule HiraethWeb.HomeLive do
                 </div>
                 <p
                   :if={@spotlight[:description]}
-                  class="max-w-2xl font-serif text-lg font-light leading-8 text-[var(--hiraeth-ink)]"
+                  class="max-w-2xl font-serif text-base font-light leading-7 text-[var(--hiraeth-ink)]"
                 >
                   {description_excerpt(@spotlight.description, 260)}
                 </p>
@@ -163,6 +165,19 @@ defmodule HiraethWeb.HomeLive do
     </Layouts.app>
     """
   end
+
+  defp spotlight_entry(entries) do
+    Enum.find(entries, &cached_cover?/1) || List.first(entries)
+  end
+
+  defp cached_cover?(%{cover: cover}) when is_map(cover) do
+    local_cache_url?(cover[:public_url]) || local_cache_url?(cover[:thumbnail_url])
+  end
+
+  defp cached_cover?(_entry), do: false
+
+  defp local_cache_url?(url) when is_binary(url), do: String.starts_with?(url, "/covers/cache/")
+  defp local_cache_url?(_url), do: false
 
   attr :label, :string, required: true
   attr :value, :string, default: nil

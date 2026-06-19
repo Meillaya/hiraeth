@@ -18,33 +18,6 @@ defmodule Hiraeth.Repo.Migrations.InitialResources do
 
     create unique_index(:works, [:slug], name: "works_unique_slug_index")
 
-    create table(:users, primary_key: false) do
-      add :id, :uuid, null: false, default: fragment("gen_random_uuid()"), primary_key: true
-      add :email, :citext, null: false
-      add :display_name, :text
-      add :admin?, :boolean, null: false, default: false
-    end
-
-    create unique_index(:users, [:email], name: "users_unique_email_index")
-
-    create table(:tokens, primary_key: false) do
-      add :id, :uuid, null: false, default: fragment("gen_random_uuid()"), primary_key: true
-      add :purpose, :text, null: false
-      add :token_hash, :text, null: false
-      add :expires_at, :utc_datetime
-
-      add :user_id,
-          references(:users,
-            column: :id,
-            name: "tokens_user_id_fkey",
-            type: :uuid,
-            prefix: "public"
-          ),
-          null: false
-    end
-
-    create unique_index(:tokens, [:token_hash], name: "tokens_unique_token_hash_index")
-
     create table(:staged_import_rows, primary_key: false) do
       add :id, :uuid, null: false, default: fragment("gen_random_uuid()"), primary_key: true
       add :row_number, :bigint, null: false
@@ -323,13 +296,7 @@ defmodule Hiraeth.Repo.Migrations.InitialResources do
             prefix: "public"
           )
 
-      add :reviewer_id,
-          references(:users,
-            column: :id,
-            name: "curation_overrides_reviewer_id_fkey",
-            type: :uuid,
-            prefix: "public"
-          )
+      add :reviewer_id, :uuid
     end
 
     create unique_index(:curation_overrides, [:entity_type, :entity_id, :field_name],
@@ -436,13 +403,7 @@ defmodule Hiraeth.Repo.Migrations.InitialResources do
       add :metadata, :map
       add :occurred_at, :utc_datetime
 
-      add :actor_id,
-          references(:users,
-            column: :id,
-            name: "audit_events_actor_id_fkey",
-            type: :uuid,
-            prefix: "public"
-          )
+      add :actor_id, :uuid
     end
 
     create unique_index(:audit_events, [:event_type, :entity_type, :entity_id, :occurred_at],
@@ -451,8 +412,6 @@ defmodule Hiraeth.Repo.Migrations.InitialResources do
   end
 
   def down do
-    drop constraint(:audit_events, "audit_events_actor_id_fkey")
-
     drop_if_exists unique_index(
                      :audit_events,
                      [:event_type, :entity_type, :entity_id, :occurred_at],
@@ -509,8 +468,6 @@ defmodule Hiraeth.Repo.Migrations.InitialResources do
     drop table(:cover_assignments)
 
     drop constraint(:curation_overrides, "curation_overrides_source_record_id_fkey")
-
-    drop constraint(:curation_overrides, "curation_overrides_reviewer_id_fkey")
 
     drop_if_exists unique_index(:curation_overrides, [:entity_type, :entity_id, :field_name],
                      name: "curation_overrides_unique_entity_field_index"
@@ -658,16 +615,6 @@ defmodule Hiraeth.Repo.Migrations.InitialResources do
                    )
 
     drop table(:staged_import_rows)
-
-    drop constraint(:tokens, "tokens_user_id_fkey")
-
-    drop_if_exists unique_index(:tokens, [:token_hash], name: "tokens_unique_token_hash_index")
-
-    drop table(:tokens)
-
-    drop_if_exists unique_index(:users, [:email], name: "users_unique_email_index")
-
-    drop table(:users)
 
     drop_if_exists unique_index(:works, [:slug], name: "works_unique_slug_index")
 

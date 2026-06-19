@@ -168,11 +168,11 @@ defmodule Hiraeth.Imports.ImportRun.Actions.CsvWorkflow do
     })
     |> Ash.create!(write_opts(actor))
 
-    ensure_source_record!(run, edition_slug, payload, actor)
+    ensure_source_record!(run, edition, isbn, edition_slug, payload, actor)
     set_row_status!(row, "applied", actor)
   end
 
-  defp ensure_source_record!(run, edition_slug, payload, actor) do
+  defp ensure_source_record!(run, edition, isbn, edition_slug, payload, actor) do
     source_record =
       SourceRecord
       |> Ash.Changeset.for_create(:create, %{
@@ -181,9 +181,11 @@ defmodule Hiraeth.Imports.ImportRun.Actions.CsvWorkflow do
         source_uri: "#{run.provider}:import_run:#{run.id}:edition:#{edition_slug}",
         file_checksum: checksum(payload),
         license_note: "User-provided CSV import; rights must be verified before production use.",
+        source_identity: isbn,
         raw_payload: Map.put(payload, "import_run_id", run.id),
         imported_at: DateTime.utc_now(:second),
-        import_run_id: run.id
+        import_run_id: run.id,
+        edition_id: edition.id
       })
       |> Ash.create!(write_opts(actor))
 
@@ -191,7 +193,7 @@ defmodule Hiraeth.Imports.ImportRun.Actions.CsvWorkflow do
     |> Ash.Changeset.for_create(:create, %{
       source_record_id: source_record.id,
       event_type: "imported",
-      message: "Catalog edition created from admin CSV import #{run.id}",
+      message: "Catalog edition created from catalog CSV import #{run.id}",
       occurred_at: DateTime.utc_now(:second)
     })
     |> Ash.create!(write_opts(actor))
@@ -251,9 +253,9 @@ defmodule Hiraeth.Imports.ImportRun.Actions.CsvWorkflow do
     |> Enum.any?(&(&1.value == isbn))
   end
 
-  defp write_opts(%{actor: %{admin?: true} = actor}), do: [actor: actor]
+  defp write_opts(%{actor: %{catalog_write?: true} = actor}), do: [actor: actor]
   defp write_opts(%{actor: actor}) when not is_nil(actor), do: [actor: actor]
-  defp write_opts(%{admin?: true} = actor), do: [actor: actor]
+  defp write_opts(%{catalog_write?: true} = actor), do: [actor: actor]
   defp write_opts(_), do: [authorize?: false]
 
   defp validate_size(csv) when byte_size(csv) <= @max_bytes, do: :ok
@@ -339,7 +341,7 @@ defmodule Hiraeth.Imports.ImportRun.Actions.CsvWorkflow do
   defp finish_row(rows, [], ""), do: rows
   defp finish_row(rows, row, field), do: [Enum.reverse([String.trim(field) | row]) | rows]
 
-  defp authorize(%{actor: %{admin?: true}}), do: :ok
+  defp authorize(%{actor: %{catalog_write?: true}}), do: :ok
   defp authorize(_context), do: {:error, "forbidden"}
 
   defp clean(value) when is_binary(value) do

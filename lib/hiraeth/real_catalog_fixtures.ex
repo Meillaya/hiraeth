@@ -1,6 +1,6 @@
 defmodule Hiraeth.RealCatalogFixtures do
   @moduledoc """
-  Deterministic seed entrypoint for the tracked real publisher pilot dataset.
+  Deterministic seed entrypoint for the tracked real publisher production corpus.
   """
 
   def seed! do

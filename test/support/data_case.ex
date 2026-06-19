@@ -43,7 +43,7 @@ defmodule Hiraeth.DataCase do
   @doc """
   A helper that transforms changeset errors into a map of messages.
 
-      assert {:error, changeset} = Accounts.create_user(%{password: "short"})
+      assert {:error, changeset} = SomeResource.create(%{field: nil})
       assert "password is too short" in errors_on(changeset).password
       assert %{password: ["password is too short"]} = errors_on(changeset)
 
@@ -54,5 +54,16 @@ defmodule Hiraeth.DataCase do
         opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
       end)
     end)
+  end
+
+  @doc """
+  Returns an in-memory catalog writer actor for Ash policy tests.
+
+  The public application has no accounts or admin area; write-side tests still
+  need an actor-like map so resource policies can distinguish trusted catalog
+  ingestion from anonymous public reads.
+  """
+  def trusted_catalog_actor(attrs \\ %{}) do
+    Map.merge(%{id: Ash.UUID.generate(), catalog_write?: true}, attrs)
   end
 end

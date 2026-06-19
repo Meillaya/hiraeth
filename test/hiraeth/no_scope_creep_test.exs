@@ -22,7 +22,8 @@ defmodule Hiraeth.NoScopeCreepTest do
     assert "/search" in paths
     assert "/publishers" in paths
     assert "/series" in paths
-    assert "/admin/imports" in paths
+
+    refute Enum.any?(paths, &String.starts_with?(&1, "/admin"))
 
     refute Enum.any?(paths, &String.starts_with?(&1, "/api"))
     refute Enum.any?(paths, &String.contains?(&1, "/reviews"))

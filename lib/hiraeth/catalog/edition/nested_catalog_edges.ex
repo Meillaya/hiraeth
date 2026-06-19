@@ -20,7 +20,7 @@ defmodule Hiraeth.Catalog.Edition.NestedCatalogEdges do
     display_name = required_param(params, "display_name")
 
     # The outer `Edition.create_with_catalog_edges` action has already been
-    # authorized with the admin actor. Nested edge writes are implementation
+    # authorized with the catalog writer actor. Nested edge writes are implementation
     # details of that authorized action and must preserve the same transaction
     # instead of re-authorizing against a nil actor in Ash's after-action context.
     contributor =

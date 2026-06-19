@@ -1,22 +1,12 @@
 defmodule Hiraeth.ImportsResourceTest do
   use Hiraeth.DataCase, async: true
 
-  alias Hiraeth.Accounts.User
   alias Hiraeth.Catalog.{Edition, Identifier}
   alias Hiraeth.Imports.{ImportMapping, ImportRun, ReviewItem, StagedImportRow}
   alias Hiraeth.Sources.SourceRecord
 
   setup do
-    admin =
-      User
-      |> Ash.Changeset.for_create(:seed_admin, %{
-        email: "imports-admin-#{System.unique_integer([:positive])}@example.test",
-        password: "correct horse battery staple",
-        display_name: "Imports Admin"
-      })
-      |> Ash.create!(authorize?: false)
-
-    %{admin: admin}
+    %{admin: trusted_catalog_actor()}
   end
 
   test "valid CSV supports quoted fields with commas", %{admin: admin} do
@@ -187,7 +177,9 @@ defmodule Hiraeth.ImportsResourceTest do
     assert source_record.raw_payload["import_run_id"] == run.id
   end
 
-  test "writes require admin actor and no background job dependency is present", %{admin: admin} do
+  test "writes require trusted catalog writer and no background job dependency is present", %{
+    admin: admin
+  } do
     assert {:error, error} = upload("title,isbn,publisher\nNope,9787000000007,Press\n", nil)
     assert Exception.message(error) =~ "forbidden"
 

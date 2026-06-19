@@ -70,6 +70,7 @@ defmodule Hiraeth.Catalog.Edition do
     belongs_to :publisher, Hiraeth.Catalog.Publisher, allow_nil?: false
     belongs_to :imprint, Hiraeth.Catalog.Imprint, allow_nil?: true
     has_many :identifiers, Hiraeth.Catalog.Identifier
+    has_many :source_records, Hiraeth.Sources.SourceRecord
     has_many :contributions, Hiraeth.Catalog.Contribution
     has_many :cover_assignments, Hiraeth.Covers.CoverAssignment
   end
@@ -176,8 +177,8 @@ defmodule Hiraeth.Catalog.Edition do
     end
 
     policy action_type([:create, :update, :destroy]) do
-      description "Only authenticated admin actors can write catalog records."
-      authorize_if actor_attribute_equals(:admin?, true)
+      description "Only trusted catalog write actors can write catalog records."
+      authorize_if actor_attribute_equals(:catalog_write?, true)
     end
   end
 end

@@ -50,13 +50,13 @@ defmodule Hiraeth.Sources.SourceLedgerEntry do
 
   policies do
     policy action_type(:read) do
-      description "Source ledger entries are readable for audit and admin review."
+      description "Source ledger entries are readable for audit and catalog review."
       authorize_if always()
     end
 
     policy action_type([:create, :update, :destroy]) do
-      description "Only admin actors can write source ledger entries."
-      authorize_if actor_attribute_equals(:admin?, true)
+      description "Only trusted catalog write actors can write source ledger entries."
+      authorize_if actor_attribute_equals(:catalog_write?, true)
     end
   end
 end

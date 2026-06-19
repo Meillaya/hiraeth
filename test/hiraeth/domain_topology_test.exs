@@ -2,7 +2,6 @@ defmodule Hiraeth.DomainTopologyTest do
   use ExUnit.Case, async: true
 
   @domains [
-    Hiraeth.Accounts,
     Hiraeth.Catalog,
     Hiraeth.Sources,
     Hiraeth.Covers,
@@ -12,7 +11,6 @@ defmodule Hiraeth.DomainTopologyTest do
   ]
 
   @resources %{
-    Hiraeth.Accounts => [Hiraeth.Accounts.User, Hiraeth.Accounts.Token],
     Hiraeth.Catalog => [
       Hiraeth.Catalog.Publisher,
       Hiraeth.Catalog.Imprint,
@@ -61,24 +59,20 @@ defmodule Hiraeth.DomainTopologyTest do
         assert Code.ensure_loaded?(resource)
         assert Ash.Resource.Info.domain(resource) == domain
 
-        if resource == Hiraeth.Accounts.Token do
-          assert Ash.Resource.Info.primary_key(resource) == [:jti]
-        else
-          assert Ash.Resource.Info.primary_key(resource) == [:id]
+        assert Ash.Resource.Info.primary_key(resource) == [:id]
 
-          id = Enum.find(Ash.Resource.Info.attributes(resource), &(&1.name == :id))
-          assert id.type == Ash.Type.UUID
-          assert id.public? == true
+        id = Enum.find(Ash.Resource.Info.attributes(resource), &(&1.name == :id))
+        assert id.type == Ash.Type.UUID
+        assert id.public? == true
 
-          public_attributes =
-            resource
-            |> Ash.Resource.Info.attributes()
-            |> Enum.reject(& &1.primary_key?)
-            |> Enum.filter(& &1.public?)
+        public_attributes =
+          resource
+          |> Ash.Resource.Info.attributes()
+          |> Enum.reject(& &1.primary_key?)
+          |> Enum.filter(& &1.public?)
 
-          assert public_attributes != []
-          assert Ash.Resource.Info.identities(resource) != []
-        end
+        assert public_attributes != []
+        assert Ash.Resource.Info.identities(resource) != []
       end
     end
   end

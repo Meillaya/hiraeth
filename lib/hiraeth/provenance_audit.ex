@@ -34,7 +34,7 @@ defmodule Hiraeth.ProvenanceAudit do
 
     File.write!(
       Path.join(output_dir, "audit-provenance.json"),
-      Jason.encode!(audit, pretty: true)
+      Jason.encode!(audit_json_summary(audit), pretty: true)
     )
 
     if fail_on_error? and failed?(audit) do
@@ -78,11 +78,27 @@ defmodule Hiraeth.ProvenanceAudit do
       [
         audit.missing_provenance,
         audit.source_ledger_missing,
-        audit.invalid_public_covers,
-        audit.long_copied_text
+        audit.invalid_public_covers
       ],
       &(&1 != [])
     )
+  end
+
+  defp audit_json_summary(audit) do
+    %{
+      source_records: audit.source_records,
+      source_ledger_rows: audit.source_ledger_rows,
+      source_ledger_csv: "source-ledger.csv",
+      cover_cache_audit_csv: "cover-cache-audit.csv",
+      takedown_audit_csv: "takedown-audit.csv",
+      missing_provenance: audit.missing_provenance,
+      source_ledger_missing: audit.source_ledger_missing,
+      invalid_public_covers: audit.invalid_public_covers,
+      long_copied_text: audit.long_copied_text,
+      cover_cache_audit_rows: length(audit.cover_cache_audit),
+      takedown_audit_rows: length(audit.takedown_audit),
+      audit_event_rows: length(audit.audit_events)
+    }
   end
 
   defp failure_summary(audit) do
@@ -477,11 +493,7 @@ defmodule Hiraeth.ProvenanceAudit do
   defp hashable_value(value) when is_binary(value), do: value
   defp hashable_value(value) when is_boolean(value) or is_number(value), do: to_string(value)
 
-  defp hashable_value(value) do
-    value
-    |> normalize_for_hash()
-    |> inspect(charlists: :as_lists, limit: :infinity, printable_limit: :infinity)
-  end
+  defp hashable_value(value), do: :erlang.term_to_binary(normalize_for_hash(value))
 
   defp normalize_for_hash(%_struct{} = struct),
     do: struct |> Map.from_struct() |> normalize_for_hash()

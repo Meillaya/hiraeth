@@ -109,12 +109,13 @@ function probeExpression(selectorValue, expectedSrcValue) {
     const image = document.querySelector(selector);
     if (!image) return {passed: false, reason: 'missing_image', selector};
     return {
-      passed: image.complete && image.naturalWidth > 0 && image.naturalHeight > 0 && image.currentSrc.includes(expectedSrc),
+      passed: image.complete && image.naturalWidth >= 64 && image.naturalHeight >= 64 && image.currentSrc.includes(expectedSrc),
       selector,
       currentSrc: image.currentSrc,
       complete: image.complete,
       naturalWidth: image.naturalWidth,
       naturalHeight: image.naturalHeight,
+      minimumDimensions: '64x64',
       expectedSrcPresent: image.currentSrc.includes(expectedSrc)
     };
   })()`;

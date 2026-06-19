@@ -1,0 +1,1180 @@
+{
+  "version": 1,
+  "created_for": "hiraeth-full-catalog-ingestion",
+  "completeness_boundary": "approved_source_corpus",
+  "completeness_note": "Current checked-in corpus includes the original eleven providers plus NYRB series collections, Tilted Axis Press, McNally Editions, Seven Stories Press, Unnamed Press, and Pushkin Press Classics; it is not fabricated universal publisher history.",
+  "network_policy": {
+    "allowed": true,
+    "normal_tests_live_network_allowed": false,
+    "requires_allowlist": true,
+    "requires_rate_limit": true,
+    "requires_max_bytes": true,
+    "requires_checksum": true,
+    "requires_retrieval_timestamp": true,
+    "operator_authorized_public_html_extraction_allowed": true
+  },
+  "global_blocked_modes": [
+    "unbounded_website_scraping",
+    "unbounded_crawler_discovery",
+    "fabricated_metadata",
+    "fabricated_reviews",
+    "invented_purchase_links",
+    "user_reviews",
+    "raw_scraped_review_prose",
+    "production_database_writes"
+  ],
+  "review_policy": {
+    "default": "link_only",
+    "displayable_excerpt_requires": [
+      "publisher_supplied_or_licensed_or_explicitly_authorized",
+      "rights_basis",
+      "source_uri",
+      "field_sources",
+      "provider_permissions"
+    ],
+    "blocked": [
+      "user_reviews",
+      "scraped_review_text",
+      "raw_article_copy",
+      "unattributed_excerpts"
+    ]
+  },
+  "isbn_enrichment_policy": {
+    "authoritative_source": "publisher_or_authorized_source_artifact",
+    "google_books": "bounded_isbn_enrichment_only_where_terms_allow",
+    "open_library": "dumps_preferred_for_bulk_api_only_for_bounded_enrichment"
+  },
+  "providers": [
+    {
+      "provider": "a_strange_object_official_store",
+      "dataset_file": "a_strange_object.json",
+      "publisher_name": "A Strange Object",
+      "status": "approved_machine_readable_source_available",
+      "allowed_source_types": [
+        "official_shopify_products_json"
+      ],
+      "allowed_source_urls": [
+        "https://store.deepvellum.org/products.json?limit=250"
+      ],
+      "allowed_source_hosts": [
+        "store.deepvellum.org"
+      ],
+      "allowed_cover_hosts": [
+        "cdn.shopify.com",
+        "covers.openlibrary.org"
+      ],
+      "allowed_purchase_link_hosts": [
+        "store.deepvellum.org"
+      ],
+      "blocked_modes": [
+        "cart_checkout_account",
+        "prices_inventory_availability",
+        "raw_html"
+      ],
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "required_evidence": [
+        "source_url_or_file",
+        "retrieved_at",
+        "checksum",
+        "license_note",
+        "provider_permissions",
+        "field_sources",
+        "checked_in_dataset",
+        "field_level_provenance",
+        "source_uri_allowlist",
+        "cover_host_allowlist"
+      ],
+      "rate_limit": {
+        "max_concurrency": 1,
+        "min_delay_ms": 500
+      },
+      "max_bytes": {
+        "response": 15728640,
+        "cover_asset": 10485760
+      },
+      "coverage": {
+        "expected_record_count": 35,
+        "coverage_state": "operator_authorized_full_public_catalog_refresh",
+        "gap_policy": "import_with_gaps",
+        "count_source": "generated_public_source_corpus",
+        "generated_at": "2026-06-19T00:00:00Z"
+      },
+      "allowed_source_path_prefixes": [
+        "/products",
+        "/pages/contact-us"
+      ],
+      "allowed_pdf_path_prefixes": [],
+      "approved_source_records": 35,
+      "expansion_state": null,
+      "takedown_contact": "https://store.deepvellum.org/pages/contact-us"
+    },
+    {
+      "provider": "archipelago_books_official_store",
+      "dataset_file": "archipelago_books.json",
+      "publisher_name": "Archipelago Books",
+      "status": "approved_machine_readable_source_available",
+      "allowed_source_types": [
+        "official_woocommerce_store_api",
+        "official_user_provided_file",
+        "onix_csv_xml_json_export"
+      ],
+      "allowed_source_urls": [
+        "https://archipelagobooks.org/wp-json/wc/store/products?per_page=100&page=1"
+      ],
+      "allowed_source_hosts": [
+        "archipelagobooks.org"
+      ],
+      "allowed_cover_hosts": [
+        "archipelagobooks.org",
+        "covers.openlibrary.org"
+      ],
+      "allowed_purchase_link_hosts": [
+        "archipelagobooks.org"
+      ],
+      "blocked_modes": [
+        "cart_checkout_account",
+        "prices_inventory_availability"
+      ],
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "required_evidence": [
+        "source_url_or_file",
+        "retrieved_at",
+        "checksum",
+        "license_note",
+        "provider_permissions",
+        "field_sources",
+        "checked_in_dataset",
+        "field_level_provenance",
+        "source_uri_allowlist",
+        "cover_host_allowlist"
+      ],
+      "rate_limit": {
+        "max_concurrency": 2,
+        "min_delay_ms": 250
+      },
+      "max_bytes": {
+        "response": 5242880,
+        "cover_asset": 10485760
+      },
+      "coverage": {
+        "expected_record_count": 497,
+        "coverage_state": "operator_authorized_full_public_catalog_refresh",
+        "gap_policy": "import_with_gaps",
+        "count_source": "generated_public_source_corpus",
+        "generated_at": "2026-06-18T21:36:01Z"
+      },
+      "allowed_source_path_prefixes": [],
+      "allowed_pdf_path_prefixes": [],
+      "approved_source_records": 497,
+      "expansion_state": null
+    },
+    {
+      "provider": "dalkey_archive_official_store",
+      "dataset_file": "dalkey_archive.json",
+      "publisher_name": "Dalkey Archive",
+      "status": "approved_machine_readable_source_available",
+      "allowed_source_types": [
+        "official_shopify_products_json",
+        "official_user_provided_file",
+        "onix_csv_xml_json_export"
+      ],
+      "allowed_source_urls": [
+        "https://dalkeyarchive.store/products.json?limit=250",
+        "https://dalkeyarchive.store/collections/dalkey-archive-essentials/products.json?limit=250"
+      ],
+      "allowed_source_hosts": [
+        "dalkeyarchive.store"
+      ],
+      "allowed_cover_hosts": [
+        "cdn.shopify.com",
+        "covers.openlibrary.org"
+      ],
+      "allowed_purchase_link_hosts": [
+        "dalkeyarchive.store"
+      ],
+      "blocked_modes": [
+        "cart_checkout_account",
+        "prices_inventory_availability"
+      ],
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "required_evidence": [
+        "source_url_or_file",
+        "retrieved_at",
+        "checksum",
+        "license_note",
+        "provider_permissions",
+        "field_sources",
+        "checked_in_dataset",
+        "field_level_provenance",
+        "source_uri_allowlist",
+        "cover_host_allowlist"
+      ],
+      "rate_limit": {
+        "max_concurrency": 2,
+        "min_delay_ms": 250
+      },
+      "max_bytes": {
+        "response": 5242880,
+        "cover_asset": 10485760
+      },
+      "coverage": {
+        "expected_record_count": 944,
+        "coverage_state": "operator_authorized_full_public_catalog_refresh",
+        "gap_policy": "import_with_gaps",
+        "count_source": "generated_public_source_corpus",
+        "generated_at": "2026-06-18T21:36:01Z"
+      },
+      "allowed_source_path_prefixes": [],
+      "allowed_pdf_path_prefixes": [],
+      "approved_source_records": 944,
+      "expansion_state": null
+    },
+    {
+      "provider": "deep_vellum_official_store",
+      "dataset_file": "deep_vellum.json",
+      "publisher_name": "Deep Vellum",
+      "status": "approved_machine_readable_source_available",
+      "allowed_source_types": [
+        "official_shopify_products_json",
+        "official_user_provided_file",
+        "onix_csv_xml_json_export"
+      ],
+      "allowed_source_urls": [
+        "https://store.deepvellum.org/products.json?limit=250"
+      ],
+      "allowed_source_hosts": [
+        "store.deepvellum.org"
+      ],
+      "allowed_cover_hosts": [
+        "cdn.shopify.com",
+        "covers.openlibrary.org"
+      ],
+      "allowed_purchase_link_hosts": [
+        "store.deepvellum.org"
+      ],
+      "blocked_modes": [
+        "cart_checkout_account",
+        "prices_inventory_availability"
+      ],
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "required_evidence": [
+        "source_url_or_file",
+        "retrieved_at",
+        "checksum",
+        "license_note",
+        "provider_permissions",
+        "field_sources",
+        "checked_in_dataset",
+        "field_level_provenance",
+        "source_uri_allowlist",
+        "cover_host_allowlist"
+      ],
+      "rate_limit": {
+        "max_concurrency": 2,
+        "min_delay_ms": 250
+      },
+      "max_bytes": {
+        "response": 5242880,
+        "cover_asset": 10485760
+      },
+      "coverage": {
+        "expected_record_count": 352,
+        "coverage_state": "operator_authorized_full_public_catalog_refresh",
+        "gap_policy": "import_with_gaps",
+        "count_source": "generated_public_source_corpus",
+        "generated_at": "2026-06-18T21:36:01Z"
+      },
+      "allowed_source_path_prefixes": [],
+      "allowed_pdf_path_prefixes": [],
+      "approved_source_records": 352,
+      "expansion_state": null
+    },
+    {
+      "provider": "fitzcarraldo_editions_official_site",
+      "dataset_file": "fitzcarraldo_editions.json",
+      "publisher_name": "Fitzcarraldo Editions",
+      "status": "available_checked_in_source_corpus",
+      "allowed_source_types": [
+        "publisher_official_page"
+      ],
+      "allowed_source_urls": [
+        "https://fitzcarraldoeditions.com/shop/",
+        "https://fitzcarraldoeditions.com/shop/fiction/",
+        "https://fitzcarraldoeditions.com/shop/essays/",
+        "https://fitzcarraldoeditions.com/shop/poetry/"
+      ],
+      "allowed_source_hosts": [
+        "fitzcarraldoeditions.com"
+      ],
+      "allowed_cover_hosts": [
+        "fitzcarraldoeditions.com",
+        "covers.openlibrary.org"
+      ],
+      "allowed_purchase_link_hosts": [
+        "fitzcarraldoeditions.com"
+      ],
+      "blocked_modes": [
+        "cart",
+        "checkout",
+        "account",
+        "inventory_state",
+        "price_tracking",
+        "user_reviews",
+        "book_preview_text"
+      ],
+      "source_corpus_boundary": "official source: Fitzcarraldo Editions shop category and book pages for Fiction, Essays, and Poetry.",
+      "required_evidence": [
+        "checked_in_dataset",
+        "field_level_provenance",
+        "source_uri_allowlist",
+        "cover_host_allowlist",
+        "checksum"
+      ],
+      "rate_limit": {
+        "requests_per_second": 2,
+        "max_concurrency": 2,
+        "min_delay_ms": 250
+      },
+      "max_bytes": {
+        "response": 8000000
+      },
+      "coverage": {
+        "coverage_state": "approved_source_corpus",
+        "gap_policy": "import_with_gaps",
+        "expected_record_count": 392,
+        "count_source": "generated_public_source_corpus"
+      },
+      "allowed_source_path_prefixes": [
+        "/shop",
+        "/books",
+        "/contact"
+      ],
+      "allowed_pdf_path_prefixes": [],
+      "approved_source_records": 392,
+      "expansion_state": "complete_checked_in_source_corpus"
+    },
+    {
+      "provider": "fum_destampa_official_store",
+      "dataset_file": "fum_destampa.json",
+      "publisher_name": "Fum d'Estampa",
+      "status": "approved_machine_readable_source_available",
+      "allowed_source_types": [
+        "official_shopify_products_json"
+      ],
+      "allowed_source_urls": [
+        "https://store.deepvellum.org/products.json?limit=250"
+      ],
+      "allowed_source_hosts": [
+        "store.deepvellum.org"
+      ],
+      "allowed_cover_hosts": [
+        "cdn.shopify.com",
+        "covers.openlibrary.org"
+      ],
+      "allowed_purchase_link_hosts": [
+        "store.deepvellum.org"
+      ],
+      "blocked_modes": [
+        "cart_checkout_account",
+        "prices_inventory_availability",
+        "raw_html"
+      ],
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "required_evidence": [
+        "source_url_or_file",
+        "retrieved_at",
+        "checksum",
+        "license_note",
+        "provider_permissions",
+        "field_sources",
+        "checked_in_dataset",
+        "field_level_provenance",
+        "source_uri_allowlist",
+        "cover_host_allowlist"
+      ],
+      "rate_limit": {
+        "max_concurrency": 1,
+        "min_delay_ms": 500
+      },
+      "max_bytes": {
+        "response": 15728640,
+        "cover_asset": 10485760
+      },
+      "coverage": {
+        "expected_record_count": 2,
+        "coverage_state": "operator_authorized_full_public_catalog_refresh",
+        "gap_policy": "import_with_gaps",
+        "count_source": "generated_public_source_corpus",
+        "generated_at": "2026-06-19T00:00:00Z"
+      },
+      "allowed_source_path_prefixes": [
+        "/products",
+        "/pages/contact-us"
+      ],
+      "allowed_pdf_path_prefixes": [],
+      "approved_source_records": 2,
+      "expansion_state": null,
+      "takedown_contact": "https://store.deepvellum.org/pages/contact-us"
+    },
+    {
+      "provider": "historical_materialism_official_site",
+      "dataset_file": "historical_materialism.json",
+      "publisher_name": "Historical Materialism",
+      "status": "approved_official_html_source_available",
+      "allowed_source_types": [
+        "publisher_official_page"
+      ],
+      "allowed_source_urls": [
+        "https://www.historicalmaterialism.org/book-series/"
+      ],
+      "allowed_source_hosts": [
+        "www.historicalmaterialism.org"
+      ],
+      "allowed_cover_hosts": [
+        "www.historicalmaterialism.org",
+        "covers.openlibrary.org"
+      ],
+      "allowed_purchase_link_hosts": [
+        "www.historicalmaterialism.org",
+        "brill.com"
+      ],
+      "blocked_modes": [
+        "cart_checkout_account",
+        "prices_inventory_availability",
+        "raw_html"
+      ],
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "required_evidence": [
+        "source_url_or_file",
+        "retrieved_at",
+        "checksum",
+        "license_note",
+        "provider_permissions",
+        "field_sources",
+        "checked_in_dataset",
+        "field_level_provenance",
+        "source_uri_allowlist",
+        "cover_host_allowlist"
+      ],
+      "rate_limit": {
+        "max_concurrency": 1,
+        "min_delay_ms": 500
+      },
+      "max_bytes": {
+        "response": 15728640,
+        "cover_asset": 10485760
+      },
+      "coverage": {
+        "expected_record_count": 384,
+        "coverage_state": "operator_authorized_full_public_catalog_refresh",
+        "gap_policy": "import_with_gaps",
+        "count_source": "generated_public_source_corpus",
+        "generated_at": "2026-06-19T00:00:00Z"
+      },
+      "allowed_source_path_prefixes": [
+        "/book-series",
+        "/contact"
+      ],
+      "allowed_pdf_path_prefixes": [],
+      "approved_source_records": 384,
+      "expansion_state": null,
+      "takedown_contact": "https://www.historicalmaterialism.org/contact/"
+    },
+    {
+      "provider": "la_reunion_official_store",
+      "dataset_file": "la_reunion.json",
+      "publisher_name": "La Reunion",
+      "status": "approved_machine_readable_source_available",
+      "allowed_source_types": [
+        "official_shopify_products_json"
+      ],
+      "allowed_source_urls": [
+        "https://store.deepvellum.org/products.json?limit=250"
+      ],
+      "allowed_source_hosts": [
+        "store.deepvellum.org"
+      ],
+      "allowed_cover_hosts": [
+        "cdn.shopify.com",
+        "covers.openlibrary.org"
+      ],
+      "allowed_purchase_link_hosts": [
+        "store.deepvellum.org"
+      ],
+      "blocked_modes": [
+        "cart_checkout_account",
+        "prices_inventory_availability",
+        "raw_html"
+      ],
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "required_evidence": [
+        "source_url_or_file",
+        "retrieved_at",
+        "checksum",
+        "license_note",
+        "provider_permissions",
+        "field_sources",
+        "checked_in_dataset",
+        "field_level_provenance",
+        "source_uri_allowlist",
+        "cover_host_allowlist"
+      ],
+      "rate_limit": {
+        "max_concurrency": 1,
+        "min_delay_ms": 500
+      },
+      "max_bytes": {
+        "response": 15728640,
+        "cover_asset": 10485760
+      },
+      "coverage": {
+        "expected_record_count": 32,
+        "coverage_state": "operator_authorized_full_public_catalog_refresh",
+        "gap_policy": "import_with_gaps",
+        "count_source": "generated_public_source_corpus",
+        "generated_at": "2026-06-19T00:00:00Z"
+      },
+      "allowed_source_path_prefixes": [
+        "/products",
+        "/pages/contact-us"
+      ],
+      "allowed_pdf_path_prefixes": [],
+      "approved_source_records": 32,
+      "expansion_state": null,
+      "takedown_contact": "https://store.deepvellum.org/pages/contact-us"
+    },
+    {
+      "provider": "mcnally_editions_official_site",
+      "dataset_file": "mcnally_editions.json",
+      "publisher_name": "McNally Editions",
+      "status": "available_checked_in_source_corpus",
+      "allowed_source_types": [
+        "official_squarespace_collection_json"
+      ],
+      "allowed_source_urls": [
+        "https://www.mcnallyeditions.com/books?format=json",
+        "https://www.mcnallyeditions.com/books"
+      ],
+      "allowed_source_hosts": [
+        "www.mcnallyeditions.com"
+      ],
+      "allowed_cover_hosts": [
+        "images.squarespace-cdn.com",
+        "static1.squarespace.com",
+        "covers.openlibrary.org"
+      ],
+      "allowed_purchase_link_hosts": [
+        "www.mcnallyeditions.com"
+      ],
+      "blocked_modes": [
+        "cart",
+        "checkout",
+        "account",
+        "inventory_state",
+        "price_tracking",
+        "user_reviews"
+      ],
+      "source_corpus_boundary": "official source: Official McNally Editions Squarespace Books collection JSON.",
+      "required_evidence": [
+        "checked_in_dataset",
+        "field_level_provenance",
+        "source_uri_allowlist",
+        "cover_host_allowlist",
+        "checksum"
+      ],
+      "rate_limit": {
+        "requests_per_second": 2,
+        "max_concurrency": 2,
+        "min_delay_ms": 250
+      },
+      "max_bytes": {
+        "response": 8000000
+      },
+      "coverage": {
+        "coverage_state": "approved_source_corpus",
+        "gap_policy": "import_with_gaps",
+        "expected_record_count": 66,
+        "count_source": "generated_public_source_corpus"
+      },
+      "allowed_source_path_prefixes": [
+        "/books",
+        "/catalog",
+        "/about"
+      ],
+      "allowed_pdf_path_prefixes": [],
+      "approved_source_records": 66,
+      "expansion_state": "complete_checked_in_source_corpus"
+    },
+    {
+      "provider": "new_directions_official_site",
+      "dataset_file": "new_directions.json",
+      "publisher_name": "New Directions",
+      "status": "approved_official_html_source_available",
+      "allowed_source_types": [
+        "publisher_official_page"
+      ],
+      "allowed_source_urls": [
+        "https://www.ndbooks.com/sitemap-index.xml",
+        "https://www.ndbooks.com/sitemap-0.xml",
+        "https://www.ndbooks.com/books/"
+      ],
+      "allowed_source_hosts": [
+        "www.ndbooks.com"
+      ],
+      "allowed_cover_hosts": [
+        "cdn.sanity.io",
+        "covers.openlibrary.org"
+      ],
+      "allowed_purchase_link_hosts": [
+        "www.ndbooks.com"
+      ],
+      "blocked_modes": [
+        "raw_html",
+        "cart_checkout_account",
+        "prices_inventory_availability"
+      ],
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "required_evidence": [
+        "checked_in_fixture",
+        "retrieved_at",
+        "checksum",
+        "license_note",
+        "provider_permissions",
+        "field_sources",
+        "checked_in_dataset",
+        "field_level_provenance",
+        "source_uri_allowlist",
+        "cover_host_allowlist"
+      ],
+      "rate_limit": {
+        "max_concurrency": 1,
+        "min_delay_ms": 500
+      },
+      "max_bytes": {
+        "response": 5242880,
+        "cover_asset": 10485760
+      },
+      "coverage": {
+        "expected_record_count": 2389,
+        "coverage_state": "operator_authorized_full_public_catalog_refresh",
+        "gap_policy": "import_with_gaps",
+        "count_source": "generated_public_source_corpus",
+        "generated_at": "2026-06-18T21:36:01Z"
+      },
+      "expansion_state": null,
+      "expansion_required_evidence": [],
+      "allowed_source_path_prefixes": [
+        "/book",
+        "/books",
+        "/sitemap-index.xml",
+        "/sitemap-0.xml"
+      ],
+      "allowed_pdf_path_prefixes": [],
+      "approved_source_records": 2389
+    },
+    {
+      "provider": "nyrb_official_store",
+      "dataset_file": "nyrb.json",
+      "publisher_name": "NYRB",
+      "status": "available_checked_in_source_corpus",
+      "allowed_source_types": [
+        "official_shopify_products_json"
+      ],
+      "allowed_source_urls": [
+        "https://www.nyrb.com/collections/classics/products.json?limit=250",
+        "https://www.nyrb.com/collections/new-york-review-books/products.json?limit=250",
+        "https://www.nyrb.com/collections/nyrb-poets/products.json?limit=250"
+      ],
+      "allowed_source_hosts": [
+        "www.nyrb.com"
+      ],
+      "allowed_cover_hosts": [
+        "cdn.shopify.com",
+        "covers.openlibrary.org"
+      ],
+      "allowed_purchase_link_hosts": [
+        "www.nyrb.com"
+      ],
+      "blocked_modes": [
+        "cart",
+        "checkout",
+        "account",
+        "inventory_state",
+        "price_tracking",
+        "user_reviews"
+      ],
+      "source_corpus_boundary": "NYRB Classics, New York Review Books, and NYRB Poets collection product JSON plus official product pages.",
+      "required_evidence": [
+        "checked_in_dataset",
+        "field_level_provenance",
+        "source_uri_allowlist",
+        "cover_host_allowlist",
+        "checksum"
+      ],
+      "rate_limit": {
+        "requests_per_second": 2,
+        "max_concurrency": 2,
+        "min_delay_ms": 250
+      },
+      "max_bytes": {
+        "response": 8000000
+      },
+      "coverage": {
+        "coverage_state": "approved_source_corpus",
+        "gap_policy": "import_with_gaps",
+        "expected_record_count": 859,
+        "count_source": "generated_public_source_corpus"
+      },
+      "allowed_source_path_prefixes": [
+        "/collections",
+        "/products",
+        "/pages",
+        "/policies"
+      ],
+      "allowed_pdf_path_prefixes": [],
+      "approved_source_records": 859,
+      "expansion_state": "complete_checked_in_source_corpus"
+    },
+    {
+      "provider": "phoneme_media_official_store",
+      "dataset_file": "phoneme_media.json",
+      "publisher_name": "Phoneme Media",
+      "status": "approved_machine_readable_source_available",
+      "allowed_source_types": [
+        "official_shopify_products_json"
+      ],
+      "allowed_source_urls": [
+        "https://store.deepvellum.org/products.json?limit=250"
+      ],
+      "allowed_source_hosts": [
+        "store.deepvellum.org"
+      ],
+      "allowed_cover_hosts": [
+        "cdn.shopify.com",
+        "covers.openlibrary.org"
+      ],
+      "allowed_purchase_link_hosts": [
+        "store.deepvellum.org"
+      ],
+      "blocked_modes": [
+        "cart_checkout_account",
+        "prices_inventory_availability",
+        "raw_html"
+      ],
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "required_evidence": [
+        "source_url_or_file",
+        "retrieved_at",
+        "checksum",
+        "license_note",
+        "provider_permissions",
+        "field_sources",
+        "checked_in_dataset",
+        "field_level_provenance",
+        "source_uri_allowlist",
+        "cover_host_allowlist"
+      ],
+      "rate_limit": {
+        "max_concurrency": 1,
+        "min_delay_ms": 500
+      },
+      "max_bytes": {
+        "response": 15728640,
+        "cover_asset": 10485760
+      },
+      "coverage": {
+        "expected_record_count": 78,
+        "coverage_state": "operator_authorized_full_public_catalog_refresh",
+        "gap_policy": "import_with_gaps",
+        "count_source": "generated_public_source_corpus",
+        "generated_at": "2026-06-19T00:00:00Z"
+      },
+      "allowed_source_path_prefixes": [
+        "/products",
+        "/pages/contact-us"
+      ],
+      "allowed_pdf_path_prefixes": [],
+      "approved_source_records": 78,
+      "expansion_state": null,
+      "takedown_contact": "https://store.deepvellum.org/pages/contact-us"
+    },
+    {
+      "provider": "pushkin_press_official_site",
+      "dataset_file": "pushkin_press.json",
+      "publisher_name": "Pushkin Press",
+      "status": "available_checked_in_source_corpus",
+      "allowed_source_types": [
+        "official_wordpress_rest_json"
+      ],
+      "allowed_source_urls": [
+        "https://us.pushkinpress.com/wp-json/wp/v2/book?imprint=7&per_page=100&_embed=1",
+        "https://us.pushkinpress.com/imprint/pushkin-press-classics/"
+      ],
+      "allowed_source_hosts": [
+        "us.pushkinpress.com"
+      ],
+      "allowed_cover_hosts": [
+        "us.pushkinpress.com",
+        "i0.wp.com",
+        "i1.wp.com",
+        "i2.wp.com",
+        "covers.openlibrary.org"
+      ],
+      "allowed_purchase_link_hosts": [
+        "us.pushkinpress.com"
+      ],
+      "blocked_modes": [
+        "cart",
+        "checkout",
+        "account",
+        "inventory_state",
+        "price_tracking",
+        "user_reviews"
+      ],
+      "source_corpus_boundary": "official source: Official Pushkin Press US WordPress book API for imprint id 7 (Pushkin Press Classics).",
+      "required_evidence": [
+        "checked_in_dataset",
+        "field_level_provenance",
+        "source_uri_allowlist",
+        "cover_host_allowlist",
+        "checksum"
+      ],
+      "rate_limit": {
+        "requests_per_second": 2,
+        "max_concurrency": 2,
+        "min_delay_ms": 250
+      },
+      "max_bytes": {
+        "response": 8000000
+      },
+      "coverage": {
+        "coverage_state": "approved_source_corpus",
+        "gap_policy": "import_with_gaps",
+        "expected_record_count": 74,
+        "count_source": "generated_public_source_corpus"
+      },
+      "allowed_source_path_prefixes": [
+        "/imprint/pushkin-press-classics",
+        "/book",
+        "/wp-json"
+      ],
+      "allowed_pdf_path_prefixes": [],
+      "approved_source_records": 74,
+      "expansion_state": "complete_checked_in_source_corpus"
+    },
+    {
+      "provider": "semiotexte_official_site",
+      "dataset_file": "semiotexte.json",
+      "publisher_name": "Semiotext(e)",
+      "status": "approved_official_html_source_available",
+      "allowed_source_types": [
+        "publisher_official_page"
+      ],
+      "allowed_source_urls": [
+        "https://www.semiotexte.com/books-1"
+      ],
+      "allowed_source_hosts": [
+        "www.semiotexte.com"
+      ],
+      "allowed_cover_hosts": [
+        "images.squarespace-cdn.com",
+        "static1.squarespace.com",
+        "covers.openlibrary.org"
+      ],
+      "allowed_purchase_link_hosts": [
+        "www.semiotexte.com"
+      ],
+      "blocked_modes": [
+        "cart_checkout_account",
+        "prices_inventory_availability",
+        "raw_html"
+      ],
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "required_evidence": [
+        "source_url_or_file",
+        "retrieved_at",
+        "checksum",
+        "license_note",
+        "provider_permissions",
+        "field_sources",
+        "checked_in_dataset",
+        "field_level_provenance",
+        "source_uri_allowlist",
+        "cover_host_allowlist"
+      ],
+      "rate_limit": {
+        "max_concurrency": 1,
+        "min_delay_ms": 500
+      },
+      "max_bytes": {
+        "response": 15728640,
+        "cover_asset": 10485760
+      },
+      "coverage": {
+        "expected_record_count": 265,
+        "coverage_state": "operator_authorized_full_public_catalog_refresh",
+        "gap_policy": "import_with_gaps",
+        "count_source": "generated_public_source_corpus",
+        "generated_at": "2026-06-19T00:00:00Z"
+      },
+      "allowed_source_path_prefixes": [],
+      "allowed_pdf_path_prefixes": [],
+      "approved_source_records": 265,
+      "expansion_state": null,
+      "takedown_contact": "https://www.semiotexte.com/contact"
+    },
+    {
+      "provider": "seven_stories_press_official_site",
+      "dataset_file": "seven_stories_press.json",
+      "publisher_name": "Seven Stories Press",
+      "status": "available_checked_in_source_corpus",
+      "allowed_source_types": [
+        "publisher_official_page"
+      ],
+      "allowed_source_urls": [
+        "https://www.sevenstories.com/imprints/seven-stories-press"
+      ],
+      "allowed_source_hosts": [
+        "www.sevenstories.com"
+      ],
+      "allowed_cover_hosts": [
+        "sevenstories-prod.s3.amazonaws.com",
+        "covers.openlibrary.org"
+      ],
+      "allowed_purchase_link_hosts": [
+        "www.sevenstories.com"
+      ],
+      "blocked_modes": [
+        "cart",
+        "checkout",
+        "account",
+        "inventory_state",
+        "price_tracking",
+        "user_reviews"
+      ],
+      "source_corpus_boundary": "official source: Official Seven Stories Press imprint paginated listing; detail-only fields are imported as explicit gaps.",
+      "required_evidence": [
+        "checked_in_dataset",
+        "field_level_provenance",
+        "source_uri_allowlist",
+        "cover_host_allowlist",
+        "checksum"
+      ],
+      "rate_limit": {
+        "requests_per_second": 2,
+        "max_concurrency": 2,
+        "min_delay_ms": 250
+      },
+      "max_bytes": {
+        "response": 8000000
+      },
+      "coverage": {
+        "coverage_state": "approved_source_corpus",
+        "gap_policy": "import_with_gaps",
+        "expected_record_count": 703,
+        "count_source": "generated_public_source_corpus"
+      },
+      "allowed_source_path_prefixes": [
+        "/imprints/seven-stories-press",
+        "/books",
+        "/pg"
+      ],
+      "allowed_pdf_path_prefixes": [],
+      "approved_source_records": 703,
+      "expansion_state": "complete_checked_in_source_corpus"
+    },
+    {
+      "provider": "tilted_axis_press_official_site",
+      "dataset_file": "tilted_axis_press.json",
+      "publisher_name": "Tilted Axis Press",
+      "status": "available_checked_in_source_corpus",
+      "allowed_source_types": [
+        "official_squarespace_collection_json"
+      ],
+      "allowed_source_urls": [
+        "https://www.tiltedaxispress.com/shop?format=json",
+        "https://www.tiltedaxispress.com/books"
+      ],
+      "allowed_source_hosts": [
+        "www.tiltedaxispress.com"
+      ],
+      "allowed_cover_hosts": [
+        "images.squarespace-cdn.com",
+        "static1.squarespace.com",
+        "covers.openlibrary.org"
+      ],
+      "allowed_purchase_link_hosts": [
+        "www.tiltedaxispress.com"
+      ],
+      "blocked_modes": [
+        "cart",
+        "checkout",
+        "account",
+        "inventory_state",
+        "price_tracking",
+        "user_reviews"
+      ],
+      "source_corpus_boundary": "official source: Official Tilted Axis Press Squarespace shop collection JSON linked from Books.",
+      "required_evidence": [
+        "checked_in_dataset",
+        "field_level_provenance",
+        "source_uri_allowlist",
+        "cover_host_allowlist",
+        "checksum"
+      ],
+      "rate_limit": {
+        "requests_per_second": 2,
+        "max_concurrency": 2,
+        "min_delay_ms": 250
+      },
+      "max_bytes": {
+        "response": 8000000
+      },
+      "coverage": {
+        "coverage_state": "approved_source_corpus",
+        "gap_policy": "import_with_gaps",
+        "expected_record_count": 109,
+        "count_source": "generated_public_source_corpus"
+      },
+      "allowed_source_path_prefixes": [
+        "/books",
+        "/shop",
+        "/contact"
+      ],
+      "allowed_pdf_path_prefixes": [],
+      "approved_source_records": 109,
+      "expansion_state": "complete_checked_in_source_corpus"
+    },
+    {
+      "provider": "transit_books_official_site",
+      "dataset_file": "transit_books.json",
+      "publisher_name": "Transit Books",
+      "status": "approved_official_html_source_available",
+      "allowed_source_types": [
+        "publisher_official_page",
+        "official_catalog_pdf"
+      ],
+      "allowed_source_urls": [
+        "https://www.transitbooks.org/books",
+        "https://www.transitbooks.org/catalogs"
+      ],
+      "allowed_source_hosts": [
+        "www.transitbooks.org"
+      ],
+      "allowed_pdf_path_prefixes": [
+        "/s/"
+      ],
+      "allowed_cover_hosts": [
+        "covers.openlibrary.org",
+        "images.squarespace-cdn.com",
+        "static1.squarespace.com"
+      ],
+      "allowed_purchase_link_hosts": [
+        "www.transitbooks.org"
+      ],
+      "blocked_modes": [
+        "cart_checkout_account",
+        "prices_inventory_availability"
+      ],
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "required_evidence": [
+        "source_url_or_file",
+        "retrieved_at",
+        "checksum",
+        "license_note",
+        "provider_permissions",
+        "field_sources",
+        "pdf_extraction_fixture_checksum",
+        "checked_in_dataset",
+        "field_level_provenance",
+        "source_uri_allowlist",
+        "cover_host_allowlist"
+      ],
+      "rate_limit": {
+        "max_concurrency": 1,
+        "min_delay_ms": 500
+      },
+      "max_bytes": {
+        "response": 15728640,
+        "cover_asset": 0
+      },
+      "coverage": {
+        "expected_record_count": 66,
+        "coverage_state": "operator_authorized_full_public_catalog_refresh",
+        "gap_policy": "import_with_gaps",
+        "count_source": "generated_public_source_corpus",
+        "generated_at": "2026-06-18T21:36:01Z"
+      },
+      "allowed_source_path_prefixes": [
+        "/books",
+        "/catalogs",
+        "/rights",
+        "/about"
+      ],
+      "approved_source_records": 66,
+      "expansion_state": null
+    },
+    {
+      "provider": "unnamed_press_official_site",
+      "dataset_file": "unnamed_press.json",
+      "publisher_name": "Unnamed Press",
+      "status": "available_checked_in_source_corpus",
+      "allowed_source_types": [
+        "official_squarespace_collection_json"
+      ],
+      "allowed_source_urls": [
+        "https://www.unnamedpress.com/all-books?format=json",
+        "https://www.unnamedpress.com/all-books"
+      ],
+      "allowed_source_hosts": [
+        "www.unnamedpress.com"
+      ],
+      "allowed_cover_hosts": [
+        "images.squarespace-cdn.com",
+        "static1.squarespace.com",
+        "covers.openlibrary.org"
+      ],
+      "allowed_purchase_link_hosts": [
+        "www.unnamedpress.com"
+      ],
+      "blocked_modes": [
+        "cart",
+        "checkout",
+        "account",
+        "inventory_state",
+        "price_tracking",
+        "user_reviews"
+      ],
+      "source_corpus_boundary": "official source: Official Unnamed Press Squarespace All Books collection JSON.",
+      "required_evidence": [
+        "checked_in_dataset",
+        "field_level_provenance",
+        "source_uri_allowlist",
+        "cover_host_allowlist",
+        "checksum"
+      ],
+      "rate_limit": {
+        "requests_per_second": 2,
+        "max_concurrency": 2,
+        "min_delay_ms": 250
+      },
+      "max_bytes": {
+        "response": 8000000
+      },
+      "coverage": {
+        "coverage_state": "approved_source_corpus",
+        "gap_policy": "import_with_gaps",
+        "expected_record_count": 159,
+        "count_source": "generated_public_source_corpus"
+      },
+      "allowed_source_path_prefixes": [
+        "/all-books",
+        "/about",
+        "/contact"
+      ],
+      "allowed_pdf_path_prefixes": [],
+      "approved_source_records": 159,
+      "expansion_state": "complete_checked_in_source_corpus"
+    }
+  ]
+}

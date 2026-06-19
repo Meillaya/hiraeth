@@ -68,8 +68,8 @@ defmodule Hiraeth.Covers.CoverAssignment do
     end
 
     policy action_type([:create, :update, :destroy]) do
-      description "Only admin actors can assign covers to editions."
-      authorize_if actor_attribute_equals(:admin?, true)
+      description "Only trusted catalog write actors can assign covers to editions."
+      authorize_if actor_attribute_equals(:catalog_write?, true)
     end
   end
 end

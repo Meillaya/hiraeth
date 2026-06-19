@@ -32,10 +32,10 @@ defmodule Hiraeth.Audit.AuditEvent do
     attribute :occurred_at, :utc_datetime do
       public? true
     end
-  end
 
-  relationships do
-    belongs_to :actor, Hiraeth.Accounts.User, allow_nil?: true
+    attribute :actor_id, :uuid do
+      public? false
+    end
   end
 
   identities do
@@ -47,19 +47,19 @@ defmodule Hiraeth.Audit.AuditEvent do
 
     create :create do
       primary? true
-      accept [:event_type, :entity_type, :entity_id, :metadata, :occurred_at]
+      accept [:event_type, :entity_type, :entity_id, :metadata, :occurred_at, :actor_id]
     end
   end
 
   policies do
     policy action_type(:read) do
-      description "Public read placeholder for catalog browsing and admin review screens."
+      description "Public read placeholder for catalog browsing and catalog review screens."
       authorize_if always()
     end
 
     policy action_type(:create) do
-      description "Only admin actors can append audit events. Existing audit events are immutable."
-      authorize_if actor_attribute_equals(:admin?, true)
+      description "Only trusted catalog write actors can append audit events. Existing audit events are immutable."
+      authorize_if actor_attribute_equals(:catalog_write?, true)
     end
   end
 end

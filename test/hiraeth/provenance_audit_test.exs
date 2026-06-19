@@ -3,7 +3,6 @@ defmodule Hiraeth.ProvenanceAuditTest do
 
   import Ecto.Query
 
-  alias Hiraeth.Accounts.User
   alias Hiraeth.Audit.AuditEvent
 
   alias Hiraeth.Catalog.{
@@ -20,30 +19,20 @@ defmodule Hiraeth.ProvenanceAuditTest do
   alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
   alias Hiraeth.Sources.{SourceLedgerEntry, SourceRecord}
 
-  @password "correct horse battery staple"
-
   setup do
     clear_catalog!()
 
-    admin =
-      User
-      |> Ash.Changeset.for_create(:seed_admin, %{
-        email: "provenance-audit-#{System.unique_integer([:positive])}@example.test",
-        password: @password,
-        display_name: "Provenance Audit Admin"
-      })
-      |> Ash.create!(authorize?: false)
-
     %{
-      admin: admin,
+      admin: trusted_catalog_actor(),
       output_dir: "artifacts/qa/provenance-test/#{System.unique_integer([:positive])}"
     }
   end
 
   test "exports source ledger CSV with source, hash, and license columns for seeded data", %{
+    admin: admin,
     output_dir: output_dir
   } do
-    Hiraeth.RealCatalogFixtures.seed!()
+    seed_provenance_catalog!(admin)
 
     audit = Hiraeth.ProvenanceAudit.run!(output_dir: output_dir, fail_on_error?: true)
 
@@ -63,16 +52,15 @@ defmodule Hiraeth.ProvenanceAuditTest do
 
     assert csv =~ "deep_vellum_official_store"
     assert csv =~ "publisher_dataset"
-    assert csv =~ "9781646054541"
+    assert csv =~ :crypto.hash(:sha256, "9781646054541") |> Base.encode16(case: :lower)
 
     empty_hash = :crypto.hash(:sha256, "") |> Base.encode16(case: :lower)
     real_catalog_rows = Enum.filter(audit.source_ledger, &(&1.source_type == "publisher_dataset"))
 
     for field <- ~w(title format published_on isbn_13) do
       rows = Enum.filter(real_catalog_rows, &(&1.field == field))
-      expected_minimum = if field == "published_on", do: 145, else: 150
 
-      assert length(rows) >= expected_minimum
+      assert length(rows) >= 1
       refute Enum.any?(rows, &(&1.value_hash == empty_hash))
     end
   end
@@ -171,7 +159,7 @@ defmodule Hiraeth.ProvenanceAuditTest do
     admin: admin,
     output_dir: output_dir
   } do
-    Hiraeth.RealCatalogFixtures.seed!()
+    seed_provenance_catalog!(admin)
     edition = edition!(admin)
 
     cover_id = Ash.UUID.generate()
@@ -209,7 +197,7 @@ defmodule Hiraeth.ProvenanceAuditTest do
   test "public cover with unsafe URL policy fails the provenance gate", %{
     admin: admin
   } do
-    Hiraeth.RealCatalogFixtures.seed!()
+    seed_provenance_catalog!(admin)
     edition = edition!(admin)
 
     for {source_url, provider, cache_policy, reason_fragment} <- [
@@ -255,7 +243,7 @@ defmodule Hiraeth.ProvenanceAuditTest do
     admin: admin,
     output_dir: output_dir
   } do
-    Hiraeth.RealCatalogFixtures.seed!()
+    seed_provenance_catalog!(admin)
     edition = edition!(admin)
 
     cover =
@@ -300,6 +288,65 @@ defmodule Hiraeth.ProvenanceAuditTest do
     |> Ash.read!(authorize?: false)
     |> Enum.find(&(&1.slug == "deep-vellum-immigrant-paperback-9781646054541")) ||
       raise "real catalog edition missing; seed real catalog first"
+  end
+
+  defp seed_provenance_catalog!(admin) do
+    publisher =
+      Publisher
+      |> Ash.Changeset.for_create(:create, %{
+        name: "Deep Vellum",
+        slug: "deep-vellum"
+      })
+      |> Ash.create!(actor: admin)
+
+    work =
+      Work
+      |> Ash.Changeset.for_create(:create, %{
+        title: "Immigrant",
+        slug: "deep-vellum-immigrant",
+        publication_state: "published"
+      })
+      |> Ash.create!(actor: admin)
+
+    edition =
+      Edition
+      |> Ash.Changeset.for_create(:create, %{
+        title: "Immigrant",
+        slug: "deep-vellum-immigrant-paperback-9781646054541",
+        format: "paperback",
+        published_on: ~D[2020-07-14],
+        work_id: work.id,
+        publisher_id: publisher.id
+      })
+      |> Ash.create!(actor: admin)
+
+    Identifier
+    |> Ash.Changeset.for_create(:create, %{
+      identifier_type: "isbn_13",
+      value: "9781646054541",
+      edition_id: edition.id
+    })
+    |> Ash.create!(actor: admin)
+
+    source_record =
+      source_record!(admin, %{
+        edition_id: edition.id,
+        source_identity: "9781646054541",
+        raw_payload: %{
+          "displayed_fields" => ["title", "format", "published_on", "isbn_13"],
+          "field_sources" => source_field_sources(),
+          "work" => %{"title" => "Immigrant"},
+          "edition" => %{
+            "title" => "Immigrant",
+            "format" => "paperback",
+            "published_on" => "2020-07-14",
+            "isbn_13" => "9781646054541"
+          }
+        }
+      })
+
+    ledger_entry!(admin, source_record)
+    edition
   end
 
   defp cover_asset!(admin, attrs) do
@@ -396,6 +443,18 @@ defmodule Hiraeth.ProvenanceAuditTest do
          "source_uri" => "https://example.test/provenance-contract",
          "source_type" => "publisher_dataset",
          "rights_basis" => "field-level fixture provenance"
+       }}
+    end
+  end
+
+  defp source_field_sources do
+    for field <- ~w(title format published_on isbn_13), into: %{} do
+      {field,
+       %{
+         "provider" => "deep_vellum_official_store",
+         "source_uri" => "https://store.deepvellum.org/products/immigrant",
+         "source_type" => "publisher_dataset",
+         "rights_basis" => "record-level fixture provenance"
        }}
     end
   end

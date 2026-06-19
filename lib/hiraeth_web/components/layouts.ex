@@ -31,7 +31,7 @@ defmodule HiraethWeb.Layouts do
     default: nil,
     doc: "the current [scope](https://phoenix.hexdocs.pm/scopes.html)"
 
-  attr :current_user, :map, default: nil, doc: "the currently authenticated user"
+  attr :catalog_count, :integer, default: nil, doc: "public catalog count for the masthead"
 
   slot :inner_block, required: true
 
@@ -39,55 +39,41 @@ defmodule HiraethWeb.Layouts do
     ~H"""
     <header class="qi-header sticky top-0 z-40 transition-colors duration-300">
       <div class="qi-container">
-        <div class="flex min-h-[var(--hiraeth-header-height)] items-center justify-between gap-6">
-          <div class="flex min-w-0 items-center gap-8">
-            <.link navigate={~p"/"} class="qi-focus flex min-w-0 items-center gap-2">
-              <span class="qi-wordmark truncate text-2xl font-semibold">Hiraeth</span>
-              <span class="qi-kicker hidden border px-1.5 py-0.5 sm:inline-block">Archive</span>
-            </.link>
-            <nav
-              class="hidden items-center gap-6 text-sm font-semibold md:flex"
-              aria-label="Primary navigation"
-            >
-              <.link navigate={~p"/browse"} class="qi-nav-link">Browse</.link>
-              <.link navigate={~p"/search"} class="qi-nav-link">Search</.link>
-              <.link navigate={~p"/publishers"} class="qi-nav-link">Publishers</.link>
-              <.link navigate={~p"/series"} class="qi-nav-link">Series</.link>
-            </nav>
-          </div>
+        <div class="grid min-h-[var(--hiraeth-header-height)] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-6">
+          <.link
+            navigate={~p"/"}
+            class="qi-focus flex min-w-0 items-baseline gap-3 justify-self-start"
+          >
+            <span class="qi-wordmark truncate text-[26px] font-normal">Hiraeth</span>
+            <span class="hidden font-sans text-[9.5px] font-semibold uppercase tracking-[0.24em] text-[var(--hiraeth-thread)] sm:inline-block">
+              Archive
+            </span>
+          </.link>
 
-          <div class="hidden min-w-0 items-center gap-4 sm:flex">
-            <nav class="flex min-w-0 items-center gap-4" aria-label="Account navigation">
-              <%= if @current_user do %>
-                <div class="hidden min-w-0 items-center gap-2 text-xs xl:flex">
-                  <span class="qi-muted max-w-44 truncate font-mono" title={@current_user.email}>
-                    {@current_user.email}
-                  </span>
-                  <%= if @current_user.admin? do %>
-                    <span class="qi-kicker bg-[var(--hiraeth-thread-soft)] px-1.5 py-0.5 text-[var(--hiraeth-thread)]">
-                      Admin
-                    </span>
-                  <% end %>
-                </div>
-                <.link
-                  navigate={~p"/admin"}
-                  class="qi-nav-link whitespace-nowrap text-sm font-semibold"
-                >
-                  Dashboard
-                </.link>
-                <.link
-                  href={~p"/sign-out"}
-                  class="qi-action-link whitespace-nowrap text-sm font-semibold"
-                  method="delete"
-                >
-                  Sign out
-                </.link>
-              <% else %>
-                <.link navigate={~p"/sign-in"} class="qi-nav-link text-sm font-semibold">
-                  Sign in
-                </.link>
-              <% end %>
-              <div class="border-l qi-divider pl-4">
+          <nav
+            class="hidden items-center gap-[30px] justify-self-center text-[13px] font-medium md:flex"
+            aria-label="Primary navigation"
+          >
+            <.link navigate={~p"/browse"} class="qi-nav-link">Browse</.link>
+            <.link navigate={~p"/search"} class="qi-nav-link">Search</.link>
+            <.link navigate={~p"/publishers"} class="qi-nav-link">Publishers</.link>
+            <.link navigate={~p"/series"} class="qi-nav-link">Series</.link>
+          </nav>
+
+          <div class="hidden min-w-0 items-center gap-[30px] justify-self-end sm:flex">
+            <nav class="flex min-w-0 items-center gap-[30px]" aria-label="Archive controls">
+              <span class="border-l qi-divider pl-[30px] font-mono text-[11px] lowercase text-[var(--hiraeth-label)]">
+                <%= if @catalog_count do %>
+                  {@catalog_count} vols
+                <% else %>
+                  Archive
+                <% end %>
+              </span>
+              <div class="flex items-center gap-2">
+                <span class="w-8 text-right font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--hiraeth-label)]">
+                  <span class="dark:hidden">Light</span>
+                  <span class="hidden dark:inline">Dark</span>
+                </span>
                 <.theme_toggle />
               </div>
             </nav>
@@ -105,23 +91,11 @@ defmodule HiraethWeb.Layouts do
         <.link navigate={~p"/search"} class="qi-nav-link shrink-0">Search</.link>
         <.link navigate={~p"/publishers"} class="qi-nav-link shrink-0">Publishers</.link>
         <.link navigate={~p"/series"} class="qi-nav-link shrink-0">Series</.link>
-        <%= if @current_user do %>
-          <.link navigate={~p"/admin"} class="qi-nav-link shrink-0">Dashboard</.link>
-          <.link
-            href={~p"/sign-out"}
-            class="qi-action-link shrink-0"
-            method="delete"
-          >
-            Sign out
-          </.link>
-        <% else %>
-          <.link navigate={~p"/sign-in"} class="qi-nav-link shrink-0">Sign in</.link>
-        <% end %>
       </div>
     </nav>
 
-    <main class="flex-grow px-4 py-12 sm:px-6 lg:px-8">
-      <div class="mx-auto max-w-[var(--hiraeth-measure)]">
+    <main class="flex-grow py-12">
+      <div class="qi-container">
         {render_slot(@inner_block)}
       </div>
     </main>
@@ -197,39 +171,26 @@ defmodule HiraethWeb.Layouts do
   """
   def theme_toggle(assigns) do
     ~H"""
-    <div class="qi-panel-soft relative flex w-24 flex-row items-center p-0.5">
-      <div class="absolute left-0.5 top-0.5 h-[calc(100%-0.25rem)] w-1/3 rounded-[var(--hiraeth-radius)] border border-[var(--hiraeth-line)] bg-[var(--hiraeth-paper)] shadow-sm transition-[left] [[data-theme=light]_&]:left-1/3 [[data-theme=dark]_&]:left-[calc(66.666%-0.125rem)] [[data-theme-source=system]_&]:!left-0.5" />
-
-      <button
-        class="qi-focus qi-muted relative z-10 flex w-1/3 cursor-pointer justify-center rounded-[var(--hiraeth-radius)] p-2 transition hover:text-[var(--hiraeth-ink)]"
-        phx-click={JS.dispatch("phx:set-theme")}
-        data-phx-theme="system"
-        aria-label="Use system theme"
-        title="Use system theme"
-      >
-        <.icon name="hero-computer-desktop-micro" class="size-4 opacity-75 hover:opacity-100" />
-      </button>
-
-      <button
-        class="qi-focus qi-muted relative z-10 flex w-1/3 cursor-pointer justify-center rounded-[var(--hiraeth-radius)] p-2 transition hover:text-[var(--hiraeth-ink)]"
-        phx-click={JS.dispatch("phx:set-theme")}
-        data-phx-theme="light"
-        aria-label="Use light theme"
-        title="Use light theme"
-      >
-        <.icon name="hero-sun-micro" class="size-4 opacity-75 hover:opacity-100" />
-      </button>
-
-      <button
-        class="qi-focus qi-muted relative z-10 flex w-1/3 cursor-pointer justify-center rounded-[var(--hiraeth-radius)] p-2 transition hover:text-[var(--hiraeth-ink)]"
-        phx-click={JS.dispatch("phx:set-theme")}
-        data-phx-theme="dark"
-        aria-label="Use dark theme"
-        title="Use dark theme"
-      >
-        <.icon name="hero-moon-micro" class="size-4 opacity-75 hover:opacity-100" />
-      </button>
-    </div>
+    <button
+      type="button"
+      class="qi-focus flex h-[26px] w-12 cursor-pointer items-center rounded-full border border-[var(--hiraeth-line)] bg-[var(--hiraeth-surface)] px-[3px] dark:hidden"
+      phx-click={JS.dispatch("phx:set-theme")}
+      data-phx-theme="dark"
+      aria-label="Switch to dark theme"
+      title="Switch to dark theme"
+    >
+      <span class="block size-5 rounded-full bg-[var(--hiraeth-thread)] shadow-sm transition-transform duration-200"></span>
+    </button>
+    <button
+      type="button"
+      class="qi-focus hidden h-[26px] w-12 cursor-pointer items-center rounded-full border border-[var(--hiraeth-line)] bg-[var(--hiraeth-surface)] px-[3px] dark:flex"
+      phx-click={JS.dispatch("phx:set-theme")}
+      data-phx-theme="light"
+      aria-label="Switch to light theme"
+      title="Switch to light theme"
+    >
+      <span class="block size-5 translate-x-[22px] rounded-full bg-[var(--hiraeth-thread)] shadow-sm transition-transform duration-200"></span>
+    </button>
     """
   end
 end

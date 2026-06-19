@@ -7,7 +7,7 @@ defmodule Hiraeth.Covers do
   @cache_root "priv/static/covers/cache"
   @thumbnail_timeout 5_000
   @thumbnail_command_timeout "5s"
-  @default_max_body_size 5 * 1024 * 1024
+  @default_max_body_size 10 * 1024 * 1024
 
   @accepted_content_types %{
     "image/jpeg" => :jpeg,
@@ -125,12 +125,12 @@ defmodule Hiraeth.Covers do
       not SourcePolicy.cover_host_allowed?(asset.provider, uri.host) ->
         "cover source URL host is not allowlisted for provider"
 
-      not provider_cover_policy_allows_public?(asset) ->
-        "cover provider policy does not allow public cover display without explicit cache permission"
-
       asset.cache_policy == "link_only" and
           (present?(asset.cached_file_path) or present?(asset.thumbnail_file_path)) ->
         "cover cache file path is not allowed for link-only public display"
+
+      asset.cache_policy == "link_only" ->
+        "public cover display requires cache_allowed with a validated local cached file"
 
       asset.cache_policy == "cache_allowed" and asset.rights_basis != "local_cache_permitted" ->
         "cached cover requires local cache rights basis"
@@ -143,7 +143,7 @@ defmodule Hiraeth.Covers do
         "cached cover file path must be under priv/static/covers/cache"
 
       asset.cache_policy not in ["link_only", "cache_allowed"] ->
-        "cover cache_policy must be link_only or cache_allowed"
+        "cover cache_policy must be cache_allowed with a validated local cached file"
 
       true ->
         "cover provenance is incomplete"
@@ -187,6 +187,19 @@ defmodule Hiraeth.Covers do
         cached_asset =
           asset
           |> Ash.Changeset.for_update(:update, %{thumbnail_file_path: thumbnail_file_path})
+          |> Ash.update!(authorize?: false)
+
+        %{summary | cached: summary.cached + 1, assets: [cached_asset | summary.assets]}
+
+      {:ok, {:adopt, asset, cache_path, thumbnail_path}}, summary ->
+        cached_asset =
+          asset
+          |> Ash.Changeset.for_update(:update, %{
+            cache_policy: "cache_allowed",
+            cached_file_path: cache_path,
+            thumbnail_file_path: thumbnail_path,
+            cached_at: DateTime.utc_now(:second)
+          })
           |> Ash.update!(authorize?: false)
 
         %{summary | cached: summary.cached + 1, assets: [cached_asset | summary.assets]}
@@ -243,6 +256,9 @@ defmodule Hiraeth.Covers do
 
       not force? and cached_file_present?(asset.cached_file_path) ->
         {:thumbnail, asset, asset.cached_file_path, thumbnail_path}
+
+      not force? and cached_file_present?(cache_path) and cached_file_present?(thumbnail_path) ->
+        {:adopt, asset, cache_path, thumbnail_path}
 
       true ->
         try do
@@ -314,37 +330,25 @@ defmodule Hiraeth.Covers do
 
   defp public_cover_url(%CoverAsset{cache_policy: "cache_allowed", cached_file_path: path})
        when is_binary(path) do
-    static_path(path) || path
+    static_path(path)
   end
 
-  defp public_cover_url(%CoverAsset{} = cover_asset), do: cover_asset.source_url
+  defp public_cover_url(%CoverAsset{}), do: nil
 
   defp public_thumbnail_url(path) do
     if safe_cached_file_path?(path), do: static_path(path)
   end
 
-  defp cache_policy_public?(%CoverAsset{cache_policy: "link_only"} = asset),
-    do:
-      provider_cover_policy_allows_public?(asset) and not present?(asset.cached_file_path) and
-        not present?(asset.thumbnail_file_path)
-
   defp cache_policy_public?(%CoverAsset{cache_policy: "cache_allowed"} = asset),
     do:
-      provider_cover_policy_allows_public?(asset) and
-        asset.rights_basis == "local_cache_permitted" and
+      asset.rights_basis == "local_cache_permitted" and
         safe_cached_file_path?(asset.cached_file_path)
 
   defp cache_policy_public?(_asset), do: false
 
-  defp cache_policy_provenance_valid?(%CoverAsset{cache_policy: "link_only"} = asset),
-    do:
-      provider_cover_policy_allows_public?(asset) and not present?(asset.cached_file_path) and
-        not present?(asset.thumbnail_file_path)
-
   defp cache_policy_provenance_valid?(%CoverAsset{cache_policy: "cache_allowed"} = asset),
     do:
-      provider_cover_policy_allows_public?(asset) and
-        asset.rights_basis == "local_cache_permitted" and
+      asset.rights_basis == "local_cache_permitted" and
         (not present?(asset.cached_file_path) or safe_cached_file_path?(asset.cached_file_path))
 
   defp cache_policy_provenance_valid?(_asset), do: false
@@ -406,18 +410,7 @@ defmodule Hiraeth.Covers do
 
     asset.takedown_state == "visible" and asset.cache_policy == "cache_allowed" and
       asset.rights_basis == "local_cache_permitted" and present?(asset.source_url) and
-      uri.scheme == "https" and SourcePolicy.cover_host_allowed?(asset.provider, uri.host) and
-      provider_cover_policy_allows_public?(asset)
-  end
-
-  defp provider_cover_policy_allows_public?(%CoverAsset{provider: provider} = asset) do
-    case SourcePolicy.provider_permission_metadata!(provider).cover_cache_policy do
-      "cache_allowed" -> true
-      "link_only_until_explicit_cache_permission" -> false
-      _policy -> asset.cache_policy == "link_only"
-    end
-  rescue
-    ArgumentError -> true
+      uri.scheme == "https" and SourcePolicy.cover_host_allowed?(asset.provider, uri.host)
   end
 
   defp safe_cached_file_path?(path) when is_binary(path) do
@@ -569,13 +562,18 @@ defmodule Hiraeth.Covers do
   defp expanded_cache_root, do: Path.expand(@cache_root)
 
   defp req_fetch!(url, req_options, max_body_size) do
+    request_url = encoded_cover_request_url(url)
+
     req_options =
       req_options
       |> Keyword.put(:decode_body, false)
       |> Keyword.put(:redirect, false)
       |> Keyword.put(:into, bounded_cover_body_collector(max_body_size))
 
-    response = Req.get!(url, req_options)
+    response =
+      request_url
+      |> Req.get!(req_options)
+      |> maybe_follow_open_library_cover_redirect(request_url, req_options)
 
     cond do
       response.status not in 200..299 ->
@@ -592,6 +590,85 @@ defmodule Hiraeth.Covers do
         |> validate_fetched_cover!(url, max_body_size)
     end
   end
+
+  defp encoded_cover_request_url(url) when is_binary(url) do
+    uri = URI.parse(url)
+
+    uri
+    |> Map.put(:path, percent_encode_path(uri.path))
+    |> URI.to_string()
+  end
+
+  defp percent_encode_path(nil), do: nil
+
+  defp percent_encode_path(path) do
+    path
+    |> String.split("/", trim: false)
+    |> Enum.map(&URI.encode(&1, fn char -> URI.char_unreserved?(char) or char == ?% end))
+    |> Enum.join("/")
+  end
+
+  defp maybe_follow_open_library_cover_redirect(response, request_url, req_options),
+    do: follow_safe_open_library_cover_redirects(response, request_url, req_options, 3)
+
+  defp follow_safe_open_library_cover_redirects(response, _request_url, _req_options, 0),
+    do: response
+
+  defp follow_safe_open_library_cover_redirects(
+         %Req.Response{status: status} = response,
+         request_url,
+         req_options,
+         remaining_hops
+       )
+       when status in 300..399 do
+    with [location | _] <- Req.Response.get_header(response, "location"),
+         {:ok, redirect_url} <- safe_open_library_cover_redirect_url(request_url, location) do
+      redirect_url
+      |> Req.get!(req_options)
+      |> follow_safe_open_library_cover_redirects(redirect_url, req_options, remaining_hops - 1)
+    else
+      _not_safe_or_not_present -> response
+    end
+  end
+
+  defp follow_safe_open_library_cover_redirects(
+         response,
+         _request_url,
+         _req_options,
+         _remaining_hops
+       ),
+       do: response
+
+  defp safe_open_library_cover_redirect_url(request_url, location) do
+    source_uri = URI.parse(request_url)
+    target_uri = request_url |> URI.merge(location)
+
+    if safe_open_library_cover_redirect?(source_uri.host, target_uri) do
+      {:ok, URI.to_string(target_uri)}
+    else
+      :error
+    end
+  end
+
+  defp safe_open_library_cover_redirect?("covers.openlibrary.org", %{
+         scheme: "https",
+         host: "archive.org",
+         path: "/download/" <> _rest
+       }),
+       do: true
+
+  defp safe_open_library_cover_redirect?("covers.openlibrary.org", %{scheme: "https", host: host}),
+    do: internet_archive_cover_host?(host)
+
+  defp safe_open_library_cover_redirect?("archive.org", %{scheme: "https", host: host}),
+    do: internet_archive_cover_host?(host)
+
+  defp safe_open_library_cover_redirect?(_source_host, _target_uri), do: false
+
+  defp internet_archive_cover_host?(host) when is_binary(host),
+    do: String.ends_with?(host, ".us.archive.org")
+
+  defp internet_archive_cover_host?(_host), do: false
 
   defp bounded_cover_body_collector(max_body_size) do
     fn {:data, data}, {request, response} ->

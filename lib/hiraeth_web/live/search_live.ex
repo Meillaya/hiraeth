@@ -51,7 +51,11 @@ defmodule HiraethWeb.SearchLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={%{}}
+      catalog_count={@results_count}
+    >
       <Components.search_shell
         form={@form}
         filter_form={@filter_form}

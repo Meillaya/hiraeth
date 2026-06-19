@@ -23,7 +23,7 @@ defmodule HiraethWeb.EditionLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
+    <Layouts.app flash={@flash} current_scope={%{}}>
       <Components.not_found />
     </Layouts.app>
     """

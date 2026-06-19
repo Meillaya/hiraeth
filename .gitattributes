@@ -2,6 +2,10 @@
 # Keep required Phoenix/static/support files tracked for cloning/running/building,
 # but exclude non-Elixir support/generated files from Linguist percentages.
 
+.gitattributes linguist-generated
+.gitignore linguist-generated
+LICENSE linguist-documentation
+
 # Phoenix browser assets and static files
 assets/** linguist-vendored
 priv/static/** linguist-vendored
@@ -22,6 +26,8 @@ mix.lock linguist-generated
 # Data/docs/support formats should not affect the language bar
 *.md linguist-documentation
 *.json linguist-generated
+*.html linguist-documentation
+*.py linguist-vendored
 *.csv linguist-generated
 *.yaml linguist-vendored
 *.yml linguist-vendored

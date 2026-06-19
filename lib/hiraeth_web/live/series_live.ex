@@ -33,7 +33,7 @@ defmodule HiraethWeb.SeriesLive do
 
   defp render_index(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
+    <Layouts.app flash={@flash} current_scope={%{}}>
       <Components.index series_empty?={@series_empty?} streams={@streams} />
     </Layouts.app>
     """
@@ -41,7 +41,7 @@ defmodule HiraethWeb.SeriesLive do
 
   defp render_show(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
+    <Layouts.app flash={@flash} current_scope={%{}}>
       <Components.show series={@series} streams={@streams} />
     </Layouts.app>
     """

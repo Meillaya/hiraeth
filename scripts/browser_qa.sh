@@ -34,7 +34,7 @@ cleanup() {
     kill "${SERVER_PID}" 2>/dev/null || true
     wait "${SERVER_PID}" 2>/dev/null || true
   fi
-  docker compose down >> "${TRANSCRIPT}" 2>&1 || true
+  docker compose down >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
 
@@ -55,7 +55,7 @@ log "starting postgres and deterministic dev seed"
 docker compose up -d postgres | tee -a "${TRANSCRIPT}"
 mix ecto.drop --force >> "${TRANSCRIPT}" 2>&1 || true
 mix ecto.create >> "${TRANSCRIPT}" 2>&1
-mix ash.migrate >> "${TRANSCRIPT}" 2>&1
+mix ecto.migrate >> "${TRANSCRIPT}" 2>&1
 mix run priv/repo/seeds.exs >> "${TRANSCRIPT}" 2>&1
 mix run scripts/seed_browser_qa.exs >> "${TRANSCRIPT}" 2>&1
 log "warming local cover cache"
@@ -331,6 +331,13 @@ else
   log "remote_image_dependencies=pass scope=all_captured_pages"
 fi
 
+CHROME_BIN="${CHROME_BIN}" node scripts/public_resource_dependency_check.mjs \
+  "${BASE_URL}" \
+  "${QA_DIR}/public-resource-dependencies.json" \
+  "${pages[@]}" | tee -a "${TRANSCRIPT}"
+grep -q '"passed": true' "${QA_DIR}/public-resource-dependencies.json"
+log "public_resource_dependencies=pass report=${QA_DIR}/public-resource-dependencies.json no_remote_images_css_fonts_scripts_styles=pass"
+
 if grep -q '50 editions' "${NEW_DIRECTIONS_PUBLISHER_DOM}" && grep -q '50 books' "${NEW_DIRECTIONS_BROWSE_DOM}" && grep -q 'Typographic cover fallback; no cover asset is available.' "${NEW_DIRECTIONS_BROWSE_DOM}"; then
   log "new_directions_cover_fallback=pass publisher_count=50_editions browse_count=50_books remote_dependency=none"
 else
@@ -416,7 +423,7 @@ node scripts/image_decode_check.mjs \
   "/covers/cache/browser-qa-immigrant.png" \
   "${QA_DIR}/image-decode.json" | tee -a "${TRANSCRIPT}"
 grep -q '"passed": true' "${QA_DIR}/image-decode.json"
-log "image_decode=pass artifact=${QA_DIR}/image-decode.json natural_width_gt_zero=pass"
+log "image_decode=pass artifact=${QA_DIR}/image-decode.json natural_dimensions_minimum=64x64"
 
 log "running card thumbnail image decode audit"
 node scripts/image_decode_check.mjs \
@@ -425,7 +432,7 @@ node scripts/image_decode_check.mjs \
   "/covers/cache/browser-qa-immigrant-thumb.png" \
   "${QA_DIR}/thumbnail-image-decode.json" | tee -a "${TRANSCRIPT}"
 grep -q '"passed": true' "${QA_DIR}/thumbnail-image-decode.json"
-log "thumbnail_image_decode=pass artifact=${QA_DIR}/thumbnail-image-decode.json card_uses_derivative=pass"
+log "thumbnail_image_decode=pass artifact=${QA_DIR}/thumbnail-image-decode.json card_uses_derivative=pass natural_dimensions_minimum=64x64"
 
 log "running public route responsive overflow audits"
 responsive_routes=(
@@ -457,11 +464,6 @@ for route_spec in "${responsive_routes[@]}"; do
     log "responsive_overflow=pass viewport=${viewport_label} route=${route_path} marker=${marker} artifact=${overflow_artifact}"
   done
 done
-
-log "running authenticated admin browser audit"
-node scripts/admin_browser_check.mjs "${BASE_URL}" "${QA_DIR}" 2>&1 | tee -a "${TRANSCRIPT}"
-grep -q '"passed": true' "${QA_DIR}/admin-authenticated.json"
-log "admin_authenticated_artifact=${QA_DIR}/admin-authenticated.json"
 
 while IFS= read -r resource; do
   [[ -n "${resource}" ]] || continue
@@ -503,24 +505,6 @@ done < <(grep -RhoE '(src|href)="[^"]+"' "${QA_DIR}"/*.html | sed -E 's/^(src|hr
   echo "desktop_viewport=pass: 1440x1000 Chromium screenshots captured"
   echo "long_titles=pass: edition/detail pages captured using real publisher titles"
   echo "missing_covers=pass: book pages render typographic fallback after takedown"
-  if grep -q '"passed": true' "${QA_DIR}/admin-authenticated.json" && grep -q "Catalog Administration" "${QA_DIR}/desktop-admin-authenticated.html"; then
-    echo "admin_authenticated=pass: Chromium signed in and captured the admin LiveView dashboard"
-  else
-    echo "admin_authenticated=fail: authenticated admin dashboard artifact missing"
-    exit 1
-  fi
-  if grep -q '"containsImportNew": true' "${QA_DIR}/admin-authenticated.json" && grep -q '"containsReviewDetail": true' "${QA_DIR}/admin-authenticated.json"; then
-    echo "admin_import_review=pass: Chromium captured authenticated import and review LiveViews"
-  else
-    echo "admin_import_review=fail: authenticated import/review browser artifacts missing"
-    exit 1
-  fi
-  if grep -q '"containsCoverAttribution": true' "${QA_DIR}/admin-authenticated.json" && grep -q '"publicCoverFallsBackAfterTakedown": true' "${QA_DIR}/admin-authenticated.json"; then
-    echo "cover_attribution_takedown=pass: Chromium captured cover attribution before takedown and fallback after takedown"
-  else
-    echo "cover_attribution_takedown=fail: cover attribution/takedown browser artifacts missing"
-    exit 1
-  fi
   if grep -R "No catalog entries match" "${QA_DIR}"/*browse-q-%E6%9C%88*.html >/dev/null; then
     echo "unicode_query=pass: Chromium DOM captures show safe empty state for non-matching Unicode query"
   else

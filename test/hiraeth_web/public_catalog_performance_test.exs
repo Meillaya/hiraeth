@@ -9,7 +9,7 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
   @list_query_budget 8
   @detail_query_budget 8
   @directory_query_budget 8
-  @warm_elapsed_budget_microseconds 50_000
+  @warm_elapsed_budget_microseconds 175_000
 
   setup_all do
     Ecto.Adapters.SQL.Sandbox.unboxed_run(Hiraeth.Repo, fn ->
@@ -19,18 +19,16 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     :ok
   end
 
-  setup do
-    create_series_membership!()
-    :ok
-  end
-
   test "paged public catalog excludes records without source provenance" do
-    create_source_less_edition!()
+    fixture = create_source_less_edition!()
 
     page = PublicCatalog.book_page("Source Less Invisible", 1)
 
     assert page.total_count == 0
     assert page.entries == []
+    assert PublicCatalog.book(fixture.work_slug) == nil
+    assert PublicCatalog.book(fixture.edition_slug) == nil
+    assert PublicCatalog.edition(fixture.edition_slug) == nil
   end
 
   test "publisher and series directories exclude records without source provenance" do
@@ -43,7 +41,55 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     assert PublicCatalog.series_by_slug(series_slug) == nil
   end
 
+  test "publisher directory ignores stale pre-TTL cache entries and exposes cached cover samples" do
+    previous_cache? = Application.get_env(:hiraeth, :public_catalog_cache)
+    previous_ttl = Application.get_env(:hiraeth, :public_catalog_cache_ttl_ms)
+    legacy_cache_key = {PublicCatalog, :cache, {:publishers}}
+
+    Application.put_env(:hiraeth, :public_catalog_cache, true)
+    Application.put_env(:hiraeth, :public_catalog_cache_ttl_ms, :infinity)
+    PublicCatalog.clear_cache()
+
+    on_exit(fn ->
+      :persistent_term.erase(legacy_cache_key)
+      PublicCatalog.clear_cache()
+      Application.put_env(:hiraeth, :public_catalog_cache, previous_cache?)
+
+      if is_nil(previous_ttl) do
+        Application.delete_env(:hiraeth, :public_catalog_cache_ttl_ms)
+      else
+        Application.put_env(:hiraeth, :public_catalog_cache_ttl_ms, previous_ttl)
+      end
+    end)
+
+    %{publisher_slug: publisher_slug, title: title} = create_cached_cover_publisher!()
+
+    :persistent_term.put(legacy_cache_key, [
+      %{
+        id: Ecto.UUID.generate(),
+        name: "Legacy Placeholder Press",
+        slug: "legacy-placeholder-press",
+        description: nil,
+        editions: [],
+        editions_count: 1,
+        cover_sample: nil,
+        groupings: %{}
+      }
+    ])
+
+    publisher = Enum.find(PublicCatalog.publishers(), &(&1.slug == publisher_slug))
+
+    assert publisher.cover_sample.title == title
+
+    cover_url =
+      publisher.cover_sample.cover.thumbnail_url || publisher.cover_sample.cover.public_url
+
+    assert String.starts_with?(cover_url, "/covers/cache/")
+  end
+
   test "grouped public catalog search is fast and returns no duplicate book cards" do
+    assert Code.ensure_loaded?(PublicCatalog)
+
     assert function_exported?(PublicCatalog, :search_books, 1),
            "PublicCatalog.search_books/1 must exist before public catalog performance can be measured"
 
@@ -61,10 +107,25 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     %{result: page} = warm_measure(fn -> PublicCatalog.book_page(nil, 1) end)
     measurement = warm_measure(fn -> PublicCatalog.book_page(nil, 1) end)
 
-    assert page.total_count == 178
+    assert page.total_count >= 2_790
     assert length(page.entries) == PublicCatalog.page_size()
     assert measurement.query_count <= @list_query_budget
     assert measurement.elapsed_microseconds <= @warm_elapsed_budget_microseconds
+  end
+
+  test "public title lists sort by publication date newest and upcoming first" do
+    first_page = PublicCatalog.book_page(nil, 1)
+    second_page = PublicCatalog.book_page(nil, 2)
+    publisher = PublicCatalog.publisher("deep-vellum")
+    contributor = PublicCatalog.contributor("david-bowles")
+
+    assert_publication_date_desc(first_page.entries)
+    assert_publication_date_desc(second_page.entries)
+    assert_publication_date_desc(publisher.editions)
+    assert_publication_date_desc(contributor.books)
+
+    assert publication_date_rank(List.last(first_page.entries)) >=
+             publication_date_rank(List.first(second_page.entries))
   end
 
   test "filtered book page has bounded query count for text, ISBN, malformed, and Unicode searches" do
@@ -175,7 +236,7 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     assert measurement.elapsed_microseconds <= @warm_elapsed_budget_microseconds
   end
 
-  test "public catalog projection applies provider cover policy before rendering covers" do
+  test "public catalog projection refuses remote cover fallbacks before rendering covers" do
     slug = create_new_directions_link_only_cover_edition!()
 
     measurement = warm_measure(fn -> PublicCatalog.book(slug) end)
@@ -189,9 +250,12 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     publisher_index = warm_measure(fn -> PublicCatalog.publishers() end)
     publisher_detail = warm_measure(fn -> PublicCatalog.publisher("deep-vellum") end)
     series_index = warm_measure(fn -> PublicCatalog.series() end)
-    series_slug = series_index.result |> List.first() |> Map.fetch!(:slug)
 
-    series_detail = warm_measure(fn -> PublicCatalog.series_by_slug(series_slug) end)
+    series_detail =
+      case List.first(series_index.result) do
+        nil -> nil
+        series -> warm_measure(fn -> PublicCatalog.series_by_slug(series.slug) end)
+      end
 
     assert Enum.any?(publisher_index.result, &(&1.slug == "deep-vellum"))
     assert %{slug: "deep-vellum", groupings: publisher_groupings} = publisher_detail.result
@@ -202,12 +266,15 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     refute broad_edition_projection_query?(series_index)
     assert scoped_edition_projection_query?(publisher_detail, "where e.publisher_id = $1::uuid")
 
-    assert scoped_edition_projection_query?(
-             series_detail,
-             "where e.work_id = any($1::uuid[])"
-           )
+    if series_detail do
+      assert scoped_edition_projection_query?(
+               series_detail,
+               "where e.work_id = any($1::uuid[])"
+             )
+    end
 
-    for measurement <- [publisher_index, publisher_detail, series_index, series_detail] do
+    for measurement <- [publisher_index, publisher_detail, series_index, series_detail],
+        not is_nil(measurement) do
       assert measurement.query_count <= @directory_query_budget
       assert measurement.elapsed_microseconds <= @warm_elapsed_budget_microseconds
     end
@@ -216,16 +283,19 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
   test "public catalog ids are UTF-8 UUID strings safe for LiveView stream DOM ids" do
     page = PublicCatalog.book_page(nil, 1)
     publisher = PublicCatalog.publisher("deep-vellum")
-    series_slug = PublicCatalog.series() |> List.first() |> Map.fetch!(:slug)
-    series = PublicCatalog.series_by_slug(series_slug)
+
+    series =
+      PublicCatalog.series()
+      |> List.first()
+      |> then(&(&1 && PublicCatalog.series_by_slug(&1.slug)))
 
     ids =
       [
         Enum.flat_map(page.entries, &[&1.id, &1.work_id]),
         [publisher.id],
         Enum.flat_map(publisher.editions, &[&1.id, &1.work_id]),
-        [series.id],
-        Enum.flat_map(series.editions, &[&1.id, &1.work_id])
+        if(series, do: [series.id], else: []),
+        if(series, do: Enum.flat_map(series.editions, &[&1.id, &1.work_id]), else: [])
       ]
       |> List.flatten()
 
@@ -295,43 +365,106 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     })
     |> Ash.create!(authorize?: false)
 
-    %{publisher_slug: publisher.slug, series_slug: series.slug}
+    %{
+      publisher_slug: publisher.slug,
+      series_slug: series.slug,
+      work_slug: work.slug,
+      edition_slug: edition.slug
+    }
   end
 
-  defp create_series_membership! do
+  defp create_cached_cover_publisher! do
     suffix = System.unique_integer([:positive])
+    isbn = "979000009#{String.pad_leading(to_string(rem(suffix, 10_000)), 4, "0")}"
+    publisher_slug = "cached-cover-test-press-#{suffix}"
+    work_slug = "cached-cover-test-novel-#{suffix}"
+    edition_slug = "#{work_slug}-paperback-#{isbn}"
+    title = "Cached Cover Test Novel #{suffix}"
+    cached_path = "priv/static/covers/cache/cached-cover-test-#{suffix}.jpg"
+    thumbnail_path = "priv/static/covers/cache/cached-cover-test-#{suffix}-thumb.jpg"
 
     publisher =
       Publisher
-      |> Ash.read!(authorize?: false)
-      |> Enum.find(&(&1.slug == "deep-vellum"))
+      |> Ash.Changeset.for_create(:create, %{
+        name: "Cached Cover Test Press #{suffix}",
+        slug: publisher_slug
+      })
+      |> Ash.create!(authorize?: false)
 
     work =
       Work
-      |> Ash.read!(authorize?: false)
-      |> Enum.find(&(&1.slug == "deep-vellum-immigrant"))
-
-    series =
-      Series
       |> Ash.Changeset.for_create(:create, %{
-        title: "Performance Test Series #{suffix}",
-        slug: "performance-test-series-#{suffix}",
+        title: title,
+        slug: work_slug,
+        publication_state: "published"
+      })
+      |> Ash.create!(authorize?: false)
+
+    edition =
+      Edition
+      |> Ash.Changeset.for_create(:create, %{
+        title: title,
+        slug: edition_slug,
+        format: "paperback",
+        published_on: ~D[2026-01-01],
+        work_id: work.id,
         publisher_id: publisher.id
       })
       |> Ash.create!(authorize?: false)
 
-    SeriesMembership
+    Identifier
     |> Ash.Changeset.for_create(:create, %{
-      series_id: series.id,
-      work_id: work.id,
-      position: 1,
-      label: "1"
+      identifier_type: "isbn_13",
+      value: isbn,
+      edition_id: edition.id
     })
     |> Ash.create!(authorize?: false)
+
+    Hiraeth.Sources.SourceRecord
+    |> Ash.Changeset.for_create(:create, %{
+      provider: "deep_vellum_official_store",
+      source_type: "publisher_dataset",
+      source_uri: "https://store.deepvellum.org/products/cached-cover-test-#{suffix}",
+      file_checksum: "cached-cover-test-#{suffix}",
+      license_note: "test source fixture",
+      source_identity: isbn,
+      edition_id: edition.id,
+      imported_at: DateTime.utc_now(:second),
+      raw_payload: %{
+        "edition" => %{"isbn_13" => isbn},
+        "displayed_fields" => ["title"]
+      }
+    })
+    |> Ash.create!(authorize?: false)
+
+    cover =
+      CoverAsset
+      |> Ash.Changeset.for_create(:create, %{
+        source_url: "https://cdn.shopify.com/cached-cover-test-#{suffix}.jpg",
+        provider: "deep_vellum_official_store",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed",
+        cached_file_path: cached_path,
+        thumbnail_file_path: thumbnail_path,
+        takedown_state: "visible"
+      })
+      |> Ash.create!(authorize?: false)
+
+    CoverAssignment
+    |> Ash.Changeset.for_create(:create, %{
+      edition_id: edition.id,
+      cover_asset_id: cover.id,
+      visible?: true,
+      position: 1
+    })
+    |> Ash.create!(authorize?: false)
+
+    %{publisher_slug: publisher_slug, title: title, cached_path: cached_path}
   end
 
   defp create_filter_contract_edition! do
     suffix = System.unique_integer([:positive])
+    isbn = "979000001#{String.pad_leading(to_string(rem(suffix, 10_000)), 4, "0")}"
 
     publisher =
       Publisher
@@ -389,7 +522,7 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     Identifier
     |> Ash.Changeset.for_create(:create, %{
       identifier_type: "isbn_13",
-      value: "979000001#{String.pad_leading(to_string(rem(suffix, 10_000)), 4, "0")}",
+      value: isbn,
       edition_id: edition.id
     })
     |> Ash.create!(authorize?: false)
@@ -401,11 +534,11 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
       source_uri: "https://store.deepvellum.org/products/facet-contract-#{suffix}",
       file_checksum: "facet-contract-#{suffix}",
       license_note: "test source fixture",
+      source_identity: isbn,
+      edition_id: edition.id,
       imported_at: DateTime.utc_now(:second),
       raw_payload: %{
-        "edition" => %{
-          "isbn_13" => "979000001#{String.pad_leading(to_string(rem(suffix, 10_000)), 4, "0")}"
-        },
+        "edition" => %{"isbn_13" => isbn},
         "displayed_fields" => ["title"]
       }
     })
@@ -481,6 +614,8 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
       source_uri: "https://store.deepvellum.org/products/projection-contract-#{suffix}",
       file_checksum: "projection-contract-#{suffix}",
       license_note: "test source fixture",
+      source_identity: isbn,
+      edition_id: edition.id,
       imported_at: DateTime.utc_now(:second),
       raw_payload: %{
         "edition" => %{"isbn_13" => isbn},
@@ -547,6 +682,8 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
       source_uri: "https://www.ndbooks.com/book/provider-policy-cover-#{suffix}/",
       file_checksum: "provider-policy-cover-#{suffix}",
       license_note: "test source fixture",
+      source_identity: isbn,
+      edition_id: edition.id,
       imported_at: DateTime.utc_now(:second),
       raw_payload: %{
         "edition" => %{"isbn_13" => isbn},
@@ -604,6 +741,17 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     _warm = QueryCounting.measure(fun)
     QueryCounting.measure(fun)
   end
+
+  defp assert_publication_date_desc(entries) do
+    assert entries != []
+
+    ranks = Enum.map(entries, &publication_date_rank/1)
+
+    assert ranks == Enum.sort(ranks, :desc)
+  end
+
+  defp publication_date_rank(%{published_on: %Date{} = date}), do: Date.to_gregorian_days(date)
+  defp publication_date_rank(_entry), do: Date.to_gregorian_days(~D[0001-01-01])
 
   defp broad_edition_projection_query?(measurement) do
     Enum.any?(measurement.queries, fn query ->

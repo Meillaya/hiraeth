@@ -9,11 +9,24 @@ defmodule Hiraeth.RealCatalogDatasetTest do
     "dalkey_archive_official_store" => "dalkey_archive.json",
     "archipelago_books_official_store" => "archipelago_books.json",
     "new_directions_official_site" => "new_directions.json",
-    "transit_books_official_site" => "transit_books.json"
+    "transit_books_official_site" => "transit_books.json",
+    "historical_materialism_official_site" => "historical_materialism.json",
+    "semiotexte_official_site" => "semiotexte.json",
+    "phoneme_media_official_store" => "phoneme_media.json",
+    "a_strange_object_official_store" => "a_strange_object.json",
+    "la_reunion_official_store" => "la_reunion.json",
+    "fum_destampa_official_store" => "fum_destampa.json",
+    "fitzcarraldo_editions_official_site" => "fitzcarraldo_editions.json",
+    "nyrb_official_store" => "nyrb.json",
+    "tilted_axis_press_official_site" => "tilted_axis_press.json",
+    "mcnally_editions_official_site" => "mcnally_editions.json",
+    "seven_stories_press_official_site" => "seven_stories_press.json",
+    "unnamed_press_official_site" => "unnamed_press.json",
+    "pushkin_press_official_site" => "pushkin_press.json"
   }
 
   describe "real publisher dataset contract" do
-    test "tracked dataset files exist for the five approved publishers" do
+    test "tracked dataset files exist for the approved publishers" do
       assert File.dir?(@dataset_dir)
       assert File.exists?(Path.join(@dataset_dir, "README.md"))
       assert File.exists?(Path.join(@dataset_dir, "schema.json"))
@@ -23,18 +36,41 @@ defmodule Hiraeth.RealCatalogDatasetTest do
       end
     end
 
-    test "approved real-publisher files validate with exactly 50 records each" do
+    test "approved real-publisher files validate with the generated full-catalog counts" do
       assert {:ok, summary} = Validator.validate_dir(@dataset_dir)
 
       assert Map.keys(summary.providers) |> Enum.sort() ==
                Map.keys(@expected_files) |> Enum.sort()
 
+      expected_counts = %{
+        "deep_vellum_official_store" => 352,
+        "dalkey_archive_official_store" => 944,
+        "archipelago_books_official_store" => 497,
+        "new_directions_official_site" => 2389,
+        "transit_books_official_site" => 66,
+        "historical_materialism_official_site" => 384,
+        "semiotexte_official_site" => 265,
+        "phoneme_media_official_store" => 78,
+        "a_strange_object_official_store" => 35,
+        "la_reunion_official_store" => 32,
+        "fum_destampa_official_store" => 2,
+        "fitzcarraldo_editions_official_site" => 392,
+        "nyrb_official_store" => 859,
+        "tilted_axis_press_official_site" => 109,
+        "mcnally_editions_official_site" => 66,
+        "seven_stories_press_official_site" => 703,
+        "unnamed_press_official_site" => 159,
+        "pushkin_press_official_site" => 74
+      }
+
       for {provider, filename} <- @expected_files do
-        assert %{file: ^filename, record_count: 50, approved_count: 50} =
+        expected_count = Map.fetch!(expected_counts, provider)
+
+        assert %{file: ^filename, record_count: ^expected_count, approved_count: ^expected_count} =
                  summary.providers[provider]
       end
 
-      assert summary.total_records == 250
+      assert summary.total_records == 7406
       assert summary.duplicate_isbns == []
       assert summary.copy_risk_findings == []
       assert summary.cover_findings == []
@@ -74,14 +110,42 @@ defmodule Hiraeth.RealCatalogDatasetTest do
       end
     end
 
+    test "records may omit ISBN only with a structured missing-field reason" do
+      assert {:ok, [dataset | _datasets]} = Dataset.load_dir(@dataset_dir)
+      [record | remaining_records] = dataset.records
+
+      no_isbn_record =
+        record
+        |> update_in([:edition], &Map.delete(&1, :isbn_13))
+        |> Map.put(:missing_fields, %{
+          "isbn_13" => "Approved source record has no ISBN for this edition."
+        })
+        |> Map.update!(:displayed_fields, &List.delete(&1, "isbn_13"))
+        |> Map.update!(:field_sources, &Map.delete(&1, "isbn_13"))
+
+      assert {:ok, _summary} =
+               Validator.validate_datasets([
+                 %{dataset | records: [no_isbn_record | remaining_records]}
+               ])
+
+      no_reason_record = Map.delete(no_isbn_record, :missing_fields)
+
+      assert {:error, findings} =
+               Validator.validate_datasets([
+                 %{dataset | records: [no_reason_record | remaining_records]}
+               ])
+
+      assert "missing isbn_13 requires missing_fields reason" in Enum.map(findings, & &1.reason)
+    end
+
     test "loaded records contain only approved display and prose fields" do
       assert {:ok, datasets} = Dataset.load_dir(@dataset_dir)
 
       rejected_keys =
-        ~w(blurb bio author_bio review reviews user_review user_reviews jacket_copy price inventory availability cart checkout account body_html content excerpt html rendered_html)
+        ~w(blurb bio author_bio review reviews user_review user_reviews jacket_copy price inventory availability cart checkout account body_html content html rendered_html)
 
       allowed_displayed_fields =
-        ~w(title subtitle contributors publisher imprint format published_on isbn_13 cover source_url description synopsis editorial_praise storefront_url original_title original_language_code subjects language_code page_count dimensions)
+        ~w(title subtitle contributors publisher imprint format published_on isbn_13 cover source_url description synopsis editorial_praise storefront_url review_links original_title original_language_code subjects language_code page_count dimensions)
 
       for dataset <- datasets,
           record <- dataset.records do
@@ -90,6 +154,13 @@ defmodule Hiraeth.RealCatalogDatasetTest do
 
         assert Enum.all?(record.displayed_fields, &(&1 in allowed_displayed_fields))
         assert record.curation.status == "approved"
+
+        for review_link <- Map.get(record, :review_links, []) do
+          assert is_binary(review_link.excerpt)
+          assert String.length(review_link.excerpt) <= 280
+          assert is_binary(review_link.source)
+          assert is_binary(review_link.source_uri)
+        end
       end
     end
 
@@ -98,20 +169,14 @@ defmodule Hiraeth.RealCatalogDatasetTest do
 
       for dataset <- datasets do
         prose_records = Enum.filter(dataset.records, &Map.has_key?(&1, :description))
-        assert get_in(dataset, [:prose_curation, :records_with_prose]) == length(prose_records)
-
-        if dataset.provider == "transit_books_official_site" do
-          assert prose_records == []
-        else
-          assert length(prose_records) >= 1
-        end
+        assert length(prose_records) >= 1
 
         for record <- prose_records do
           assert record.description |> String.length() |> Kernel.>(20)
           assert record.storefront_url == record.source_uri
           assert "description" in record.displayed_fields
           assert "storefront_url" in record.displayed_fields
-          assert String.contains?(record.curation.notes, "Prose snippet curated from")
+          assert String.contains?(record.curation.notes, "full-catalog refresh")
         end
       end
     end
@@ -139,6 +204,20 @@ defmodule Hiraeth.RealCatalogDatasetTest do
 
       assert get_in(schema, ["properties", "records", "items", "additionalProperties"]) == false
 
+      assert get_in(schema, ["$defs", "edition", "required"]) == ["title", "format"]
+
+      refute "isbn_13" in get_in(schema, ["$defs", "edition", "required"])
+
+      assert get_in(schema, [
+               "properties",
+               "records",
+               "items",
+               "properties",
+               "missing_fields",
+               "additionalProperties",
+               "type"
+             ]) == "string"
+
       assert get_in(schema, ["$defs", "provider_permissions", "required"]) |> Enum.sort() ==
                ~w(cover_cache_policy cover_hosts excluded_content not_legal_advice permission_basis provider source_hosts source_urls takedown_contact)
 
@@ -149,7 +228,7 @@ defmodule Hiraeth.RealCatalogDatasetTest do
                "properties",
                "cover_cache_policy",
                "const"
-             ]) == "no_covers_until_explicit_permission"
+             ]) == "no_covers_sourced"
 
       assert get_in(no_cover_rule, ["then", "properties", "cover_hosts", "maxItems"]) == 0
       assert get_in(no_cover_rule, ["else", "properties", "cover_hosts", "minItems"]) == 1
@@ -171,6 +250,10 @@ defmodule Hiraeth.RealCatalogDatasetTest do
       assert "original_language_code" in displayed_enum
       assert "language_code" in displayed_enum
       assert "dimensions" in displayed_enum
+      assert "review_links" in displayed_enum
+
+      assert get_in(schema, ["$defs", "review_link", "required"]) ==
+               ~w(source source_uri rights_basis)
     end
 
     test "approved records may include sourced public prose, editorial praise, and storefront CTAs" do
@@ -203,6 +286,77 @@ defmodule Hiraeth.RealCatalogDatasetTest do
                Validator.validate_datasets([
                  %{dataset | records: [prose_record | remaining_records]}
                ])
+    end
+
+    test "approved records may include link-first or explicitly authorized review links" do
+      assert {:ok, [dataset | _datasets]} = Dataset.load_dir(@dataset_dir)
+      [record | remaining_records] = dataset.records
+
+      review_record =
+        record
+        |> Map.put(:review_links, [
+          %{
+            source: "Publisher official page",
+            source_uri: record.source_uri,
+            rights_basis: "link_only"
+          },
+          %{
+            source: "Publisher official page",
+            source_uri: record.source_uri,
+            rights_basis: "publisher_supplied",
+            excerpt: "A short publisher-supplied editorial review excerpt."
+          }
+        ])
+        |> Map.update!(:displayed_fields, &Enum.uniq(&1 ++ ["review_links"]))
+        |> Map.update!(:field_sources, fn sources ->
+          Map.put(sources, "review_links", field_source_for(record, dataset.provider))
+        end)
+
+      assert {:ok, _summary} =
+               Validator.validate_datasets([
+                 %{dataset | records: [review_record | remaining_records]}
+               ])
+    end
+
+    test "rejects user reviews, raw review prose, unauthorized excerpts, and invented purchase links" do
+      assert {:ok, [dataset | _datasets]} = Dataset.load_dir(@dataset_dir)
+      [record | remaining_records] = dataset.records
+
+      unsafe_record =
+        record
+        |> Map.put(
+          :storefront_url,
+          "https://invented.example.test/buy/#{record.source_product_id}"
+        )
+        |> Map.put(:user_reviews, [
+          %{source: "Reader", excerpt: "A user review is not approved catalog metadata."}
+        ])
+        |> Map.put(:review_links, [
+          %{
+            source: "Scraped review page",
+            source_uri: record.source_uri,
+            rights_basis: "link_only",
+            excerpt: "A raw scraped excerpt is not authorized by link-only rights."
+          }
+        ])
+        |> Map.put(:content, "<article>Raw scraped review prose should be rejected.</article>")
+        |> Map.update!(:displayed_fields, &Enum.uniq(&1 ++ ["storefront_url", "review_links"]))
+        |> Map.update!(:field_sources, fn sources ->
+          sources
+          |> Map.put("storefront_url", field_source_for(record, dataset.provider))
+          |> Map.put("review_links", field_source_for(record, dataset.provider))
+        end)
+
+      assert {:error, findings} =
+               Validator.validate_datasets([
+                 %{dataset | records: [unsafe_record | remaining_records]}
+               ])
+
+      reasons = Enum.map(findings, & &1.reason)
+      assert "public prose requires source provenance" in reasons
+      assert "long copied text or disallowed prose field is present" in reasons
+      assert "review links require authorized source provenance" in reasons
+      assert "raw HTML or executable content is not allowed in public prose" in reasons
     end
 
     test "rejects public prose when source provenance is missing" do
@@ -489,12 +643,16 @@ defmodule Hiraeth.RealCatalogDatasetTest do
       assert "displayed field value is missing" in Enum.map(findings, & &1.reason)
     end
 
-    test "rejects files that do not contain exactly 50 approved records" do
+    test "rejects files that miss the manifest-backed approved record count" do
       tmp = write_dataset_fixture("bad-count", [record_fixture(%{})])
       on_exit(fn -> File.rm_rf!(tmp) end)
 
       assert {:error, findings} = Validator.validate_dir(tmp)
-      assert "dataset must contain exactly 50 approved records" in Enum.map(findings, & &1.reason)
+
+      assert "dataset must contain 50 approved records per source authority manifest" in Enum.map(
+               findings,
+               & &1.reason
+             )
     end
 
     test "rejects unknown edition formats" do
@@ -646,6 +804,7 @@ defmodule Hiraeth.RealCatalogDatasetTest do
     File.write!(Path.join(tmp, "schema.json"), "{}")
     File.write!(Path.join(tmp, "README.md"), name)
     write_provider_file(tmp, "deep_vellum.json", provider, records)
+    write_source_manifest!(tmp, [%{"provider" => provider, "dataset_file" => "deep_vellum.json"}])
     tmp
   end
 
@@ -659,6 +818,29 @@ defmodule Hiraeth.RealCatalogDatasetTest do
     }
 
     File.write!(Path.join(dir, filename), Jason.encode!(payload, pretty: true))
+  end
+
+  defp write_source_manifest!(dir, providers) do
+    manifest = %{
+      "version" => 1,
+      "completeness_boundary" => "approved_source_corpus",
+      "providers" =>
+        Enum.map(providers, fn provider ->
+          Map.merge(provider, %{
+            "coverage" => %{
+              "expected_record_count" => 50,
+              "coverage_state" => "test_fixture",
+              "gap_policy" => "import_with_gaps",
+              "count_source" => "source_authority_manifest"
+            }
+          })
+        end)
+    }
+
+    File.write!(
+      Path.join(dir, Dataset.source_authority_manifest_file()),
+      Jason.encode!(manifest, pretty: true)
+    )
   end
 
   defp record_fixture(overrides) do

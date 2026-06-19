@@ -36,7 +36,7 @@ defmodule HiraethWeb.ContributorsLive do
 
   defp render_index(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
+    <Layouts.app flash={@flash} current_scope={%{}}>
       <Components.index role={@role} streams={@streams} />
     </Layouts.app>
     """
@@ -44,7 +44,7 @@ defmodule HiraethWeb.ContributorsLive do
 
   defp render_show(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
+    <Layouts.app flash={@flash} current_scope={%{}}>
       <Components.show contributor={@contributor} streams={@streams} />
     </Layouts.app>
     """

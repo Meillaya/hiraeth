@@ -953,3 +953,10 @@ Commit: 61b857b — `fix(covers): secure cacheable cover display`
 - Each public book entry should link users to the official publisher purchase page rather than selling books directly.
 - Continue to preserve provenance for metadata/cover sources and use official/source-backed records; this note does not authorize scraping, unsourced metadata, or bypassing deterministic fixture/import discipline.
 - Existing implementation gates and provider policies remain code behavior until they are deliberately updated in a tested follow-up change.
+
+## 2026-06-18 — Superseded permission-blocker notes
+
+- Superseded the 2026-06-17 New Directions permission blocker: permission/draft-request state is no longer a display blocker by itself.
+- Current display gate is provenance and safety based: allowlisted official source/cover hosts, local cached cover file, attribution, takedown/removal state, auditability, no scraping, and deterministic checked-in or documented-source records.
+- Current New Directions fixture still renders no-cover fallbacks because it does not contain source-backed cover URLs/local cache files, not because a draft permission request remains unsent.
+- Historical roadmap entries that say New Directions or Transit covers require explicit recorded permission are retained as past decisions but are superseded by this note and the current `docs/provenance-cover-policy.md` / real-publisher source policy.

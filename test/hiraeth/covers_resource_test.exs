@@ -1,22 +1,14 @@
 defmodule Hiraeth.CoversResourceTest do
   use Hiraeth.DataCase, async: true
 
-  alias Hiraeth.Accounts.User
   alias Hiraeth.Catalog.{Edition, Publisher, Work}
   alias Hiraeth.Covers
   alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
 
   setup do
-    admin =
-      User
-      |> Ash.Changeset.for_create(:seed_admin, %{
-        email: "covers-admin-#{System.unique_integer([:positive])}@example.test",
-        password: "correct horse battery staple",
-        display_name: "Covers Admin"
-      })
-      |> Ash.create!(authorize?: false)
-
+    admin = trusted_catalog_actor()
     edition = edition!(admin)
+
     %{admin: admin, edition: edition}
   end
 
@@ -155,7 +147,7 @@ defmodule Hiraeth.CoversResourceTest do
     assert purged.thumbnail_file_path == nil
   end
 
-  test "public resolver still allows link-only remote covers when no local cache exists", %{
+  test "public resolver hides link-only remote covers when no local cache exists", %{
     admin: admin,
     edition: edition
   } do
@@ -169,13 +161,12 @@ defmodule Hiraeth.CoversResourceTest do
 
     assignment!(admin, edition, remote)
 
-    assert Covers.public_cover_asset?(remote)
+    refute Covers.public_cover_asset?(remote)
 
-    assert %{
-             source_url: "https://covers.example.test/link-only-fallback.jpg",
-             cached_file_path: nil,
-             public_url: "https://covers.example.test/link-only-fallback.jpg"
-           } = Covers.public_cover_for_edition(edition.id)
+    assert Covers.public_cover_rejection_reason(remote) ==
+             "public cover display requires cache_allowed with a validated local cached file"
+
+    assert Covers.public_cover_for_edition(edition.id) == Covers.fallback_cover()
   end
 
   test "public resolver records cacheable provenance but hides remote cover before local cache warmup",
@@ -709,7 +700,7 @@ defmodule Hiraeth.CoversResourceTest do
     assert Covers.public_cover_asset?(refreshed)
   end
 
-  test "new directions link-only cover policy falls back without remote public image dependency",
+  test "new directions link-only cover falls back without remote public image dependency",
        %{
          admin: admin,
          edition: edition
@@ -730,14 +721,17 @@ defmodule Hiraeth.CoversResourceTest do
     refute Covers.public_cover_provenance_valid?(link_only)
 
     assert Covers.public_cover_rejection_reason(link_only) ==
-             "cover provider policy does not allow public cover display without explicit cache permission"
+             "public cover display requires cache_allowed with a validated local cached file"
 
     assert Covers.public_cover_for_edition(edition.id) == Covers.fallback_cover()
   end
 
-  test "cover cache task skips new directions covers until explicit cache permission", %{
+  test "cover cache task caches new directions covers when provenance and host are valid", %{
     admin: admin
   } do
+    cache_root = unique_cache_root("new-directions-cache")
+    on_exit(fn -> File.rm_rf!(cache_root) end)
+
     _new_directions =
       cover_asset!(admin, %{
         source_url: "https://cdn.sanity.io/images/new-directions-cache-attempt.jpg",
@@ -748,13 +742,20 @@ defmodule Hiraeth.CoversResourceTest do
 
     summary =
       Covers.cache_public_covers!(
+        cache_root: cache_root,
         source_urls: ["https://cdn.sanity.io/images/new-directions-cache-attempt.jpg"],
-        fetch: fn _url ->
-          raise "new directions covers must not be fetched without explicit cache permission"
+        fetch: fn "https://cdn.sanity.io/images/new-directions-cache-attempt.jpg" ->
+          jpeg_bytes()
+        end,
+        thumbnailer: fn _cache_path, thumbnail_path ->
+          File.write!(thumbnail_path, "new directions thumbnail bytes")
+          {:ok, thumbnail_path}
         end
       )
 
-    assert %{cached: 0, skipped: 0, failed: 0, assets: []} = summary
+    assert %{cached: 1, skipped: 0, failed: 0, assets: [cached_asset]} = summary
+    assert String.starts_with?(cached_asset.cached_file_path, cache_root)
+    assert Covers.public_cover_asset?(cached_asset)
   end
 
   test "cache task skips unsafe source URLs before fetching", %{admin: admin} do
@@ -773,6 +774,102 @@ defmodule Hiraeth.CoversResourceTest do
       )
 
     assert %{cached: 0, skipped: 0, assets: []} = summary
+  end
+
+  test "default cover fetch percent-encodes unicode source paths", %{admin: admin} do
+    cache_root = unique_cache_root("unicode-source-path")
+    on_exit(fn -> File.rm_rf!(cache_root) end)
+
+    unicode_url = "https://covers.example.test/covers/LOVE-Ørstavik-cover.jpg"
+
+    _asset =
+      cover_asset!(admin, %{
+        source_url: unicode_url,
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed"
+      })
+
+    plug = fn conn ->
+      conn
+      |> Plug.Conn.put_resp_content_type("image/jpeg")
+      |> Plug.Conn.resp(200, jpeg_bytes())
+    end
+
+    summary =
+      Covers.cache_public_covers!(
+        cache_root: cache_root,
+        source_urls: [unicode_url],
+        req_options: [plug: plug],
+        thumbnailer: fn _cache_path, _thumbnail_path -> nil end
+      )
+
+    assert %{cached: 1, skipped: 0, failed: 0, assets: [cached_asset]} = summary
+    assert Covers.public_cover_asset?(cached_asset)
+  end
+
+  test "default cover fetch follows only openlibrary archive cover redirects", %{admin: admin} do
+    cache_root = unique_cache_root("openlibrary-archive-redirect")
+    on_exit(fn -> File.rm_rf!(cache_root) end)
+
+    source_url = "https://covers.openlibrary.org/b/isbn/9790000000001-L.jpg?default=false"
+
+    _asset =
+      cover_asset!(admin, %{
+        source_url: source_url,
+        provider: "dalkey_archive_official_store",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed"
+      })
+
+    adapter = fn request ->
+      uri = URI.parse(to_string(request.url))
+
+      response =
+        cond do
+          uri.host == "covers.openlibrary.org" ->
+            Req.Response.new(
+              status: 302,
+              headers: [
+                {"location",
+                 "https://ia800603.us.archive.org/view_archive.php?archive=/covers.zip&file=cover.jpg"}
+              ]
+            )
+
+          uri.host == "ia800603.us.archive.org" ->
+            response =
+              Req.Response.new(
+                status: 200,
+                headers: [{"content-type", "image/jpeg"}]
+              )
+
+            case request.into do
+              into when is_function(into, 2) ->
+                {:cont, {_request, streamed_response}} =
+                  into.({:data, jpeg_bytes()}, {request, response})
+
+                streamed_response
+
+              _not_streaming ->
+                %{response | body: jpeg_bytes()}
+            end
+
+          true ->
+            Req.Response.new(status: 500, body: "unexpected host")
+        end
+
+      {request, response}
+    end
+
+    summary =
+      Covers.cache_public_covers!(
+        cache_root: cache_root,
+        source_urls: [source_url],
+        req_options: [adapter: adapter],
+        thumbnailer: fn _cache_path, _thumbnail_path -> nil end
+      )
+
+    assert %{cached: 1, skipped: 0, failed: 0, assets: [cached_asset]} = summary
+    assert Covers.public_cover_asset?(cached_asset)
   end
 
   test "cache task does not follow redirects from allowlisted cover hosts", %{admin: admin} do

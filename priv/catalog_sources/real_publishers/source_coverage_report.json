@@ -1,0 +1,463 @@
+{
+  "completeness_boundary": "approved_source_corpus",
+  "generated_from": "checked_in_approved_source_corpus",
+  "providers": [
+    {
+      "approved_source_records": 35,
+      "attempted_records": 35,
+      "checksums": {
+        "dataset_sha256": "efd89aa09165a307f572ea2053768d504b01ca9a13884e74369657bab0472360"
+      },
+      "coverage_state": "operator_authorized_full_public_catalog_refresh",
+      "dataset_file": "a_strange_object.json",
+      "expansion_state": null,
+      "expected_record_count": 35,
+      "gap_counts": {
+        "missing_cover": 0,
+        "missing_isbn": 0,
+        "missing_purchase_link": 0,
+        "missing_review_links": 35,
+        "structured_missing_fields": 0
+      },
+      "gap_policy": "import_with_gaps",
+      "provider": "a_strange_object_official_store",
+      "skipped_source_records": 0,
+      "source_blocked": false,
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "source_expansion_blocked": false,
+      "source_status": "approved_machine_readable_source_available"
+    },
+    {
+      "approved_source_records": 497,
+      "attempted_records": 497,
+      "checksums": {
+        "dataset_sha256": "95a010043e2d04ede3c666fd25ac39ccc63de5391510c14693c226c5a2cd821f"
+      },
+      "coverage_state": "operator_authorized_full_public_catalog_refresh",
+      "dataset_file": "archipelago_books.json",
+      "expansion_state": null,
+      "expected_record_count": 497,
+      "gap_counts": {
+        "missing_cover": 0,
+        "missing_isbn": 0,
+        "missing_purchase_link": 0,
+        "missing_review_links": 497,
+        "structured_missing_fields": 38
+      },
+      "gap_policy": "import_with_gaps",
+      "provider": "archipelago_books_official_store",
+      "skipped_source_records": 0,
+      "source_blocked": false,
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "source_expansion_blocked": false,
+      "source_status": "approved_machine_readable_source_available"
+    },
+    {
+      "approved_source_records": 944,
+      "attempted_records": 944,
+      "checksums": {
+        "dataset_sha256": "05d501d75564ec40c38a33c33b31ad76f59051e3388601642345aa990a84a770"
+      },
+      "coverage_state": "operator_authorized_full_public_catalog_refresh",
+      "dataset_file": "dalkey_archive.json",
+      "expansion_state": null,
+      "expected_record_count": 944,
+      "gap_counts": {
+        "missing_cover": 3,
+        "missing_isbn": 0,
+        "missing_purchase_link": 0,
+        "missing_review_links": 944,
+        "structured_missing_fields": 11
+      },
+      "gap_policy": "import_with_gaps",
+      "provider": "dalkey_archive_official_store",
+      "skipped_source_records": 0,
+      "source_blocked": false,
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "source_expansion_blocked": false,
+      "source_status": "approved_machine_readable_source_available"
+    },
+    {
+      "approved_source_records": 352,
+      "attempted_records": 352,
+      "checksums": {
+        "dataset_sha256": "6221c2b02601678a0ef0ac40fce3724c16be1ae7b899ad5c58714ac0c9ffafc2"
+      },
+      "coverage_state": "operator_authorized_full_public_catalog_refresh",
+      "dataset_file": "deep_vellum.json",
+      "expansion_state": null,
+      "expected_record_count": 352,
+      "gap_counts": {
+        "missing_cover": 1,
+        "missing_isbn": 0,
+        "missing_purchase_link": 0,
+        "missing_review_links": 352,
+        "structured_missing_fields": 1
+      },
+      "gap_policy": "import_with_gaps",
+      "provider": "deep_vellum_official_store",
+      "skipped_source_records": 0,
+      "source_blocked": false,
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "source_expansion_blocked": false,
+      "source_status": "approved_machine_readable_source_available"
+    },
+    {
+      "approved_source_records": 392,
+      "attempted_records": 392,
+      "checksums": {
+        "dataset_sha256": "37d977db06839ff4df6e64f09dc85236c23ef2654bd853406fb9c57857ee11ef"
+      },
+      "coverage_state": "approved_source_corpus",
+      "dataset_file": "fitzcarraldo_editions.json",
+      "expansion_state": "complete_checked_in_source_corpus",
+      "expected_record_count": 392,
+      "gap_counts": {
+        "missing_cover": 0,
+        "missing_isbn": 200,
+        "missing_purchase_link": 0,
+        "missing_review_links": 392,
+        "structured_missing_fields": 200
+      },
+      "gap_policy": "import_with_gaps",
+      "provider": "fitzcarraldo_editions_official_site",
+      "skipped_source_records": 0,
+      "source_blocked": false,
+      "source_corpus_boundary": "official source: Fitzcarraldo Editions shop category and book pages for Fiction, Essays, and Poetry.",
+      "source_expansion_blocked": false,
+      "source_status": "available_checked_in_source_corpus"
+    },
+    {
+      "approved_source_records": 2,
+      "attempted_records": 2,
+      "checksums": {
+        "dataset_sha256": "225545bd4d6106c57785a9effa350e7749689e38dda90f7b80aa35eb4a1a536a"
+      },
+      "coverage_state": "operator_authorized_full_public_catalog_refresh",
+      "dataset_file": "fum_destampa.json",
+      "expansion_state": null,
+      "expected_record_count": 2,
+      "gap_counts": {
+        "missing_cover": 0,
+        "missing_isbn": 0,
+        "missing_purchase_link": 0,
+        "missing_review_links": 2,
+        "structured_missing_fields": 0
+      },
+      "gap_policy": "import_with_gaps",
+      "provider": "fum_destampa_official_store",
+      "skipped_source_records": 0,
+      "source_blocked": false,
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "source_expansion_blocked": false,
+      "source_status": "approved_machine_readable_source_available"
+    },
+    {
+      "approved_source_records": 384,
+      "attempted_records": 384,
+      "checksums": {
+        "dataset_sha256": "2cfaa2dcd8d76465ae7286381bf9b507691d23e2a0f6eb70af2c7ffc06616da1"
+      },
+      "coverage_state": "operator_authorized_full_public_catalog_refresh",
+      "dataset_file": "historical_materialism.json",
+      "expansion_state": null,
+      "expected_record_count": 384,
+      "gap_counts": {
+        "missing_cover": 0,
+        "missing_isbn": 384,
+        "missing_purchase_link": 0,
+        "missing_review_links": 384,
+        "structured_missing_fields": 384
+      },
+      "gap_policy": "import_with_gaps",
+      "provider": "historical_materialism_official_site",
+      "skipped_source_records": 0,
+      "source_blocked": false,
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "source_expansion_blocked": false,
+      "source_status": "approved_official_html_source_available"
+    },
+    {
+      "approved_source_records": 32,
+      "attempted_records": 32,
+      "checksums": {
+        "dataset_sha256": "642512c53999c28b9876e32da18d7438e9f65ce387d9595aac47edbacf16fe46"
+      },
+      "coverage_state": "operator_authorized_full_public_catalog_refresh",
+      "dataset_file": "la_reunion.json",
+      "expansion_state": null,
+      "expected_record_count": 32,
+      "gap_counts": {
+        "missing_cover": 0,
+        "missing_isbn": 0,
+        "missing_purchase_link": 0,
+        "missing_review_links": 32,
+        "structured_missing_fields": 0
+      },
+      "gap_policy": "import_with_gaps",
+      "provider": "la_reunion_official_store",
+      "skipped_source_records": 0,
+      "source_blocked": false,
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "source_expansion_blocked": false,
+      "source_status": "approved_machine_readable_source_available"
+    },
+    {
+      "approved_source_records": 66,
+      "attempted_records": 66,
+      "checksums": {
+        "dataset_sha256": "1f0a189d4b6a330c0feb8a112f7eaaa5dfebc278720dccec66bfe55dbbca8345"
+      },
+      "coverage_state": "approved_source_corpus",
+      "dataset_file": "mcnally_editions.json",
+      "expansion_state": "complete_checked_in_source_corpus",
+      "expected_record_count": 66,
+      "gap_counts": {
+        "missing_cover": 0,
+        "missing_isbn": 1,
+        "missing_purchase_link": 0,
+        "missing_review_links": 66,
+        "structured_missing_fields": 1
+      },
+      "gap_policy": "import_with_gaps",
+      "provider": "mcnally_editions_official_site",
+      "skipped_source_records": 0,
+      "source_blocked": false,
+      "source_corpus_boundary": "official source: Official McNally Editions Squarespace Books collection JSON.",
+      "source_expansion_blocked": false,
+      "source_status": "available_checked_in_source_corpus"
+    },
+    {
+      "approved_source_records": 2389,
+      "attempted_records": 2389,
+      "checksums": {
+        "dataset_sha256": "6418d9d5c77aef87f0e96fa70800d1b370427fe3ba208a82db39849ffe797d9d"
+      },
+      "coverage_state": "operator_authorized_full_public_catalog_refresh",
+      "dataset_file": "new_directions.json",
+      "expansion_state": null,
+      "expected_record_count": 2389,
+      "gap_counts": {
+        "missing_cover": 0,
+        "missing_isbn": 0,
+        "missing_purchase_link": 0,
+        "missing_review_links": 2389,
+        "structured_missing_fields": 0
+      },
+      "gap_policy": "import_with_gaps",
+      "provider": "new_directions_official_site",
+      "skipped_source_records": 0,
+      "source_blocked": false,
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "source_expansion_blocked": false,
+      "source_status": "approved_official_html_source_available"
+    },
+    {
+      "approved_source_records": 859,
+      "attempted_records": 859,
+      "checksums": {
+        "dataset_sha256": "fa66d440428efa7049a6e1e50b54b93e31b211a0b45f6eb2bd890bd705c31e35"
+      },
+      "coverage_state": "approved_source_corpus",
+      "dataset_file": "nyrb.json",
+      "expansion_state": "complete_checked_in_source_corpus",
+      "expected_record_count": 859,
+      "gap_counts": {
+        "missing_cover": 0,
+        "missing_isbn": 0,
+        "missing_purchase_link": 0,
+        "missing_review_links": 859,
+        "structured_missing_fields": 0
+      },
+      "gap_policy": "import_with_gaps",
+      "provider": "nyrb_official_store",
+      "skipped_source_records": 0,
+      "source_blocked": false,
+      "source_corpus_boundary": "NYRB Classics, New York Review Books, and NYRB Poets collection product JSON plus official product pages.",
+      "source_expansion_blocked": false,
+      "source_status": "available_checked_in_source_corpus"
+    },
+    {
+      "approved_source_records": 78,
+      "attempted_records": 78,
+      "checksums": {
+        "dataset_sha256": "b20c7587c5a05fb1d97aba6aba4afbb5f8136a76779868eb8b03a78e79099247"
+      },
+      "coverage_state": "operator_authorized_full_public_catalog_refresh",
+      "dataset_file": "phoneme_media.json",
+      "expansion_state": null,
+      "expected_record_count": 78,
+      "gap_counts": {
+        "missing_cover": 0,
+        "missing_isbn": 0,
+        "missing_purchase_link": 0,
+        "missing_review_links": 78,
+        "structured_missing_fields": 0
+      },
+      "gap_policy": "import_with_gaps",
+      "provider": "phoneme_media_official_store",
+      "skipped_source_records": 0,
+      "source_blocked": false,
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "source_expansion_blocked": false,
+      "source_status": "approved_machine_readable_source_available"
+    },
+    {
+      "approved_source_records": 74,
+      "attempted_records": 74,
+      "checksums": {
+        "dataset_sha256": "8cb97fdb224fb38bb7b7cccb52e11e2b1d682d7bfc36d7d57b8e9b0ec453b5df"
+      },
+      "coverage_state": "approved_source_corpus",
+      "dataset_file": "pushkin_press.json",
+      "expansion_state": "complete_checked_in_source_corpus",
+      "expected_record_count": 74,
+      "gap_counts": {
+        "missing_cover": 0,
+        "missing_isbn": 4,
+        "missing_purchase_link": 0,
+        "missing_review_links": 74,
+        "structured_missing_fields": 4
+      },
+      "gap_policy": "import_with_gaps",
+      "provider": "pushkin_press_official_site",
+      "skipped_source_records": 0,
+      "source_blocked": false,
+      "source_corpus_boundary": "official source: Official Pushkin Press US WordPress book API for imprint id 7 (Pushkin Press Classics).",
+      "source_expansion_blocked": false,
+      "source_status": "available_checked_in_source_corpus"
+    },
+    {
+      "approved_source_records": 265,
+      "attempted_records": 265,
+      "checksums": {
+        "dataset_sha256": "916274b24ee0d6b45515587a19652ad1e65753a1d7de06c6205533da63e0cc8d"
+      },
+      "coverage_state": "operator_authorized_full_public_catalog_refresh",
+      "dataset_file": "semiotexte.json",
+      "expansion_state": null,
+      "expected_record_count": 265,
+      "gap_counts": {
+        "missing_cover": 0,
+        "missing_isbn": 265,
+        "missing_purchase_link": 0,
+        "missing_review_links": 265,
+        "structured_missing_fields": 265
+      },
+      "gap_policy": "import_with_gaps",
+      "provider": "semiotexte_official_site",
+      "skipped_source_records": 0,
+      "source_blocked": false,
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "source_expansion_blocked": false,
+      "source_status": "approved_official_html_source_available"
+    },
+    {
+      "approved_source_records": 703,
+      "attempted_records": 703,
+      "checksums": {
+        "dataset_sha256": "741dd949491476af7230c934085c0f8c84682c0e4ff3c8a8032858632a207f35"
+      },
+      "coverage_state": "approved_source_corpus",
+      "dataset_file": "seven_stories_press.json",
+      "expansion_state": "complete_checked_in_source_corpus",
+      "expected_record_count": 703,
+      "gap_counts": {
+        "missing_cover": 0,
+        "missing_isbn": 703,
+        "missing_purchase_link": 0,
+        "missing_review_links": 703,
+        "structured_missing_fields": 703
+      },
+      "gap_policy": "import_with_gaps",
+      "provider": "seven_stories_press_official_site",
+      "skipped_source_records": 0,
+      "source_blocked": false,
+      "source_corpus_boundary": "official source: Official Seven Stories Press imprint paginated listing; detail-only fields are imported as explicit gaps.",
+      "source_expansion_blocked": false,
+      "source_status": "available_checked_in_source_corpus"
+    },
+    {
+      "approved_source_records": 109,
+      "attempted_records": 109,
+      "checksums": {
+        "dataset_sha256": "d7ed19545f2b2014d04dbf9de438ae57f75e7e5c7a6c65b63e88b0cc111b8dff"
+      },
+      "coverage_state": "approved_source_corpus",
+      "dataset_file": "tilted_axis_press.json",
+      "expansion_state": "complete_checked_in_source_corpus",
+      "expected_record_count": 109,
+      "gap_counts": {
+        "missing_cover": 0,
+        "missing_isbn": 64,
+        "missing_purchase_link": 0,
+        "missing_review_links": 109,
+        "structured_missing_fields": 64
+      },
+      "gap_policy": "import_with_gaps",
+      "provider": "tilted_axis_press_official_site",
+      "skipped_source_records": 0,
+      "source_blocked": false,
+      "source_corpus_boundary": "official source: Official Tilted Axis Press Squarespace shop collection JSON linked from Books.",
+      "source_expansion_blocked": false,
+      "source_status": "available_checked_in_source_corpus"
+    },
+    {
+      "approved_source_records": 66,
+      "attempted_records": 66,
+      "checksums": {
+        "dataset_sha256": "603a8563a687ddb582599914d32d44e45fa3dea268c24e5ed0d248a5fc20c191"
+      },
+      "coverage_state": "operator_authorized_full_public_catalog_refresh",
+      "dataset_file": "transit_books.json",
+      "expansion_state": null,
+      "expected_record_count": 66,
+      "gap_counts": {
+        "missing_cover": 0,
+        "missing_isbn": 0,
+        "missing_purchase_link": 0,
+        "missing_review_links": 66,
+        "structured_missing_fields": 50
+      },
+      "gap_policy": "import_with_gaps",
+      "provider": "transit_books_official_site",
+      "skipped_source_records": 0,
+      "source_blocked": false,
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "source_expansion_blocked": false,
+      "source_status": "approved_official_html_source_available"
+    },
+    {
+      "approved_source_records": 159,
+      "attempted_records": 159,
+      "checksums": {
+        "dataset_sha256": "27605dedc670321c5b32604616a944b53988bce0ea6e2b3516338f782aec236c"
+      },
+      "coverage_state": "approved_source_corpus",
+      "dataset_file": "unnamed_press.json",
+      "expansion_state": "complete_checked_in_source_corpus",
+      "expected_record_count": 159,
+      "gap_counts": {
+        "missing_cover": 0,
+        "missing_isbn": 3,
+        "missing_purchase_link": 0,
+        "missing_review_links": 108,
+        "structured_missing_fields": 3
+      },
+      "gap_policy": "import_with_gaps",
+      "provider": "unnamed_press_official_site",
+      "skipped_source_records": 0,
+      "source_blocked": false,
+      "source_corpus_boundary": "official source: Official Unnamed Press Squarespace All Books collection JSON.",
+      "source_expansion_blocked": false,
+      "source_status": "available_checked_in_source_corpus"
+    }
+  ],
+  "totals": {
+    "approved_source_records": 7406,
+    "attempted_records": 7406,
+    "providers": 18,
+    "skipped_source_records": 0
+  },
+  "version": 1
+}

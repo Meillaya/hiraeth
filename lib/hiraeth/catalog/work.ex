@@ -121,8 +121,8 @@ defmodule Hiraeth.Catalog.Work do
     end
 
     policy action_type([:create, :update, :destroy]) do
-      description "Only authenticated admin actors can write catalog records."
-      authorize_if actor_attribute_equals(:admin?, true)
+      description "Only trusted catalog write actors can write catalog records."
+      authorize_if actor_attribute_equals(:catalog_write?, true)
     end
   end
 end

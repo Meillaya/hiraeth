@@ -17,6 +17,7 @@ defmodule HiraethWeb.BrowseLive do
      |> assign(:filter_form, to_form(blank_filter_params(), as: :filters))
      |> assign(:filters, blank_filter_params())
      |> assign(:all_count, 0)
+     |> assign(:publisher_facets, PublicCatalog.publishers())
      |> assign(:pagination, PublicCatalog.paginate([], 1))
      |> assign(:page_books, [])
      |> assign(:selected_book, nil)
@@ -69,7 +70,11 @@ defmodule HiraethWeb.BrowseLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={%{}}
+      catalog_count={@all_count}
+    >
       <Components.browse_shell
         form={@form}
         filter_form={@filter_form}
@@ -78,6 +83,7 @@ defmodule HiraethWeb.BrowseLive do
         query={@query}
         filters={@filters}
         selected_book={@selected_book}
+        publisher_facets={@publisher_facets}
       />
     </Layouts.app>
     """

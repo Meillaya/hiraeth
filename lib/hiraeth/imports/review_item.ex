@@ -62,13 +62,13 @@ defmodule Hiraeth.Imports.ReviewItem do
 
   policies do
     policy action_type(:read) do
-      description "Public read placeholder for catalog browsing and admin review screens."
+      description "Public read placeholder for catalog browsing and catalog review screens."
       authorize_if always()
     end
 
     policy action_type([:create, :update, :destroy]) do
-      description "Admin-only write placeholder; concrete policies are tightened in feature tasks."
-      authorize_if actor_attribute_equals(:admin?, true)
+      description "Trusted catalog write placeholder; concrete policies are tightened in feature tasks."
+      authorize_if actor_attribute_equals(:catalog_write?, true)
     end
   end
 end

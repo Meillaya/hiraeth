@@ -36,11 +36,14 @@ defmodule Hiraeth.Sources.CurationOverride do
       allow_nil? false
       public? true
     end
+
+    attribute :reviewer_id, :uuid do
+      public? true
+    end
   end
 
   relationships do
     belongs_to :source_record, Hiraeth.Sources.SourceRecord, allow_nil?: false
-    belongs_to :reviewer, Hiraeth.Accounts.User, allow_nil?: false
   end
 
   identities do
@@ -70,15 +73,13 @@ defmodule Hiraeth.Sources.CurationOverride do
         :field_name,
         :curated_value,
         :reason,
-        :source_record_id
+        :source_record_id,
+        :reviewer_id
       ]
-
-      change relate_actor(:reviewer, allow_nil?: true)
     end
 
     update :update do
-      accept [:curated_value, :reason, :source_record_id]
-      change relate_actor(:reviewer, allow_nil?: true)
+      accept [:curated_value, :reason, :source_record_id, :reviewer_id]
     end
   end
 
@@ -89,8 +90,8 @@ defmodule Hiraeth.Sources.CurationOverride do
     end
 
     policy action_type([:create, :update, :destroy]) do
-      description "Only authenticated admin reviewers can create or change curated field overrides."
-      authorize_if actor_attribute_equals(:admin?, true)
+      description "Only trusted catalog reviewers can create or change curated field overrides."
+      authorize_if actor_attribute_equals(:catalog_write?, true)
     end
   end
 end

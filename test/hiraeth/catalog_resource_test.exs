@@ -1,8 +1,6 @@
 defmodule Hiraeth.CatalogResourceTest do
   use Hiraeth.DataCase, async: true
 
-  alias Hiraeth.Accounts.User
-
   alias Hiraeth.Catalog.{
     Contributor,
     Contribution,
@@ -15,16 +13,7 @@ defmodule Hiraeth.CatalogResourceTest do
   }
 
   setup do
-    admin =
-      User
-      |> Ash.Changeset.for_create(:seed_admin, %{
-        email: "catalog-admin-#{System.unique_integer([:positive])}@example.test",
-        password: "correct horse battery staple",
-        display_name: "Catalog Admin"
-      })
-      |> Ash.create!(authorize?: false)
-
-    %{admin: admin}
+    %{admin: trusted_catalog_actor()}
   end
 
   test "work and edition are separate; ISBNs belong to editions and are unique", %{admin: admin} do
@@ -442,7 +431,9 @@ defmodule Hiraeth.CatalogResourceTest do
     assert ordered_work_ids == [first.id, second.id]
   end
 
-  test "catalog policies allow public reads and require admin actors for writes", %{admin: admin} do
+  test "catalog policies allow public reads and require trusted catalog writers for writes", %{
+    admin: admin
+  } do
     publisher =
       create!(Publisher, %{name: "Readable Press", slug: unique_slug("publisher")}, admin)
 

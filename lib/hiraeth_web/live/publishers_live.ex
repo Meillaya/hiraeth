@@ -18,7 +18,12 @@ defmodule HiraethWeb.PublishersLive do
   end
 
   def handle_params(_params, _uri, socket) do
-    publishers = PublicCatalog.publishers()
+    publishers =
+      PublicCatalog.publishers()
+      |> Enum.with_index(1)
+      |> Enum.map(fn {publisher, index} ->
+        Map.put(publisher, :row_number, index)
+      end)
 
     {:noreply,
      socket
@@ -37,7 +42,11 @@ defmodule HiraethWeb.PublishersLive do
 
   defp render_index(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={%{}}
+      catalog_count={@publisher_editions_count}
+    >
       <div id="publishers-shell" class="archive-wash space-y-10">
         <header class="flex flex-col gap-5 border-b border-[var(--hiraeth-line)] pb-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -49,7 +58,7 @@ defmodule HiraethWeb.PublishersLive do
             </h1>
           </div>
           <p class="font-mono text-[11px] text-[var(--hiraeth-muted)]">
-            {@publisher_count} houses · {@publisher_editions_count} sourced editions
+            {@publisher_count} houses · {@publisher_editions_count} sourced books
           </p>
         </header>
 
@@ -57,9 +66,11 @@ defmodule HiraethWeb.PublishersLive do
           <article
             :for={{dom_id, pub} <- @streams.publishers}
             id={dom_id}
-            class="group grid gap-5 py-8 transition-colors duration-200 hover:bg-[var(--hiraeth-warm)]/70 sm:grid-cols-[4rem_minmax(0,1fr)_8rem] sm:px-3"
+            class="group grid gap-6 py-8 transition-colors duration-200 hover:bg-[var(--hiraeth-warm)]/70 sm:grid-cols-[3.75rem_minmax(0,1fr)_6.875rem]"
           >
-            <div class="font-mono text-xs text-[var(--hiraeth-label)]">Press</div>
+            <div class="font-mono text-[13px] text-[var(--hiraeth-label)]">
+              {pub.row_number |> Integer.to_string() |> String.pad_leading(2, "0")}
+            </div>
             <div class="min-w-0 space-y-3">
               <h2 class="font-serif text-3xl font-light leading-none text-[var(--hiraeth-ink)] sm:text-[34px]">
                 <.link
@@ -76,15 +87,32 @@ defmodule HiraethWeb.PublishersLive do
                 {pub.description}
               </p>
               <p class="font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--hiraeth-label)]">
-                {pub.editions_count} sourced editions · local catalog metadata
+                {pub.editions_count} sourced books · local catalog metadata
               </p>
             </div>
             <div class="flex items-center justify-start sm:justify-end">
               <.link
                 navigate={~p"/publishers/#{pub.slug}"}
-                class="border border-[var(--hiraeth-line)] bg-[var(--hiraeth-paper)] px-4 py-3 font-sans text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--hiraeth-thread)] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--hiraeth-thread)] focus:outline-none focus:ring-2 focus:ring-[var(--hiraeth-thread)] focus:ring-offset-2 focus:ring-offset-[var(--hiraeth-paper)]"
+                class="qi-focus block w-[84px]"
+                aria-label={"Open #{pub.name}"}
               >
-                View shelf
+                <img
+                  :if={sample_cover_src(pub.cover_sample)}
+                  src={sample_cover_src(pub.cover_sample)}
+                  alt={"Cover thumbnail for #{pub.cover_sample.title}"}
+                  loading="lazy"
+                  decoding="async"
+                  width="84"
+                  height="126"
+                  class="aspect-[2/3] w-full border border-[var(--hiraeth-line)] object-cover transition-colors group-hover:border-[var(--hiraeth-thread)]"
+                />
+                <div
+                  :if={!sample_cover_src(pub.cover_sample)}
+                  class="fallback-cover-grain relative flex aspect-[2/3] w-full items-center justify-center overflow-hidden border border-[var(--hiraeth-line)] p-2 text-center font-serif text-[11px] leading-tight text-[var(--hiraeth-muted)]"
+                  aria-label="Typographic cover fallback; no cover asset is available."
+                >
+                  {pub.name}
+                </div>
               </.link>
             </div>
           </article>
@@ -96,7 +124,7 @@ defmodule HiraethWeb.PublishersLive do
 
   defp render_show(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_user={@current_user} current_scope={%{}}>
+    <Layouts.app flash={@flash} current_scope={%{}}>
       <div id="publisher-detail-shell" class="archive-wash space-y-10">
         <%= if @publisher do %>
           <header id="publisher-masthead" class="border-b border-[var(--hiraeth-line)] pb-7">
@@ -141,7 +169,7 @@ defmodule HiraethWeb.PublishersLive do
           >
             <.stat_block
               label="Sourced shelf"
-              value={plural_count(@publisher.editions_count, "edition")}
+              value={plural_count(@publisher.editions_count, "book")}
             />
             <.stat_block label="Formats" value={group_summary(@publisher.groupings.formats)} />
             <.stat_block label="Languages" value={group_summary(@publisher.groupings.languages)} />
@@ -151,7 +179,7 @@ defmodule HiraethWeb.PublishersLive do
             <.group_panel
               id="publisher-formats"
               title="Format shelf"
-              note="Edition formats present in this publisher's sourced records."
+              note="Formats present across this publisher's sourced books."
               groups={@publisher.groupings.formats}
               empty="No format metadata is sourced yet."
             />
@@ -167,7 +195,7 @@ defmodule HiraethWeb.PublishersLive do
             <.group_panel
               id="publisher-series"
               title="Collections and series"
-              note="Series groupings are bounded to currently attached sourced editions."
+              note="Series groupings are bounded to currently attached sourced books."
               groups={@publisher.groupings.series}
               empty="No series or collection memberships are sourced yet."
             />
@@ -186,10 +214,10 @@ defmodule HiraethWeb.PublishersLive do
             <div class="flex flex-col gap-2 border-b border-[var(--hiraeth-line)] pb-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p class="font-sans text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--hiraeth-thread)]">
-                  Current editions
+                  Current books
                 </p>
                 <h2 class="mt-1 font-serif text-3xl font-light text-[var(--hiraeth-ink)]">
-                  Cataloged editions
+                  Cataloged books
                 </h2>
               </div>
               <p class="font-mono text-[11px] text-[var(--hiraeth-muted)]">
@@ -199,8 +227,8 @@ defmodule HiraethWeb.PublishersLive do
             <%= if @publisher.editions_count == 0 do %>
               <CatalogComponents.empty_state
                 id="publisher-no-editions"
-                title="No editions are attached"
-                message="No editions are attached to this publisher yet. The publisher record is public, but the shelf stays empty until sourced editions are imported or curated."
+                title="No books are attached"
+                message="No books are attached to this publisher yet. The publisher record is public, but the shelf stays empty until sourced books are imported or curated."
                 action_label="Back to publishers"
                 action_path="/publishers"
               />
@@ -246,6 +274,24 @@ defmodule HiraethWeb.PublishersLive do
     </div>
     """
   end
+
+  defp sample_cover_src(nil), do: nil
+
+  defp sample_cover_src(edition) do
+    case edition[:cover] do
+      nil ->
+        nil
+
+      cover ->
+        local_cover_url(cover[:thumbnail_url]) || local_cover_url(cover[:public_url])
+    end
+  end
+
+  defp local_cover_url(url) when is_binary(url) do
+    if String.starts_with?(url, "/covers/cache/"), do: url
+  end
+
+  defp local_cover_url(_url), do: nil
 
   attr :id, :string, required: true
   attr :title, :string, required: true

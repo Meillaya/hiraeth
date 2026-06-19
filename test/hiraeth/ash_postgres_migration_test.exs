@@ -35,11 +35,11 @@ defmodule Hiraeth.AshPostgresMigrationTest do
     contributions_public_catalog_role_work_index
     contributions_public_catalog_role_edition_index
     source_records_public_catalog_imported_at_index
+    source_records_public_catalog_edition_id_index
+    source_records_public_catalog_source_identity_index
   )
 
   @expected_tables ~w(
-    users
-    tokens
     publishers
     imprints
     works

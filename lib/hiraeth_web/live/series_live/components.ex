@@ -163,11 +163,13 @@ defmodule HiraethWeb.SeriesLive.Components do
     """
   end
 
-  defp format_facets(editions), do: facet_values(editions, :format)
-
-  defp facet_values(editions, key) do
+  defp format_facets(editions) do
     editions
-    |> Enum.map(&Map.get(&1, key))
+    |> Enum.flat_map(fn edition ->
+      edition
+      |> Map.get(:formats, [])
+      |> Enum.map(&(&1[:format_label] || &1[:format]))
+    end)
     |> Enum.reject(&(&1 in [nil, ""]))
     |> Enum.uniq()
     |> Enum.sort()

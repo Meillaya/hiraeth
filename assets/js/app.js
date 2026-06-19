@@ -33,11 +33,11 @@ const setTheme = (theme) => {
 }
 
 if (!document.documentElement.hasAttribute("data-theme")) {
-  setTheme(localStorage.getItem("phx:theme") || "system")
+  setTheme(localStorage.getItem("phx:theme") || "light")
 }
 
 window.addEventListener("storage", (event) => {
-  if (event.key === "phx:theme") setTheme(event.newValue || "system")
+  if (event.key === "phx:theme") setTheme(event.newValue || "light")
 })
 
 window.addEventListener("phx:set-theme", (event) => setTheme(event.target.dataset.phxTheme))

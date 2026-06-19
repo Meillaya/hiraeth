@@ -1,6 +1,6 @@
 defmodule Hiraeth.Search.Result do
   @moduledoc """
-  Internal Ash search projection retained for admin/back-office search tests.
+  Internal Ash search projection retained for internal catalog search tests.
 
   Public browser discovery must use `HiraethWeb.PublicCatalog`, which is backed
   by bounded Postgres queries and facets. This resource intentionally does not
@@ -101,7 +101,7 @@ defmodule Hiraeth.Search.Result do
 
   policies do
     policy action_type(:read) do
-      description "Search results are internal/admin projections; browser catalog pages use PublicCatalog."
+      description "Search results are internal catalog projections; browser catalog pages use PublicCatalog."
       authorize_if always()
     end
   end

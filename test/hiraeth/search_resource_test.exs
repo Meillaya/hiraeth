@@ -1,7 +1,5 @@
 defmodule Hiraeth.SearchResourceTest do
-  use Hiraeth.DataCase, async: true
-
-  alias Hiraeth.Accounts.User
+  use Hiraeth.DataCase, async: false
 
   alias Hiraeth.Catalog.{
     Contribution,
@@ -18,16 +16,9 @@ defmodule Hiraeth.SearchResourceTest do
   alias Hiraeth.Search.Result, as: SearchResult
 
   setup do
-    admin =
-      User
-      |> Ash.Changeset.for_create(:seed_admin, %{
-        email: "search-admin-#{System.unique_integer([:positive])}@example.test",
-        password: "correct horse battery staple",
-        display_name: "Search Admin"
-      })
-      |> Ash.create!(authorize?: false)
+    clear_catalog!()
 
-    %{admin: admin}
+    %{admin: trusted_catalog_actor()}
   end
 
   test "searches title, subtitle, contributor, publisher, series, and ISBN fields", %{
@@ -36,7 +27,7 @@ defmodule Hiraeth.SearchResourceTest do
     edition =
       fixture_catalog(admin,
         title: "A Garden of Forking Paths",
-        subtitle: "Labyrinth Dispatches",
+        subtitle: "Labyrinth Dispatches Zqx",
         publisher: "Silver Current Press",
         imprint: "Atrium Editions",
         contributor: "Mina Cartographer",
@@ -48,7 +39,7 @@ defmodule Hiraeth.SearchResourceTest do
     assert result.edition_id == edition.id
     assert result.title == "A Garden of Forking Paths"
 
-    assert [result] = search_results("dispatches")
+    assert [result] = search_results("dispatches zqx")
     assert result.edition_id == edition.id
 
     assert [result] = search_results("cartographer")
@@ -223,4 +214,24 @@ defmodule Hiraeth.SearchResourceTest do
   end
 
   defp unique_slug(prefix), do: "#{prefix}-#{System.unique_integer([:positive])}"
+
+  defp clear_catalog! do
+    [
+      Hiraeth.Sources.SourceLedgerEntry,
+      Hiraeth.Sources.SourceRecord,
+      Hiraeth.Covers.CoverAssignment,
+      Hiraeth.Covers.CoverAsset,
+      Identifier,
+      Contribution,
+      Edition,
+      SeriesMembership,
+      Series,
+      Work,
+      Imprint,
+      Publisher
+    ]
+    |> Enum.each(fn resource ->
+      Hiraeth.Repo.delete_all(resource)
+    end)
+  end
 end

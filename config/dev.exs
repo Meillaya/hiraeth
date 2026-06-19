@@ -1,10 +1,5 @@
 import Config
 
-config :hiraeth,
-       :token_signing_secret,
-       System.get_env("TOKEN_SIGNING_SECRET") ||
-         "dev-test-token-signing-secret-change-before-production"
-
 # Configure your database
 config :hiraeth, Hiraeth.Repo,
   username: "postgres",

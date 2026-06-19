@@ -161,7 +161,7 @@ defmodule HiraethWeb.CoreComponents do
   a `value` to mark which option should be preselected.
 
   ```heex
-  <.input field={@form[:user_type]} type="select" options={["Admin": "admin", "User": "user"]} />
+  <.input field={@form[:format]} type="select" options={["Paperback": "paperback", "Ebook": "ebook"]} />
   ```
 
   For more information on what kind of data can be passed to `options` see
@@ -356,9 +356,9 @@ defmodule HiraethWeb.CoreComponents do
 
   ## Examples
 
-      <.table id="users" rows={@users}>
-        <:col :let={user} label="id">{user.id}</:col>
-        <:col :let={user} label="username">{user.username}</:col>
+      <.table id="books" rows={@books}>
+        <:col :let={book} label="id">{book.id}</:col>
+        <:col :let={book} label="title">{book.title}</:col>
       </.table>
   """
   attr :id, :string, required: true

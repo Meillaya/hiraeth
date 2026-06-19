@@ -82,12 +82,7 @@ defmodule HiraethWeb.SearchLive.Components do
         field={@form[:sort]}
         type="select"
         label="Sort"
-        options={[
-          {"Title", "title"},
-          {"Newest", "newest"},
-          {"Author", "author"},
-          {"Recently added", "recently_added"}
-        ]}
+        options={[{"Publication date, newest first", "newest"}]}
       />
     </.form>
     """

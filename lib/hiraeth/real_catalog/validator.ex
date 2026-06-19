@@ -10,26 +10,30 @@ defmodule Hiraeth.RealCatalog.Validator do
     defstruct [:provider, :file, :source_uri, :isbn_13, :reason]
   end
 
-  @allowed_displayed_fields ~w(title subtitle contributors publisher imprint format published_on isbn_13 cover source_url description synopsis editorial_praise storefront_url original_title original_language_code subjects language_code page_count dimensions)
+  @allowed_displayed_fields ~w(title subtitle contributors publisher imprint format published_on isbn_13 cover source_url description synopsis editorial_praise storefront_url review_links original_title original_language_code subjects language_code page_count dimensions)
   @rich_metadata_fields ~w(original_title original_language_code subjects language_code page_count dimensions)
   @approved_field_source_types ~w(publisher_dataset publisher_official_page)
-  @canonical_prose_fields ~w(description synopsis editorial_praise storefront_url)
+  @canonical_prose_fields ~w(description synopsis editorial_praise storefront_url review_links)
   @commerce_state_keys ~w(price inventory availability cart checkout account)
-  @raw_content_keys ~w(body_html content excerpt html rendered_html)
+  @raw_content_keys ~w(body_html content html rendered_html)
   @disallowed_prose_keys ~w(blurb bio author_bio review reviews user_review user_reviews jacket_copy)
   @disallowed_formats ~w(bundle subscription gift_card merch shirt supporter_only)
 
   def validate_dir(dir) do
+    manifest = source_authority_manifest(dir)
+
     case Dataset.load_dir(dir) do
-      {:ok, datasets} -> validate_datasets(datasets)
+      {:ok, datasets} -> validate_datasets(datasets, manifest)
       {:error, reason} -> {:error, [%Finding{reason: inspect(reason)}]}
     end
   end
 
-  def validate_datasets(datasets) do
+  def validate_datasets(datasets, manifest \\ nil) do
+    manifest = manifest || source_authority_manifest_for_datasets(datasets)
+
     findings =
       datasets
-      |> Enum.flat_map(&dataset_findings/1)
+      |> Enum.flat_map(&dataset_findings(&1, manifest))
       |> Kernel.++(duplicate_findings(datasets))
 
     if findings == [] do
@@ -39,18 +43,14 @@ defmodule Hiraeth.RealCatalog.Validator do
     end
   end
 
-  defp dataset_findings(dataset) do
+  defp dataset_findings(dataset, manifest) do
     records = Map.get(dataset, :records, []) || []
 
     []
     |> add_blank(dataset, nil, dataset[:provider], "provider is required")
     |> add_if(records == [], dataset, nil, "dataset has no records")
-    |> add_if(
-      length(records) != 50,
-      dataset,
-      nil,
-      "dataset must contain exactly 50 approved records"
-    )
+    |> add_manifest_provider_finding(dataset, manifest)
+    |> add_record_count_finding(dataset, records, manifest)
     |> Kernel.++(provider_permission_findings(dataset))
     |> Kernel.++(Enum.flat_map(records, &record_findings(dataset, &1)))
   end
@@ -79,8 +79,82 @@ defmodule Hiraeth.RealCatalog.Validator do
     |> Kernel.++(field_source_findings(dataset, record))
     |> Kernel.++(rich_metadata_field_source_findings(dataset, record))
     |> Kernel.++(prose_provenance_findings(dataset, record))
+    |> Kernel.++(review_link_findings(dataset, record))
     |> Kernel.++(copy_risk_findings(dataset, record))
     |> Kernel.++(provider_mismatch_findings(provider, dataset, record))
+  end
+
+  defp source_authority_manifest(dir) do
+    case Dataset.load_source_authority_manifest(dir) do
+      {:ok, manifest} -> manifest
+      {:error, _reason} -> nil
+    end
+  end
+
+  defp source_authority_manifest_for_datasets([dataset | _datasets]) do
+    dataset
+    |> Map.get(:file_path)
+    |> case do
+      file_path when is_binary(file_path) ->
+        file_path |> Path.dirname() |> source_authority_manifest()
+
+      _ ->
+        nil
+    end
+  end
+
+  defp source_authority_manifest_for_datasets(_datasets), do: nil
+
+  defp add_manifest_provider_finding(findings, _dataset, nil), do: findings
+
+  defp add_manifest_provider_finding(findings, dataset, manifest) do
+    if manifest_provider(manifest, dataset) do
+      findings
+    else
+      [
+        finding(dataset, nil, "dataset provider is missing from source authority manifest")
+        | findings
+      ]
+    end
+  end
+
+  defp add_record_count_finding(findings, dataset, records, manifest) do
+    case expected_record_count(manifest, dataset) do
+      expected_count when is_integer(expected_count) ->
+        add_if(
+          findings,
+          length(records) != expected_count,
+          dataset,
+          nil,
+          "dataset must contain #{expected_count} approved records per source authority manifest"
+        )
+
+      _ ->
+        findings
+    end
+  end
+
+  defp expected_record_count(nil, _dataset), do: nil
+
+  defp expected_record_count(manifest, dataset) do
+    provider = manifest_provider(manifest, dataset)
+
+    map_value(provider || %{}, "expected_record_count") ||
+      provider
+      |> map_value("coverage")
+      |> map_value("expected_record_count")
+  end
+
+  defp manifest_provider(nil, _dataset), do: nil
+
+  defp manifest_provider(manifest, dataset) do
+    manifest
+    |> map_value("providers")
+    |> List.wrap()
+    |> Enum.find(fn provider ->
+      map_value(provider, "provider") == dataset.provider or
+        map_value(provider, "dataset_file") == dataset.file
+    end)
   end
 
   defp provider_permission_findings(dataset) do
@@ -157,10 +231,8 @@ defmodule Hiraeth.RealCatalog.Validator do
     add_if(findings, blank?(value), dataset, record, reason)
   end
 
-  defp cover_hosts_missing?(
-         %{cover_cache_policy: "no_covers_until_explicit_permission"} = permissions
-       ),
-       do: permissions[:cover_hosts] != []
+  defp cover_hosts_missing?(%{cover_cache_policy: "no_covers_sourced"} = permissions),
+    do: permissions[:cover_hosts] != []
 
   defp cover_hosts_missing?(permissions), do: blank?(permissions[:cover_hosts])
 
@@ -172,10 +244,28 @@ defmodule Hiraeth.RealCatalog.Validator do
   defp add_isbn_finding(findings, dataset, record) do
     isbn = get_in(record, [:edition, :isbn_13])
 
-    case ISBN.normalize(isbn) do
-      {:ok, _isbn} -> findings
-      {:error, _reason} -> [finding(dataset, record, "invalid isbn_13 check digit") | findings]
+    cond do
+      blank?(isbn) and blank?(missing_field_reason(record, "isbn_13")) ->
+        [finding(dataset, record, "missing isbn_13 requires missing_fields reason") | findings]
+
+      blank?(isbn) ->
+        findings
+
+      true ->
+        case ISBN.normalize(isbn) do
+          {:ok, _isbn} ->
+            findings
+
+          {:error, _reason} ->
+            [finding(dataset, record, "invalid isbn_13 check digit") | findings]
+        end
     end
+  end
+
+  defp missing_field_reason(record, field) do
+    record
+    |> Map.get(:missing_fields, %{})
+    |> map_value(field)
   end
 
   defp add_source_uri_finding(findings, dataset, record) do
@@ -315,6 +405,7 @@ defmodule Hiraeth.RealCatalog.Validator do
     do: Map.get(record, :storefront_url) || Map.get(record, :source_uri)
 
   defp displayed_field_value(record, "editorial_praise"), do: Map.get(record, :editorial_praise)
+  defp displayed_field_value(record, "review_links"), do: Map.get(record, :review_links)
   defp displayed_field_value(record, "contributors"), do: Map.get(record, :contributors)
   defp displayed_field_value(record, "publisher"), do: Map.get(record, :publisher)
   defp displayed_field_value(record, "imprint"), do: Map.get(record, :imprint)
@@ -496,6 +587,20 @@ defmodule Hiraeth.RealCatalog.Validator do
     |> Enum.uniq_by(&{&1.source_uri, &1.reason})
   end
 
+  defp review_link_findings(dataset, record) do
+    record
+    |> Map.get(:review_links, [])
+    |> List.wrap()
+    |> Enum.flat_map(fn review ->
+      if SourcePolicy.review_link_allowed?(dataset.provider, review) do
+        []
+      else
+        [finding(dataset, record, "review links require authorized source provenance")]
+      end
+    end)
+    |> Enum.uniq_by(&{&1.source_uri, &1.reason})
+  end
+
   defp public_prose_present?(record) do
     canonical_values_present? =
       not blank?(Map.get(record, :description)) or not blank?(Map.get(record, :synopsis)) or
@@ -650,8 +755,19 @@ defmodule Hiraeth.RealCatalog.Validator do
 
   defp executable_html?(_value), do: false
 
-  defp map_value(map, key) when is_map(map), do: Map.get(map, key) || Map.get(map, to_string(key))
+  defp map_value(map, key) when is_map(map) do
+    Map.get(map, key) || Map.get(map, to_string(key)) || existing_atom_value(map, key)
+  end
+
   defp map_value(_value, _key), do: nil
+
+  defp existing_atom_value(map, key) when is_binary(key) do
+    Map.get(map, String.to_existing_atom(key))
+  rescue
+    ArgumentError -> nil
+  end
+
+  defp existing_atom_value(_map, _key), do: nil
 
   defp present?(value), do: is_binary(value) and String.trim(value) != ""
   defp blank?(value), do: value in [nil, []] or (is_binary(value) and String.trim(value) == "")

@@ -111,6 +111,7 @@
                 "synopsis",
                 "editorial_praise",
                 "storefront_url",
+                "review_links",
                 "original_title",
                 "original_language_code",
                 "subjects",
@@ -128,6 +129,27 @@
             "additionalProperties": {
               "$ref": "#/$defs/field_source"
             }
+          },
+          "missing_fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Field-level missing reasons for source-backed records imported with gaps."
+          },
+          "review_links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/review_link"
+            },
+            "description": "Link-first professional/editorial review references; excerpts require explicit rights_basis."
+          },
+          "series": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/series_membership"
+            },
+            "description": "Source-backed publisher series or collection memberships for the work."
           }
         },
         "not": {
@@ -285,8 +307,7 @@
       "type": "object",
       "required": [
         "title",
-        "format",
-        "isbn_13"
+        "format"
       ],
       "properties": {
         "title": {
@@ -314,7 +335,10 @@
           "format": "date"
         },
         "isbn_13": {
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "language_code": {
           "type": [
@@ -552,7 +576,7 @@
           "if": {
             "properties": {
               "cover_cache_policy": {
-                "const": "no_covers_until_explicit_permission"
+                "const": "no_covers_sourced"
               }
             },
             "required": [
@@ -575,6 +599,74 @@
           }
         }
       ]
+    },
+    "review_link": {
+      "type": "object",
+      "required": [
+        "source",
+        "source_uri",
+        "rights_basis"
+      ],
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "source_uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "rights_basis": {
+          "enum": [
+            "link_only",
+            "publisher_supplied",
+            "licensed_excerpt",
+            "explicit_authorization"
+          ]
+        },
+        "excerpt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 280
+        }
+      },
+      "additionalProperties": false
+    },
+    "series_membership": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "slug"
+      ],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "position": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source_uri": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        }
+      }
     }
   },
   "additionalProperties": false

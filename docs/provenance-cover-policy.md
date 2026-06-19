@@ -8,76 +8,40 @@ Hiraeth stores source evidence separately from canonical catalog records. Source
 - `make audit-provenance` exports `artifacts/qa/provenance/source-ledger.csv` and fails on missing provenance, missing source ledger entries, invalid public cover records, and long copied-text risk signals.
 - These checks are completeness/risk checks only. They do not make legal conclusions.
 
+
+## Full-catalog source authority
+
+Full-catalog expansion is governed by `priv/catalog_sources/real_publishers/source_authority_manifest.json`. The manifest intentionally defines completeness as the approved source corpus rather than fabricated universal publisher history. For this refresh, the operator explicitly authorized bounded public HTML extraction, official APIs/sitemaps/pages, and third-party ISBN/cover enrichment. Blocked modes are now unsafe/unbounded or non-factual modes: fabricated metadata, invented purchase links, user reviews, raw copied review prose, account/cart/checkout data, and production database writes.
+
+Execution must keep normal tests deterministic: live network retrieval belongs in bounded local tooling with source allowlists, rate limits, max-byte caps, checksums, retrieval timestamps, and recorded artifacts. Public UI still renders covers only from local `/covers/cache/...` URLs.
+
+Release-facing completeness must be worded precisely: Hiraeth has loaded every record in the approved checked-in source corpus for the current seventeen providers. Gaps against universal historical backlists, unavailable non-HTML source exports, missing cover URLs, missing purchase links, missing review links, and missing/pre-ISBN identifiers remain explicit unresolved gap states in the coverage report and UI.
+
 ## Cover lifecycle
 
-- v1 is link-only by default unless a checked-in dataset or provider policy explicitly
-  records `rights_basis: "local_cache_permitted"` and `cache_policy: "cache_allowed"`.
-- Public covers require source URL, provider, rights basis, attribution text/link when required, and a non-hidden takedown state.
-- Cached cover files require explicit cache rights. Without that basis, render the source URL only when link-only display is allowed, or the typographic fallback when the public-cover gate fails.
+- Public HTML must never render remote cover URLs. A visible cover must resolve to a local static URL under `/covers/cache/...`.
+- A public cover asset requires a source URL, provider, rights basis, allowlisted HTTPS cover host, attribution text/link when required, visible takedown state, `cache_policy: "cache_allowed"`, `rights_basis: "local_cache_permitted"`, and a validated cached file under `priv/static/covers/cache`.
+- Permission-request or draft-request metadata is not a display blocker by itself. Provenance, official-source allowlists, local cache safety, attribution, takedown/removal handling, and auditability remain mandatory.
+- link-only, missing, uncached, hidden, unsafe, or ineligible covers render the designed typographic fallback instead of a remote image.
 - Takedown-hidden cover assignments must not render publicly, and takedown events should appear in audit exports.
 
-## Current pilot dataset cover decision
+## Current production corpus cover decision
 
-The real-publisher pilot dataset under `priv/catalog_sources/real_publishers/`
-is intentionally marked cacheable for this prototype catalog run. That decision
-supersedes the earlier link-only planning default for these checked-in records
-only. The implementation still keeps source URLs, provider names, attribution,
-source records, local cache paths, thumbnail paths, and takedown controls
-auditable.
+The real-publisher corpus under `priv/catalog_sources/real_publishers/` is intentionally cacheable for providers with checked-in source-backed cover URLs. The implementation keeps source URLs, provider names, attribution, source records, local cache paths, thumbnail paths, and takedown controls auditable while rendering only local cache URLs.
 
-These provenance checks are product/audit safeguards, not legal conclusions.
-Treat this as a legal review required before production boundary.
-Before production/commercial use, expansion to additional publishers or
-bookstores, monetized cover display, or bulk jacket-copy/description imports,
-perform a separate source-permission review and update the provider policy
-records accordingly.
+These provenance checks are product/audit safeguards, not legal conclusions. A legal review required before production applies to commercial expansion, monetized cover display, or bulk jacket-copy/description imports; update provider policy records with the source model and provenance evidence.
 
 ## New Directions fixture gate
 
-New Directions (`new_directions_official_site`) is the fourth checked-in
-provider fixture. Its gate allows factual
-source references under `https://www.ndbooks.com/books/`, permission/contact
-documentation under `https://www.ndbooks.com/permissions/` and
-`https://www.ndbooks.com/about/contact/`, source host `www.ndbooks.com`, and
-observed cover host `cdn.sanity.io`.
+New Directions (`new_directions_official_site`) is an active checked-in provider fixture. Its gate allows factual source references under `https://www.ndbooks.com/books/`, contact surfaces under `https://www.ndbooks.com/permissions/` and `https://www.ndbooks.com/about/contact/`, source host `www.ndbooks.com`, and observed cover host `cdn.sanity.io`.
 
-This gate does not grant local cover-cache rights. New Directions records use
-explicit no-cover fallbacks and covers remain
-`link_only_until_explicit_cache_permission` until a later provider policy records
-explicit cache permission and provenance. The cover resolver and cache task also
-reject accidental New Directions link-only/cache attempts before explicit cache
-permission, so public pages render typographic fallbacks instead of remote images. The gate also excludes raw HTML,
-jacket-copy dumps, author bios, reviews, prices, inventory, and storefront or
-account data. It is an engineering safeguard and not legal advice.
+The provider gate records `cover_cache_policy: "cache_allowed"`: pending permission/draft-request state is not a blocker. The checked-in New Directions corpus currently contains 2,389 records and source-backed cover URLs for all records. Public display still requires an allowlisted HTTPS cover source, local cache validation, attribution, and visible takedown state. The gate excludes raw HTML dumps, author bios, user reviews, prices, inventory, storefront/account data, and unsupported long prose.
 
-The checked-in source policy currently marks New Directions and Transit Books as
-expansion provider slugs. Their provider-permission projections are intended to
-be mirrored in deterministic JSON fixtures, so source URLs, source hosts, cover
-hosts, excluded content, takedown contact, cover-cache policy, and the
-not-legal-advice note remain machine-checkable before import.
+## Transit Books fixture gate
 
+Transit Books (`transit_books_official_site`) is an active checked-in provider sourced from official books/catalog pages under `https://www.transitbooks.org/books`, `https://www.transitbooks.org/catalogs`, and related official paths. The allowed source host is `www.transitbooks.org`.
 
-## Transit Books future-provider gate
-
-Transit Books (`transit_books_official_site`) is approved only as a future
-source-policy gate. The gate allows factual source references under
-`https://www.transitbooks.org/books` and
-`https://www.transitbooks.org/catalogs`, with permission/contact/takedown review
-through `https://www.transitbooks.org/rights` and
-`https://www.transitbooks.org/about`. The only allowed source host is
-`www.transitbooks.org`.
-
-This gate records no approved cover hosts and does not grant remote cover
-linking or local cover-cache rights. Transit cover handling remains
-`no_covers_until_explicit_permission`: no Transit cover image should be imported,
-link-only rendered, downloaded, cached, or thumbnailed until a later policy
-records explicit permission and provenance. A future Transit fixture should use
-explicit no-cover fallbacks unless that permission review changes.
-
-Transit exclusions match the unsafe-content policy and additionally exclude
-cover images: raw HTML, jacket-copy dumps, author bios, reviews, user reviews,
-prices, inventory, cart/checkout/account data, cover images, and unsupported
-long prose. This is an engineering safeguard and not legal advice.
+The provider gate records `cover_cache_policy: "cache_allowed"` with allowlisted Squarespace cover hosts. The checked-in Transit corpus currently contains 66 records and source-backed cover URLs for all records. Transit exclusions include raw HTML dumps, author bios, user reviews, prices, inventory, cart/checkout/account data, unattributed cover images, and unsupported long prose.
 
 ## Oban deferral
 

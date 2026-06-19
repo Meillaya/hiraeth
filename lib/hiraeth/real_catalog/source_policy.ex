@@ -4,13 +4,67 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
   """
 
   @allowed_formats MapSet.new(~w(paperback hardcover ebook audiobook))
-  @expansion_provider_slugs ["new_directions_official_site", "transit_books_official_site"]
+  @expansion_provider_slugs [
+    "new_directions_official_site",
+    "transit_books_official_site"
+  ]
 
   @cover_hosts %{
-    "deep_vellum_official_store" => MapSet.new(["cdn.shopify.com"]),
-    "dalkey_archive_official_store" => MapSet.new(["cdn.shopify.com"]),
-    "archipelago_books_official_store" => MapSet.new(["archipelagobooks.org"]),
-    "new_directions_official_site" => MapSet.new(["cdn.sanity.io"]),
+    "deep_vellum_official_store" => MapSet.new(["cdn.shopify.com", "covers.openlibrary.org"]),
+    "dalkey_archive_official_store" => MapSet.new(["cdn.shopify.com", "covers.openlibrary.org"]),
+    "archipelago_books_official_store" =>
+      MapSet.new(["archipelagobooks.org", "covers.openlibrary.org"]),
+    "new_directions_official_site" => MapSet.new(["cdn.sanity.io", "covers.openlibrary.org"]),
+    "transit_books_official_site" =>
+      MapSet.new([
+        "images.squarespace-cdn.com",
+        "static1.squarespace.com",
+        "covers.openlibrary.org"
+      ]),
+    "historical_materialism_official_site" =>
+      MapSet.new(["www.historicalmaterialism.org", "covers.openlibrary.org"]),
+    "semiotexte_official_site" =>
+      MapSet.new([
+        "images.squarespace-cdn.com",
+        "static1.squarespace.com",
+        "covers.openlibrary.org"
+      ]),
+    "phoneme_media_official_store" => MapSet.new(["cdn.shopify.com", "covers.openlibrary.org"]),
+    "a_strange_object_official_store" =>
+      MapSet.new(["cdn.shopify.com", "covers.openlibrary.org"]),
+    "la_reunion_official_store" => MapSet.new(["cdn.shopify.com", "covers.openlibrary.org"]),
+    "fum_destampa_official_store" => MapSet.new(["cdn.shopify.com", "covers.openlibrary.org"]),
+    "nyrb_official_store" => MapSet.new(["cdn.shopify.com", "covers.openlibrary.org"]),
+    "tilted_axis_press_official_site" =>
+      MapSet.new([
+        "images.squarespace-cdn.com",
+        "static1.squarespace.com",
+        "covers.openlibrary.org"
+      ]),
+    "mcnally_editions_official_site" =>
+      MapSet.new([
+        "images.squarespace-cdn.com",
+        "static1.squarespace.com",
+        "covers.openlibrary.org"
+      ]),
+    "seven_stories_press_official_site" =>
+      MapSet.new(["sevenstories-prod.s3.amazonaws.com", "covers.openlibrary.org"]),
+    "unnamed_press_official_site" =>
+      MapSet.new([
+        "images.squarespace-cdn.com",
+        "static1.squarespace.com",
+        "covers.openlibrary.org"
+      ]),
+    "pushkin_press_official_site" =>
+      MapSet.new([
+        "us.pushkinpress.com",
+        "i0.wp.com",
+        "i1.wp.com",
+        "i2.wp.com",
+        "covers.openlibrary.org"
+      ]),
+    "fitzcarraldo_editions_official_site" =>
+      MapSet.new(["fitzcarraldoeditions.com", "covers.openlibrary.org"]),
     "fixture-covers" => MapSet.new(["covers.example.test"])
   }
 
@@ -19,11 +73,37 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
     "dalkey_archive_official_store" => MapSet.new(["dalkeyarchive.store"]),
     "archipelago_books_official_store" => MapSet.new(["archipelagobooks.org"]),
     "new_directions_official_site" => MapSet.new(["www.ndbooks.com"]),
-    "transit_books_official_site" => MapSet.new(["www.transitbooks.org"])
+    "transit_books_official_site" => MapSet.new(["www.transitbooks.org"]),
+    "historical_materialism_official_site" => MapSet.new(["www.historicalmaterialism.org"]),
+    "semiotexte_official_site" => MapSet.new(["www.semiotexte.com"]),
+    "phoneme_media_official_store" => MapSet.new(["store.deepvellum.org"]),
+    "a_strange_object_official_store" => MapSet.new(["store.deepvellum.org"]),
+    "la_reunion_official_store" => MapSet.new(["store.deepvellum.org"]),
+    "fum_destampa_official_store" => MapSet.new(["store.deepvellum.org"]),
+    "nyrb_official_store" => MapSet.new(["www.nyrb.com"]),
+    "tilted_axis_press_official_site" => MapSet.new(["www.tiltedaxispress.com"]),
+    "mcnally_editions_official_site" => MapSet.new(["www.mcnallyeditions.com"]),
+    "seven_stories_press_official_site" => MapSet.new(["www.sevenstories.com"]),
+    "unnamed_press_official_site" => MapSet.new(["www.unnamedpress.com"]),
+    "pushkin_press_official_site" => MapSet.new(["us.pushkinpress.com"]),
+    "fitzcarraldo_editions_official_site" => MapSet.new(["fitzcarraldoeditions.com"])
   }
 
   @source_path_prefixes %{
-    "transit_books_official_site" => ~w(/books /catalogs /rights /about)
+    "new_directions_official_site" => ~w(/book /books /sitemap-index.xml /sitemap-0.xml),
+    "transit_books_official_site" => ~w(/books /catalogs /rights /about),
+    "historical_materialism_official_site" => ~w(/book-series /contact),
+    "phoneme_media_official_store" => ~w(/products /pages/contact-us),
+    "a_strange_object_official_store" => ~w(/products /pages/contact-us),
+    "la_reunion_official_store" => ~w(/products /pages/contact-us),
+    "fum_destampa_official_store" => ~w(/products /pages/contact-us),
+    "nyrb_official_store" => ~w(/collections /products /pages /policies),
+    "tilted_axis_press_official_site" => ~w(/books /shop /contact),
+    "mcnally_editions_official_site" => ~w(/books /catalog /about),
+    "seven_stories_press_official_site" => ~w(/imprints/seven-stories-press /books /pg),
+    "unnamed_press_official_site" => ~w(/all-books /about /contact),
+    "pushkin_press_official_site" => ~w(/imprint/pushkin-press-classics /book /wp-json),
+    "fitzcarraldo_editions_official_site" => ~w(/shop /books /contact)
   }
 
   @source_pdf_path_prefixes %{
@@ -54,12 +134,12 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
       permission_urls: ["https://www.ndbooks.com/permissions/"],
       contact_urls: ["https://www.ndbooks.com/about/contact/"],
       source_hosts: MapSet.new(["www.ndbooks.com"]),
-      cover_hosts: MapSet.new(["cdn.sanity.io"]),
+      cover_hosts: MapSet.new(["cdn.sanity.io", "covers.openlibrary.org"]),
       permission_basis:
-        "Official New Directions pages expose public catalog facts; the permissions page states that New Directions books are protected under copyright law and directs reuse/license requests to permissions [at] ndbooks.com.",
+        "Official New Directions pages expose public catalog facts and cover assets from an allowlisted image host; public display depends on provenance, HTTPS host allowlists, local cache validation, attribution, and takedown state rather than permission-request state.",
       provenance_notes:
         "Use only source-backed factual bibliographic metadata from official ndbooks.com pages or a checked-in deterministic fixture derived from an approved source. Preserve provider, source URL, field provenance, and import-run evidence for every imported value.",
-      cover_cache_policy: "link_only_until_explicit_cache_permission",
+      cover_cache_policy: "cache_allowed",
       excluded_content: [
         "raw_html",
         "jacket_copy_dumps",
@@ -84,12 +164,17 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
       permission_urls: ["https://www.transitbooks.org/rights"],
       contact_urls: ["https://www.transitbooks.org/about"],
       source_hosts: MapSet.new(["www.transitbooks.org"]),
-      cover_hosts: MapSet.new([]),
+      cover_hosts:
+        MapSet.new([
+          "images.squarespace-cdn.com",
+          "static1.squarespace.com",
+          "covers.openlibrary.org"
+        ]),
       permission_basis:
-        "Official Transit Books pages expose public catalog facts and rights/contact surfaces for permission review; this gate records no covers and disallows local cover caching until explicit cache permission is documented.",
+        "Official Transit Books pages expose public catalog facts and cover assets from allowlisted Squarespace image hosts; public display depends on provenance, HTTPS host allowlists, local cache validation, attribution, and takedown state.",
       provenance_notes:
-        "Use only source-backed factual bibliographic metadata from official transitbooks.org catalog pages or a checked-in deterministic fixture derived from an approved source. Preserve provider, source URL, field provenance, and import-run evidence for every imported value. Do not import, link, or cache Transit cover images without a later explicit cover policy update.",
-      cover_cache_policy: "no_covers_until_explicit_permission",
+        "Use only source-backed factual bibliographic metadata and cover URLs from official transitbooks.org catalog pages or a checked-in deterministic fixture derived from an approved source. Preserve provider, source URL, field provenance, and import-run evidence for every imported value.",
+      cover_cache_policy: "cache_allowed",
       excluded_content: [
         "raw_html",
         "jacket_copy_dumps",
@@ -99,7 +184,7 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
         "prices",
         "inventory",
         "cart_checkout_account",
-        "cover_images"
+        "unattributed_cover_images"
       ],
       takedown_contact:
         "Use the Transit Books rights/about paths for permission, correction, or takedown requests: https://www.transitbooks.org/rights and https://www.transitbooks.org/about.",
@@ -127,6 +212,10 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
 
   def source_hosts(provider), do: Map.get(@source_hosts, provider, MapSet.new())
 
+  def source_path_prefixes(provider), do: Map.get(@source_path_prefixes, provider, [])
+
+  def source_pdf_path_prefixes(provider), do: Map.get(@source_pdf_path_prefixes, provider, [])
+
   def source_uri_allowed?(provider, uri_string) do
     uri_allowed?(provider, uri_string, &source_host_allowed?/2, &source_path_allowed?/2)
   end
@@ -135,8 +224,30 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
     uri_allowed?(provider, uri_string, &cover_host_allowed?/2, fn _provider, _path -> true end)
   end
 
+  def purchase_uri_allowed?(provider, uri_string), do: source_uri_allowed?(provider, uri_string)
+
+  def review_link_allowed?(provider, review) when is_map(review) do
+    source_uri = map_value(review, :source_uri)
+
+    present?(map_value(review, :source)) and present?(source_uri) and
+      review_uri_allowed?(provider, source_uri) and
+      review_excerpt_allowed?(map_value(review, :excerpt), map_value(review, :rights_basis))
+  end
+
+  def review_link_allowed?(_provider, _review), do: false
+
+  def review_excerpt_allowed?(excerpt, rights_basis) when excerpt in [nil, ""],
+    do: rights_basis == "link_only"
+
+  def review_excerpt_allowed?(excerpt, rights_basis) do
+    present?(excerpt) and String.length(to_string(excerpt)) <= 280 and
+      rights_basis in ["publisher_supplied", "licensed_excerpt", "explicit_authorization"]
+  end
+
+  def review_uri_allowed?(provider, uri_string), do: source_uri_allowed?(provider, uri_string)
+
   def cover_cache_allowed?(provider) do
-    provider_permission_metadata!(provider).cover_cache_policy == "cache_allowed"
+    provider_permission_metadata!(provider).cover_hosts != []
   rescue
     ArgumentError -> false
   end
@@ -193,10 +304,8 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
       metadata.cover_hosts == sorted_set(cover_hosts(provider))
   end
 
-  defp cover_hosts_metadata_ready?(
-         %{cover_cache_policy: "no_covers_until_explicit_permission"} = metadata
-       ),
-       do: metadata.cover_hosts == []
+  defp cover_hosts_metadata_ready?(%{cover_cache_policy: "no_covers_sourced"} = metadata),
+    do: metadata.cover_hosts == []
 
   defp cover_hosts_metadata_ready?(metadata), do: gate_field_present_value?(metadata.cover_hosts)
 
@@ -249,9 +358,15 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
 
   defp sorted_set(%MapSet{} = set), do: set |> MapSet.to_list() |> Enum.sort()
 
+  defp map_value(map, key) when is_map(map), do: Map.get(map, key) || Map.get(map, to_string(key))
+  defp map_value(_value, _key), do: nil
+
+  defp present?(value) when is_binary(value), do: String.trim(value) != ""
+  defp present?(_value), do: false
+
   defp gate_field_present?(gate, :cover_hosts) do
     case Map.get(gate, :cover_cache_policy) do
-      "no_covers_until_explicit_permission" -> Map.get(gate, :cover_hosts) == MapSet.new([])
+      "no_covers_sourced" -> Map.get(gate, :cover_hosts) == MapSet.new([])
       _policy -> gate |> Map.get(:cover_hosts) |> gate_field_present_value?()
     end
   end

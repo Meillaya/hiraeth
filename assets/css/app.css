@@ -28,18 +28,27 @@
 
 :root {
   color-scheme: light;
-  --hiraeth-paper: #fcfaf7;
+  --hiraeth-paper: #FBFAF7;
+  --hiraeth-surface: #ffffff;
   --hiraeth-wash: #f5f2eb;
-  --hiraeth-warm: #f4efe6;
-  --hiraeth-ink: #1c1917;
+  --hiraeth-warm: #F4EFE6;
+  --hiraeth-ink: #1B1714;
   --hiraeth-muted: #7a7165;
   --hiraeth-label: #a39a8c;
-  --hiraeth-line: #e7e2d8;
+  --hiraeth-line: #E6E0D4;
   --hiraeth-line-strong: #d8cfc0;
-  --hiraeth-thread: #8c2d19;
-  --hiraeth-thread-hover: #6f2415;
-  --hiraeth-thread-soft: rgba(140, 45, 25, 0.12);
+  --hiraeth-thread: #A33417;
+  --hiraeth-thread-hover: #872a16;
+  --hiraeth-thread-soft: rgba(163, 52, 23, 0.12);
+  --hiraeth-on-thread: #ffffff;
   --hiraeth-shadow: 0 28px 90px -64px rgba(28, 25, 23, 0.72);
+  --hiraeth-cover-shadow: 0 30px 60px -34px rgba(27, 23, 20, 0.4);
+  --hiraeth-cover-shadow-hover: 0 28px 70px -34px rgba(28, 25, 23, 0.72);
+  --hiraeth-sheen: rgba(255, 255, 255, 0.55);
+  --hiraeth-sheen-soft: rgba(255, 255, 255, 0.45);
+  --hiraeth-error-bg: #fff5f5;
+  --hiraeth-error-ink: #991b1b;
+  --hiraeth-error-muted: #b91c1c;
   --hiraeth-radius: 2px;
   --hiraeth-header-height: 68px;
   --hiraeth-measure: 73.75rem;
@@ -50,18 +59,25 @@
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --hiraeth-paper: #12110f;
-  --hiraeth-wash: #1c1917;
+  --hiraeth-paper: #14110E;
+  --hiraeth-surface: #1B1714;
+  --hiraeth-wash: #1B1714;
   --hiraeth-warm: #211d18;
-  --hiraeth-ink: #fafaf9;
+  --hiraeth-ink: #F2EEE6;
   --hiraeth-muted: #9a9184;
   --hiraeth-label: #7a7165;
-  --hiraeth-line: #2e2a27;
+  --hiraeth-line: #2E2A24;
   --hiraeth-line-strong: #3a332d;
   --hiraeth-thread: #e05a47;
   --hiraeth-thread-hover: #f07362;
   --hiraeth-thread-soft: rgba(224, 90, 71, 0.14);
+  --hiraeth-on-thread: #14110E;
   --hiraeth-shadow: 0 28px 90px -68px rgba(0, 0, 0, 0.9);
+  --hiraeth-sheen: rgba(255, 255, 255, 0.08);
+  --hiraeth-sheen-soft: rgba(255, 255, 255, 0.06);
+  --hiraeth-error-bg: #201010;
+  --hiraeth-error-ink: #f87171;
+  --hiraeth-error-muted: #fca5a5;
 }
 
 html,
@@ -93,12 +109,10 @@ body {
 }
 
 .archive-wash::before {
-  background:
-    radial-gradient(circle at 12% 10%, var(--hiraeth-thread-soft), transparent 30%),
-    linear-gradient(135deg, transparent 0 48%, rgba(120, 113, 108, 0.08) 48% 49%, transparent 49% 100%);
   content: "";
-  inset: -2rem -1rem auto;
-  height: min(34rem, 64vh);
+  display: none;
+  inset: 0;
+  height: 0;
   pointer-events: none;
   position: absolute;
   z-index: -1;
@@ -126,13 +140,17 @@ body {
 }
 
 .fallback-cover-grain::after {
-  background-image: radial-gradient(rgba(28, 25, 23, 0.13) 0.7px, transparent 0.7px);
+  background-image: radial-gradient(color-mix(in oklab, var(--hiraeth-ink) 13%, transparent) 0.7px, transparent 0.7px);
   background-size: 9px 9px;
   content: "";
   inset: 0;
   opacity: 0.18;
   pointer-events: none;
   position: absolute;
+}
+
+.qi-fallback-glow {
+  background: radial-gradient(circle at top left, var(--hiraeth-thread-soft), transparent 42%);
 }
 
 .qi-page {
@@ -172,12 +190,19 @@ body {
 }
 
 .qi-wordmark {
-  color: var(--hiraeth-thread);
+  color: var(--hiraeth-ink);
   font-family: var(--hiraeth-font-serif);
-  letter-spacing: -0.035em;
+  letter-spacing: -0.01em;
 }
 
-.qi-kicker,
+.qi-kicker {
+  color: var(--hiraeth-thread);
+  font-family: var(--hiraeth-font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
 .qi-label {
   color: var(--hiraeth-label);
   font-family: var(--hiraeth-font-mono);
@@ -256,8 +281,8 @@ body {
 }
 
 .qi-button {
-  background: var(--hiraeth-thread);
-  border: 1px solid var(--hiraeth-thread);
+  background: var(--hiraeth-ink);
+  border: 1px solid var(--hiraeth-ink);
   color: var(--hiraeth-paper);
 }
 
@@ -304,7 +329,7 @@ body {
 .qi-cover-frame {
   border: 1px solid var(--hiraeth-line-strong);
   border-radius: var(--hiraeth-radius);
-  box-shadow: 0 18px 50px -30px rgba(28, 25, 23, 0.75);
+  box-shadow: var(--hiraeth-cover-shadow);
 }
 
 .qi-empty {

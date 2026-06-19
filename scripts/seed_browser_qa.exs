@@ -1,7 +1,6 @@
 # Seeds deterministic records used only by scripts/browser_qa.sh real-browser coverage.
 # The data is local, fictional, provenance-safe, and reset by browser_qa.sh before each run.
 
-alias Hiraeth.Accounts.User
 alias Hiraeth.Catalog.{Edition, Series, SeriesMembership}
 alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
 alias Hiraeth.Imports.{ImportRun, ReviewItem, StagedImportRow}
@@ -10,20 +9,7 @@ if Mix.env() not in [:dev, :test] do
   raise "scripts/seed_browser_qa.exs may only run in dev/test environments"
 end
 
-admin_email = System.get_env("HIRAETH_BROWSER_ADMIN_EMAIL", "real-catalog-admin@example.test")
-admin_password = System.get_env("HIRAETH_BROWSER_ADMIN_PASSWORD", "correct horse battery staple")
-
-admin =
-  User
-  |> Ash.read!(authorize?: false)
-  |> Enum.find(&(to_string(&1.email) == admin_email)) ||
-    User
-    |> Ash.Changeset.for_create(:seed_admin, %{
-      email: admin_email,
-      password: admin_password,
-      display_name: "Browser QA Admin"
-    })
-    |> Ash.create!(authorize?: false)
+catalog_writer = %{id: Ash.UUID.generate(), catalog_write?: true}
 
 edition =
   Edition
@@ -41,7 +27,7 @@ series =
       slug: "browser-qa-series",
       publisher_id: edition.publisher_id
     })
-    |> Ash.create!(actor: admin)
+    |> Ash.create!(actor: catalog_writer)
 
 SeriesMembership
 |> Ash.read!(authorize?: false)
@@ -53,7 +39,7 @@ SeriesMembership
     position: 1,
     label: "1"
   })
-  |> Ash.create!(actor: admin)
+  |> Ash.create!(actor: catalog_writer)
 
 run =
   ImportRun
@@ -65,7 +51,7 @@ run =
       status: "review",
       row_limit: 250
     })
-    |> Ash.create!(actor: admin)
+    |> Ash.create!(actor: catalog_writer)
 
 row =
   StagedImportRow
@@ -82,25 +68,34 @@ row =
       },
       status: "needs_review"
     })
-    |> Ash.create!(actor: admin)
+    |> Ash.create!(actor: catalog_writer)
 
 cache_path = "priv/static/covers/cache/browser-qa-immigrant.png"
 thumbnail_path = "priv/static/covers/cache/browser-qa-immigrant-thumb.png"
 File.mkdir_p!(Path.dirname(cache_path))
 
-File.write!(
-  cache_path,
-  Base.decode64!(
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII="
-  )
-)
+magick = System.find_executable("magick")
 
-File.write!(
-  thumbnail_path,
-  Base.decode64!(
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII="
-  )
-)
+if is_nil(magick) do
+  raise "ImageMagick `magick` is required to generate deterministic browser QA cover art"
+end
+
+cover_svg = """
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="600" viewBox="0 0 400 600">
+  <rect width="400" height="600" fill="#F4EFE6"/>
+  <rect x="28" y="28" width="344" height="544" fill="none" stroke="#A33417" stroke-width="3"/>
+  <text x="200" y="96" text-anchor="middle" font-family="serif" font-size="19" letter-spacing="5" fill="#A33417">DEEP VELLUM</text>
+  <text x="200" y="288" text-anchor="middle" font-family="serif" font-size="56" fill="#1B1714">Immigrant</text>
+  <text x="200" y="344" text-anchor="middle" font-family="serif" font-size="23" fill="#7A7165">Joaquín Zihuatanejo</text>
+  <text x="200" y="492" text-anchor="middle" font-family="monospace" font-size="14" letter-spacing="3" fill="#A39A8C">BROWSER QA COVER</text>
+</svg>
+"""
+
+cover_svg_path = Path.join(Path.dirname(cache_path), "browser-qa-immigrant.svg")
+File.write!(cover_svg_path, cover_svg)
+{_, 0} = System.cmd(magick, [cover_svg_path, cache_path], stderr_to_stdout: true)
+{_, 0} = System.cmd(magick, [cache_path, "-thumbnail", "400x600>", thumbnail_path], stderr_to_stdout: true)
+File.rm(cover_svg_path)
 
 cached_cover =
   CoverAsset
@@ -170,6 +165,6 @@ ReviewItem
     decision: "pending",
     message: "Browser QA missing ISBN review item"
   })
-  |> Ash.create!(actor: admin)
+  |> Ash.create!(actor: catalog_writer)
 
 IO.puts("seeded browser_qa_import review row and cached cover for #{edition.slug}")

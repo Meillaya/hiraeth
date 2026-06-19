@@ -6,8 +6,6 @@ defmodule Hiraeth.DemoFixtures do
   copied publisher metadata, marketing prose, or live catalog descriptions.
   """
 
-  alias Hiraeth.Accounts.User
-
   alias Hiraeth.Catalog.{
     Contribution,
     Contributor,
@@ -134,9 +132,9 @@ defmodule Hiraeth.DemoFixtures do
   def fixtures, do: @fixtures
 
   def seed! do
-    admin = admin_actor!()
+    catalog_writer = catalog_writer_actor!()
 
-    Enum.each(@fixtures, &seed_fixture!(&1, admin))
+    Enum.each(@fixtures, &seed_fixture!(&1, catalog_writer))
     :ok
   end
 
@@ -178,9 +176,9 @@ defmodule Hiraeth.DemoFixtures do
     }
   end
 
-  defp seed_fixture!(fixture, admin) do
+  defp seed_fixture!(fixture, catalog_writer) do
     publisher =
-      find_or_create!(Publisher, :slug, fixture.publisher.slug, fixture.publisher, admin)
+      find_or_create!(Publisher, :slug, fixture.publisher.slug, fixture.publisher, catalog_writer)
 
     series =
       find_or_create!(
@@ -188,7 +186,7 @@ defmodule Hiraeth.DemoFixtures do
         :slug,
         fixture.series.slug,
         Map.put(fixture.series, :publisher_id, publisher.id),
-        admin
+        catalog_writer
       )
 
     work =
@@ -197,7 +195,7 @@ defmodule Hiraeth.DemoFixtures do
         :slug,
         fixture.work.slug,
         Map.put(fixture.work, :publication_state, "published"),
-        admin
+        catalog_writer
       )
 
     edition_attrs =
@@ -205,7 +203,7 @@ defmodule Hiraeth.DemoFixtures do
       |> Map.put(:work_id, work.id)
       |> Map.put(:publisher_id, publisher.id)
 
-    edition = find_or_create!(Edition, :slug, fixture.edition.slug, edition_attrs, admin)
+    edition = find_or_create!(Edition, :slug, fixture.edition.slug, edition_attrs, catalog_writer)
 
     contributor =
       find_or_create!(
@@ -213,16 +211,24 @@ defmodule Hiraeth.DemoFixtures do
         :slug,
         fixture.contributor.slug,
         Map.drop(fixture.contributor, [:role]),
-        admin
+        catalog_writer
       )
 
-    find_or_create_contribution!(edition, contributor, fixture.contributor.role, admin)
-    find_or_create_identifier!(edition, fixture.isbn, admin)
-    find_or_create_series_membership!(series, work, admin)
-    create_source_record!(fixture, publisher, series, work, edition, contributor, admin)
+    find_or_create_contribution!(edition, contributor, fixture.contributor.role, catalog_writer)
+    find_or_create_identifier!(edition, fixture.isbn, catalog_writer)
+    find_or_create_series_membership!(series, work, catalog_writer)
+    create_source_record!(fixture, publisher, series, work, edition, contributor, catalog_writer)
   end
 
-  defp create_source_record!(fixture, publisher, series, work, edition, contributor, admin) do
+  defp create_source_record!(
+         fixture,
+         publisher,
+         series,
+         work,
+         edition,
+         contributor,
+         catalog_writer
+       ) do
     source_uri = "local_demo_fixture:edition:#{edition.slug}"
 
     existing =
@@ -231,7 +237,7 @@ defmodule Hiraeth.DemoFixtures do
       |> Enum.find(&(&1.provider == @provider and &1.source_uri == source_uri))
 
     if existing do
-      ensure_source_ledger_entry!(existing, fixture.edition.title, admin)
+      ensure_source_ledger_entry!(existing, fixture.edition.title, catalog_writer)
       existing
     else
       payload = %{
@@ -266,27 +272,29 @@ defmodule Hiraeth.DemoFixtures do
           source_uri: source_uri,
           file_checksum: fixture_checksum(fixture),
           license_note: @license_note,
+          source_identity: fixture.isbn,
+          edition_id: edition.id,
           raw_payload: payload,
           imported_at: DateTime.utc_now(:second)
         })
-        |> Ash.create!(actor: admin)
+        |> Ash.create!(actor: catalog_writer)
 
-      ensure_source_ledger_entry!(source_record, edition.title, admin)
+      ensure_source_ledger_entry!(source_record, edition.title, catalog_writer)
 
       source_record
     end
   end
 
-  defp find_or_create!(resource, key, value, attrs, admin) do
+  defp find_or_create!(resource, key, value, attrs, catalog_writer) do
     resource
     |> Ash.read!(authorize?: false)
     |> Enum.find(&(Map.get(&1, key) == value)) ||
       resource
       |> Ash.Changeset.for_create(:create, attrs)
-      |> Ash.create!(actor: admin)
+      |> Ash.create!(actor: catalog_writer)
   end
 
-  defp ensure_source_ledger_entry!(source_record, edition_title, admin) do
+  defp ensure_source_ledger_entry!(source_record, edition_title, catalog_writer) do
     existing =
       SourceLedgerEntry
       |> Ash.read!(authorize?: false)
@@ -302,10 +310,10 @@ defmodule Hiraeth.DemoFixtures do
         message: "Seeded fictional demo metadata for #{edition_title} from local_demo_fixture.",
         occurred_at: DateTime.utc_now(:second)
       })
-      |> Ash.create!(actor: admin)
+      |> Ash.create!(actor: catalog_writer)
   end
 
-  defp find_or_create_contribution!(edition, contributor, role, admin) do
+  defp find_or_create_contribution!(edition, contributor, role, catalog_writer) do
     existing =
       Contribution
       |> Ash.read!(authorize?: false)
@@ -321,10 +329,10 @@ defmodule Hiraeth.DemoFixtures do
         role: role,
         position: 1
       })
-      |> Ash.create!(actor: admin)
+      |> Ash.create!(actor: catalog_writer)
   end
 
-  defp find_or_create_identifier!(edition, isbn, admin) do
+  defp find_or_create_identifier!(edition, isbn, catalog_writer) do
     existing = Identifier |> Ash.read!(authorize?: false) |> Enum.find(&(&1.value == isbn))
 
     existing ||
@@ -334,10 +342,10 @@ defmodule Hiraeth.DemoFixtures do
         identifier_type: "isbn_13",
         value: isbn
       })
-      |> Ash.create!(actor: admin)
+      |> Ash.create!(actor: catalog_writer)
   end
 
-  defp find_or_create_series_membership!(series, work, admin) do
+  defp find_or_create_series_membership!(series, work, catalog_writer) do
     existing =
       SeriesMembership
       |> Ash.read!(authorize?: false)
@@ -351,25 +359,11 @@ defmodule Hiraeth.DemoFixtures do
         position: 1,
         label: "Demo"
       })
-      |> Ash.create!(actor: admin)
+      |> Ash.create!(actor: catalog_writer)
   end
 
-  defp admin_actor! do
-    email = "demo-fixtures-admin@example.test"
-
-    case User
-         |> Ash.Changeset.for_create(:seed_admin, %{
-           email: email,
-           password: "correct horse battery staple",
-           display_name: "Demo Fixture Admin"
-         })
-         |> Ash.create(authorize?: false) do
-      {:ok, admin} ->
-        admin
-
-      {:error, _} ->
-        User |> Ash.read!(authorize?: false) |> Enum.find(&(to_string(&1.email) == email))
-    end
+  defp catalog_writer_actor! do
+    %{id: Ash.UUID.generate(), catalog_write?: true}
   end
 
   defp copied_text_findings(records) do

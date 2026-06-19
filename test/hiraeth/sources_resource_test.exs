@@ -1,21 +1,11 @@
 defmodule Hiraeth.SourcesResourceTest do
   use Hiraeth.DataCase, async: true
 
-  alias Hiraeth.Accounts.User
   alias Hiraeth.Sources
   alias Hiraeth.Sources.{CurationOverride, SourceRecord}
 
   setup do
-    admin =
-      User
-      |> Ash.Changeset.for_create(:seed_admin, %{
-        email: "sources-admin-#{System.unique_integer([:positive])}@example.test",
-        password: "correct horse battery staple",
-        display_name: "Sources Admin"
-      })
-      |> Ash.create!(authorize?: false)
-
-    %{admin: admin}
+    %{admin: trusted_catalog_actor()}
   end
 
   test "source records preserve immutable raw payloads", %{admin: admin} do
@@ -59,7 +49,8 @@ defmodule Hiraeth.SourcesResourceTest do
           field_name: "title",
           curated_value: "Curated Display Title",
           reason: "Publisher payload used an internal working title.",
-          source_record_id: source.id
+          source_record_id: source.id,
+          reviewer_id: admin.id
         },
         actor: admin
       )
@@ -75,7 +66,7 @@ defmodule Hiraeth.SourcesResourceTest do
     assert reread.raw_payload == %{"title" => "Raw Publisher Title"}
   end
 
-  test "override writes require an admin actor", %{admin: admin} do
+  test "override writes require a trusted catalog writer", %{admin: admin} do
     source = source_record!(admin, %{"title" => "Raw Publisher Title"})
 
     assert {:error, error} =

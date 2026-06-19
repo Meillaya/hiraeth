@@ -10,7 +10,6 @@ defmodule Hiraeth.Application do
     children = [
       HiraethWeb.Telemetry,
       Hiraeth.Repo,
-      {AshAuthentication.Supervisor, otp_app: :hiraeth},
       {DNSCluster, query: Application.get_env(:hiraeth, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Hiraeth.PubSub},
       # Start a worker by calling: Hiraeth.Worker.start_link(arg)
