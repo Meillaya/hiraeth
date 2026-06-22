@@ -3,9 +3,20 @@ defmodule Hiraeth.Ingestion.CoverPipelineTest do
 
   alias Hiraeth.Ingestion.CoverPipeline
 
+  @fixture_cover_urls [
+    "https://covers.example.test/cover1.jpg",
+    "https://covers.example.test/cover2.jpg",
+    "https://covers.example.test/ok.jpg",
+    "https://covers.example.test/fail.jpg",
+    "https://covers.example.test/rate-1.jpg",
+    "https://covers.example.test/rate-2.jpg",
+    "http://covers.example.test/insecure.jpg",
+    "https://evil.example.test/malicious.jpg"
+  ]
+
   setup do
-    cache_root = Path.expand("priv/static/covers/cache")
-    on_exit(fn -> File.rm_rf!(cache_root) end)
+    cleanup_fixture_covers!()
+    on_exit(&cleanup_fixture_covers!/0)
     :ok
   end
 
@@ -102,11 +113,10 @@ defmodule Hiraeth.Ingestion.CoverPipelineTest do
 
     assert reason =~ "status 500"
 
-    # All-or-nothing: the successful cover should also have been cleaned up
-    ok_path =
-      Path.expand("priv/static/covers/cache/#{sha256("https://covers.example.test/ok.jpg")}.jpg")
+    {ok_path, ok_thumbnail_path} = fixture_cache_paths("https://covers.example.test/ok.jpg")
 
     refute File.exists?(ok_path)
+    refute File.exists?(ok_thumbnail_path)
   end
 
   test "rate limiting respected" do
@@ -215,5 +225,24 @@ defmodule Hiraeth.Ingestion.CoverPipelineTest do
     value
     |> then(&:crypto.hash(:sha256, &1))
     |> Base.encode16(case: :lower)
+  end
+
+  defp cleanup_fixture_covers! do
+    Enum.each(@fixture_cover_urls, fn url ->
+      {cache_path, thumbnail_path} = fixture_cache_paths(url)
+
+      File.rm(cache_path)
+      File.rm(thumbnail_path)
+    end)
+  end
+
+  defp fixture_cache_paths(url) do
+    cache_root = Path.expand(Path.join(["priv", "static", "covers", "cache"]))
+    digest = sha256(url)
+
+    {
+      Path.join(cache_root, "#{digest}.jpg"),
+      Path.join(cache_root, "#{digest}-thumb.jpg")
+    }
   end
 end

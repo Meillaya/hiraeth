@@ -7,7 +7,7 @@ defmodule Hiraeth.Covers do
   @cache_root "priv/static/covers/cache"
   @thumbnail_timeout 5_000
   @thumbnail_command_timeout "5s"
-  @default_max_body_size 10 * 1024 * 1024
+  @default_max_body_size 40 * 1024 * 1024
 
   @accepted_content_types %{
     "image/jpeg" => :jpeg,

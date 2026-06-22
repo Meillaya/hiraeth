@@ -31,7 +31,6 @@ services:
 volumes:
   postgres-data:
   scrapling_cache:
-  cover_cache:
 
 # Template Phoenix service (uncomment to run app in Docker):
 #   phoenix:
@@ -46,5 +45,5 @@ volumes:
 #       postgres: { condition: service_healthy }
 #       scrapling-sidecar: { condition: service_started }
 #     volumes:
-#       - cover_cache:/app/priv/static/covers/cache
+#       - ./priv/static/covers/cache:/app/priv/static/covers/cache
 #     restart: unless-stopped

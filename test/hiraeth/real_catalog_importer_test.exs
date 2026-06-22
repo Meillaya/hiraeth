@@ -94,7 +94,16 @@ defmodule Hiraeth.RealCatalogImporterTest do
     assert Enum.all?(source_records, &is_binary(&1.source_identity))
     assert Enum.all?(source_records, &is_binary(&1.edition_id))
     assert Enum.all?(cover_assets, &(&1.cache_policy == "cache_allowed"))
-    assert Enum.all?(cover_assets, &is_nil(&1.cached_file_path))
+
+    assert Enum.all?(cover_assets, fn asset ->
+             case asset.cached_file_path do
+               nil ->
+                 true
+
+               path ->
+                 String.starts_with?(path, "priv/static/covers/cache/") and File.regular?(path)
+             end
+           end)
 
     synced_asset = Enum.find(cover_assets, &(&1.id == legacy_asset.id))
     assert synced_asset.provider == first_cover.provider

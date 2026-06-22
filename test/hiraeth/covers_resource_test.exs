@@ -308,6 +308,44 @@ defmodule Hiraeth.CoversResourceTest do
     refute File.exists?(expected_cache_path)
   end
 
+  test "cover cache task restores the Bob and Hilbert cover even when it is larger than the old 10 MiB cap",
+       %{
+         admin: admin
+       } do
+    cache_root = unique_cache_root("archipelago-bob-hilbert-large-cover")
+    on_exit(fn -> File.rm_rf!(cache_root) end)
+
+    cover =
+      cover_asset!(admin, %{
+        source_url:
+          "https://archipelagobooks.org/wp-content/uploads/2026/06/9781962770651.jpg?cap=old",
+        provider: "archipelago_books_official_store",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed",
+        cached_file_path: nil
+      })
+
+    large_body = large_jpeg_bytes(34_712_921)
+
+    summary =
+      Covers.cache_public_covers!(
+        cache_root: cache_root,
+        source_urls: [cover.source_url],
+        fetch: fn
+          "https://archipelagobooks.org/wp-content/uploads/2026/06/9781962770651.jpg?cap=old" ->
+            large_body
+        end,
+        thumbnailer: fn _cache_path, thumbnail_path ->
+          File.write!(thumbnail_path, "fake thumbnail bytes")
+          {:ok, thumbnail_path}
+        end
+      )
+
+    assert %{cached: 1, skipped: 0, failed: 0, assets: [cached_asset]} = summary
+    assert File.read!(cached_asset.cached_file_path) == large_body
+    assert File.read!(cached_asset.thumbnail_file_path) == "fake thumbnail bytes"
+  end
+
   test "default cover fetch streams and halts oversized responses before materializing the full body",
        %{
          admin: admin
@@ -1103,6 +1141,12 @@ defmodule Hiraeth.CoversResourceTest do
 
   defp jpeg_bytes do
     <<0xFF, 0xD8, 0xFF, 0xE0, "fixture-jpeg-raster-bytes", 0xFF, 0xD9>>
+  end
+
+  defp large_jpeg_bytes(size) when is_integer(size) and size > 0 do
+    header = jpeg_bytes()
+    padding = size - byte_size(header)
+    header <> String.duplicate("x", padding)
   end
 
   defp alternate_jpeg_bytes do
