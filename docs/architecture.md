@@ -18,14 +18,14 @@ Hiraeth is an Elixir-first Phoenix application for browsing carefully curated in
 
 ## Background work boundary
 
-- No Oban in v1. Imports, normalization, cover processing, and provenance audits should remain synchronous or Mix-task driven until a later task proves background scheduling is required.
-- If background jobs are introduced later, they must keep provenance and idempotency semantics explicit. Add Oban only in a future plan when imports exceed synchronous limits or enrichment/audit work requires retries, scheduling, cancellation, or replay controls.
+- Imports, normalization, cover processing, and provenance audits are synchronous or Mix-task driven by default. Oban is allowed when a requirement proves synchronous processing is insufficient, such as when imports exceed synchronous limits, and the job needs retries, scheduling, cancellation, or replay controls.
+- When introduced, background jobs must preserve provenance and idempotency semantics explicitly.
 
 ## Data and provenance rules
 
 - Tests must use deterministic fixtures for publishers, books, contributors, editions, external identifiers, imports, and covers.
 - Do not use random data or Faker-style generators for catalog/import tests.
-- Do not scrape publisher or bookstore websites. Use explicit fixtures, user-provided files, documented public APIs, or sources with clear permission.
+- Scraping is allowed exclusively via Scrapling (`https://github.com/D4Vinci/Scrapling`). Use explicit fixtures, user-provided files, documented public APIs, sites scraped through Scrapling, or sources with clear permission. Do not add custom crawlers or scraping frameworks beyond Scrapling.
 - Every imported metadata value and cover asset should be traceable to a source provider, source record, and import run.
 
 

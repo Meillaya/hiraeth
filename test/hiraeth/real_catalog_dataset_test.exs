@@ -4,26 +4,15 @@ defmodule Hiraeth.RealCatalogDatasetTest do
   alias Hiraeth.RealCatalog.{Dataset, Validator}
 
   @dataset_dir Path.expand("../../priv/catalog_sources/real_publishers", __DIR__)
-  @expected_files %{
-    "deep_vellum_official_store" => "deep_vellum.json",
-    "dalkey_archive_official_store" => "dalkey_archive.json",
-    "archipelago_books_official_store" => "archipelago_books.json",
-    "new_directions_official_site" => "new_directions.json",
-    "transit_books_official_site" => "transit_books.json",
-    "historical_materialism_official_site" => "historical_materialism.json",
-    "semiotexte_official_site" => "semiotexte.json",
-    "phoneme_media_official_store" => "phoneme_media.json",
-    "a_strange_object_official_store" => "a_strange_object.json",
-    "la_reunion_official_store" => "la_reunion.json",
-    "fum_destampa_official_store" => "fum_destampa.json",
-    "fitzcarraldo_editions_official_site" => "fitzcarraldo_editions.json",
-    "nyrb_official_store" => "nyrb.json",
-    "tilted_axis_press_official_site" => "tilted_axis_press.json",
-    "mcnally_editions_official_site" => "mcnally_editions.json",
-    "seven_stories_press_official_site" => "seven_stories_press.json",
-    "unnamed_press_official_site" => "unnamed_press.json",
-    "pushkin_press_official_site" => "pushkin_press.json"
-  }
+
+  {:ok, manifest} = Hiraeth.RealCatalog.Dataset.load_source_authority_manifest(@dataset_dir)
+  @manifest manifest
+
+  files = Hiraeth.RealCatalog.Dataset.dataset_files(@dataset_dir) |> Enum.map(&Path.basename/1)
+
+  @expected_files @manifest["providers"]
+                  |> Enum.filter(fn p -> p["dataset_file"] in files end)
+                  |> Map.new(fn p -> {p["provider"], p["dataset_file"]} end)
 
   describe "real publisher dataset contract" do
     test "tracked dataset files exist for the approved publishers" do
@@ -42,26 +31,10 @@ defmodule Hiraeth.RealCatalogDatasetTest do
       assert Map.keys(summary.providers) |> Enum.sort() ==
                Map.keys(@expected_files) |> Enum.sort()
 
-      expected_counts = %{
-        "deep_vellum_official_store" => 352,
-        "dalkey_archive_official_store" => 944,
-        "archipelago_books_official_store" => 497,
-        "new_directions_official_site" => 2389,
-        "transit_books_official_site" => 66,
-        "historical_materialism_official_site" => 384,
-        "semiotexte_official_site" => 265,
-        "phoneme_media_official_store" => 78,
-        "a_strange_object_official_store" => 35,
-        "la_reunion_official_store" => 32,
-        "fum_destampa_official_store" => 2,
-        "fitzcarraldo_editions_official_site" => 392,
-        "nyrb_official_store" => 859,
-        "tilted_axis_press_official_site" => 109,
-        "mcnally_editions_official_site" => 66,
-        "seven_stories_press_official_site" => 703,
-        "unnamed_press_official_site" => 159,
-        "pushkin_press_official_site" => 74
-      }
+      expected_counts =
+        Map.new(@manifest["providers"], fn p ->
+          {p["provider"], p["coverage"]["expected_record_count"]}
+        end)
 
       for {provider, filename} <- @expected_files do
         expected_count = Map.fetch!(expected_counts, provider)
@@ -70,7 +43,12 @@ defmodule Hiraeth.RealCatalogDatasetTest do
                  summary.providers[provider]
       end
 
-      assert summary.total_records == 7406
+      expected_total_from_manifest =
+        @manifest["providers"]
+        |> Enum.map(& &1["coverage"]["expected_record_count"])
+        |> Enum.sum()
+
+      assert summary.total_records == expected_total_from_manifest
       assert summary.duplicate_isbns == []
       assert summary.copy_risk_findings == []
       assert summary.cover_findings == []

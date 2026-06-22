@@ -1,0 +1,26 @@
+{
+  "provider": "test_publisher_scrape_implicit",
+  "name": "Test Publisher (Implicit Scrape)",
+  "source_urls": ["https://www.testscraper.com/catalog"],
+  "source_hosts": ["www.testscraper.com"],
+  "cover_hosts": ["images.testscraper.com"],
+  "spider": {
+    "module": "test_scraper",
+    "start_urls": ["https://www.testscraper.com/catalog"],
+    "selectors": {
+      "item": ".book",
+      "title": ".title::text"
+    }
+  },
+  "rate_limit": {
+    "max_concurrency": 2,
+    "min_delay_ms": 500,
+    "max_bytes": 10485760
+  },
+  "expected_record_count": 150,
+  "permission_basis": "Official publisher pages expose public catalog facts.",
+  "takedown_contact": "contact@testscraper.com",
+  "excluded_content": ["raw_html", "prices", "reviews"],
+  "cover_cache_policy": "cache_allowed",
+  "not_legal_advice": true
+}

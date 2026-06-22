@@ -1,0 +1,162 @@
+{
+  "provider": "test_provider_official_site",
+  "retrieved_at": "2026-01-15T00:00:00Z",
+  "license_note": "Test fixture for provider-level import tests.",
+  "provider_permissions": {
+    "provider": "test_provider_official_site",
+    "source_urls": ["https://example.com/catalog"],
+    "source_hosts": ["example.com"],
+    "cover_hosts": ["example.com"],
+    "permission_basis": "Test fixture - deterministic data for import tests.",
+    "cover_cache_policy": "cache_allowed",
+    "excluded_content": ["cart_checkout_account"],
+    "takedown_contact": "https://example.com/contact",
+    "not_legal_advice": "Test fixture; not legal advice."
+  },
+  "records": [
+    {
+      "source_uri": "https://example.com/books/test-book-1",
+      "source_product_id": "test-prod-001",
+      "source_sku": "9780000000019",
+      "publisher": "Test Provider Press",
+      "imprint": null,
+      "work": {
+        "title": "Test Book One",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published",
+        "subjects": ["fiction"]
+      },
+      "edition": {
+        "title": "Test Book One",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-01-15",
+        "isbn_13": "9780000000019"
+      },
+      "contributors": [
+        {"name": "Author One", "role": "author"}
+      ],
+      "displayed_fields": ["title", "contributors", "publisher", "format", "published_on", "isbn_13", "subjects", "cover"],
+      "curation": {"status": "approved", "notes": null},
+      "storefront_url": "https://example.com/books/test-book-1",
+      "field_sources": {
+        "title": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-1", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "contributors": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-1", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "publisher": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-1", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "format": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-1", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "published_on": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-1", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "isbn_13": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-1", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "subjects": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-1", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "cover": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-1", "source_type": "publisher_dataset", "rights_basis": "Test fixture."}
+      },
+      "cover": {
+        "source_url": "https://example.com/covers/test-book-1.jpg",
+        "provider": "test_provider_official_site",
+        "rights_basis": "provider_link_allowed",
+        "attribution_text": "Cover image courtesy of Test Provider Press",
+        "attribution_url": "https://example.com",
+        "cache_policy": "cache_allowed"
+      }
+    },
+    {
+      "source_uri": "https://example.com/books/test-book-2",
+      "source_product_id": "test-prod-002",
+      "source_sku": "9780000000026",
+      "publisher": "Test Provider Press",
+      "imprint": "Test Imprint",
+      "work": {
+        "title": "Test Book Two",
+        "subtitle": "A Sequel",
+        "original_title": null,
+        "publication_state": "published",
+        "subjects": ["fiction", "science fiction"]
+      },
+      "edition": {
+        "title": "Test Book Two",
+        "subtitle": "A Sequel",
+        "format": "hardcover",
+        "published_on": "2026-02-20",
+        "isbn_13": "9780000000026"
+      },
+      "contributors": [
+        {"name": "Author Two", "role": "author"},
+        {"name": "Translator One", "role": "translator"}
+      ],
+      "displayed_fields": ["title", "contributors", "publisher", "imprint", "format", "published_on", "isbn_13", "subjects", "cover"],
+      "curation": {"status": "approved", "notes": null},
+      "storefront_url": "https://example.com/books/test-book-2",
+      "field_sources": {
+        "title": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-2", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "contributors": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-2", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "publisher": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-2", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "imprint": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-2", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "format": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-2", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "published_on": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-2", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "isbn_13": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-2", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "subjects": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-2", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "cover": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-2", "source_type": "publisher_dataset", "rights_basis": "Test fixture."}
+      },
+      "cover": {
+        "source_url": "https://example.com/covers/test-book-2.jpg",
+        "provider": "test_provider_official_site",
+        "rights_basis": "provider_link_allowed",
+        "attribution_text": "Cover image courtesy of Test Provider Press",
+        "attribution_url": "https://example.com",
+        "cache_policy": "cache_allowed"
+      }
+    },
+    {
+      "source_uri": "https://example.com/books/test-book-3",
+      "source_product_id": "test-prod-003",
+      "source_sku": "9780000000033",
+      "publisher": "Test Provider Press",
+      "imprint": null,
+      "work": {
+        "title": "Test Book Three",
+        "subtitle": null,
+        "original_title": "Libro de Prueba Tres",
+        "original_language_code": "spa",
+        "publication_state": "published",
+        "subjects": ["fiction", "literary"]
+      },
+      "edition": {
+        "title": "Test Book Three",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-03-10",
+        "isbn_13": "9780000000033",
+        "language_code": "eng",
+        "page_count": 320
+      },
+      "contributors": [
+        {"name": "Author Three", "role": "author"}
+      ],
+      "displayed_fields": ["title", "contributors", "publisher", "format", "published_on", "isbn_13", "subjects", "original_title", "original_language_code", "language_code", "page_count", "cover"],
+      "curation": {"status": "approved", "notes": null},
+      "storefront_url": "https://example.com/books/test-book-3",
+      "field_sources": {
+        "title": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-3", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "contributors": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-3", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "publisher": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-3", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "format": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-3", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "published_on": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-3", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "isbn_13": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-3", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "subjects": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-3", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "original_title": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-3", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "original_language_code": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-3", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "language_code": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-3", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "page_count": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-3", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "cover": {"provider": "test_provider_official_site", "source_uri": "https://example.com/books/test-book-3", "source_type": "publisher_dataset", "rights_basis": "Test fixture."}
+      },
+      "cover": {
+        "source_url": "https://example.com/covers/test-book-3.jpg",
+        "provider": "test_provider_official_site",
+        "rights_basis": "provider_link_allowed",
+        "attribution_text": "Cover image courtesy of Test Provider Press",
+        "attribution_url": "https://example.com",
+        "cache_policy": "cache_allowed"
+      }
+    }
+  ]
+}

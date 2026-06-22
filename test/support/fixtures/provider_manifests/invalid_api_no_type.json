@@ -1,0 +1,16 @@
+{
+  "provider": "test_api_no_type",
+  "name": "Test API No Type",
+  "source_mode": "api",
+  "source_urls": ["https://www.example.com"],
+  "source_hosts": ["www.example.com"],
+  "cover_hosts": ["cdn.example.com"],
+  "api": {
+    "endpoint": "https://www.example.com/api"
+  },
+  "permission_basis": "Test.",
+  "takedown_contact": "test@example.com",
+  "excluded_content": ["raw_html"],
+  "cover_cache_policy": "cache_allowed",
+  "not_legal_advice": true
+}

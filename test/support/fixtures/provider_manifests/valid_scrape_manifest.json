@@ -1,0 +1,29 @@
+{
+  "provider": "test_publisher_scrape",
+  "name": "Test Publisher (Scrape)",
+  "source_mode": "scrape",
+  "source_urls": ["https://www.testscraper.com/catalog"],
+  "source_hosts": ["www.testscraper.com"],
+  "cover_hosts": ["images.testscraper.com"],
+  "api": {},
+  "spider": {
+    "module": "Hiraeth.Ingestion.Spiders.TestScraper",
+    "start_urls": ["https://www.testscraper.com/catalog"],
+    "selectors": {
+      "book": ".book-item",
+      "title": ".book-title",
+      "author": ".book-author"
+    }
+  },
+  "rate_limit": {
+    "max_concurrency": 1,
+    "min_delay_ms": 1000,
+    "max_bytes": 5242880
+  },
+  "expected_record_count": 75,
+  "permission_basis": "Official publisher pages expose public catalog facts.",
+  "takedown_contact": "takedown@testscraper.com",
+  "excluded_content": ["raw_html", "jacket_copy_dumps"],
+  "cover_cache_policy": "cache_allowed",
+  "not_legal_advice": true
+}

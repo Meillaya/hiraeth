@@ -1,0 +1,28 @@
+{
+  "provider": "test_publisher_api",
+  "name": "Test Publisher (API)",
+  "source_mode": "api",
+  "source_urls": ["https://www.testpublisher.com/books"],
+  "source_hosts": ["www.testpublisher.com"],
+  "cover_hosts": ["cdn.testpublisher.com"],
+  "api": {
+    "type": "shopify",
+    "endpoint": "https://www.testpublisher.com/api/graphql",
+    "auth": {
+      "method": "api_key",
+      "key_env": "TEST_PUBLISHER_API_KEY"
+    }
+  },
+  "spider": {},
+  "rate_limit": {
+    "max_concurrency": 2,
+    "min_delay_ms": 500,
+    "max_bytes": 10485760
+  },
+  "expected_record_count": "fifty",
+  "permission_basis": "Official publisher pages expose public catalog facts.",
+  "takedown_contact": "contact@testpublisher.com",
+  "excluded_content": ["raw_html", "prices", "reviews"],
+  "cover_cache_policy": "cache_allowed",
+  "not_legal_advice": true
+}

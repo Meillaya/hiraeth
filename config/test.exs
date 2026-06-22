@@ -43,3 +43,7 @@ config :phoenix_live_view,
 # Sort query params output of verified routes for robust url comparisons
 config :phoenix,
   sort_verified_routes_query_params: true
+
+config :hiraeth, Oban, testing: :manual
+
+config :hiraeth, :scrapling_sidecar, base_url: "http://localhost:8000"

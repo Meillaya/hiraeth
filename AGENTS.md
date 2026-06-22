@@ -8,12 +8,11 @@ This is a web application written using the Phoenix web framework.
 - Ash resources and Ash actions are the domain source of truth. Keep business rules, identities, relationships, validations, and policies in Ash resources instead of controllers or templates.
 - Use AshPostgres for persistence and AshPhoenix for Phoenix-facing Ash integrations.
 - No JSON API in v1 unless a future task explicitly requires one; LiveView is the product interface.
-- No Oban in v1. Add background jobs only when a later requirement proves synchronous import or cover processing is insufficient.
+- Oban is allowed in v1 when a requirement proves synchronous import or cover processing is insufficient. Prefer synchronous/Mix-task execution by default; introduce Oban only when the job genuinely needs retries, scheduling, cancellation, or replay controls.
 - Use TDD for domain behavior, ingestion, normalization, provenance, cover handling, and UI flows.
 - Catalog/import tests must use deterministic fixtures. Do not use random data or Faker-style generators for catalog metadata tests.
-- Do not scrape publisher or bookstore websites. Import only from explicit fixtures, user-provided files, documented public APIs, or sources with clear permission.
-- When a future task explicitly authorizes publisher-site crawling/scraping, integrate/evaluate Scrapling (`https://github.com/D4Vinci/Scrapling`) as the preferred extraction framework for resilient catalog crawling before adding custom crawlers. Keep the existing source-allowlist, rate-limit, max-byte, checksum, deterministic-fixture, provenance, and no-cart/account/checkout constraints in force.
-- Project stance: separate publisher permission is not required for displaying sourced book metadata or cover images when Hiraeth is acting as a non-commerce discovery catalog and every book entry links to the official publisher purchase page; this does not relax the no-scraping, official-source, deterministic-fixture, or provenance requirements.
+- Scraping is allowed exclusively via Scrapling (`https://github.com/D4Vinci/Scrapling`). Import from explicit fixtures, user-provided files, documented public APIs, sites scraped through Scrapling, or sources with clear permission. Keep the existing source-allowlist, rate-limit, max-byte, checksum, deterministic-fixture, provenance, and no-cart/account/checkout constraints in force. Do not add custom crawlers or scraping frameworks beyond Scrapling.
+- Project stance: separate publisher permission is not required for displaying sourced book metadata or cover images when Hiraeth is acting as a non-commerce discovery catalog and every book entry links to the official publisher purchase page; this does not relax the official-source, deterministic-fixture, or provenance requirements.
 - Preserve source provenance for imported metadata and cover assets so every value can be traced to a provider, source record, and import run.
 - Public social features are out of scope for v1; keep the product focused on browsing curated indie publisher and bookstore catalogs.
 

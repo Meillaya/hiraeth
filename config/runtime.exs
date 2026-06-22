@@ -23,6 +23,9 @@ end
 config :hiraeth, HiraethWeb.Endpoint,
   http: [port: String.to_integer(System.get_env("PORT", "4000"))]
 
+config :hiraeth, :scrapling_sidecar,
+  base_url: System.get_env("SCRAPLING_SIDECAR_URL") || "http://localhost:8000"
+
 if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||

@@ -10,26 +10,8 @@ defmodule Hiraeth.RealCatalogSourceManifestTest do
 
   @dataset_dir Path.expand("../../priv/catalog_sources/real_publishers", __DIR__)
 
-  @expected_providers %{
-    "deep_vellum_official_store" => "deep_vellum.json",
-    "dalkey_archive_official_store" => "dalkey_archive.json",
-    "archipelago_books_official_store" => "archipelago_books.json",
-    "new_directions_official_site" => "new_directions.json",
-    "transit_books_official_site" => "transit_books.json",
-    "historical_materialism_official_site" => "historical_materialism.json",
-    "semiotexte_official_site" => "semiotexte.json",
-    "phoneme_media_official_store" => "phoneme_media.json",
-    "a_strange_object_official_store" => "a_strange_object.json",
-    "la_reunion_official_store" => "la_reunion.json",
-    "fum_destampa_official_store" => "fum_destampa.json",
-    "fitzcarraldo_editions_official_site" => "fitzcarraldo_editions.json",
-    "nyrb_official_store" => "nyrb.json",
-    "tilted_axis_press_official_site" => "tilted_axis_press.json",
-    "mcnally_editions_official_site" => "mcnally_editions.json",
-    "seven_stories_press_official_site" => "seven_stories_press.json",
-    "unnamed_press_official_site" => "unnamed_press.json",
-    "pushkin_press_official_site" => "pushkin_press.json"
-  }
+  manifest = @manifest_path |> File.read!() |> Jason.decode!()
+  @expected_providers Map.new(manifest["providers"], &{&1["provider"], &1["dataset_file"]})
 
   describe "source authority manifest" do
     test "covers all current real publisher fixtures" do

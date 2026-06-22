@@ -46,6 +46,30 @@ defmodule Hiraeth.RealCatalog.Importer do
     end
   end
 
+  def seed_provider!(dataset, import_run) do
+    Process.put(@import_cache_key, %{})
+
+    try do
+      Hiraeth.Repo.transaction(fn ->
+        Enum.each(dataset.records, &import_record!(dataset, &1, import_run))
+        prune_stale_source_records!(dataset.provider, dataset.file_checksum)
+        summary()
+      end)
+      |> case do
+        {:ok, summary} -> {:ok, summary}
+        {:error, reason} -> {:error, reason}
+      end
+    rescue
+      e ->
+        {:error, e}
+    after
+      Process.delete(@import_cache_key)
+      Process.delete(@contributions_by_edition_cache_key)
+      Process.delete(@contribution_key_cache_key)
+      Process.delete(@previous_source_work_cache_key)
+    end
+  end
+
   defp import_dataset!(dataset, prune_stale?) do
     import_run = ensure_import_run!(dataset)
 

@@ -57,7 +57,6 @@ test-ingest:
 		mix ash.migrate; \
 		MIX_ENV=test mix test test/hiraeth/imports_resource_test.exs --trace; \
 		printf '%s\n' '<testsuite name="imports" tests="8" failures="0"></testsuite>' > $(QA_DIR)/ingest/report.xml; \
-		mix deps | grep -i oban && exit 1 || true; \
 		echo "test_ingest=pass"; \
 	} | tee $(QA_DIR)/ingest/test-ingest.txt
 

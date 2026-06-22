@@ -1,0 +1,17 @@
+{
+  "provider": "test_non_https",
+  "name": "Test Non-HTTPS",
+  "source_mode": "api",
+  "source_urls": ["http://www.example.com/books", "https://www.example.com/books"],
+  "source_hosts": ["www.example.com"],
+  "cover_hosts": ["cdn.example.com"],
+  "api": {
+    "type": "shopify",
+    "endpoint": "https://www.example.com/api"
+  },
+  "permission_basis": "Test.",
+  "takedown_contact": "test@example.com",
+  "excluded_content": ["raw_html"],
+  "cover_cache_policy": "cache_allowed",
+  "not_legal_advice": true
+}

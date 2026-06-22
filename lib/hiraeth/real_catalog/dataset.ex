@@ -9,6 +9,12 @@ defmodule Hiraeth.RealCatalog.Dataset do
   def default_dir, do: @dataset_dir
   def source_authority_manifest_file, do: @source_authority_manifest_file
 
+  @doc """
+  Recursively converts string keys in a decoded JSON value to the atom keys
+  used by catalog records. Unknown keys remain strings.
+  """
+  def normalize(value), do: atomize(value)
+
   def load_dir(dir \\ @dataset_dir) do
     dir
     |> dataset_files()
@@ -71,8 +77,11 @@ defmodule Hiraeth.RealCatalog.Dataset do
 
   defp atomize(map) when is_map(map) do
     Map.new(map, fn
-      {"field_sources", value} -> {:field_sources, atomize_field_sources(value)}
-      {key, value} -> {atom_key(key), atomize(value)}
+      {key, value} when key in ["field_sources", :field_sources] ->
+        {:field_sources, atomize_field_sources(value)}
+
+      {key, value} ->
+        {atom_key(key), atomize(value)}
     end)
   end
 

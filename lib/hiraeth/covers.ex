@@ -378,7 +378,8 @@ defmodule Hiraeth.Covers do
 
   defp run_thumbnailer(_thumbnailer, _source_path, _thumbnail_path, _timeout), do: :error
 
-  defp generate_thumbnail(source_path, thumbnail_path) do
+  @doc false
+  def generate_thumbnail(source_path, thumbnail_path) do
     with magick when is_binary(magick) <- System.find_executable("magick"),
          timeout when is_binary(timeout) <- System.find_executable("timeout"),
          {_, 0} <-
@@ -561,7 +562,8 @@ defmodule Hiraeth.Covers do
 
   defp expanded_cache_root, do: Path.expand(@cache_root)
 
-  defp req_fetch!(url, req_options, max_body_size) do
+  @doc false
+  def req_fetch!(url, req_options, max_body_size) do
     request_url = encoded_cover_request_url(url)
 
     req_options =

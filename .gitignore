@@ -36,6 +36,8 @@ erl_crash.dump
 *.pyc
 __pycache__/
 .pytest_cache/
+.venv/
+*.egg-info/
 
 # Local editor/cache files
 /.cache/

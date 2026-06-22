@@ -1,0 +1,219 @@
+defmodule Hiraeth.Ingestion.CoverPipelineTest do
+  use ExUnit.Case, async: true
+
+  alias Hiraeth.Ingestion.CoverPipeline
+
+  setup do
+    cache_root = Path.expand("priv/static/covers/cache")
+    on_exit(fn -> File.rm_rf!(cache_root) end)
+    :ok
+  end
+
+  test "all covers download successfully" do
+    plug = fn conn ->
+      conn
+      |> Plug.Conn.put_resp_content_type("image/jpeg")
+      |> Plug.Conn.resp(200, jpeg_bytes())
+    end
+
+    cover_urls = [
+      %{
+        source_url: "https://covers.example.test/cover1.jpg",
+        provider: "fixture-covers",
+        rights_basis: "local_cache_permitted",
+        attribution_text: "Test 1"
+      },
+      %{
+        source_url: "https://covers.example.test/cover2.jpg",
+        provider: "fixture-covers",
+        rights_basis: "local_cache_permitted",
+        attribution_text: "Test 2"
+      }
+    ]
+
+    provider_config = %{
+      max_concurrency: 2,
+      req_options: [plug: plug],
+      thumbnailer: fn _source_path, thumbnail_path ->
+        File.write!(thumbnail_path, "fake thumbnail bytes")
+        {:ok, thumbnail_path}
+      end
+    }
+
+    assert {:ok, cover_paths} = CoverPipeline.download_and_cache!(cover_urls, provider_config)
+
+    assert map_size(cover_paths) == 2
+
+    for cover <- cover_urls do
+      assert %{cached_file_path: cached_path, thumbnail_file_path: thumb_path} =
+               cover_paths[cover.source_url]
+
+      assert File.exists?(cached_path)
+      assert File.read!(cached_path) == jpeg_bytes()
+      assert File.exists?(thumb_path)
+      assert File.read!(thumb_path) == "fake thumbnail bytes"
+    end
+  end
+
+  test "one cover fails returns error and cleans up all covers" do
+    plug = fn conn ->
+      if conn.request_path == "/fail.jpg" do
+        conn
+        |> Plug.Conn.put_resp_content_type("text/html")
+        |> Plug.Conn.resp(500, "server error")
+      else
+        conn
+        |> Plug.Conn.put_resp_content_type("image/jpeg")
+        |> Plug.Conn.resp(200, jpeg_bytes())
+      end
+    end
+
+    cover_urls = [
+      %{
+        source_url: "https://covers.example.test/ok.jpg",
+        provider: "fixture-covers",
+        rights_basis: "local_cache_permitted",
+        attribution_text: "Test"
+      },
+      %{
+        source_url: "https://covers.example.test/fail.jpg",
+        provider: "fixture-covers",
+        rights_basis: "local_cache_permitted",
+        attribution_text: "Test"
+      }
+    ]
+
+    provider_config = %{
+      max_concurrency: 2,
+      req_options: [plug: plug, retry: false],
+      thumbnailer: fn _source_path, thumbnail_path ->
+        File.write!(thumbnail_path, "fake thumbnail bytes")
+        {:ok, thumbnail_path}
+      end
+    }
+
+    assert {:error, failed_covers} =
+             CoverPipeline.download_and_cache!(cover_urls, provider_config)
+
+    assert length(failed_covers) == 1
+
+    assert %{source_url: "https://covers.example.test/fail.jpg", reason: reason} =
+             hd(failed_covers)
+
+    assert reason =~ "status 500"
+
+    # All-or-nothing: the successful cover should also have been cleaned up
+    ok_path =
+      Path.expand("priv/static/covers/cache/#{sha256("https://covers.example.test/ok.jpg")}.jpg")
+
+    refute File.exists?(ok_path)
+  end
+
+  test "rate limiting respected" do
+    plug = fn conn ->
+      Process.sleep(30)
+
+      conn
+      |> Plug.Conn.put_resp_content_type("image/jpeg")
+      |> Plug.Conn.resp(200, jpeg_bytes())
+    end
+
+    cover_urls = [
+      %{
+        source_url: "https://covers.example.test/rate-1.jpg",
+        provider: "fixture-covers",
+        rights_basis: "local_cache_permitted",
+        attribution_text: "Test"
+      },
+      %{
+        source_url: "https://covers.example.test/rate-2.jpg",
+        provider: "fixture-covers",
+        rights_basis: "local_cache_permitted",
+        attribution_text: "Test"
+      }
+    ]
+
+    provider_config_serial = %{
+      max_concurrency: 1,
+      req_options: [plug: plug],
+      thumbnailer: fn _source_path, thumbnail_path ->
+        File.write!(thumbnail_path, "fake thumbnail bytes")
+        {:ok, thumbnail_path}
+      end
+    }
+
+    {time_serial, {:ok, paths_serial}} =
+      :timer.tc(fn ->
+        CoverPipeline.download_and_cache!(cover_urls, provider_config_serial)
+      end)
+
+    # Clean up for parallel run
+    Enum.each(paths_serial, fn {_url, %{cached_file_path: path, thumbnail_file_path: thumb}} ->
+      File.rm(path)
+      File.rm(thumb)
+    end)
+
+    provider_config_parallel = %{
+      max_concurrency: 2,
+      req_options: [plug: plug],
+      thumbnailer: fn _source_path, thumbnail_path ->
+        File.write!(thumbnail_path, "fake thumbnail bytes")
+        {:ok, thumbnail_path}
+      end
+    }
+
+    {time_parallel, {:ok, _paths_parallel}} =
+      :timer.tc(fn ->
+        CoverPipeline.download_and_cache!(cover_urls, provider_config_parallel)
+      end)
+
+    # Serial should take roughly 2x as long as parallel
+    assert time_serial > time_parallel
+  end
+
+  test "non-HTTPS URL rejected" do
+    cover_urls = [
+      %{
+        source_url: "http://covers.example.test/insecure.jpg",
+        provider: "fixture-covers",
+        rights_basis: "local_cache_permitted",
+        attribution_text: "Test"
+      }
+    ]
+
+    provider_config = %{max_concurrency: 1}
+
+    assert {:error, [%{source_url: "http://covers.example.test/insecure.jpg", reason: reason}]} =
+             CoverPipeline.download_and_cache!(cover_urls, provider_config)
+
+    assert reason =~ "HTTPS"
+  end
+
+  test "non-allowlisted host rejected" do
+    cover_urls = [
+      %{
+        source_url: "https://evil.example.test/malicious.jpg",
+        provider: "fixture-covers",
+        rights_basis: "local_cache_permitted",
+        attribution_text: "Test"
+      }
+    ]
+
+    provider_config = %{max_concurrency: 1}
+
+    assert {:error, [%{source_url: "https://evil.example.test/malicious.jpg", reason: reason}]} =
+             CoverPipeline.download_and_cache!(cover_urls, provider_config)
+
+    assert reason =~ "allowlisted"
+  end
+
+  defp jpeg_bytes do
+    <<0xFF, 0xD8, 0xFF, 0xE0, "fixture-jpeg-raster-bytes", 0xFF, 0xD9>>
+  end
+
+  defp sha256(value) do
+    value
+    |> then(&:crypto.hash(:sha256, &1))
+    |> Base.encode16(case: :lower)
+  end
+end

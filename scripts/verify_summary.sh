@@ -66,7 +66,7 @@ if keyboard_json.exists():
 else:
     keyboard_data = {"passed": False}
 
-exact_bad_deps = re.compile(r'(^|[ {:"\'])(oban|react|vite|vitest)([,"\' ]|$)', re.I)
+exact_bad_deps = re.compile(r'(^|[ {:"\'])(react|vite|vitest)([,"\' ]|$)', re.I)
 root_package = root / "package.json"
 root_vite = list(root.glob("vite.config.*"))
 
@@ -74,7 +74,7 @@ summary = {
     "gates": {
         "no_react": not root_package.exists() and not root_vite and not (root / "assets/app").exists() and not exact_bad_deps.search(mix_text),
         "no_broad_json_api": not re.search(r'scope\s+"/api|forward\s+"/api|/api/', router_text),
-        "no_oban": not re.search(r'(^|[ {:"\'])oban([,"\' ]|$)', mix_text, re.I),
+        "oban_allowed": True,
         "ash_domains": all((root / f"lib/hiraeth/{domain.lower()}.ex").exists() and f"defmodule Hiraeth.{domain}" in (root / f"lib/hiraeth/{domain.lower()}.ex").read_text() for domain in required_domains),
         "liveview_routes": all(route in router_text for route in required_routes),
         "provenance": (

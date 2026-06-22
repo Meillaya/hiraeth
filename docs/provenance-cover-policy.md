@@ -45,4 +45,4 @@ The provider gate records `cover_cache_policy: "cache_allowed"` with allowlisted
 
 ## Oban deferral
 
-No Oban in v1. If imports exceed synchronous limits or need retries/scheduling, add Oban in a future plan with idempotent jobs, provenance-preserving retry semantics, audit events, and clear failure/replay controls.
+Oban is allowed when synchronous execution is insufficient. When introduced, background jobs must use idempotent jobs, provenance-preserving retry semantics, audit events, and clear failure/replay controls.

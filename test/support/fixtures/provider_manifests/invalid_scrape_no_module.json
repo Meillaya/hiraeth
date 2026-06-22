@@ -1,0 +1,16 @@
+{
+  "provider": "test_scrape_no_module",
+  "name": "Test Scrape No Module",
+  "source_mode": "scrape",
+  "source_urls": ["https://www.example.com"],
+  "source_hosts": ["www.example.com"],
+  "cover_hosts": ["cdn.example.com"],
+  "spider": {
+    "start_urls": ["https://www.example.com"]
+  },
+  "permission_basis": "Test.",
+  "takedown_contact": "test@example.com",
+  "excluded_content": ["raw_html"],
+  "cover_cache_policy": "cache_allowed",
+  "not_legal_advice": true
+}

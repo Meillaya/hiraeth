@@ -12,6 +12,7 @@ defmodule Hiraeth.Application do
       Hiraeth.Repo,
       {DNSCluster, query: Application.get_env(:hiraeth, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Hiraeth.PubSub},
+      {Oban, Application.fetch_env!(:hiraeth, Oban)},
       # Start a worker by calling: Hiraeth.Worker.start_link(arg)
       # {Hiraeth.Worker, arg},
       # Start to serve requests, typically the last entry

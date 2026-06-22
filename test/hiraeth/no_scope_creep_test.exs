@@ -3,11 +3,11 @@ defmodule Hiraeth.NoScopeCreepTest do
 
   @root Path.expand("../..", __DIR__)
 
-  test "dependencies and assets do not introduce React, Vite, Oban, or a SPA app" do
+  test "dependencies and assets do not introduce React, Vite, or a SPA app" do
     project_text = read!("mix.exs") <> "\n" <> read!("mix.lock")
 
-    refute project_text =~ ~r/{:(oban|react|vite|vitest|react_router)\b/i
-    refute project_text =~ ~r/"(oban|react|vite|vitest|@testing-library\/react)"/i
+    refute project_text =~ ~r/{:(react|vite|vitest|react_router)\b/i
+    refute project_text =~ ~r/"(react|vite|vitest|@testing-library\/react)"/i
 
     refute File.exists?(Path.join(@root, "package.json"))
     refute File.exists?(Path.join(@root, "vite.config.js"))

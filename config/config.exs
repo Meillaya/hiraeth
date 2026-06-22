@@ -75,6 +75,13 @@ config :logger, :default_formatter,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+config :hiraeth, Oban,
+  repo: Hiraeth.Repo,
+  queues: [ingestion: 4, covers: 4, audit: 2],
+  plugins: [Oban.Plugins.Pruner]
+
+config :hiraeth, :scrapling_sidecar, base_url: "http://localhost:8000"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

@@ -1,0 +1,263 @@
+{
+  "provider": "fixture_test_provider",
+  "retrieved_at": "2026-06-01T00:00:00Z",
+  "license_note": "Test fixture for E2E ingestion pipeline tests.",
+  "provider_permissions": {
+    "provider": "fixture_test_provider",
+    "source_urls": ["https://fixture.example.com/catalog"],
+    "source_hosts": ["fixture.example.com"],
+    "cover_hosts": ["fixture.example.com"],
+    "permission_basis": "Test fixture for E2E ingestion pipeline tests — deterministic data.",
+    "cover_cache_policy": "cache_allowed",
+    "excluded_content": ["raw_html", "prices", "reviews", "cart_checkout_account"],
+    "takedown_contact": "https://fixture.example.com/contact",
+    "not_legal_advice": "Test fixture; not legal advice."
+  },
+  "records": [
+    {
+      "source_uri": "https://fixture.example.com/books/the-glass-bridge",
+      "source_product_id": "fix-prod-001",
+      "source_sku": "9780000000040",
+      "publisher": "Fixture Press",
+      "imprint": null,
+      "work": {
+        "title": "The Glass Bridge",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published",
+        "subjects": ["fiction", "literary"]
+      },
+      "edition": {
+        "title": "The Glass Bridge",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-01-15",
+        "isbn_13": "9780000000040"
+      },
+      "contributors": [
+        {"name": "Elena Marchetti", "role": "author"}
+      ],
+      "displayed_fields": ["title", "contributors", "publisher", "format", "published_on", "isbn_13", "subjects", "cover"],
+      "curation": {"status": "approved", "notes": null},
+      "storefront_url": "https://fixture.example.com/books/the-glass-bridge",
+      "field_sources": {
+        "title": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/the-glass-bridge", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "contributors": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/the-glass-bridge", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "publisher": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/the-glass-bridge", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "format": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/the-glass-bridge", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "published_on": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/the-glass-bridge", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "isbn_13": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/the-glass-bridge", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "subjects": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/the-glass-bridge", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "cover": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/the-glass-bridge", "source_type": "publisher_dataset", "rights_basis": "Test fixture."}
+      },
+      "cover": {
+        "source_url": "https://fixture.example.com/covers/glass-bridge.jpg",
+        "provider": "fixture_test_provider",
+        "rights_basis": "local_cache_permitted",
+        "attribution_text": "Cover image courtesy of Fixture Press",
+        "attribution_url": "https://fixture.example.com",
+        "cache_policy": "cache_allowed"
+      }
+    },
+    {
+      "source_uri": "https://fixture.example.com/books/echoes-of-tomorrow",
+      "source_product_id": "fix-prod-002",
+      "source_sku": "9780000000057",
+      "publisher": "Fixture Press",
+      "imprint": "Fixture Classics",
+      "work": {
+        "title": "Echoes of Tomorrow",
+        "subtitle": "A Novel in Three Parts",
+        "original_title": null,
+        "publication_state": "published",
+        "subjects": ["fiction", "science fiction"]
+      },
+      "edition": {
+        "title": "Echoes of Tomorrow",
+        "subtitle": "A Novel in Three Parts",
+        "format": "hardcover",
+        "published_on": "2026-02-20",
+        "isbn_13": "9780000000057"
+      },
+      "contributors": [
+        {"name": "James Okafor", "role": "author"},
+        {"name": "Marie Dubois", "role": "translator"}
+      ],
+      "displayed_fields": ["title", "contributors", "publisher", "imprint", "format", "published_on", "isbn_13", "subjects", "cover"],
+      "curation": {"status": "approved", "notes": null},
+      "storefront_url": "https://fixture.example.com/books/echoes-of-tomorrow",
+      "field_sources": {
+        "title": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/echoes-of-tomorrow", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "contributors": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/echoes-of-tomorrow", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "publisher": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/echoes-of-tomorrow", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "imprint": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/echoes-of-tomorrow", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "format": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/echoes-of-tomorrow", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "published_on": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/echoes-of-tomorrow", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "isbn_13": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/echoes-of-tomorrow", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "subjects": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/echoes-of-tomorrow", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "cover": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/echoes-of-tomorrow", "source_type": "publisher_dataset", "rights_basis": "Test fixture."}
+      },
+      "cover": {
+        "source_url": "https://fixture.example.com/covers/echoes-of-tomorrow.jpg",
+        "provider": "fixture_test_provider",
+        "rights_basis": "local_cache_permitted",
+        "attribution_text": "Cover image courtesy of Fixture Press",
+        "attribution_url": "https://fixture.example.com",
+        "cache_policy": "cache_allowed"
+      }
+    },
+    {
+      "source_uri": "https://fixture.example.com/books/the-last-garden",
+      "source_product_id": "fix-prod-003",
+      "source_sku": "9780000000064",
+      "publisher": "Fixture Press",
+      "imprint": null,
+      "work": {
+        "title": "The Last Garden",
+        "subtitle": null,
+        "original_title": "El Ultimo Jardin",
+        "original_language_code": "spa",
+        "publication_state": "published",
+        "subjects": ["fiction", "literary", "translation"]
+      },
+      "edition": {
+        "title": "The Last Garden",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-03-10",
+        "isbn_13": "9780000000064",
+        "language_code": "eng",
+        "page_count": 320
+      },
+      "contributors": [
+        {"name": "Carlos Ruiz", "role": "author"}
+      ],
+      "displayed_fields": ["title", "contributors", "publisher", "format", "published_on", "isbn_13", "subjects", "original_title", "original_language_code", "language_code", "page_count", "cover"],
+      "curation": {"status": "approved", "notes": null},
+      "storefront_url": "https://fixture.example.com/books/the-last-garden",
+      "field_sources": {
+        "title": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/the-last-garden", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "contributors": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/the-last-garden", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "publisher": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/the-last-garden", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "format": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/the-last-garden", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "published_on": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/the-last-garden", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "isbn_13": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/the-last-garden", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "subjects": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/the-last-garden", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "original_title": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/the-last-garden", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "original_language_code": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/the-last-garden", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "language_code": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/the-last-garden", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "page_count": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/the-last-garden", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "cover": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/the-last-garden", "source_type": "publisher_dataset", "rights_basis": "Test fixture."}
+      },
+      "cover": {
+        "source_url": "https://fixture.example.com/covers/last-garden.jpg",
+        "provider": "fixture_test_provider",
+        "rights_basis": "local_cache_permitted",
+        "attribution_text": "Cover image courtesy of Fixture Press",
+        "attribution_url": "https://fixture.example.com",
+        "cache_policy": "cache_allowed"
+      }
+    },
+    {
+      "source_uri": "https://fixture.example.com/books/winds-of-change",
+      "source_product_id": "fix-prod-004",
+      "source_sku": "9780000000071",
+      "publisher": "Fixture Press",
+      "imprint": null,
+      "work": {
+        "title": "Winds of Change",
+        "subtitle": null,
+        "original_title": null,
+        "publication_state": "published",
+        "subjects": ["nonfiction", "history"]
+      },
+      "edition": {
+        "title": "Winds of Change",
+        "subtitle": null,
+        "format": "paperback",
+        "published_on": "2026-04-05",
+        "isbn_13": "9780000000071"
+      },
+      "contributors": [
+        {"name": "Dr. Amina Hassan", "role": "author"}
+      ],
+      "displayed_fields": ["title", "contributors", "publisher", "format", "published_on", "isbn_13", "subjects", "cover"],
+      "curation": {"status": "approved", "notes": null},
+      "storefront_url": "https://fixture.example.com/books/winds-of-change",
+      "field_sources": {
+        "title": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/winds-of-change", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "contributors": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/winds-of-change", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "publisher": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/winds-of-change", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "format": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/winds-of-change", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "published_on": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/winds-of-change", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "isbn_13": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/winds-of-change", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "subjects": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/winds-of-change", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "cover": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/winds-of-change", "source_type": "publisher_dataset", "rights_basis": "Test fixture."}
+      },
+      "cover": {
+        "source_url": "https://fixture.example.com/covers/winds-of-change.jpg",
+        "provider": "fixture_test_provider",
+        "rights_basis": "local_cache_permitted",
+        "attribution_text": "Cover image courtesy of Fixture Press",
+        "attribution_url": "https://fixture.example.com",
+        "cache_policy": "cache_allowed"
+      }
+    },
+    {
+      "source_uri": "https://fixture.example.com/books/silent-waters",
+      "source_product_id": "fix-prod-005",
+      "source_sku": "9780000000088",
+      "publisher": "Fixture Press",
+      "imprint": "Fixture Classics",
+      "work": {
+        "title": "Silent Waters",
+        "subtitle": null,
+        "original_title": "Eaux Silencieuses",
+        "original_language_code": "fra",
+        "publication_state": "published",
+        "subjects": ["fiction", "literary", "translation"]
+      },
+      "edition": {
+        "title": "Silent Waters",
+        "subtitle": null,
+        "format": "hardcover",
+        "published_on": "2026-05-18",
+        "isbn_13": "9780000000088",
+        "language_code": "eng",
+        "page_count": 256,
+        "dimensions": {"height_mm": 210, "width_mm": 140, "depth_mm": 22}
+      },
+      "contributors": [
+        {"name": "Sophie Laurent", "role": "author"},
+        {"name": "Thomas Wright", "role": "translator"}
+      ],
+      "displayed_fields": ["title", "contributors", "publisher", "imprint", "format", "published_on", "isbn_13", "subjects", "original_title", "original_language_code", "language_code", "page_count", "dimensions", "cover"],
+      "curation": {"status": "approved", "notes": null},
+      "storefront_url": "https://fixture.example.com/books/silent-waters",
+      "field_sources": {
+        "title": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/silent-waters", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "contributors": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/silent-waters", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "publisher": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/silent-waters", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "imprint": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/silent-waters", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "format": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/silent-waters", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "published_on": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/silent-waters", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "isbn_13": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/silent-waters", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "subjects": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/silent-waters", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "original_title": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/silent-waters", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "original_language_code": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/silent-waters", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "language_code": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/silent-waters", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "page_count": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/silent-waters", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "dimensions": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/silent-waters", "source_type": "publisher_dataset", "rights_basis": "Test fixture."},
+        "cover": {"provider": "fixture_test_provider", "source_uri": "https://fixture.example.com/books/silent-waters", "source_type": "publisher_dataset", "rights_basis": "Test fixture."}
+      },
+      "cover": {
+        "source_url": "https://fixture.example.com/covers/silent-waters.jpg",
+        "provider": "fixture_test_provider",
+        "rights_basis": "local_cache_permitted",
+        "attribution_text": "Cover image courtesy of Fixture Press",
+        "attribution_url": "https://fixture.example.com",
+        "cache_policy": "cache_allowed"
+      }
+    }
+  ]
+}
