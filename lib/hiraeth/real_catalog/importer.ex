@@ -15,6 +15,7 @@ defmodule Hiraeth.RealCatalog.Importer do
     Work
   }
 
+  alias Hiraeth.Covers
   alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
   alias Hiraeth.Imports.ImportRun
   alias Hiraeth.RealCatalog.{Dataset, ISBN, Slug, Validator}
@@ -652,6 +653,10 @@ defmodule Hiraeth.RealCatalog.Importer do
   end
 
   defp cover_asset_attrs(cover) do
+    Map.merge(base_cover_asset_attrs(cover), existing_cache_file_attrs(cover))
+  end
+
+  defp base_cover_asset_attrs(cover) do
     %{
       source_url: cover.source_url,
       provider: cover.provider,
@@ -662,6 +667,33 @@ defmodule Hiraeth.RealCatalog.Importer do
       takedown_state: "visible"
     }
   end
+
+  defp existing_cache_file_attrs(%{cache_policy: "cache_allowed"} = cover) do
+    if cover.rights_basis == "local_cache_permitted" do
+      cache_probe = %CoverAsset{source_url: cover.source_url}
+      cached_path = Covers.cache_path(cache_probe)
+      thumbnail_path = Covers.thumbnail_path(cache_probe)
+
+      %{}
+      |> put_existing_cache_path(:cached_file_path, cached_path)
+      |> put_existing_cache_path(:thumbnail_file_path, thumbnail_path)
+      |> maybe_put_cached_at()
+    else
+      %{}
+    end
+  end
+
+  defp existing_cache_file_attrs(_cover), do: %{}
+
+  defp put_existing_cache_path(attrs, key, path) do
+    if File.regular?(path), do: Map.put(attrs, key, path), else: attrs
+  end
+
+  defp maybe_put_cached_at(%{cached_file_path: _cached_file_path} = attrs) do
+    Map.put_new(attrs, :cached_at, DateTime.utc_now(:second))
+  end
+
+  defp maybe_put_cached_at(attrs), do: attrs
 
   defp sync_cover_asset!(asset, cover, write_opts) do
     updates = %{
@@ -676,7 +708,7 @@ defmodule Hiraeth.RealCatalog.Importer do
       if cover.cache_policy == "link_only" do
         Map.merge(updates, %{cached_file_path: nil, thumbnail_file_path: nil, cached_at: nil})
       else
-        updates
+        Map.merge(updates, missing_existing_cache_file_attrs(asset, cover))
       end
 
     updates =
@@ -691,6 +723,17 @@ defmodule Hiraeth.RealCatalog.Importer do
       |> Ash.Changeset.for_update(:update, updates)
       |> Ash.update!(write_opts)
     end
+  end
+
+  defp missing_existing_cache_file_attrs(asset, cover) do
+    cover
+    |> existing_cache_file_attrs()
+    |> Enum.reject(fn
+      {:cached_file_path, _path} -> present?(asset.cached_file_path)
+      {:thumbnail_file_path, _path} -> present?(asset.thumbnail_file_path)
+      {:cached_at, _cached_at} -> not is_nil(asset.cached_at)
+    end)
+    |> Map.new()
   end
 
   defp ensure_source_record!(dataset, record, edition, import_run, write_opts) do

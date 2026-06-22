@@ -189,6 +189,78 @@ defmodule Hiraeth.RealCatalogImporterTest do
              "Official public source exposes no cover image."
   end
 
+  test "real catalog importer adopts existing deterministic cover cache files when reseeding" do
+    clear_catalog!()
+
+    tmp =
+      Path.join(
+        System.tmp_dir!(),
+        "hiraeth-cache-adoption-real-catalog-#{System.unique_integer([:positive])}"
+      )
+
+    File.mkdir_p!(tmp)
+    File.cp!(Path.join(Dataset.default_dir(), "README.md"), Path.join(tmp, "README.md"))
+    File.cp!(Path.join(Dataset.default_dir(), "schema.json"), Path.join(tmp, "schema.json"))
+
+    {:ok, dataset} = Dataset.load_file(Path.join(Dataset.default_dir(), "archipelago_books.json"))
+    [record | remaining_records] = dataset.records
+
+    cover = %{
+      record.cover
+      | source_url:
+          "https://archipelagobooks.org/wp-content/uploads/hiraeth-seed-cache-adoption-test.jpg",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed"
+    }
+
+    cache_probe = %CoverAsset{source_url: cover.source_url}
+    cached_path = Hiraeth.Covers.cache_path(cache_probe)
+    thumbnail_path = Hiraeth.Covers.thumbnail_path(cache_probe)
+
+    on_exit(fn ->
+      File.rm(cached_path)
+      File.rm(thumbnail_path)
+      File.rm_rf!(tmp)
+    end)
+
+    File.mkdir_p!(Path.dirname(cached_path))
+    File.write!(cached_path, "cached original bytes")
+    File.write!(thumbnail_path, "cached thumbnail bytes")
+
+    cached_record = %{record | cover: cover}
+    write_archipelago_payload!(tmp, dataset, cached_record, remaining_records)
+
+    assert {:ok, _summary} = Hiraeth.RealCatalog.Importer.seed!(tmp)
+
+    cached_asset =
+      CoverAsset
+      |> Ash.read!(authorize?: false)
+      |> Enum.find(&(&1.source_url == cover.source_url))
+
+    assert cached_asset.cached_file_path == cached_path
+    assert cached_asset.thumbnail_file_path == thumbnail_path
+    assert File.read!(cached_asset.cached_file_path) == "cached original bytes"
+    assert File.read!(cached_asset.thumbnail_file_path) == "cached thumbnail bytes"
+
+    cached_asset
+    |> Ash.Changeset.for_update(:update, %{
+      cached_file_path: nil,
+      thumbnail_file_path: nil,
+      cached_at: nil
+    })
+    |> Ash.update!(authorize?: false)
+
+    assert {:ok, _summary} = Hiraeth.RealCatalog.Importer.seed!(tmp)
+
+    repaired_asset =
+      CoverAsset
+      |> Ash.read!(authorize?: false)
+      |> Enum.find(&(&1.source_url == cover.source_url))
+
+    assert repaired_asset.cached_file_path == cached_path
+    assert repaired_asset.thumbnail_file_path == thumbnail_path
+  end
+
   test "real catalog importer treats empty cover maps with no-cover reasons as no-cover records" do
     clear_catalog!()
     tmp = no_cover_dataset_dir!(:empty_cover)
