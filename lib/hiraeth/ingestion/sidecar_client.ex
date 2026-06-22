@@ -8,6 +8,8 @@ defmodule Hiraeth.Ingestion.SidecarClient do
 
   @health_timeout 30_000
   @scrape_timeout 300_000
+  @detail_timeout 10_000
+  @detail_max_retries 3
 
   @doc """
   Checks sidecar health via GET /health/.
@@ -98,6 +100,36 @@ defmodule Hiraeth.Ingestion.SidecarClient do
 
       {:ok, %{status: status}} ->
         {:error, "sidecar scrape failed with status #{status}"}
+
+      {:error, exception} ->
+        {:error, Exception.message(exception)}
+    end
+  end
+
+  @doc """
+  Fetches detail-page enrichment from the sidecar via POST /scrape/detail.
+
+  Returns `{:ok, detail}` on success, or `{:error, reason}` on failure.
+  The detail endpoint is intentionally bounded because worker ingestion can
+  proceed with the original record if detail enrichment is unavailable.
+  """
+  def detail(source_uri, vendor, opts \\ []) when is_binary(source_uri) and is_binary(vendor) do
+    base_url = base_url()
+    req_options = Keyword.get(opts, :req_options, [])
+
+    default_options = [
+      json: %{url: source_uri, vendor: vendor},
+      receive_timeout: @detail_timeout,
+      retry: :transient,
+      max_retries: @detail_max_retries
+    ]
+
+    case Req.post("#{base_url}/scrape/detail", Keyword.merge(default_options, req_options)) do
+      {:ok, %{status: status, body: body}} when status in 200..299 and is_map(body) ->
+        {:ok, body}
+
+      {:ok, %{status: status}} ->
+        {:error, "sidecar detail failed with status #{status}"}
 
       {:error, exception} ->
         {:error, Exception.message(exception)}
