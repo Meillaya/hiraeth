@@ -190,6 +190,75 @@ defmodule Hiraeth.RealCatalog.SourcePolicyManifestTest do
     end
   end
 
+  describe "Deep Vellum manifest handle patterns" do
+    @deep_vellum_manifest "priv/catalog_sources/provider_manifests/deep_vellum_official_store.json"
+    @new_deep_vellum_handle_url "https://store.deepvellum.org/products/manic-pixie-american-dream-patterson-bleah"
+
+    test "new product handle is rejected by the manifest without pattern and accepted after pattern load" do
+      no_pattern_manifest =
+        @deep_vellum_manifest
+        |> File.read!()
+        |> Jason.decode!()
+        |> update_in(["api"], &Map.delete(&1, "source_handle_patterns"))
+        |> Jason.encode!()
+        |> write_temp_manifest()
+
+      assert {:ok, "deep_vellum_official_store"} =
+               SourcePolicy.load_provider_manifest(no_pattern_manifest)
+
+      refute SourcePolicy.source_uri_allowed?(
+               "deep_vellum_official_store",
+               @new_deep_vellum_handle_url
+             )
+
+      Process.delete(:manifest_providers)
+
+      assert {:ok, "deep_vellum_official_store"} =
+               SourcePolicy.load_provider_manifest(@deep_vellum_manifest)
+
+      assert SourcePolicy.source_uri_allowed?(
+               "deep_vellum_official_store",
+               @new_deep_vellum_handle_url
+             )
+
+      assert SourcePolicy.source_uri_allowed?(
+               "deep_vellum_official_store",
+               @new_deep_vellum_handle_url <> "#paperback"
+             )
+    after
+      cleanup_temp_manifests()
+    end
+
+    test "handle pattern rejects unknown providers, off-host URLs, and encoded traversal" do
+      assert {:ok, "deep_vellum_official_store"} =
+               SourcePolicy.load_provider_manifest(@deep_vellum_manifest)
+
+      refute SourcePolicy.source_uri_allowed?(
+               "totally_unknown_provider",
+               @new_deep_vellum_handle_url
+             )
+
+      refute SourcePolicy.source_uri_allowed?(
+               "deep_vellum_official_store",
+               "https://evil.example/products/manic-pixie-american-dream-patterson-bleah"
+             )
+
+      refute SourcePolicy.source_uri_allowed?(
+               "deep_vellum_official_store",
+               "https://store.deepvellum.org/products/%2e%2e/admin"
+             )
+
+      refute SourcePolicy.source_uri_allowed?(
+               "deep_vellum_official_store",
+               "https://store.deepvellum.org/products/manic-pixie-american-dream-patterson-bleah?cart=true"
+             )
+
+      refute SourcePolicy.source_uri_allowed?("deep_vellum_official_store", nil)
+      refute SourcePolicy.source_uri_allowed?("deep_vellum_official_store", "")
+      refute SourcePolicy.source_uri_allowed?("deep_vellum_official_store", "not a uri")
+    end
+  end
+
   # --- Helpers ---
 
   defp write_temp_manifest(json) do

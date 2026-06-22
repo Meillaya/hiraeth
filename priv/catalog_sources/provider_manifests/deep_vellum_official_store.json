@@ -42,7 +42,21 @@
     "type": "shopify",
     "endpoint": "https://store.deepvellum.org",
     "auth": null,
-    "allowed_vendors": ["Deep Vellum", "Deep Vellum Publishing"]
+    "allowed_vendors": [
+      "Deep Vellum",
+      "Deep Vellum Publishing"
+    ],
+    "source_handle_patterns": [
+      {
+        "host": "store.deepvellum.org",
+        "path_prefix": "/products/",
+        "handle_pattern": "[a-z0-9][a-z0-9-]*",
+        "allowed_vendors": [
+          "Deep Vellum",
+          "Deep Vellum Publishing"
+        ]
+      }
+    ]
   },
   "rate_limit": {
     "max_concurrency": 2,

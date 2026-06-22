@@ -221,7 +221,8 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
   def source_pdf_path_prefixes(provider), do: Map.get(@source_pdf_path_prefixes, provider, [])
 
   def source_uri_allowed?(provider, uri_string) do
-    uri_allowed?(provider, uri_string, &source_host_allowed?/2, &source_path_allowed?/2)
+    uri_allowed?(provider, uri_string, &source_host_allowed?/2, &source_path_allowed?/2) or
+      manifest_source_handle_allowed?(provider, uri_string)
   end
 
   def load_provider_manifest(file_path) do
@@ -244,7 +245,8 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
     provider_entry = %{
       cover_hosts: cover_hosts,
       source_hosts: source_hosts,
-      source_path_prefixes: source_path_prefixes
+      source_path_prefixes: source_path_prefixes,
+      source_handle_patterns: source_handle_patterns(manifest)
     }
 
     current = Process.get(:manifest_providers, %{})
@@ -378,6 +380,79 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
     end)
   end
 
+  defp manifest_source_handle_allowed?(provider, uri_string) do
+    case URI.parse(to_string(uri_string)) do
+      %URI{scheme: "https", host: host, path: path, query: nil} when is_binary(host) ->
+        path = path || "/"
+
+        source_host_allowed?(provider, host) and
+          safe_path_for_prefix_match?(path) and
+          Enum.any?(
+            manifest_source_handle_patterns(provider),
+            &source_handle_matches?(&1, host, path)
+          )
+
+      _invalid_or_query_uri ->
+        false
+    end
+  end
+
+  defp source_handle_matches?(
+         %{host: host, path_prefix: prefix, handle_pattern: pattern},
+         host,
+         path
+       ) do
+    with true <- String.starts_with?(path, prefix),
+         handle when handle != "" <- String.replace_prefix(path, prefix, ""),
+         false <- String.contains?(handle, "/") do
+      safe_source_handle?(handle, pattern)
+    else
+      _not_match -> false
+    end
+  end
+
+  defp source_handle_matches?(_pattern, _host, _path), do: false
+
+  defp safe_source_handle?(handle, "[a-z0-9][a-z0-9-]*"),
+    do: String.match?(handle, ~r/^[a-z0-9][a-z0-9-]*$/)
+
+  defp safe_source_handle?(_handle, _unsafe_or_unknown_pattern), do: false
+
+  defp source_handle_patterns(manifest) do
+    api = map_value(manifest, :api) || %{}
+
+    api
+    |> map_value(:source_handle_patterns)
+    |> normalize_source_handle_patterns()
+  end
+
+  defp normalize_source_handle_patterns(patterns) when is_list(patterns) do
+    patterns
+    |> Enum.map(&normalize_source_handle_pattern/1)
+    |> Enum.reject(&is_nil/1)
+  end
+
+  defp normalize_source_handle_patterns(_patterns), do: []
+
+  defp normalize_source_handle_pattern(pattern) when is_map(pattern) do
+    host = map_value(pattern, :host)
+    path_prefix = map_value(pattern, :path_prefix)
+    handle_pattern = map_value(pattern, :handle_pattern)
+
+    if safe_source_handle_pattern?(host, path_prefix, handle_pattern) do
+      %{host: host, path_prefix: path_prefix, handle_pattern: handle_pattern}
+    end
+  end
+
+  defp normalize_source_handle_pattern(_pattern), do: nil
+
+  defp safe_source_handle_pattern?(host, path_prefix, handle_pattern) do
+    present?(host) and host == String.downcase(host) and
+      present?(path_prefix) and String.starts_with?(path_prefix, "/") and
+      String.ends_with?(path_prefix, "/") and safe_path_for_prefix_match?(path_prefix) and
+      handle_pattern == "[a-z0-9][a-z0-9-]*"
+  end
+
   defp path_matches_prefix?(path, prefix),
     do: path == prefix or String.starts_with?(path, prefix <> "/")
 
@@ -455,5 +530,11 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
     Process.get(:manifest_providers, @manifest_providers)
     |> Map.get(provider, %{})
     |> Map.get(:source_path_prefixes, [])
+  end
+
+  defp manifest_source_handle_patterns(provider) do
+    Process.get(:manifest_providers, @manifest_providers)
+    |> Map.get(provider, %{})
+    |> Map.get(:source_handle_patterns, [])
   end
 end
