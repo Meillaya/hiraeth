@@ -233,7 +233,7 @@ class TestScrapeRouter:
     def test_scrape_endpoint_returns_error_on_spider_failure(self):
         with patch(
             "app.routers.scrape.GenericBookSpider.to_json",
-            side_effect=Exception("spider exploded"),
+            side_effect=RuntimeError("spider exploded"),
         ):
             response = client.post(
                 "/scrape/",

@@ -32,12 +32,15 @@ class FetchControls:
 
 
 class ResponseTooLargeError(RuntimeError):
-    """Raised when a fetched page exceeds provider byte limits."""
+    pass
+
+
+class CatalogUrlNotAllowedError(ValueError):
+    def __init__(self, url: str) -> None:
+        super().__init__(f"Unsupported Deep Vellum catalog URL: {url}")
 
 
 class StealthyFetcher:
-    """Lazy proxy for Scrapling's StealthyFetcher."""
-
     @staticmethod
     async def fetch_async(url: str, **kwargs: Any) -> Any:
         from scrapling.fetchers import StealthyFetcher as ScraplingStealthyFetcher
@@ -46,8 +49,6 @@ class StealthyFetcher:
 
 
 class DeepVellumStealthySpider:
-    """Scrape Deep Vellum product records with manual async StealthyFetcher calls."""
-
     allowed_vendors: ClassVar[set[str]] = {"Deep Vellum", "Deep Vellum Publishing"}
     base_url: ClassVar[str] = "https://store.deepvellum.org"
     default_catalog_url: ClassVar[str] = f"{base_url}/collections/all"
@@ -58,7 +59,7 @@ class DeepVellumStealthySpider:
         """Fetch the catalog, follow allowed product details, and return records."""
         provider = str(config.get("provider") or self.default_provider)
         controls = self._fetch_controls(config)
-        catalog = await StealthyFetcher.fetch_async(self._catalog_url(config), **self.fetch_options)
+        catalog = await StealthyFetcher.fetch_async(self.catalog_url(config), **self.fetch_options)
         products = self._parse_catalog(_response_text(catalog, controls.max_bytes))
         allowed = [product for product in products if self.is_allowed_vendor(product.vendor)]
         if not products or not allowed:
@@ -114,12 +115,33 @@ class DeepVellumStealthySpider:
         return FetchControls(concurrency=concurrency, min_delay_seconds=min_delay_ms / 1000, max_bytes=max_bytes)
 
     @classmethod
-    def _catalog_url(cls, config: dict[str, Any]) -> str:
+    def catalog_url(cls, config: dict[str, Any]) -> str:
         configured = config.get("catalog_url")
-        if isinstance(configured, str) and configured:
-            return configured
-        start_urls = config.get("start_urls")
-        return start_urls[0] if isinstance(start_urls, list) and start_urls and isinstance(start_urls[0], str) else cls.default_catalog_url
+        configured_url = configured if isinstance(configured, str) and configured else None
+        selected = cls._validate_catalog_url(configured_url) if configured_url else cls.default_catalog_url
+        if isinstance(start_urls := config.get("start_urls"), list):
+            for start_url in start_urls:
+                if isinstance(start_url, str) and start_url:
+                    validated = cls._validate_catalog_url(start_url)
+                    if not configured_url and selected == cls.default_catalog_url:
+                        selected = validated
+        return selected
+
+    @classmethod
+    def _validate_catalog_url(cls, url: str) -> str:
+        parsed = urlparse(url)
+        if (
+            url == cls.default_catalog_url
+            and parsed.scheme == "https"
+            and parsed.netloc == "store.deepvellum.org"
+            and parsed.path == "/collections/all"
+            and not parsed.query
+            and not parsed.fragment
+            and not parsed.username
+            and not parsed.password
+        ):
+            return url
+        raise CatalogUrlNotAllowedError(url)
 
     @classmethod
     def _detail_url(cls, handle: str) -> str:

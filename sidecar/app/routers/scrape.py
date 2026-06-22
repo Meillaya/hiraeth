@@ -3,7 +3,7 @@ import re
 from typing import Any, Final, Protocol
 from urllib.parse import urlparse
 
-import anyio
+from anyio import to_thread
 from fastapi import APIRouter, HTTPException
 
 from app.models import (
@@ -13,6 +13,7 @@ from app.models import (
     ScrapeResponse,
 )
 from app.spiders.deep_vellum_stealthy import (
+    CatalogUrlNotAllowedError,
     DeepVellumStealthySpider,
     ResponseTooLargeError,
     StealthyFetcher,
@@ -101,6 +102,9 @@ async def scrape_catalog(request: ScrapeRequest) -> ScrapeResponse:
         "provider": request.provider,
     }
     try:
+        if request.provider in _DEEP_VELLUM_PROVIDERS:
+            _ = DeepVellumStealthySpider.catalog_url(config)
+
         if _uses_deep_vellum_stealthy(request):
             records = await DeepVellumStealthySpider().scrape_catalog(config)
         else:
@@ -110,17 +114,19 @@ async def scrape_catalog(request: ScrapeRequest) -> ScrapeResponse:
                 else GenericBookSpider
             )
             spider = spider_class(config=config)
-            records = await anyio.to_thread.run_sync(spider.to_json)
+            records = await to_thread.run_sync(spider.to_json)
 
         return ScrapeResponse(
             provider=request.provider,
             status="success",
             records=records,
         )
-    except Exception as e:
+    except CatalogUrlNotAllowedError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    except (OSError, RuntimeError, ValueError) as error:
         return ScrapeResponse(
             provider=request.provider,
-            status=f"error: {str(e)}",
+            status=f"error: {str(error)}",
             records=[],
         )
 

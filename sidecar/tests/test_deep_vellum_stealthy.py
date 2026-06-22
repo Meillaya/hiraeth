@@ -65,6 +65,44 @@ def test_scrape_catalog_enriches_allowed_products(monkeypatch: pytest.MonkeyPatc
         assert "prompt:" not in record.get("description", "")
 
 
+def test_scrape_catalog_rejects_unsafe_catalog_url_before_fetch(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Given metadata URL config, when scraping, then no fetch is attempted."""
+    calls: list[str] = []
+
+    async def fake_fetch_async(url: str, **_kwargs) -> FakeStealthyResponse:
+        calls.append(url)
+        return FakeStealthyResponse(url=url, text="")
+
+    monkeypatch.setattr(StealthyFetcher, "fetch_async", fake_fetch_async)
+
+    with pytest.raises(ValueError, match="Unsupported Deep Vellum catalog URL"):
+        anyio.run(
+            DeepVellumStealthySpider().scrape_catalog,
+            {"catalog_url": "http://169.254.169.254/latest/meta-data/"},
+        )
+
+    assert calls == []
+
+
+def test_scrape_catalog_rejects_unsafe_start_url_before_fetch(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Given metadata start URL config, when scraping, then no fetch is attempted."""
+    calls: list[str] = []
+
+    async def fake_fetch_async(url: str, **_kwargs) -> FakeStealthyResponse:
+        calls.append(url)
+        return FakeStealthyResponse(url=url, text="")
+
+    monkeypatch.setattr(StealthyFetcher, "fetch_async", fake_fetch_async)
+
+    with pytest.raises(ValueError, match="Unsupported Deep Vellum catalog URL"):
+        anyio.run(
+            DeepVellumStealthySpider().scrape_catalog,
+            {"start_urls": ["http://169.254.169.254/latest/meta-data/"]},
+        )
+
+    assert calls == []
+
+
 def test_vendor_not_in_allowlist_is_dropped(monkeypatch: pytest.MonkeyPatch) -> None:
     """Given a non-Deep-Vellum card, when scraping, then no detail fetch occurs."""
     calls: list[str] = []

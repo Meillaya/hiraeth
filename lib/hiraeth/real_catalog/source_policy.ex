@@ -127,6 +127,14 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
   )a
 
   @manifest_providers %{}
+  @default_provider_manifest_files %{
+    "deep_vellum_official_store" =>
+      Path.join([
+        "catalog_sources",
+        "provider_manifests",
+        "deep_vellum_official_store.json"
+      ])
+  }
 
   @provider_gates %{
     "new_directions_official_site" => %{
@@ -221,8 +229,16 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
   def source_pdf_path_prefixes(provider), do: Map.get(@source_pdf_path_prefixes, provider, [])
 
   def source_uri_allowed?(provider, uri_string, context \\ nil) do
-    uri_allowed?(provider, uri_string, &source_host_allowed?/2, &source_path_allowed?/2) or
-      manifest_source_handle_allowed?(provider, uri_string, context)
+    cond do
+      manifest_source_handle_candidate?(provider, uri_string) ->
+        manifest_source_handle_allowed?(provider, uri_string, context)
+
+      uri_allowed?(provider, uri_string, &source_host_allowed?/2, &source_path_allowed?/2) ->
+        true
+
+      true ->
+        manifest_source_handle_allowed?(provider, uri_string, context)
+    end
   end
 
   def load_provider_manifest(file_path) do
@@ -231,16 +247,7 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
     cover_hosts = MapSet.new(manifest.cover_hosts || [])
     source_hosts = MapSet.new(manifest.source_hosts || [])
 
-    source_path_prefixes =
-      (manifest.source_urls || [])
-      |> Enum.map(fn url ->
-        case URI.parse(url) do
-          %URI{path: path} when is_binary(path) -> path
-          _ -> nil
-        end
-      end)
-      |> Enum.reject(&is_nil/1)
-      |> Enum.uniq()
+    source_path_prefixes = manifest_source_path_prefixes_from_urls(manifest.source_urls || [])
 
     provider_entry = %{
       cover_hosts: cover_hosts,
@@ -382,6 +389,22 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
     |> Enum.any?(fn prefix ->
       String.starts_with?(path, prefix) and String.ends_with?(String.downcase(path), ".pdf")
     end)
+  end
+
+  defp manifest_source_handle_candidate?(provider, uri_string) do
+    case URI.parse(to_string(uri_string)) do
+      %URI{scheme: "https", host: host, path: path, query: nil} when is_binary(host) ->
+        path = path || "/"
+
+        source_host_allowed?(provider, host) and safe_path_for_prefix_match?(path) and
+          Enum.any?(
+            manifest_source_handle_patterns(provider),
+            &source_handle_matches?(&1, host, path)
+          )
+
+      _invalid_or_query_uri ->
+        false
+    end
   end
 
   defp manifest_source_handle_allowed?(provider, uri_string, context) do
@@ -558,26 +581,76 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
   end
 
   defp manifest_cover_hosts(provider) do
-    Process.get(:manifest_providers, @manifest_providers)
-    |> Map.get(provider, %{})
+    provider
+    |> manifest_provider_entry()
     |> Map.get(:cover_hosts, MapSet.new())
   end
 
   defp manifest_source_hosts(provider) do
-    Process.get(:manifest_providers, @manifest_providers)
-    |> Map.get(provider, %{})
+    provider
+    |> manifest_provider_entry()
     |> Map.get(:source_hosts, MapSet.new())
   end
 
   defp manifest_source_path_prefixes(provider) do
-    Process.get(:manifest_providers, @manifest_providers)
-    |> Map.get(provider, %{})
+    provider
+    |> manifest_provider_entry()
     |> Map.get(:source_path_prefixes, [])
   end
 
   defp manifest_source_handle_patterns(provider) do
-    Process.get(:manifest_providers, @manifest_providers)
-    |> Map.get(provider, %{})
+    provider
+    |> manifest_provider_entry()
     |> Map.get(:source_handle_patterns, [])
+  end
+
+  defp manifest_provider_entry(provider) do
+    process_manifests = Process.get(:manifest_providers, @manifest_providers)
+
+    case Map.fetch(process_manifests, provider) do
+      {:ok, entry} -> entry
+      :error -> default_manifest_provider_entry(provider)
+    end
+  end
+
+  defp default_manifest_provider_entry(provider) do
+    @default_provider_manifest_files
+    |> Map.get(provider)
+    |> case do
+      nil -> %{}
+      file -> file |> default_provider_manifest_path() |> load_manifest_provider_entry()
+    end
+  end
+
+  defp default_provider_manifest_path(file) do
+    case :code.priv_dir(:hiraeth) do
+      priv_dir when is_list(priv_dir) -> Path.join(to_string(priv_dir), file)
+      {:error, _reason} -> Path.join("priv", file)
+    end
+  end
+
+  defp load_manifest_provider_entry(file_path) do
+    manifest = Hiraeth.Ingestion.ProviderManifest.load!(file_path)
+
+    %{}
+    |> Map.put(:cover_hosts, MapSet.new(manifest.cover_hosts || []))
+    |> Map.put(:source_hosts, MapSet.new(manifest.source_hosts || []))
+    |> Map.put(
+      :source_path_prefixes,
+      manifest_source_path_prefixes_from_urls(manifest.source_urls || [])
+    )
+    |> Map.put(:source_handle_patterns, source_handle_patterns(manifest))
+  end
+
+  defp manifest_source_path_prefixes_from_urls(source_urls) do
+    source_urls
+    |> Enum.map(fn url ->
+      case URI.parse(url) do
+        %URI{path: path} when is_binary(path) -> path
+        _ -> nil
+      end
+    end)
+    |> Enum.reject(&is_nil/1)
+    |> Enum.uniq()
   end
 end
