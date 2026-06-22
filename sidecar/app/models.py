@@ -27,6 +27,7 @@ class ScrapeResponse(BaseModel):
 class DetailScrapeRequest(BaseModel):
     url: str
     vendor: str
+    max_bytes: int | None = Field(default=None, gt=0)
 
 
 class DetailScrapeResponse(BaseModel):

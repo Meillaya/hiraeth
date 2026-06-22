@@ -281,7 +281,7 @@ defmodule Hiraeth.RealCatalog.Validator do
     )
     |> add_if(
       present?(source_uri) and uri.scheme == "https" and
-        not SourcePolicy.source_uri_allowed?(dataset.provider, source_uri),
+        not SourcePolicy.source_uri_allowed?(dataset.provider, source_uri, record),
       dataset,
       record,
       "source_uri is not allowlisted for provider"
@@ -541,7 +541,7 @@ defmodule Hiraeth.RealCatalog.Validator do
     )
     |> add_if(
       present?(storefront_url) and uri.scheme == "https" and
-        not SourcePolicy.source_uri_allowed?(dataset.provider, storefront_url),
+        not SourcePolicy.source_uri_allowed?(dataset.provider, storefront_url, record),
       dataset,
       record,
       "public prose requires source provenance"
@@ -578,7 +578,7 @@ defmodule Hiraeth.RealCatalog.Validator do
       )
       |> add_if(
         present?(source_uri) and uri.scheme == "https" and
-          not SourcePolicy.source_uri_allowed?(dataset.provider, source_uri),
+          not SourcePolicy.source_uri_allowed?(dataset.provider, source_uri, record),
         dataset,
         record,
         "public prose requires source provenance"
@@ -592,7 +592,7 @@ defmodule Hiraeth.RealCatalog.Validator do
     |> Map.get(:review_links, [])
     |> List.wrap()
     |> Enum.flat_map(fn review ->
-      if SourcePolicy.review_link_allowed?(dataset.provider, review) do
+      if SourcePolicy.review_link_allowed?(dataset.provider, review, record) do
         []
       else
         [finding(dataset, record, "review links require authorized source provenance")]

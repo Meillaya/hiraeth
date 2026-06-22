@@ -196,6 +196,37 @@ defmodule Hiraeth.Ingestion.SidecarClientTest do
                )
     end
 
+    test "includes configured max_bytes in detail endpoint request body" do
+      plug = fn conn ->
+        assert conn.method == "POST"
+        assert conn.request_path == "/scrape/detail"
+
+        {:ok, body, conn} = Plug.Conn.read_body(conn)
+
+        assert Jason.decode!(body) == %{
+                 "url" => "https://store.deepvellum.org/products/rilke-shake",
+                 "vendor" => "deep_vellum_official_store",
+                 "max_bytes" => 524_288
+               }
+
+        Req.Test.json(conn, %{
+          "vendor" => "deep_vellum_official_store",
+          "source_uri" => "https://store.deepvellum.org/products/rilke-shake",
+          "contributors" => [],
+          "cover" => %{},
+          "description" => nil
+        })
+      end
+
+      assert {:ok, _detail} =
+               SidecarClient.detail(
+                 "https://store.deepvellum.org/products/rilke-shake",
+                 "deep_vellum_official_store",
+                 max_bytes: 524_288,
+                 req_options: [plug: plug]
+               )
+    end
+
     test "returns error when detail endpoint returns non-200" do
       plug = fn conn ->
         conn

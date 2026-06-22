@@ -144,6 +144,8 @@ defmodule Hiraeth.RealCatalog.SourcePolicyManifestTest do
                "https://www.manifesttest.example/books/a-book"
              )
     end
+
+    # {insert}
   end
 
   describe "hardcoded providers still work alongside manifest providers" do
@@ -216,14 +218,27 @@ defmodule Hiraeth.RealCatalog.SourcePolicyManifestTest do
       assert {:ok, "deep_vellum_official_store"} =
                SourcePolicy.load_provider_manifest(@deep_vellum_manifest)
 
-      assert SourcePolicy.source_uri_allowed?(
+      refute SourcePolicy.source_uri_allowed?(
                "deep_vellum_official_store",
                @new_deep_vellum_handle_url
              )
 
       assert SourcePolicy.source_uri_allowed?(
                "deep_vellum_official_store",
-               @new_deep_vellum_handle_url <> "#paperback"
+               @new_deep_vellum_handle_url,
+               %{publisher: "Deep Vellum"}
+             )
+
+      assert SourcePolicy.source_uri_allowed?(
+               "deep_vellum_official_store",
+               @new_deep_vellum_handle_url <> "#paperback",
+               %{publisher: "Deep Vellum Publishing"}
+             )
+
+      refute SourcePolicy.source_uri_allowed?(
+               "deep_vellum_official_store",
+               "https://store.deepvellum.org/products/phoneme-book",
+               %{publisher: "Phoneme"}
              )
     after
       cleanup_temp_manifests()

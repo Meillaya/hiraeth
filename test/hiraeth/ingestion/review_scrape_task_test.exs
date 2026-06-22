@@ -3,6 +3,8 @@ defmodule Hiraeth.Ingestion.ReviewScrapeTaskTest do
 
   import ExUnit.CaptureIO
 
+  alias Hiraeth.Support.DeepVellumStealthyFixture
+
   @provider "review_scrape_test_provider"
 
   setup do
@@ -83,6 +85,43 @@ defmodule Hiraeth.Ingestion.ReviewScrapeTaskTest do
     end
   end
 
+  describe "validation findings" do
+    test "real provider staged datasets validate even without provider_permissions" do
+      provider = DeepVellumStealthyFixture.provider()
+      staged_path = staged_path_for(provider)
+      current_path = current_path_for(provider)
+      original_staged = read_if_exists(staged_path)
+      original_current = read_if_exists(current_path)
+
+      on_exit(fn ->
+        restore_file!(staged_path, original_staged)
+        restore_file!(current_path, original_current)
+      end)
+
+      [valid_record | _] = DeepVellumStealthyFixture.records()
+      invalid_record = DeepVellumStealthyFixture.missing_contributors_record(valid_record)
+
+      write_dataset_without_permissions!(
+        current_path,
+        DeepVellumStealthyFixture.dataset([valid_record])
+      )
+
+      write_dataset_without_permissions!(
+        staged_path,
+        DeepVellumStealthyFixture.dataset([invalid_record])
+      )
+
+      output =
+        capture_io(fn ->
+          assert :ok = Mix.Tasks.Hiraeth.ReviewScrape.run(["--provider", provider])
+        end)
+
+      assert output =~ "validation_findings=2"
+      assert output =~ "provider permission metadata is required"
+      assert output =~ "at least one contributor is required"
+    end
+  end
+
   describe "argument and file validation" do
     test "missing staged file exits 1" do
       File.rm(staged_path_for(@provider))
@@ -126,6 +165,31 @@ defmodule Hiraeth.Ingestion.ReviewScrapeTaskTest do
 
   defp current_path_for(provider) do
     Application.app_dir(:hiraeth, "priv/catalog_sources/real_publishers/#{provider}.json")
+  end
+
+  defp read_if_exists(path) do
+    case File.read(path) do
+      {:ok, content} -> {:ok, content}
+      {:error, :enoent} -> :missing
+    end
+  end
+
+  defp restore_file!(path, {:ok, content}) do
+    File.mkdir_p!(Path.dirname(path))
+    File.write!(path, content)
+  end
+
+  defp restore_file!(path, :missing), do: File.rm(path)
+
+  defp write_dataset_without_permissions!(path, dataset) do
+    File.mkdir_p!(Path.dirname(path))
+
+    dataset =
+      dataset
+      |> Map.delete(:provider_permissions)
+      |> Map.put(:file, Path.basename(path))
+
+    File.write!(path, Jason.encode!(dataset, pretty: true))
   end
 
   defp write_dataset(path, provider, records) do

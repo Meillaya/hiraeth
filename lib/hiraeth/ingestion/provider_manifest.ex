@@ -88,7 +88,7 @@ defmodule Hiraeth.Ingestion.ProviderManifest do
     provider name source_mode source_urls source_hosts cover_hosts
     api spider rate_limit expected_record_count permission_basis
     takedown_contact excluded_content cover_cache_policy not_legal_advice
-    type endpoint auth module start_urls selectors
+    type endpoint auth allowed_vendors source_handle_patterns host path_prefix handle_pattern module start_urls selectors
     max_concurrency min_delay_ms max_bytes
     method key_env book title author
   )

@@ -126,7 +126,7 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
   end
 
   defp process_api_fallback_result({:ok, %{records: records}}, manifest, client) do
-    {records, enriched_count} = enrich_detail_records(records, manifest.provider, client)
+    {records, enriched_count} = enrich_detail_records(records, manifest, client)
 
     if enriched_count > 0 do
       Logger.warning("enriched detail for #{enriched_count} records")
@@ -168,7 +168,8 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
         Map.put(config, :api, %{
           type: manifest.api[:type],
           endpoint: manifest.api[:endpoint],
-          auth: manifest.api[:auth]
+          auth: manifest.api[:auth],
+          allowed_vendors: manifest.api[:allowed_vendors]
         })
       else
         config
@@ -203,21 +204,33 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
 
   defp rate_limit_snooze_seconds, do: 60
 
-  defp enrich_detail_records(records, provider, client) do
+  defp enrich_detail_records(records, manifest, client) do
+    detail_opts = detail_enrichment_opts(manifest)
+
     Enum.map_reduce(records, 0, fn record, enriched_count ->
-      case enrich_detail_record(record, provider, client) do
+      case enrich_detail_record(record, manifest.provider, client, detail_opts) do
         {:enriched, record} -> {record, enriched_count + 1}
         {:unchanged, record} -> {record, enriched_count}
       end
     end)
   end
 
-  defp enrich_detail_record(record, provider, client) do
+  defp detail_enrichment_opts(manifest) do
+    max_bytes = get_in(manifest.rate_limit || %{}, [:max_bytes])
+
+    if is_integer(max_bytes) and max_bytes > 0 do
+      [max_bytes: max_bytes]
+    else
+      []
+    end
+  end
+
+  defp enrich_detail_record(record, provider, client, detail_opts) do
     if needs_detail_enrichment?(record) do
       source_uri = map_value(record, :source_uri)
 
       if is_binary(source_uri) and present?(source_uri) do
-        case client.detail(source_uri, provider) do
+        case client.detail(source_uri, provider, detail_opts) do
           {:ok, detail} when is_map(detail) ->
             merge_detail(record, detail, provider)
 

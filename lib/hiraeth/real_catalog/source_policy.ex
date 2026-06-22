@@ -220,9 +220,9 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
 
   def source_pdf_path_prefixes(provider), do: Map.get(@source_pdf_path_prefixes, provider, [])
 
-  def source_uri_allowed?(provider, uri_string) do
+  def source_uri_allowed?(provider, uri_string, context \\ nil) do
     uri_allowed?(provider, uri_string, &source_host_allowed?/2, &source_path_allowed?/2) or
-      manifest_source_handle_allowed?(provider, uri_string)
+      manifest_source_handle_allowed?(provider, uri_string, context)
   end
 
   def load_provider_manifest(file_path) do
@@ -259,17 +259,20 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
     uri_allowed?(provider, uri_string, &cover_host_allowed?/2, fn _provider, _path -> true end)
   end
 
-  def purchase_uri_allowed?(provider, uri_string), do: source_uri_allowed?(provider, uri_string)
+  def purchase_uri_allowed?(provider, uri_string, context \\ nil),
+    do: source_uri_allowed?(provider, uri_string, context)
 
-  def review_link_allowed?(provider, review) when is_map(review) do
+  def review_link_allowed?(provider, review, context \\ nil)
+
+  def review_link_allowed?(provider, review, context) when is_map(review) do
     source_uri = map_value(review, :source_uri)
 
     present?(map_value(review, :source)) and present?(source_uri) and
-      review_uri_allowed?(provider, source_uri) and
+      review_uri_allowed?(provider, source_uri, context) and
       review_excerpt_allowed?(map_value(review, :excerpt), map_value(review, :rights_basis))
   end
 
-  def review_link_allowed?(_provider, _review), do: false
+  def review_link_allowed?(_provider, _review, _context), do: false
 
   def review_excerpt_allowed?(excerpt, rights_basis) when excerpt in [nil, ""],
     do: rights_basis == "link_only"
@@ -279,7 +282,8 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
       rights_basis in ["publisher_supplied", "licensed_excerpt", "explicit_authorization"]
   end
 
-  def review_uri_allowed?(provider, uri_string), do: source_uri_allowed?(provider, uri_string)
+  def review_uri_allowed?(provider, uri_string, context \\ nil),
+    do: source_uri_allowed?(provider, uri_string, context)
 
   def cover_cache_allowed?(provider) do
     provider_permission_metadata!(provider).cover_hosts != []
@@ -380,17 +384,17 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
     end)
   end
 
-  defp manifest_source_handle_allowed?(provider, uri_string) do
+  defp manifest_source_handle_allowed?(provider, uri_string, context) do
     case URI.parse(to_string(uri_string)) do
       %URI{scheme: "https", host: host, path: path, query: nil} when is_binary(host) ->
         path = path || "/"
 
         source_host_allowed?(provider, host) and
           safe_path_for_prefix_match?(path) and
-          Enum.any?(
-            manifest_source_handle_patterns(provider),
-            &source_handle_matches?(&1, host, path)
-          )
+          Enum.any?(manifest_source_handle_patterns(provider), fn pattern ->
+            source_handle_matches?(pattern, host, path) and
+              source_handle_vendor_allowed?(pattern, context)
+          end)
 
       _invalid_or_query_uri ->
         false
@@ -412,6 +416,31 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
   end
 
   defp source_handle_matches?(_pattern, _host, _path), do: false
+
+  defp source_handle_vendor_allowed?(%{allowed_vendors: allowed_vendors}, context)
+       when is_list(allowed_vendors) and allowed_vendors != [] do
+    context
+    |> context_vendor()
+    |> vendor_in_allowlist?(allowed_vendors)
+  end
+
+  defp source_handle_vendor_allowed?(_pattern_without_vendor_gate, _context), do: true
+
+  defp context_vendor(context) when is_map(context) do
+    map_value(context, :vendor) || map_value(context, :publisher) || map_value(context, :provider)
+  end
+
+  defp context_vendor(_context), do: nil
+
+  defp vendor_in_allowlist?(vendor, allowed_vendors) when is_binary(vendor) do
+    normalized = String.downcase(String.trim(vendor))
+
+    Enum.any?(allowed_vendors, fn allowed ->
+      is_binary(allowed) and String.downcase(String.trim(allowed)) == normalized
+    end)
+  end
+
+  defp vendor_in_allowlist?(_vendor, _allowed_vendors), do: false
 
   defp safe_source_handle?(handle, "[a-z0-9][a-z0-9-]*"),
     do: String.match?(handle, ~r/^[a-z0-9][a-z0-9-]*$/)
@@ -440,11 +469,25 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
     handle_pattern = map_value(pattern, :handle_pattern)
 
     if safe_source_handle_pattern?(host, path_prefix, handle_pattern) do
-      %{host: host, path_prefix: path_prefix, handle_pattern: handle_pattern}
+      %{
+        host: host,
+        path_prefix: path_prefix,
+        handle_pattern: handle_pattern,
+        allowed_vendors: normalize_allowed_vendors(map_value(pattern, :allowed_vendors))
+      }
     end
   end
 
   defp normalize_source_handle_pattern(_pattern), do: nil
+
+  defp normalize_allowed_vendors(vendors) when is_list(vendors) do
+    vendors
+    |> Enum.filter(&present?/1)
+    |> Enum.map(&String.trim/1)
+    |> Enum.uniq()
+  end
+
+  defp normalize_allowed_vendors(_vendors), do: []
 
   defp safe_source_handle_pattern?(host, path_prefix, handle_pattern) do
     present?(host) and host == String.downcase(host) and

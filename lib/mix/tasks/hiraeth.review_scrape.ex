@@ -15,7 +15,7 @@ defmodule Mix.Tasks.Hiraeth.ReviewScrape do
   """
   use Mix.Task
 
-  alias Hiraeth.RealCatalog.{Dataset, Validator}
+  alias Hiraeth.RealCatalog.{Dataset, SourcePolicy, Validator}
 
   @shortdoc "Compare staged dataset against current dataset for a provider"
 
@@ -154,16 +154,35 @@ defmodule Mix.Tasks.Hiraeth.ReviewScrape do
   end
 
   defp validation_findings(staged) do
-    case Map.get(staged, :provider_permissions) do
-      permissions when is_map(permissions) and map_size(permissions) > 0 ->
-        case Validator.validate_datasets([staged]) do
-          {:ok, _summary} -> []
-          {:error, findings} -> findings
-        end
+    if validation_required?(staged) do
+      register_manifest_provider(staged.provider)
 
-      _missing_or_legacy_fixture ->
-        []
+      case Validator.validate_datasets([staged]) do
+        {:ok, _summary} -> []
+        {:error, findings} -> findings
+      end
+    else
+      []
     end
+  end
+
+  defp validation_required?(dataset) do
+    File.exists?(provider_manifest_path(dataset.provider))
+  end
+
+  defp register_manifest_provider(provider) do
+    path = provider_manifest_path(provider)
+
+    if File.exists?(path) do
+      SourcePolicy.load_provider_manifest(path)
+    end
+
+    :ok
+  end
+
+  defp provider_manifest_path(provider) do
+    base_dir = Application.app_dir(:hiraeth, "priv/catalog_sources/provider_manifests")
+    Path.join(base_dir, "#{provider}.json")
   end
 
   defp print_report(opts) do

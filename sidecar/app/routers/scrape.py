@@ -1,5 +1,6 @@
 import importlib
-from typing import Any, Protocol
+import re
+from typing import Any, Final, Protocol
 from urllib.parse import urlparse
 
 import anyio
@@ -13,6 +14,7 @@ from app.models import (
 )
 from app.spiders.deep_vellum_stealthy import (
     DeepVellumStealthySpider,
+    ResponseTooLargeError,
     StealthyFetcher,
     _response_text,
 )
@@ -47,7 +49,8 @@ GenericBookSpider = _load_spider_factory(
 )
 
 _DEEP_VELLUM_PROVIDERS = {"deep_vellum", "deep_vellum_official_store"}
-_FORBIDDEN_DETAIL_SEGMENTS = {"account", "cart", "checkout"}
+_FORBIDDEN_DETAIL_SEGMENTS: Final = {"account", "cart", "checkout"}
+_DEEP_VELLUM_PRODUCT_PATH: Final = re.compile(r"^/products/([a-z0-9][a-z0-9-]*)$")
 
 
 def _uses_deep_vellum_stealthy(request: ScrapeRequest) -> bool:
@@ -72,12 +75,8 @@ def _ensure_deep_vellum_detail_request(request: DetailScrapeRequest) -> None:
             detail="Detail URL must not include query or fragment",
         )
 
-    segments = [segment for segment in parsed.path.split("/") if segment]
-    if (
-        len(segments) < 2
-        or segments[0] != "products"
-        or any(segment in _FORBIDDEN_DETAIL_SEGMENTS for segment in segments)
-    ):
+    path_match = _DEEP_VELLUM_PRODUCT_PATH.fullmatch(parsed.path)
+    if not path_match or path_match.group(1) in _FORBIDDEN_DETAIL_SEGMENTS:
         raise HTTPException(
             status_code=422,
             detail="Detail URL must target a Deep Vellum product",
@@ -133,7 +132,12 @@ async def scrape_detail(request: DetailScrapeRequest) -> DetailScrapeResponse:
 
     spider = DeepVellumStealthySpider()
     response = await StealthyFetcher.fetch_async(request.url, **spider.fetch_options)
-    detail = spider._parse_detail(_response_text(response))
+    try:
+        detail_text = _response_text(response, request.max_bytes)
+    except ResponseTooLargeError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+    detail = spider._parse_detail(detail_text)
     description = detail.description
 
     return DetailScrapeResponse(

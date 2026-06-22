@@ -118,7 +118,7 @@ defmodule Hiraeth.Ingestion.SidecarClient do
     req_options = Keyword.get(opts, :req_options, [])
 
     default_options = [
-      json: %{url: source_uri, vendor: vendor},
+      json: detail_request_body(source_uri, vendor, opts),
       receive_timeout: @detail_timeout,
       retry: :transient,
       max_retries: @detail_max_retries
@@ -138,5 +138,15 @@ defmodule Hiraeth.Ingestion.SidecarClient do
 
   defp base_url do
     Application.get_env(:hiraeth, :scrapling_sidecar)[:base_url]
+  end
+
+  defp detail_request_body(source_uri, vendor, opts) do
+    case Keyword.get(opts, :max_bytes) do
+      max_bytes when is_integer(max_bytes) and max_bytes > 0 ->
+        %{url: source_uri, vendor: vendor, max_bytes: max_bytes}
+
+      _max_bytes ->
+        %{url: source_uri, vendor: vendor}
+    end
   end
 end
