@@ -12,6 +12,7 @@ from app.spiders.deep_vellum_stealthy import (
     DeepVellumStealthySpider,
     ResponseTooLargeError,
     StealthyFetcher,
+    _response_text,
 )
 
 FIXTURES_DIR: Final = Path(__file__).parent / "fixtures"
@@ -22,6 +23,12 @@ PARTIAL_URL: Final = "https://store.deepvellum.org/products/nameless-city"
 
 
 @dataclass(frozen=True, slots=True)
+class EmptyTextBodyResponse:
+    text: str
+    body: bytes
+
+
+@dataclass(frozen=True, slots=True)
 class FakeStealthyResponse:
     url: str
     text: str
@@ -29,6 +36,13 @@ class FakeStealthyResponse:
 
 def _load_fixture(name: str) -> str:
     return (FIXTURES_DIR / name).read_text()
+
+
+def test_response_text_uses_body_when_scrapling_text_is_empty() -> None:
+    """Given empty Scrapling text, when reading response text, then body bytes are decoded."""
+    response = EmptyTextBodyResponse(text="", body=b"<html>embedded products</html>")
+
+    assert _response_text(response) == "<html>embedded products</html>"
 
 
 def test_scrape_catalog_enriches_allowed_products(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -63,6 +77,57 @@ def test_scrape_catalog_enriches_allowed_products(monkeypatch: pytest.MonkeyPatc
         assert set(record["displayed_fields"]).issubset(record["field_sources"])
         assert record["cover"]["cache_policy"] == "cache_allowed"
         assert "prompt:" not in record.get("description", "")
+
+
+def test_scrape_catalog_reads_embedded_shopify_product_variants(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Given current Shopify event data, when scraping, then allowed books are enriched."""
+    calls: list[str] = []
+    fixtures = {
+        CATALOG_URL: "deep_vellum_stealthy_embedded_catalog.html",
+        RILKE_URL: "deep_vellum_stealthy_detail_rilke.html",
+        BRAZILLIONAIRES_URL: "deep_vellum_stealthy_detail_brazillionaires.html",
+    }
+
+    async def fake_fetch_async(url: str, **_kwargs) -> FakeStealthyResponse:
+        calls.append(url)
+        return FakeStealthyResponse(url=url, text=_load_fixture(fixtures[url]))
+
+    monkeypatch.setattr(StealthyFetcher, "fetch_async", fake_fetch_async)
+
+    records = anyio.run(DeepVellumStealthySpider().scrape_catalog, {})
+
+    assert calls[0] == CATALOG_URL
+    assert RILKE_URL in calls
+    assert BRAZILLIONAIRES_URL in calls
+    assert "https://store.deepvellum.org/products/a-blind-salmon" not in calls
+    assert len(records) == 2
+    assert {record["work"]["title"] for record in records} == {"Rilke Shake", "Brazillionaires"}
+    for record in records:
+        _ = BookRecord(**record)
+        assert record["cover"]["source_url"].startswith("https://cdn.shopify.com/s/files/1/0433/1651/0883/products/")
+
+
+def test_contributor_extraction_stops_at_block_boundaries() -> None:
+    """Given prose after translator metadata, when extracting, then prose is not a name."""
+    description = (
+        "By Alla Gorbunova | Translated by Elina Alter | "
+        "Twisting the art of the fairytale into something entirely her own. "
+        "Publication Date: November 4th, 2025 Paperback: 9781646054039"
+    )
+
+    contributors = DeepVellumStealthySpider._extract_contributors(description)
+
+    assert contributors == [
+        {"name": "Alla Gorbunova", "role": "author"},
+        {"name": "Elina Alter", "role": "translator"},
+    ]
+
+
+def test_contributor_extraction_ignores_by_inside_prose() -> None:
+    """Given prose containing by, when extracting contributors, then it is ignored."""
+    description = "Description | Best Literary Translations 2024 features poems. By spotlighting journals, it honors translators."
+
+    assert DeepVellumStealthySpider._extract_contributors(description) == []
 
 
 def test_scrape_catalog_rejects_unsafe_catalog_url_before_fetch(monkeypatch: pytest.MonkeyPatch) -> None:

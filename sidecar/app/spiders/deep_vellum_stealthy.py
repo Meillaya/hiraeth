@@ -6,24 +6,15 @@ import logging
 import re
 from dataclasses import dataclass
 from datetime import datetime
-from html import unescape
 from typing import Any, ClassVar
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urlparse
 
 import anyio
 
+from app.spiders.deep_vellum_parsing import DetailPage, ProductCard, parse_catalog, parse_detail
+
 logger = logging.getLogger(__name__)
 JsonDict = dict[str, Any]
-
-
-@dataclass(frozen=True, slots=True)
-class ProductCard:
-    title: str; vendor: str; handle: str; cover_url: str | None
-
-
-@dataclass(frozen=True, slots=True)
-class DetailPage:
-    title: str | None; description: str | None; cover_url: str | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -53,7 +44,13 @@ class DeepVellumStealthySpider:
     base_url: ClassVar[str] = "https://store.deepvellum.org"
     default_catalog_url: ClassVar[str] = f"{base_url}/collections/all"
     default_provider: ClassVar[str] = "deep_vellum_official_store"
-    fetch_options: ClassVar[JsonDict] = {"headless": True, "google_search": False, "network_idle": True, "wait_selector": ".sparq-result-inner", "useragent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/125 Safari/537.36"}
+    fetch_options: ClassVar[JsonDict] = {
+        "headless": True,
+        "google_search": False,
+        "network_idle": True,
+        "wait_selector": "body",
+        "useragent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/125 Safari/537.36",
+    }
 
     async def scrape_catalog(self, config: dict[str, Any]) -> list[JsonDict]:
         """Fetch the catalog, follow allowed product details, and return records."""
@@ -91,7 +88,7 @@ class DeepVellumStealthySpider:
     def _record(self, product: ProductCard, detail: DetailPage, contributors: list[dict[str, str]], provider: str, detail_url: str) -> JsonDict:
         title = detail.title or product.title
         description = detail.description
-        cover_url = detail.cover_url or product.cover_url
+        cover_url = product.cover_url or detail.cover_url
         isbn_13 = self._extract_isbn(description)
         published_on = self._extract_publication_date(description)
         displayed_fields = _displayed_fields(isbn_13, published_on, cover_url, description)
@@ -149,18 +146,11 @@ class DeepVellumStealthySpider:
 
     @classmethod
     def _parse_catalog(cls, html: str) -> list[ProductCard]:
-        starts = [match.start() for match in re.finditer(r"class=['\"][^'\"]*sparq-result-inner", html)]
-        products: list[ProductCard] = []
-        for index, start in enumerate(starts):
-            product = _product_from_segment(html[start : starts[index + 1] if index + 1 < len(starts) else len(html)], cls.base_url)
-            if product:
-                products.append(product)
-        return products
+        return parse_catalog(html, cls.base_url)
 
     @classmethod
     def _parse_detail(cls, html: str) -> DetailPage:
-        cleaned = _strip_unsafe_text(html)
-        return DetailPage(title=_text_for_class(cleaned, "product-single__title"), description=_description_text(cleaned), cover_url=_first_image_url(cleaned, cls.base_url))
+        return parse_detail(html, cls.base_url)
 
     @classmethod
     def is_allowed_vendor(cls, vendor: str | None) -> bool:
@@ -196,9 +186,9 @@ class DeepVellumStealthySpider:
 
     @staticmethod
     def _extract_contributors(text: str | None) -> list[dict[str, str]]:
-        text = text or ""
-        author = re.search(r"\bBy\s+(.+?)(?=\s+Translated by\s+|\s+ISBN:|\s+Publication Date:|\s+Paperback:|$)", text)
-        translator = re.search(r"\bTranslated by\s+(.+?)(?=\s+ISBN:|\s+Publication Date:|\s+Paperback:|$)", text)
+        metadata = re.split(r"\s+\|\s+\|\s+", text or "", maxsplit=1)[0]
+        author = re.search(r"(?:^|\|\s+)By\s+(.+?)(?=\s+\|\s+|\s+Translated by\s+|\s+ISBN:|\s+Publication Date:|\s+Paperback:|$)", metadata)
+        translator = re.search(r"(?:^|\|\s+|\s+)Translated by\s+(.+?)(?=\s+\|\s+|\s+ISBN:|\s+Publication Date:|\s+Paperback:|$)", metadata)
         contributors: list[dict[str, str]] = []
         if author:
             contributors.append({"name": author.group(1).strip(), "role": "author"})
@@ -211,59 +201,15 @@ def _response_text(response: Any, max_bytes: int | None = None) -> str:
     text = getattr(response, "text", "")
     value = text() if callable(text) else text
     result = value if isinstance(value, str) else str(value or "")
+    if not result:
+        body = getattr(response, "body", b"")
+        if isinstance(body, bytes):
+            result = body.decode("utf-8", errors="replace")
+        elif isinstance(body, str):
+            result = body
     if max_bytes is not None and len(result.encode("utf-8")) > max_bytes:
         raise ResponseTooLargeError(f"fetched response exceeded max_bytes={max_bytes}")
     return result
-
-
-def _product_from_segment(segment: str, base_url: str) -> ProductCard | None:
-    title = _text_for_class(segment, "sparq-item-title") or _text_for_class(segment, "product-title")
-    vendor = _text_for_class(segment, "vendor-title") or _text_for_class(segment, "vendor")
-    handle = _attr(segment, "data-handle") or _handle_from_href(_attr(segment, "href"))
-    return ProductCard(title, vendor, handle, _first_image_url(segment, base_url)) if title and vendor and handle else None
-
-
-def _text_for_class(html: str, class_name: str) -> str | None:
-    match = re.search(rf"<[^>]*class=['\"][^'\"]*{re.escape(class_name)}[^'\"]*['\"][^>]*>(.*?)</[^>]+>", html, re.DOTALL)
-    return _clean_text(_strip_tags(match.group(1))) if match else None
-
-
-def _description_text(html: str) -> str | None:
-    match = re.search(r"<[^>]*class=['\"][^'\"]*product-single__description[^'\"]*rte[^'\"]*['\"][^>]*>(.*?)</div>", html, re.DOTALL)
-    return _clean_text(_strip_tags(match.group(1))) if match else None
-
-
-def _first_image_url(html: str, base_url: str) -> str | None:
-    match = re.search(r"<img\b(?P<attrs>[^>]*)>", html, re.DOTALL)
-    if not match:
-        return None
-    src = _attr(match.group("attrs"), "src") or ""
-    data_src = _attr(match.group("attrs"), "data-src") or ""
-    candidate = data_src if data_src and "loader" in src else data_src or src
-    return urljoin(base_url, candidate.strip()) if candidate else None
-
-
-def _attr(html: str, name: str) -> str | None:
-    match = re.search(rf"\b{re.escape(name)}=['\"]([^'\"]+)['\"]", html)
-    return unescape(match.group(1)).strip() if match else None
-
-
-def _handle_from_href(href: str | None) -> str | None:
-    match = re.search(r"/products/([^/?#]+)", urlparse(href or "").path)
-    return match.group(1) if match else None
-
-
-def _strip_unsafe_text(html: str) -> str:
-    return re.sub(r"<(script|style)\b.*?</\1>", " ", html, flags=re.DOTALL | re.IGNORECASE)
-
-
-def _strip_tags(html: str) -> str:
-    return unescape(re.sub(r"<[^>]+>", " ", html))
-
-
-def _clean_text(text: str | None) -> str | None:
-    cleaned = re.sub(r"\s+", " ", text or "").strip()
-    return cleaned or None
 
 
 def _work(title: str) -> JsonDict:
