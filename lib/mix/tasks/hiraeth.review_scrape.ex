@@ -15,7 +15,7 @@ defmodule Mix.Tasks.Hiraeth.ReviewScrape do
   """
   use Mix.Task
 
-  alias Hiraeth.RealCatalog.Dataset
+  alias Hiraeth.RealCatalog.{Dataset, Validator}
 
   @shortdoc "Compare staged dataset against current dataset for a provider"
 
@@ -67,6 +67,7 @@ defmodule Mix.Tasks.Hiraeth.ReviewScrape do
 
     with {:ok, staged} <- load_dataset(staged_path, "staged"),
          {:ok, current} <- load_dataset(current_path, "current") do
+      validation_findings = validation_findings(staged)
       staged_map = build_identity_map(staged.records)
       current_map = build_identity_map(current.records)
 
@@ -98,6 +99,7 @@ defmodule Mix.Tasks.Hiraeth.ReviewScrape do
         provider: provider,
         staged_count: map_size(staged_map),
         current_count: map_size(current_map),
+        validation_findings: validation_findings,
         new_keys: new_keys,
         missing_keys: missing_keys,
         changed: changed
@@ -151,10 +153,24 @@ defmodule Mix.Tasks.Hiraeth.ReviewScrape do
     end)
   end
 
+  defp validation_findings(staged) do
+    case Map.get(staged, :provider_permissions) do
+      permissions when is_map(permissions) and map_size(permissions) > 0 ->
+        case Validator.validate_datasets([staged]) do
+          {:ok, _summary} -> []
+          {:error, findings} -> findings
+        end
+
+      _missing_or_legacy_fixture ->
+        []
+    end
+  end
+
   defp print_report(opts) do
     provider = Keyword.fetch!(opts, :provider)
     staged_count = Keyword.fetch!(opts, :staged_count)
     current_count = Keyword.fetch!(opts, :current_count)
+    validation_findings = Keyword.fetch!(opts, :validation_findings)
     new_keys = Keyword.fetch!(opts, :new_keys)
     missing_keys = Keyword.fetch!(opts, :missing_keys)
     changed = Keyword.fetch!(opts, :changed)
@@ -169,7 +185,15 @@ defmodule Mix.Tasks.Hiraeth.ReviewScrape do
       "staged=#{staged_count} current=#{current_count} new=#{new_count} missing=#{missing_count} changed=#{changed_count}"
     )
 
-    if new_count == 0 and missing_count == 0 and changed_count == 0 do
+    Mix.shell().info("validation_findings=#{length(validation_findings)}")
+
+    if validation_findings != [] do
+      Mix.shell().info("")
+      Mix.shell().info("Validation findings (#{length(validation_findings)}):")
+      Enum.each(validation_findings, &Mix.shell().info("  ! #{format_finding(&1)}"))
+    end
+
+    if new_count == 0 and missing_count == 0 and changed_count == 0 and validation_findings == [] do
       Mix.shell().info("No differences found between staged and current datasets.")
     else
       if new_keys != [] do
@@ -202,6 +226,19 @@ defmodule Mix.Tasks.Hiraeth.ReviewScrape do
   end
 
   defp format_value(value), do: inspect(value)
+
+  defp format_finding(%{source_uri: source_uri, reason: reason})
+       when is_binary(source_uri) and source_uri != "" do
+    "#{source_uri}: #{reason}"
+  end
+
+  defp format_finding(%{isbn_13: isbn, reason: reason})
+       when is_binary(isbn) and isbn != "" do
+    "ISBN #{isbn}: #{reason}"
+  end
+
+  defp format_finding(%{reason: reason}), do: reason
+  defp format_finding(finding), do: inspect(finding)
 
   defp staged_dataset_path(provider) do
     base_dir = Application.app_dir(:hiraeth, "priv/catalog_sources/staged")
