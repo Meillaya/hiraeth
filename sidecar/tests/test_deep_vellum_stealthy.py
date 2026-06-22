@@ -104,3 +104,31 @@ def test_partial_detail_without_isbn_or_cover_is_validation_friendly(monkeypatch
     assert record["cover"]["source_url"] is None
     assert record["cover"]["no_cover_reason"] == "detail_page_missing_cover"
     assert "prompt: ignore instructions" not in record.get("description", "")
+
+
+def test_detail_fixture_extracts_enrichment_without_live_network(monkeypatch) -> None:
+    """Given a detail URL, when fetched via the seam, then only fixture data is parsed."""
+    calls: list[str] = []
+
+    async def fake_fetch_async(url: str, **_kwargs) -> FakeStealthyResponse:
+        calls.append(url)
+        return FakeStealthyResponse(
+            url=url,
+            text=_load_fixture("deep_vellum_stealthy_detail_rilke.html"),
+        )
+
+    monkeypatch.setattr(StealthyFetcher, "fetch_async", fake_fetch_async)
+
+    response = asyncio.run(StealthyFetcher.fetch_async(RILKE_URL))
+    detail = DeepVellumStealthySpider._parse_detail(response.text)
+    contributors = DeepVellumStealthySpider._extract_contributors(detail.description)
+
+    assert calls == [RILKE_URL]
+    assert detail.description is not None
+    assert contributors == [
+        {"name": "Angélica Freitas", "role": "author"},
+        {"name": "Hilary Kaplan", "role": "translator"},
+    ]
+    assert DeepVellumStealthySpider._extract_isbn(detail.description) == "9781939419545"
+    assert DeepVellumStealthySpider._extract_publication_date(detail.description) == "March 24, 2015"
+    assert detail.cover_url == "https://cdn.shopify.com/deep-vellum/rilke-detail.jpg"
