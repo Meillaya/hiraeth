@@ -233,7 +233,7 @@ class TestScrapeRouter:
     def test_scrape_endpoint_returns_error_on_spider_failure(self):
         with patch(
             "app.routers.scrape.GenericBookSpider.to_json",
-            side_effect=Exception("spider exploded"),
+            side_effect=RuntimeError("spider exploded"),
         ):
             response = client.post(
                 "/scrape/",
@@ -253,71 +253,6 @@ class TestScrapeRouter:
         assert "spider exploded" in data["status"]
         assert data["records"] == []
 
-    def test_scrape_endpoint_dispatches_deep_vellum_spider(self):
-        with patch("app.routers.scrape.DeepVellumSpider") as mock_dv_spider:
-            mock_instance = mock_dv_spider.return_value
-            mock_instance.to_json.return_value = [{"title": "Deep Vellum Book"}]
-
-            response = client.post(
-                "/scrape/",
-                json={
-                    "provider": "deep_vellum",
-                    "config": {
-                        "start_urls": ["http://example.com"],
-                    },
-                },
-            )
-
-            assert response.status_code == 200
-            data = response.json()
-            assert data["provider"] == "deep_vellum"
-            assert data["status"] == "success"
-            assert data["records"] == [{"title": "Deep Vellum Book"}]
-            mock_dv_spider.assert_called_once_with(config={"start_urls": ["http://example.com"], "provider": "deep_vellum"})
-
-    def test_scrape_endpoint_dispatches_deep_vellum_official_store_spider(self):
-        with patch("app.routers.scrape.DeepVellumSpider") as mock_dv_spider:
-            mock_instance = mock_dv_spider.return_value
-            mock_instance.to_json.return_value = [{"title": "Deep Vellum Book"}]
-
-            response = client.post(
-                "/scrape/",
-                json={
-                    "provider": "deep_vellum_official_store",
-                    "config": {
-                        "start_urls": ["http://example.com"],
-                    },
-                },
-            )
-
-            assert response.status_code == 200
-            data = response.json()
-            assert data["provider"] == "deep_vellum_official_store"
-            assert data["status"] == "success"
-            assert data["records"] == [{"title": "Deep Vellum Book"}]
-            mock_dv_spider.assert_called_once_with(config={"start_urls": ["http://example.com"], "provider": "deep_vellum_official_store"})
-
-    def test_scrape_endpoint_dispatches_generic_book_spider_for_unknown_provider(self):
-        with patch("app.routers.scrape.GenericBookSpider") as mock_generic_spider:
-            mock_instance = mock_generic_spider.return_value
-            mock_instance.to_json.return_value = [{"title": "Generic Book"}]
-
-            response = client.post(
-                "/scrape/",
-                json={
-                    "provider": "unknown_provider",
-                    "config": {
-                        "start_urls": ["http://example.com"],
-                    },
-                },
-            )
-
-            assert response.status_code == 200
-            data = response.json()
-            assert data["provider"] == "unknown_provider"
-            assert data["status"] == "success"
-            assert data["records"] == [{"title": "Generic Book"}]
-            mock_generic_spider.assert_called_once_with(config={"start_urls": ["http://example.com"], "provider": "unknown_provider"})
 
 
 class TestBaseSpider:

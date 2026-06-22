@@ -16,13 +16,22 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
+from generate_full_catalog_deep_vellum import (
+    DEEP_VELLUM_PROVIDER,
+    build_deep_vellum_catalog,
+    parse_catalog_args,
+)
 
 OUT_DIR = Path("priv/catalog_sources/real_publishers")
 UA = "Hiraeth full catalog loader/1.0 (operator-authorized; local development)"
 TODAY = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 RIGHTS = "Operator-authorized public catalog refresh from official publisher pages/APIs; factual bibliographic metadata, official product descriptions, official cover URLs, purchase links, and source provenance preserved for each field."
-
 PROVIDERS = {
     "deep_vellum_official_store": {
         "file": "deep_vellum.json",
@@ -515,6 +524,17 @@ def build_shopify(provider: str, allowed_vendors: set[str]) -> list[dict[str, An
             source_uri = f"https://{urllib.parse.urlparse(base).hostname}/products/{product.get('handle')}"
             records.append(make_record(provider, p["publisher"], p["source_type"], source_uri, f"{product.get('id')}-{variant.get('id')}", title, fmt, isbn, contributors, cover, date, desc, subjects))
     return records
+
+
+def build_deep_vellum() -> list[dict[str, Any]]:
+    return build_deep_vellum_catalog(
+        PROVIDERS[DEEP_VELLUM_PROVIDER],
+        make_record,
+        normalize_format,
+        isbn13,
+        parse_date,
+        build_shopify,
+    )
 
 
 def build_archipelago() -> list[dict[str, Any]]:
@@ -1036,10 +1056,9 @@ def dedupe(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return out
 
 
-def main() -> int:
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    builders = {
-        "deep_vellum_official_store": lambda: build_shopify("deep_vellum_official_store", {"Deep Vellum", "Deep Vellum Publishing"}),
+def catalog_builders() -> dict[str, Callable[[], list[dict[str, Any]]]]:
+    return {
+        "deep_vellum_official_store": build_deep_vellum,
         "dalkey_archive_official_store": lambda: build_shopify("dalkey_archive_official_store", {"Dalkey Archive Press"}),
         "archipelago_books_official_store": build_archipelago,
         "new_directions_official_site": build_new_directions,
@@ -1051,15 +1070,28 @@ def main() -> int:
         "la_reunion_official_store": lambda: build_shopify("la_reunion_official_store", {"La Reunion"}),
         "fum_destampa_official_store": lambda: build_shopify("fum_destampa_official_store", {"Fum d'Estampa", "Fum d’Estampa"}),
     }
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = parse_catalog_args(PROVIDERS, argv)
+    if not args.dry_run:
+        OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    builders = catalog_builders()
+    selected = [args.provider] if args.provider else list(builders)
     summary = {}
-    for provider, build in builders.items():
+    for provider in selected:
+        build = builders[provider]
         print(f"building {provider}", file=sys.stderr)
         records = enrich_missing_covers(dedupe(build()), provider)
         records.sort(key=lambda r: (r["work"]["title"].lower(), r["edition"].get("format") or "", r["edition"].get("isbn_13") or ""))
-        path = OUT_DIR / PROVIDERS[provider]["file"]
-        path.write_text(json.dumps(dataset(provider, records), ensure_ascii=False, indent=2) + "\n")
+        path = OUT_DIR / str(PROVIDERS[provider]["file"])
         summary[provider] = len(records)
-        print(f"wrote {path} records={len(records)}", file=sys.stderr)
+        if args.dry_run:
+            print(f"dry-run {provider} output={path} records={len(records)}", file=sys.stderr)
+        else:
+            path.write_text(json.dumps(dataset(provider, records), ensure_ascii=False, indent=2) + "\n")
+            print(f"wrote {path} records={len(records)}", file=sys.stderr)
     print(json.dumps({"retrieved_at": TODAY, "records": summary, "total": sum(summary.values())}, indent=2))
     return 0
 

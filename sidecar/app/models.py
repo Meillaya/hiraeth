@@ -24,6 +24,22 @@ class ScrapeResponse(BaseModel):
     records: list[dict[str, Any]] = Field(default_factory=list)
 
 
+class DetailScrapeRequest(BaseModel):
+    url: str
+    vendor: str
+    max_bytes: int | None = Field(default=None, gt=0)
+
+
+class DetailScrapeResponse(BaseModel):
+    vendor: str
+    source_uri: str
+    contributors: list[dict[str, str]] = Field(default_factory=list)
+    isbn_13: str | None = None
+    published_on: str | None = None
+    cover: dict[str, Any] = Field(default_factory=dict)
+    description: str | None = None
+
+
 class BookRecord(BaseModel):
     provider: str
     source_uri: str

@@ -38,6 +38,7 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
   alias Hiraeth.Sources.SourceRecord
 
   require Ash.Query
+  require Logger
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: args}) do
@@ -93,7 +94,7 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
           scrape_result ->
             if has_api_config?(manifest) do
               client.fetch(provider_config)
-              |> process_final_result("fetch (scrape fallback)")
+              |> process_api_fallback_result(manifest, client)
             else
               to_scrape_error(scrape_result)
             end
@@ -122,6 +123,20 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
 
   defp process_final_result({:error, reason}, source_label) do
     {:error, "sidecar #{source_label} failed: #{inspect(reason)}"}
+  end
+
+  defp process_api_fallback_result({:ok, %{records: records}}, manifest, client) do
+    {records, enriched_count} = enrich_detail_records(records, manifest, client)
+
+    if enriched_count > 0 do
+      Logger.warning("enriched detail for #{enriched_count} records")
+    end
+
+    {:ok, Dataset.normalize(records)}
+  end
+
+  defp process_api_fallback_result(result, _manifest, _client) do
+    process_final_result(result, "fetch (scrape fallback)")
   end
 
   defp to_scrape_error({:ok, %{records: []}}) do
@@ -153,7 +168,8 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
         Map.put(config, :api, %{
           type: manifest.api[:type],
           endpoint: manifest.api[:endpoint],
-          auth: manifest.api[:auth]
+          auth: manifest.api[:auth],
+          allowed_vendors: manifest.api[:allowed_vendors]
         })
       else
         config
@@ -187,6 +203,152 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
   end
 
   defp rate_limit_snooze_seconds, do: 60
+
+  defp enrich_detail_records(records, manifest, client) do
+    detail_opts = detail_enrichment_opts(manifest)
+
+    Enum.map_reduce(records, 0, fn record, enriched_count ->
+      case enrich_detail_record(record, manifest.provider, client, detail_opts) do
+        {:enriched, record} -> {record, enriched_count + 1}
+        {:unchanged, record} -> {record, enriched_count}
+      end
+    end)
+  end
+
+  defp detail_enrichment_opts(manifest) do
+    max_bytes = get_in(manifest.rate_limit || %{}, [:max_bytes])
+
+    if is_integer(max_bytes) and max_bytes > 0 do
+      [max_bytes: max_bytes]
+    else
+      []
+    end
+  end
+
+  defp enrich_detail_record(record, provider, client, detail_opts) do
+    if needs_detail_enrichment?(record) do
+      source_uri = map_value(record, :source_uri)
+
+      if is_binary(source_uri) and present?(source_uri) do
+        case client.detail(source_uri, provider, detail_opts) do
+          {:ok, detail} when is_map(detail) ->
+            merge_detail(record, detail, provider)
+
+          {:ok, detail} ->
+            Logger.warning(
+              "sidecar detail enrichment returned malformed response for #{source_uri}: #{inspect(detail)}"
+            )
+
+            {:unchanged, record}
+
+          {:error, reason} ->
+            Logger.warning(
+              "sidecar detail enrichment failed for #{source_uri}: #{inspect_detail_reason(reason)}"
+            )
+
+            {:unchanged, record}
+        end
+      else
+        {:unchanged, record}
+      end
+    else
+      {:unchanged, record}
+    end
+  end
+
+  defp merge_detail(record, detail, provider) do
+    original = record
+
+    record =
+      record
+      |> put_missing(:contributors, map_value(detail, :contributors))
+      |> put_missing(:description, map_value(detail, :description))
+      |> put_missing_edition_field(:isbn_13, map_value(detail, :isbn_13))
+      |> put_missing_edition_field(:published_on, map_value(detail, :published_on))
+      |> put_missing_cover_source(map_value(detail, :cover), provider)
+
+    if record == original do
+      {:unchanged, record}
+    else
+      {:enriched, record}
+    end
+  end
+
+  defp needs_detail_enrichment?(record) do
+    blank_contributors?(map_value(record, :contributors)) or
+      blank?(get_in_map(record, [:cover, :source_url]))
+  end
+
+  defp put_missing(map, key, value) do
+    if blank?(map_value(map, key)) and present?(value) do
+      Map.put(map, existing_key(map, key), value)
+    else
+      map
+    end
+  end
+
+  defp put_missing_edition_field(record, field, value) do
+    edition = map_value(record, :edition) || %{}
+
+    if is_map(edition) and blank?(map_value(edition, field)) and present?(value) do
+      edition = Map.put(edition, existing_key(edition, field), value)
+      Map.put(record, existing_key(record, :edition), edition)
+    else
+      record
+    end
+  end
+
+  defp put_missing_cover_source(record, cover_detail, provider) when is_map(cover_detail) do
+    source_url = map_value(cover_detail, :source_url)
+    cover = map_value(record, :cover) || %{}
+
+    if is_map(cover) and blank?(map_value(cover, :source_url)) and present?(source_url) do
+      cover =
+        cover
+        |> Map.put(existing_key(cover, :source_url), source_url)
+        |> put_missing(:provider, provider)
+        |> put_missing(:rights_basis, "local_cache_permitted")
+        |> put_missing(:cache_policy, "cache_allowed")
+
+      Map.put(record, existing_key(record, :cover), cover)
+    else
+      record
+    end
+  end
+
+  defp put_missing_cover_source(record, _cover_detail, _provider), do: record
+
+  defp blank_contributors?(value), do: value in [nil, []]
+
+  defp blank?(value), do: value in [nil, "", []]
+  defp present?(value), do: not blank?(value)
+
+  defp get_in_map(map, keys) do
+    Enum.reduce_while(keys, map, fn key, current ->
+      if is_map(current) do
+        {:cont, map_value(current, key)}
+      else
+        {:halt, nil}
+      end
+    end)
+  end
+
+  defp map_value(map, key) when is_map(map) and is_atom(key) do
+    Map.get(map, key) || Map.get(map, Atom.to_string(key))
+  end
+
+  defp map_value(_map, _key), do: nil
+
+  defp existing_key(map, key) do
+    cond do
+      Map.has_key?(map, key) -> key
+      is_atom(key) and Map.has_key?(map, Atom.to_string(key)) -> Atom.to_string(key)
+      true -> key
+    end
+  end
+
+  defp inspect_detail_reason(reason) when is_binary(reason), do: reason
+  defp inspect_detail_reason(reason), do: inspect(reason)
 
   # --- Step 4: Validate records ---
 

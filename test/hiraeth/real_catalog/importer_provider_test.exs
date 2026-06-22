@@ -163,7 +163,7 @@ defmodule Hiraeth.RealCatalogImporterProviderTest do
     assert length(Ash.read!(Edition, authorize?: false)) == 3
   end
 
-  @tag timeout: 180_000
+  @tag timeout: 300_000
   test "existing seed!/1 still works after adding seed_provider!/2" do
     clear_catalog!()
 

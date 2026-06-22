@@ -23,7 +23,7 @@ defmodule Mix.Tasks.Hiraeth.ApplyScrape do
   use Mix.Task
 
   alias Hiraeth.Imports.ImportRun
-  alias Hiraeth.RealCatalog.{Dataset, Importer}
+  alias Hiraeth.RealCatalog.{Dataset, Importer, SourcePolicy, Validator}
   alias Hiraeth.Sources.SourceRecord
 
   require Ash.Query
@@ -71,23 +71,53 @@ defmodule Mix.Tasks.Hiraeth.ApplyScrape do
     else
       File.mkdir_p!(Path.dirname(canonical_path))
 
-      # Copy then remove so the staged file survives any copy failure.
-      File.cp!(staged_path, canonical_path)
-      File.rm!(staged_path)
+      with {:ok, staged_dataset} <- Dataset.load_file(staged_path),
+           :ok <- validate_staged_dataset(staged_dataset) do
+        # Copy then remove so the staged file survives validation or copy failure.
+        File.cp!(staged_path, canonical_path)
+        File.rm!(staged_path)
 
-      with {:ok, dataset} <- Dataset.load_file(canonical_path),
-           import_run <- create_import_run!(dataset),
-           stale_before <- count_provider_source_records(provider),
-           {:ok, _summary} <- Importer.seed_provider!(dataset, import_run) do
-        source_records_after = count_provider_source_records(provider)
-        stale_pruned = stale_before
+        with {:ok, dataset} <- Dataset.load_file(canonical_path),
+             import_run <- create_import_run!(dataset),
+             stale_before <- count_provider_source_records(provider),
+             {:ok, _summary} <- Importer.seed_provider!(dataset, import_run) do
+          source_records_after = count_provider_source_records(provider)
+          stale_pruned = stale_before
 
-        print_summary(provider, dataset, source_records_after, stale_pruned)
-        :ok
-      else
-        {:error, reason} -> {:error, reason}
+          print_summary(provider, dataset, source_records_after, stale_pruned)
+          :ok
+        else
+          {:error, reason} -> {:error, reason}
+        end
       end
     end
+  end
+
+  defp validate_staged_dataset(dataset) do
+    if validation_required?(dataset) do
+      register_manifest_provider(dataset.provider)
+
+      case Validator.validate_datasets([dataset]) do
+        {:ok, _summary} -> :ok
+        {:error, findings} -> {:error, findings}
+      end
+    else
+      :ok
+    end
+  end
+
+  defp validation_required?(dataset) do
+    File.exists?(provider_manifest_path(dataset.provider))
+  end
+
+  defp register_manifest_provider(provider) do
+    path = provider_manifest_path(provider)
+
+    if File.exists?(path) do
+      SourcePolicy.load_provider_manifest(path)
+    end
+
+    :ok
   end
 
   defp create_import_run!(dataset) do
@@ -113,6 +143,11 @@ defmodule Mix.Tasks.Hiraeth.ApplyScrape do
     Mix.shell().info("source_records_created=#{source_records_after}")
     Mix.shell().info("stale_records_pruned=#{stale_pruned}")
     Mix.shell().info("canonical_file=#{dataset.file_path}")
+  end
+
+  defp provider_manifest_path(provider) do
+    base_dir = Application.app_dir(:hiraeth, "priv/catalog_sources/provider_manifests")
+    Path.join(base_dir, "#{provider}.json")
   end
 
   defp staged_dataset_path(provider) do
