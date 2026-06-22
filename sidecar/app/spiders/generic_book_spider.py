@@ -1,6 +1,7 @@
 """Configurable generic book spider with CSS/XPath selector support."""
 
 from typing import Any
+from urllib.parse import urljoin
 
 from scrapling.spiders import Response
 
@@ -25,16 +26,21 @@ class GenericBookSpider(BaseSpider):
         cover_sel = selectors.get("cover", ".cover::attr(src)")
         description_sel = selectors.get("description", ".description::text")
         publication_date_sel = selectors.get("publication_date", ".date::text")
+        source_uri_sel = selectors.get("source_uri")
 
         items = response.xpath(item_selector) if item_selector.startswith("//") else response.css(item_selector)
         for item in items:
             title = self._extract(item, title_sel)
+            if not title:
+                continue
+
             author = self._extract(item, author_sel)
             publisher = self._extract(item, publisher_sel)
             isbn = self._extract(item, isbn_sel)
-            cover_url = self._extract(item, cover_sel)
+            cover_url = self._absolute_url(response.url, self._extract(item, cover_sel))
             description = self._extract(item, description_sel)
             publication_date = self._extract(item, publication_date_sel)
+            source_uri = self._absolute_url(response.url, self._extract(item, source_uri_sel)) or response.url
 
             contributors = []
             if author:
@@ -42,7 +48,7 @@ class GenericBookSpider(BaseSpider):
 
             record: dict[str, Any] = {
                 "provider": provider,
-                "source_uri": response.url,
+                "source_uri": source_uri,
                 "work": {
                     "title": title,
                     "subtitle": None,
@@ -66,14 +72,15 @@ class GenericBookSpider(BaseSpider):
                     "rights_basis": "local_cache_permitted",
                     "attribution_text": f"Cover via {provider}",
                 },
+                "storefront_url": source_uri,
                 "field_sources": {
-                    "title": {"provider": provider, "source_uri": response.url},
-                    "author": {"provider": provider, "source_uri": response.url},
-                    "publisher": {"provider": provider, "source_uri": response.url},
-                    "isbn_13": {"provider": provider, "source_uri": response.url},
-                    "cover": {"provider": provider, "source_uri": response.url},
-                    "description": {"provider": provider, "source_uri": response.url},
-                    "published_on": {"provider": provider, "source_uri": response.url},
+                    "title": {"provider": provider, "source_uri": source_uri},
+                    "author": {"provider": provider, "source_uri": source_uri},
+                    "publisher": {"provider": provider, "source_uri": source_uri},
+                    "isbn_13": {"provider": provider, "source_uri": source_uri},
+                    "cover": {"provider": provider, "source_uri": source_uri},
+                    "description": {"provider": provider, "source_uri": source_uri},
+                    "published_on": {"provider": provider, "source_uri": source_uri},
                 },
             }
 
@@ -92,3 +99,9 @@ class GenericBookSpider(BaseSpider):
             return None
         result = item.css(selector).get() if not selector.startswith("//") else item.xpath(selector).get()
         return result.strip() if result else None
+
+    @staticmethod
+    def _absolute_url(base_url: str, value: str | None) -> str | None:
+        if not value:
+            return None
+        return urljoin(base_url, value)
