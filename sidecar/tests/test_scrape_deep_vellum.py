@@ -244,4 +244,3 @@ class TestDeepVellumScrapeRouter:
             assert data["status"] == "success"
             assert data["records"] == [{"title": "Generic Book"}]
             mock_generic_spider.assert_called_once_with(config={"start_urls": ["http://example.com"], "provider": "unknown_provider"})
-
