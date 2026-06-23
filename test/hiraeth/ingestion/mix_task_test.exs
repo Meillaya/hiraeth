@@ -179,6 +179,26 @@ defmodule Hiraeth.Ingestion.MixTaskTest do
     end
   end
 
+  defmodule MockConfigCaptureSidecarClient do
+    def health(_opts \\ []) do
+      MockSidecarClient.health()
+    end
+
+    def fetch(provider_config, _opts \\ []) do
+      send(Process.get(:capture_pid), {:fetch_provider_config, provider_config})
+      MockSidecarClient.fetch(provider_config)
+    end
+
+    def scrape(provider_config, _opts \\ []) do
+      send(Process.get(:capture_pid), {:scrape_provider_config, provider_config})
+      MockSidecarClient.scrape(provider_config)
+    end
+
+    def detail(source_uri, provider, opts) do
+      MockSidecarClient.detail(source_uri, provider, opts)
+    end
+  end
+
   defmodule MockCoverPipeline do
     def download_and_cache!(_cover_urls, _provider_config) do
       {:ok, %{}}
@@ -308,6 +328,41 @@ defmodule Hiraeth.Ingestion.MixTaskTest do
       assert output =~ "effective_source_mode=api"
       assert output =~ "first_record_title=Test Book Title"
       assert output =~ "Dry-run validation passed"
+    end
+
+    test "dry-run forwards provider-specific api manifest keys to the sidecar" do
+      manifest_path =
+        @valid_manifest
+        |> File.read!()
+        |> Jason.decode!()
+        |> put_in(["api", "collection_path"], "/collections/all-books-in-print")
+        |> put_in(["api", "vendor_as_author"], false)
+        |> put_in(["api", "post_type"], "book")
+        |> put_in(["api", "include_imprints"], ["pushkin-press"])
+        |> write_temp_manifest()
+
+      Application.put_env(:hiraeth, :sidecar_client, MockConfigCaptureSidecarClient)
+      Process.put(:capture_pid, self())
+
+      ExUnit.CaptureIO.capture_io(fn ->
+        assert :ok =
+                 Mix.Tasks.Hiraeth.Ingest.do_run([
+                   "--provider",
+                   "test_publisher_api",
+                   "--manifest",
+                   manifest_path,
+                   "--dry-run"
+                 ])
+      end)
+
+      assert_receive {:fetch_provider_config, %{config: %{api: api}}}
+      assert api[:collection_path] == "/collections/all-books-in-print"
+      assert api[:vendor_as_author] == false
+      assert api[:post_type] == "book"
+      assert api[:include_imprints] == ["pushkin-press"]
+    after
+      Process.delete(:capture_pid)
+      cleanup_temp_manifests()
     end
 
     test "dry-run reports expected_record_count mismatch without persisting" do

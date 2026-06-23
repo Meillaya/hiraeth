@@ -282,12 +282,22 @@ defmodule Hiraeth.Ingestion.ManifestValidatorTest do
       "astra_house_official_store" => %{
         mode: "scrape",
         cover_host: "images.penguinrandomhouse.com",
-        count: 66
+        count: 53
       },
       "sandorf_passage_official_store" => %{
         mode: "api",
         cover_host: "sandorfpassage.org",
         count: 32
+      },
+      "seagull_books_official_store" => %{
+        mode: "api",
+        cover_host: "cdn.shopify.com",
+        count: 822
+      },
+      "pushkin_press_us_official_store" => %{
+        mode: "api",
+        cover_host: "us.pushkinpress.com",
+        count: 267
       }
     }
 

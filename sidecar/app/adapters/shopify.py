@@ -13,9 +13,18 @@ def _strip_html(raw_html: str | None) -> str | None:
     return text if text != "" else None
 
 
-_EXCLUDED_PRODUCT_TYPES = {"bundles", "gift card", "gift cards", "sideline", "merch", "merchandise"}
+_EXCLUDED_PRODUCT_TYPES = {
+    "bundles",
+    "gift card",
+    "gift cards",
+    "sideline",
+    "merch",
+    "merchandise",
+}
 _EXCLUDED_KEYWORDS = ("bundle", "subscriber", "subscription", "care package", "package")
 _GENERIC_VENDORS = {"chpbeta", "open letter", "various"}
+_AUTHOR_TAG_PREFIX = "author-"
+_TRANSLATOR_TAG_PREFIX = "translator-"
 _HEADERS = {"user-agent": "Mozilla/5.0 HiraethSidecar/1.0"}
 
 
@@ -41,10 +50,11 @@ def _is_book_product(product: dict[str, Any]) -> bool:
 
 
 def _isbn_from_sku(sku: str | None) -> str | None:
-    if sku and len(sku) == 13 and sku.isdigit():
+    if sku and len(sku) == 13 and sku.isdigit() and _valid_isbn13(sku):
         return sku
     if sku and len(sku) == 17 and sku.replace("-", "").isdigit():
-        return sku.replace("-", "")
+        isbn = sku.replace("-", "")
+        return isbn if _valid_isbn13(isbn) else None
     return None
 
 
@@ -59,20 +69,56 @@ def _isbn_from_text(text: str | None) -> str | None:
 def _valid_isbn13(isbn: str) -> bool:
     if len(isbn) != 13 or not isbn.isdigit():
         return False
-    total = sum((1 if index % 2 == 0 else 3) * int(digit) for index, digit in enumerate(isbn[:12]))
+    total = sum(
+        (1 if index % 2 == 0 else 3) * int(digit)
+        for index, digit in enumerate(isbn[:12])
+    )
     return (10 - (total % 10)) % 10 == int(isbn[-1])
 
 
-def _contributors_from_product(product: dict[str, Any], description: str | None) -> list[dict[str, str]]:
+def _contributors_from_tags(tags: list[str]) -> list[dict[str, str]]:
+    contributors: list[dict[str, str]] = []
+    for tag in tags:
+        if tag.startswith(_AUTHOR_TAG_PREFIX):
+            name = tag.removeprefix(_AUTHOR_TAG_PREFIX).replace("-", " ").title()
+            if name:
+                contributors.append({"name": name, "role": "author"})
+        if tag.startswith(_TRANSLATOR_TAG_PREFIX):
+            name = tag.removeprefix(_TRANSLATOR_TAG_PREFIX).replace("-", " ").title()
+            if name:
+                contributors.append({"name": name, "role": "translator"})
+    return contributors
+
+
+def _contributors_from_product(
+    product: dict[str, Any],
+    description: str | None,
+    publisher_name: str | None = None,
+    *,
+    vendor_as_author: bool = True,
+) -> list[dict[str, str]]:
+    tags = [str(tag).strip() for tag in product.get("tags", []) if str(tag).strip()]
+    tagged_contributors = _contributors_from_tags(tags)
+    if tagged_contributors:
+        return tagged_contributors
+
     vendor = str(product.get("vendor") or "").strip()
-    if vendor and vendor.lower() not in _GENERIC_VENDORS:
+    vendor_matches_publisher = bool(
+        publisher_name and vendor.lower() == publisher_name.lower()
+    )
+    if (
+        vendor_as_author
+        and vendor
+        and not vendor_matches_publisher
+        and vendor.lower() not in _GENERIC_VENDORS
+    ):
         return [{"name": vendor, "role": "author"}]
 
     if not description:
         return []
 
     match = re.match(
-        r"^(?:[A-Z][A-Za-z/& -]+\s+)?(?P<role>by|edited by)\s+(?P<name>.+?)(?=\s+(?:January|February|March|April|May|June|July|August|September|October|November|December|\d{4}|•|$))",
+        r"^(?:(?:fiction|novel|poetry|drama|literature|nonfiction|non-fiction|art|theater|theatre|philosophy)\s+)?(?P<role>by|edited by)\s+(?P<name>.+?)(?=\s+(?:January|February|March|April|May|June|July|August|September|October|November|December|\d{4}|•|$))",
         description,
         flags=re.IGNORECASE,
     )
@@ -99,16 +145,66 @@ def _format_from_variant_title(variant_title: str | None) -> str | None:
 def _build_field_sources(provider: str, source_uri: str) -> dict[str, Any]:
     basis = "Operator-authorized public catalog refresh from official publisher pages/APIs; factual bibliographic metadata, official product descriptions, official cover URLs, purchase links, and source provenance preserved for each field."
     return {
-        "title": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "contributors": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "publisher": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "format": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "published_on": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "isbn_13": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "cover": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "description": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "storefront_url": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "subjects": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
+        "title": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "contributors": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "publisher": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "format": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "published_on": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "isbn_13": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "cover": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "description": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "storefront_url": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "subjects": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
     }
 
 
@@ -128,7 +224,9 @@ def _displayed_fields(
         ("description", description),
         ("subjects", tags),
     )
-    return ["title", "publisher", "format", "storefront_url"] + [field for field, value in optional_fields if value]
+    return ["title", "publisher", "format", "storefront_url"] + [
+        field for field, value in optional_fields if value
+    ]
 
 
 def _product_variant_to_record(
@@ -137,6 +235,8 @@ def _product_variant_to_record(
     provider: str,
     endpoint: str,
     publisher_name: str | None = None,
+    *,
+    vendor_as_author: bool = True,
 ) -> dict[str, Any]:
     handle = product.get("handle", "")
     source_uri = f"{endpoint}/products/{handle}"
@@ -146,7 +246,9 @@ def _product_variant_to_record(
     vendor = product.get("vendor", "")
     title = product.get("title", "")
     published_at = product.get("published_at")
-    published_on = published_at[:10] if published_at and isinstance(published_at, str) else None
+    published_on = (
+        published_at[:10] if published_at and isinstance(published_at, str) else None
+    )
     tags = product.get("tags", [])
     body_html = product.get("body_html", "")
     description = _strip_html(body_html)
@@ -155,7 +257,9 @@ def _product_variant_to_record(
     cover_url = images[0].get("src", "") if images else ""
     variant_title = variant.get("title", "")
     fmt = _format_from_variant_title(variant_title) or "paperback"
-    contributors = _contributors_from_product(product, description)
+    contributors = _contributors_from_product(
+        product, description, publisher_name, vendor_as_author=vendor_as_author
+    )
 
     record: dict[str, Any] = {
         "provider": provider,
@@ -197,7 +301,9 @@ def _product_variant_to_record(
             "source_url": cover_url,
             "provider": provider,
             "rights_basis": "local_cache_permitted",
-            "attribution_text": f"Cover via {vendor} official source" if vendor else "Cover via official source",
+            "attribution_text": f"Cover via {vendor} official source"
+            if vendor
+            else "Cover via official source",
             "attribution_url": source_uri,
             "cache_policy": "cache_allowed",
         },
@@ -217,7 +323,13 @@ async def fetch(config: dict[str, Any]) -> list[dict[str, Any]]:
     rate_limit = config.get("rate_limit", {})
     min_delay_ms = rate_limit.get("min_delay_ms", 0)
     max_bytes = rate_limit.get("max_bytes", 10 * 1024 * 1024)
-    allowed_vendors = set(config["api"].get("allowed_vendors") or [])
+    api_config = config["api"]
+    allowed_vendors = set(api_config.get("allowed_vendors") or [])
+    collection_path = str(api_config.get("collection_path") or "").strip("/")
+    products_path = (
+        f"/{collection_path}/products.json" if collection_path else "/products.json"
+    )
+    vendor_as_author = api_config.get("vendor_as_author", True) is not False
 
     records: list[dict[str, Any]] = []
     seen_isbns = set()
@@ -225,7 +337,7 @@ async def fetch(config: dict[str, Any]) -> list[dict[str, Any]]:
 
     async with httpx.AsyncClient() as client:
         while True:
-            url = f"{endpoint}/products.json?limit=250&page={page}"
+            url = f"{endpoint}{products_path}?limit=250&page={page}"
             response = await client.get(url, headers=_HEADERS)
             response.raise_for_status()
 
@@ -253,22 +365,35 @@ async def fetch(config: dict[str, Any]) -> list[dict[str, Any]]:
                             provider,
                             endpoint,
                             publisher_name,
+                            vendor_as_author=vendor_as_author,
                         )
-                        key = (record["source_uri"], record["edition"].get("isbn_13") or record["source_sku"])
+                        key = (
+                            record["source_uri"],
+                            record["edition"].get("isbn_13") or record["source_sku"],
+                        )
                         isbn = record["edition"].get("isbn_13")
-                        if record["contributors"] and key not in seen_keys and (not isbn or isbn not in seen_isbns):
+                        if (
+                            record["contributors"]
+                            and key not in seen_keys
+                            and (not isbn or isbn not in seen_isbns)
+                        ):
                             records.append(record)
                             seen_keys.add(key)
                             if isbn:
                                 seen_isbns.add(isbn)
                 else:
-                    dummy_variant = {"id": product.get("id", ""), "sku": "", "title": ""}
+                    dummy_variant = {
+                        "id": product.get("id", ""),
+                        "sku": "",
+                        "title": "",
+                    }
                     record = _product_variant_to_record(
                         product,
                         dummy_variant,
                         provider,
                         endpoint,
                         publisher_name,
+                        vendor_as_author=vendor_as_author,
                     )
                     isbn = record["edition"].get("isbn_13")
                     if record["contributors"] and (not isbn or isbn not in seen_isbns):

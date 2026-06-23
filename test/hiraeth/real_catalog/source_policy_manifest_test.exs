@@ -384,6 +384,26 @@ defmodule Hiraeth.RealCatalog.SourcePolicyManifestTest do
                "sandorf_passage_official_store",
                "sandorfpassage.org"
              )
+
+      assert SourcePolicy.source_host_allowed?(
+               "seagull_books_official_store",
+               "seagullbooks.org"
+             )
+
+      assert SourcePolicy.cover_host_allowed?(
+               "seagull_books_official_store",
+               "cdn.shopify.com"
+             )
+
+      assert SourcePolicy.source_host_allowed?(
+               "pushkin_press_us_official_store",
+               "us.pushkinpress.com"
+             )
+
+      assert SourcePolicy.cover_host_allowed?(
+               "pushkin_press_us_official_store",
+               "us.pushkinpress.com"
+             )
     end
 
     test "new provider manifest source paths allow products but reject global Astra root" do
@@ -424,6 +444,31 @@ defmodule Hiraeth.RealCatalog.SourcePolicyManifestTest do
       assert SourcePolicy.source_uri_allowed?(
                "sandorf_passage_official_store",
                "https://sandorfpassage.org/product/sample-book/"
+             )
+
+      assert SourcePolicy.source_uri_allowed?(
+               "seagull_books_official_store",
+               "https://seagullbooks.org/products/apollonia"
+             )
+
+      refute SourcePolicy.source_uri_allowed?(
+               "seagull_books_official_store",
+               "https://seagullbooks.org/cart"
+             )
+
+      assert SourcePolicy.source_uri_allowed?(
+               "pushkin_press_us_official_store",
+               "https://us.pushkinpress.com/book/the-gate/"
+             )
+
+      assert SourcePolicy.source_uri_allowed?(
+               "pushkin_press_us_official_store",
+               "https://us.pushkinpress.com/wp-json/wp/v2/book"
+             )
+
+      refute SourcePolicy.source_uri_allowed?(
+               "pushkin_press_us_official_store",
+               "https://us.pushkinpress.com/cart/"
              )
     end
   end

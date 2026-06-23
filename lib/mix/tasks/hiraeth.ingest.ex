@@ -255,12 +255,7 @@ defmodule Mix.Tasks.Hiraeth.Ingest do
         config
         |> Map.put(:source_hosts, manifest.source_hosts)
         |> Map.put(:publisher_name, manifest.name)
-        |> Map.put(:api, %{
-          type: manifest.api[:type],
-          endpoint: manifest.api[:endpoint],
-          auth: manifest.api[:auth],
-          allowed_vendors: manifest.api[:allowed_vendors]
-        })
+        |> Map.put(:api, Map.put_new(manifest.api, :allowed_vendors, nil))
       else
         config
       end

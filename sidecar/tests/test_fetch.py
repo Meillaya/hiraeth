@@ -8,12 +8,17 @@ from app.main import app
 client = TestClient(app)
 
 
-def _mock_httpx_client(responses: list[tuple[int, dict[str, Any] | list[Any] | str | bytes, dict[str, str]]]):
+def _mock_httpx_client(
+    responses: list[
+        tuple[int, dict[str, Any] | list[Any] | str | bytes, dict[str, str]]
+    ],
+):
     """Return a patch target that yields an AsyncClient mock.
 
     responses: list of (status_code, json_body, headers) tuples.
     Each call to .get() consumes the next response in order.
     """
+
     class MockResponse:
         def __init__(self, status_code, json_body, headers, content):
             self.status_code = status_code
@@ -63,6 +68,7 @@ def _mock_httpx_client(responses: list[tuple[int, dict[str, Any] | list[Any] | s
 # Shopify
 # ---------------------------------------------------------------------------
 
+
 def test_fetch_shopify_basic():
     products = [
         {
@@ -75,24 +81,29 @@ def test_fetch_shopify_basic():
             "body_html": "A great book.",
             "images": [{"src": "https://cdn.example.com/cover.jpg"}],
             "variants": [
-                {"id": 456, "sku": "9781234567890", "title": "Paperback"},
+                {"id": 456, "sku": "9781234567897", "title": "Paperback"},
             ],
         }
     ]
 
-    mock = _mock_httpx_client([
-        (200, {"products": products}, {}),
-    ])
+    mock = _mock_httpx_client(
+        [
+            (200, {"products": products}, {}),
+        ]
+    )
 
     with mock:
-        response = client.post("/fetch/", json={
-            "provider": "test_press",
-            "config": {
-                "api": {"type": "shopify", "endpoint": "https://store.example.com"},
-                "source_hosts": ["store.example.com"],
-                "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+        response = client.post(
+            "/fetch/",
+            json={
+                "provider": "test_press",
+                "config": {
+                    "api": {"type": "shopify", "endpoint": "https://store.example.com"},
+                    "source_hosts": ["store.example.com"],
+                    "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+                },
             },
-        })
+        )
 
     assert response.status_code == 200
     data = response.json()
@@ -103,36 +114,65 @@ def test_fetch_shopify_basic():
     record = data["records"][0]
     assert record["source_uri"] == "https://store.example.com/products/test-book"
     assert record["source_product_id"] == "123-456"
-    assert record["source_sku"] == "9781234567890"
+    assert record["source_sku"] == "9781234567897"
     assert record["publisher"] == "Test Press"
     assert record["work"]["title"] == "Test Book"
     assert record["work"]["subjects"] == ["Fiction", "Literature"]
     assert record["edition"]["format"] == "paperback"
     assert record["edition"]["published_on"] == "2024-01-15"
-    assert record["edition"]["isbn_13"] == "9781234567890"
+    assert record["edition"]["isbn_13"] == "9781234567897"
     assert record["cover"]["source_url"] == "https://cdn.example.com/cover.jpg"
     assert record["description"] == "A great book."
     assert "field_sources" in record
 
 
 def test_fetch_shopify_pagination():
-    page1 = [{"id": 1, "handle": "book-1", "title": "Book 1", "vendor": "P", "published_at": "2024-01-01T00:00:00Z", "tags": [], "body_html": "", "images": [], "variants": [{"id": 1, "sku": "", "title": ""}]}]
-    page2 = [{"id": 2, "handle": "book-2", "title": "Book 2", "vendor": "P", "published_at": "2024-01-02T00:00:00Z", "tags": [], "body_html": "", "images": [], "variants": [{"id": 2, "sku": "", "title": ""}]}]
+    page1 = [
+        {
+            "id": 1,
+            "handle": "book-1",
+            "title": "Book 1",
+            "vendor": "P",
+            "published_at": "2024-01-01T00:00:00Z",
+            "tags": [],
+            "body_html": "",
+            "images": [],
+            "variants": [{"id": 1, "sku": "", "title": ""}],
+        }
+    ]
+    page2 = [
+        {
+            "id": 2,
+            "handle": "book-2",
+            "title": "Book 2",
+            "vendor": "P",
+            "published_at": "2024-01-02T00:00:00Z",
+            "tags": [],
+            "body_html": "",
+            "images": [],
+            "variants": [{"id": 2, "sku": "", "title": ""}],
+        }
+    ]
 
-    mock = _mock_httpx_client([
-        (200, {"products": page1 * 250}, {}),
-        (200, {"products": page2}, {}),
-    ])
+    mock = _mock_httpx_client(
+        [
+            (200, {"products": page1 * 250}, {}),
+            (200, {"products": page2}, {}),
+        ]
+    )
 
     with mock:
-        response = client.post("/fetch/", json={
-            "provider": "p",
-            "config": {
-                "api": {"type": "shopify", "endpoint": "https://store.example.com"},
-                "source_hosts": ["store.example.com"],
-                "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+        response = client.post(
+            "/fetch/",
+            json={
+                "provider": "p",
+                "config": {
+                    "api": {"type": "shopify", "endpoint": "https://store.example.com"},
+                    "source_hosts": ["store.example.com"],
+                    "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+                },
             },
-        })
+        )
 
     assert response.status_code == 200
     data = response.json()
@@ -152,19 +192,24 @@ def test_fetch_shopify_no_variants():
         "variants": [],
     }
 
-    mock = _mock_httpx_client([
-        (200, {"products": [product]}, {}),
-    ])
+    mock = _mock_httpx_client(
+        [
+            (200, {"products": [product]}, {}),
+        ]
+    )
 
     with mock:
-        response = client.post("/fetch/", json={
-            "provider": "v",
-            "config": {
-                "api": {"type": "shopify", "endpoint": "https://store.example.com"},
-                "source_hosts": ["store.example.com"],
-                "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+        response = client.post(
+            "/fetch/",
+            json={
+                "provider": "v",
+                "config": {
+                    "api": {"type": "shopify", "endpoint": "https://store.example.com"},
+                    "source_hosts": ["store.example.com"],
+                    "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+                },
             },
-        })
+        )
 
     assert response.status_code == 200
     data = response.json()
@@ -172,9 +217,100 @@ def test_fetch_shopify_no_variants():
     assert data["records"][0]["source_product_id"] == "99-99"
 
 
+def test_fetch_shopify_collection_path_and_author_tags_for_seagull():
+    products = [
+        {
+            "id": 9750913581354,
+            "handle": "apollonia",
+            "title": "(A)pollonia",
+            "vendor": "Seagull Books",
+            "published_at": "2025-04-05T00:00:00Z",
+            "tags": ["author-joanna-klass", "author-krystyna-duniec", "drama"],
+            "body_html": "<p>Exploring historical narratives.</p>",
+            "images": [{"src": "https://cdn.shopify.com/s/files/cover.jpg"}],
+            "variants": [{"id": 1, "sku": "9781803095349", "title": "Paperback"}],
+        }
+    ]
+    mock = _mock_httpx_client([(200, {"products": products}, {})])
+
+    with mock:
+        response = client.post(
+            "/fetch/",
+            json={
+                "provider": "seagull_books_official_store",
+                "config": {
+                    "api": {
+                        "type": "shopify",
+                        "endpoint": "https://seagullbooks.org",
+                        "collection_path": "/collections/all-books-in-print",
+                        "vendor_as_author": False,
+                    },
+                    "publisher_name": "Seagull Books",
+                    "source_hosts": ["seagullbooks.org"],
+                    "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+                },
+            },
+        )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    record = data["records"][0]
+    assert record["source_uri"] == "https://seagullbooks.org/products/apollonia"
+    assert record["publisher"] == "Seagull Books"
+    assert record["contributors"] == [
+        {"name": "Joanna Klass", "role": "author"},
+        {"name": "Krystyna Duniec", "role": "author"},
+    ]
+    assert record["edition"]["isbn_13"] == "9781803095349"
+    assert record["cover"]["source_url"].startswith("https://cdn.shopify.com/")
+
+
+def test_fetch_shopify_does_not_treat_incidental_by_phrase_as_author():
+    product = {
+        "id": 42,
+        "handle": "letters-to-madeleine",
+        "title": "Letters to Madeleine",
+        "vendor": "Seagull Books",
+        "published_at": "2025-04-05T00:00:00Z",
+        "tags": ["author-guillaume-apollinaire"],
+        "body_html": "<p>Letters sent by French poet Guillaume Apollinaire during wartime.</p>",
+        "images": [{"src": "https://cdn.shopify.com/s/files/letters.jpg"}],
+        "variants": [{"id": 7, "sku": "9781803096605", "title": "Paperback"}],
+    }
+    mock = _mock_httpx_client([(200, {"products": [product]}, {})])
+
+    with mock:
+        response = client.post(
+            "/fetch/",
+            json={
+                "provider": "seagull_books_official_store",
+                "config": {
+                    "api": {
+                        "type": "shopify",
+                        "endpoint": "https://seagullbooks.org",
+                        "collection_path": "/collections/all-books-in-print",
+                        "vendor_as_author": False,
+                    },
+                    "publisher_name": "Seagull Books",
+                    "source_hosts": ["seagullbooks.org"],
+                    "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+                },
+            },
+        )
+
+    assert response.status_code == 200
+    record = response.json()["records"][0]
+    assert record["contributors"] == [
+        {"name": "Guillaume Apollinaire", "role": "author"}
+    ]
+    assert len(record["contributors"][0]["name"]) < 80
+
+
 # ---------------------------------------------------------------------------
 # WooCommerce
 # ---------------------------------------------------------------------------
+
 
 def test_fetch_woocommerce_basic():
     products = [
@@ -193,19 +329,27 @@ def test_fetch_woocommerce_basic():
         }
     ]
 
-    mock = _mock_httpx_client([
-        (200, products, {}),
-    ])
+    mock = _mock_httpx_client(
+        [
+            (200, products, {}),
+        ]
+    )
 
     with mock:
-        response = client.post("/fetch/", json={
-            "provider": "woo_press",
-            "config": {
-                "api": {"type": "woocommerce", "endpoint": "https://shop.example.com"},
-                "source_hosts": ["shop.example.com"],
-                "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+        response = client.post(
+            "/fetch/",
+            json={
+                "provider": "woo_press",
+                "config": {
+                    "api": {
+                        "type": "woocommerce",
+                        "endpoint": "https://shop.example.com",
+                    },
+                    "source_hosts": ["shop.example.com"],
+                    "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+                },
             },
-        })
+        )
 
     assert response.status_code == 200
     data = response.json()
@@ -223,23 +367,60 @@ def test_fetch_woocommerce_basic():
 
 
 def test_fetch_woocommerce_pagination():
-    page1 = [{"id": i, "name": f"B{i}", "permalink": "", "sku": "", "vendor": "", "date_created": "", "short_description": "", "images": [], "categories": [], "tags": [], "meta_data": []} for i in range(100)]
-    page2 = [{"id": 100, "name": "Last", "permalink": "", "sku": "", "vendor": "", "date_created": "", "short_description": "", "images": [], "categories": [], "tags": [], "meta_data": []}]
+    page1 = [
+        {
+            "id": i,
+            "name": f"B{i}",
+            "permalink": "",
+            "sku": "",
+            "vendor": "",
+            "date_created": "",
+            "short_description": "",
+            "images": [],
+            "categories": [],
+            "tags": [],
+            "meta_data": [],
+        }
+        for i in range(100)
+    ]
+    page2 = [
+        {
+            "id": 100,
+            "name": "Last",
+            "permalink": "",
+            "sku": "",
+            "vendor": "",
+            "date_created": "",
+            "short_description": "",
+            "images": [],
+            "categories": [],
+            "tags": [],
+            "meta_data": [],
+        }
+    ]
 
-    mock = _mock_httpx_client([
-        (200, page1, {}),
-        (200, page2, {}),
-    ])
+    mock = _mock_httpx_client(
+        [
+            (200, page1, {}),
+            (200, page2, {}),
+        ]
+    )
 
     with mock:
-        response = client.post("/fetch/", json={
-            "provider": "p",
-            "config": {
-                "api": {"type": "woocommerce", "endpoint": "https://shop.example.com"},
-                "source_hosts": ["shop.example.com"],
-                "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+        response = client.post(
+            "/fetch/",
+            json={
+                "provider": "p",
+                "config": {
+                    "api": {
+                        "type": "woocommerce",
+                        "endpoint": "https://shop.example.com",
+                    },
+                    "source_hosts": ["shop.example.com"],
+                    "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+                },
             },
-        })
+        )
 
     assert response.status_code == 200
     data = response.json()
@@ -249,6 +430,7 @@ def test_fetch_woocommerce_pagination():
 # ---------------------------------------------------------------------------
 # Squarespace
 # ---------------------------------------------------------------------------
+
 
 def test_fetch_squarespace_basic():
     collection = {
@@ -266,7 +448,10 @@ def test_fetch_squarespace_basic():
                         "publishedOn": "2024-05-01",
                     },
                     "assets": [
-                        {"mediaType": "image/jpeg", "absoluteUrl": "https://images.example.com/cover.jpg"},
+                        {
+                            "mediaType": "image/jpeg",
+                            "absoluteUrl": "https://images.example.com/cover.jpg",
+                        },
                     ],
                     "tags": ["Essays"],
                 }
@@ -274,20 +459,28 @@ def test_fetch_squarespace_basic():
         }
     }
 
-    mock = _mock_httpx_client([
-        (200, collection, {}),
-        (200, "", {}),
-    ])
+    mock = _mock_httpx_client(
+        [
+            (200, collection, {}),
+            (200, "", {}),
+        ]
+    )
 
     with mock:
-        response = client.post("/fetch/", json={
-            "provider": "square_site",
-            "config": {
-                "api": {"type": "squarespace", "endpoint": "https://site.example.com/books"},
-                "source_hosts": ["site.example.com"],
-                "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+        response = client.post(
+            "/fetch/",
+            json={
+                "provider": "square_site",
+                "config": {
+                    "api": {
+                        "type": "squarespace",
+                        "endpoint": "https://site.example.com/books",
+                    },
+                    "source_hosts": ["site.example.com"],
+                    "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+                },
             },
-        })
+        )
 
     assert response.status_code == 200
     data = response.json()
@@ -321,20 +514,28 @@ def test_fetch_squarespace_flat_items():
         ]
     }
 
-    mock = _mock_httpx_client([
-        (200, body, {}),
-        (200, "", {}),
-    ])
+    mock = _mock_httpx_client(
+        [
+            (200, body, {}),
+            (200, "", {}),
+        ]
+    )
 
     with mock:
-        response = client.post("/fetch/", json={
-            "provider": "sq",
-            "config": {
-                "api": {"type": "squarespace", "endpoint": "https://site.example.com/all-books"},
-                "source_hosts": ["site.example.com"],
-                "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+        response = client.post(
+            "/fetch/",
+            json={
+                "provider": "sq",
+                "config": {
+                    "api": {
+                        "type": "squarespace",
+                        "endpoint": "https://site.example.com/all-books",
+                    },
+                    "source_hosts": ["site.example.com"],
+                    "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+                },
             },
-        })
+        )
 
     assert response.status_code == 200
     data = response.json()
@@ -356,7 +557,9 @@ def test_fetch_squarespace_filters_bundles_and_uses_store_item_fields():
                         "variants": [
                             {"sku": "2026Bundle", "price": 9000},
                         ],
-                        "mainImage": {"assetUrl": "https://images.example.com/bundle-main.png"},
+                        "mainImage": {
+                            "assetUrl": "https://images.example.com/bundle-main.png"
+                        },
                     },
                 },
                 {
@@ -410,21 +613,29 @@ def test_fetch_squarespace_filters_bundles_and_uses_store_item_fields():
     </article>
     """
 
-    mock = _mock_httpx_client([
-        (200, body, {}),
-        (200, listing_html, {}),
-    ])
+    mock = _mock_httpx_client(
+        [
+            (200, body, {}),
+            (200, listing_html, {}),
+        ]
+    )
 
     with mock:
-        response = client.post("/fetch/", json={
-            "provider": "charco_press",
-            "config": {
-                "api": {"type": "squarespace", "endpoint": "https://charcopress.com/bookstore"},
-                "source_hosts": ["charcopress.com"],
-                "publisher_name": "Charco Press",
-                "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+        response = client.post(
+            "/fetch/",
+            json={
+                "provider": "charco_press",
+                "config": {
+                    "api": {
+                        "type": "squarespace",
+                        "endpoint": "https://charcopress.com/bookstore",
+                    },
+                    "source_hosts": ["charcopress.com"],
+                    "publisher_name": "Charco Press",
+                    "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+                },
             },
-        })
+        )
 
     assert response.status_code == 200
     data = response.json()
@@ -438,7 +649,10 @@ def test_fetch_squarespace_filters_bundles_and_uses_store_item_fields():
     assert record["source_sku"] == "9781917260282"
     assert record["edition"]["isbn_13"] == "9781917260282"
     assert record["edition"]["format"] == "paperback"
-    assert record["cover"]["source_url"] == "https://images.squarespace-cdn.com/content/v1/583cb891/cathedrals.jpg"
+    assert (
+        record["cover"]["source_url"]
+        == "https://images.squarespace-cdn.com/content/v1/583cb891/cathedrals.jpg"
+    )
     assert "cover" in record["displayed_fields"]
     assert record["description"] == "Claudia Piñeiro Translated by Frances Riddle"
     assert "published_on" not in record["displayed_fields"]
@@ -447,17 +661,24 @@ def test_fetch_squarespace_filters_bundles_and_uses_store_item_fields():
     assert ebook["work"]["title"] == "Cathedrals"
     assert ebook["edition"]["title"] == "Cathedrals"
     assert ebook["edition"]["format"] == "ebook"
-    assert ebook["cover"]["source_url"] == "https://images.squarespace-cdn.com/content/v1/583cb891/cathedrals-ebook.png"
+    assert (
+        ebook["cover"]["source_url"]
+        == "https://images.squarespace-cdn.com/content/v1/583cb891/cathedrals-ebook.png"
+    )
 
     placeholder = data["records"][2]
     assert placeholder["cover"]["source_url"] == ""
-    assert placeholder["no_cover_reason"] == "no usable cover image URL present in source record"
+    assert (
+        placeholder["no_cover_reason"]
+        == "no usable cover image URL present in source record"
+    )
     assert "cover" not in placeholder["displayed_fields"]
 
 
 # ---------------------------------------------------------------------------
 # WordPress
 # ---------------------------------------------------------------------------
+
 
 def test_fetch_wordpress_basic():
     posts = [
@@ -474,19 +695,27 @@ def test_fetch_wordpress_basic():
         }
     ]
 
-    mock = _mock_httpx_client([
-        (200, posts, {"X-WP-TotalPages": "1"}),
-    ])
+    mock = _mock_httpx_client(
+        [
+            (200, posts, {"X-WP-TotalPages": "not-a-number"}),
+        ]
+    )
 
     with mock:
-        response = client.post("/fetch/", json={
-            "provider": "wp_site",
-            "config": {
-                "api": {"type": "wordpress", "endpoint": "https://blog.example.com"},
-                "source_hosts": ["blog.example.com"],
-                "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+        response = client.post(
+            "/fetch/",
+            json={
+                "provider": "wp_site",
+                "config": {
+                    "api": {
+                        "type": "wordpress",
+                        "endpoint": "https://blog.example.com",
+                    },
+                    "source_hosts": ["blog.example.com"],
+                    "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+                },
             },
-        })
+        )
 
     assert response.status_code == 200
     data = response.json()
@@ -500,28 +729,64 @@ def test_fetch_wordpress_basic():
     assert record["edition"]["format"] == "paperback"
     assert record["edition"]["published_on"] == "2024-06-10"
     assert record["description"] == "Excerpt."
-    assert record["cover"]["source_url"] == "https://blog.example.com/wp-json/wp/v2/media/7"
+    assert (
+        record["cover"]["source_url"]
+        == "https://blog.example.com/wp-json/wp/v2/media/7"
+    )
     assert record["work"]["subjects"] == ["Poetry"]
 
 
 def test_fetch_wordpress_pagination():
-    page1 = [{"id": i, "link": "", "title": {"rendered": f"P{i}"}, "content": {"rendered": ""}, "excerpt": {"rendered": ""}, "date": "", "meta": [], "tags": [], "featured_media": 0} for i in range(100)]
-    page2 = [{"id": 100, "link": "", "title": {"rendered": "Last"}, "content": {"rendered": ""}, "excerpt": {"rendered": ""}, "date": "", "meta": [], "tags": [], "featured_media": 0}]
+    page1 = [
+        {
+            "id": i,
+            "link": "",
+            "title": {"rendered": f"P{i}"},
+            "content": {"rendered": ""},
+            "excerpt": {"rendered": ""},
+            "date": "",
+            "meta": [],
+            "tags": [],
+            "featured_media": 0,
+        }
+        for i in range(100)
+    ]
+    page2 = [
+        {
+            "id": 100,
+            "link": "",
+            "title": {"rendered": "Last"},
+            "content": {"rendered": ""},
+            "excerpt": {"rendered": ""},
+            "date": "",
+            "meta": [],
+            "tags": [],
+            "featured_media": 0,
+        }
+    ]
 
-    mock = _mock_httpx_client([
-        (200, page1, {"X-WP-TotalPages": "2"}),
-        (200, page2, {"X-WP-TotalPages": "2"}),
-    ])
+    mock = _mock_httpx_client(
+        [
+            (200, page1, {"X-WP-TotalPages": "2"}),
+            (200, page2, {"X-WP-TotalPages": "2"}),
+        ]
+    )
 
     with mock:
-        response = client.post("/fetch/", json={
-            "provider": "wp",
-            "config": {
-                "api": {"type": "wordpress", "endpoint": "https://blog.example.com"},
-                "source_hosts": ["blog.example.com"],
-                "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+        response = client.post(
+            "/fetch/",
+            json={
+                "provider": "wp",
+                "config": {
+                    "api": {
+                        "type": "wordpress",
+                        "endpoint": "https://blog.example.com",
+                    },
+                    "source_hosts": ["blog.example.com"],
+                    "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+                },
             },
-        })
+        )
 
     assert response.status_code == 200
     data = response.json()
@@ -532,58 +797,77 @@ def test_fetch_wordpress_pagination():
 # Router validation
 # ---------------------------------------------------------------------------
 
+
 def test_fetch_missing_api_type():
-    response = client.post("/fetch/", json={
-        "provider": "x",
-        "config": {},
-    })
+    response = client.post(
+        "/fetch/",
+        json={
+            "provider": "x",
+            "config": {},
+        },
+    )
     assert response.status_code == 400
     assert "Missing config.api.type" in response.json()["detail"]
 
 
 def test_fetch_unsupported_api_type():
-    response = client.post("/fetch/", json={
-        "provider": "x",
-        "config": {"api": {"type": "unknown"}},
-    })
+    response = client.post(
+        "/fetch/",
+        json={
+            "provider": "x",
+            "config": {"api": {"type": "unknown"}},
+        },
+    )
     assert response.status_code == 400
     assert "Unsupported api.type" in response.json()["detail"]
 
 
 def test_fetch_rejects_endpoint_host_outside_source_hosts():
-    response = client.post("/fetch/", json={
-        "provider": "x",
-        "config": {
-            "api": {"type": "shopify", "endpoint": "https://evil.example.com"},
-            "source_hosts": ["store.example.com"],
+    response = client.post(
+        "/fetch/",
+        json={
+            "provider": "x",
+            "config": {
+                "api": {"type": "shopify", "endpoint": "https://evil.example.com"},
+                "source_hosts": ["store.example.com"],
+            },
         },
-    })
+    )
 
     assert response.status_code == 400
     assert "host must be listed in source_hosts" in response.json()["detail"]
 
 
 def test_fetch_rejects_private_endpoint_hosts():
-    response = client.post("/fetch/", json={
-        "provider": "x",
-        "config": {
-            "api": {"type": "shopify", "endpoint": "https://127.0.0.1"},
-            "source_hosts": ["127.0.0.1"],
+    response = client.post(
+        "/fetch/",
+        json={
+            "provider": "x",
+            "config": {
+                "api": {"type": "shopify", "endpoint": "https://127.0.0.1"},
+                "source_hosts": ["127.0.0.1"],
+            },
         },
-    })
+    )
 
     assert response.status_code == 400
     assert "must not be private" in response.json()["detail"]
 
 
 def test_fetch_rejects_endpoint_userinfo():
-    response = client.post("/fetch/", json={
-        "provider": "x",
-        "config": {
-            "api": {"type": "shopify", "endpoint": "https://user:pass@store.example.com"},
-            "source_hosts": ["store.example.com"],
+    response = client.post(
+        "/fetch/",
+        json={
+            "provider": "x",
+            "config": {
+                "api": {
+                    "type": "shopify",
+                    "endpoint": "https://user:pass@store.example.com",
+                },
+                "source_hosts": ["store.example.com"],
+            },
         },
-    })
+    )
 
     assert response.status_code == 400
     assert "must not include userinfo" in response.json()["detail"]
@@ -593,23 +877,39 @@ def test_fetch_rejects_endpoint_userinfo():
 # Rate limiting / max_bytes
 # ---------------------------------------------------------------------------
 
+
 def test_fetch_shopify_max_bytes():
     """If a single response exceeds max_bytes, fetching stops."""
-    huge_product = {"id": 1, "handle": "h", "title": "H", "vendor": "V", "published_at": "", "tags": [], "body_html": "x" * 100, "images": [], "variants": [{"id": 1, "sku": "", "title": ""}]}
+    huge_product = {
+        "id": 1,
+        "handle": "h",
+        "title": "H",
+        "vendor": "V",
+        "published_at": "",
+        "tags": [],
+        "body_html": "x" * 100,
+        "images": [],
+        "variants": [{"id": 1, "sku": "", "title": ""}],
+    }
 
-    mock = _mock_httpx_client([
-        (200, {"products": [huge_product]}, {}),
-    ])
+    mock = _mock_httpx_client(
+        [
+            (200, {"products": [huge_product]}, {}),
+        ]
+    )
 
     with mock:
-        response = client.post("/fetch/", json={
-            "provider": "p",
-            "config": {
-                "api": {"type": "shopify", "endpoint": "https://store.example.com"},
-                "source_hosts": ["store.example.com"],
-                "rate_limit": {"min_delay_ms": 0, "max_bytes": 10},
+        response = client.post(
+            "/fetch/",
+            json={
+                "provider": "p",
+                "config": {
+                    "api": {"type": "shopify", "endpoint": "https://store.example.com"},
+                    "source_hosts": ["store.example.com"],
+                    "rate_limit": {"min_delay_ms": 0, "max_bytes": 10},
+                },
             },
-        })
+        )
 
     assert response.status_code == 200
     data = response.json()
@@ -618,43 +918,86 @@ def test_fetch_shopify_max_bytes():
 
 def test_fetch_shopify_filters_bundles_and_non_books():
     book_product = {
-        "id": 1, "handle": "real-book", "title": "A Real Book",
-        "vendor": "Deep Vellum", "product_type": "Books",
-        "published_at": "", "tags": ["fiction"], "body_html": "",
-        "images": [], "variants": [{"id": 1, "sku": "", "title": ""}],
+        "id": 1,
+        "handle": "real-book",
+        "title": "A Real Book",
+        "vendor": "Deep Vellum",
+        "product_type": "Books",
+        "published_at": "",
+        "tags": ["fiction"],
+        "body_html": "",
+        "images": [],
+        "variants": [{"id": 1, "sku": "", "title": ""}],
     }
     bundle_product = {
-        "id": 2, "handle": "subscriber-bundle", "title": "Subscriber Bundle",
-        "vendor": "Deep Vellum", "product_type": "Bundles",
-        "published_at": "", "tags": ["bundle"], "body_html": "",
-        "images": [], "variants": [{"id": 2, "sku": "", "title": ""}],
+        "id": 2,
+        "handle": "subscriber-bundle",
+        "title": "Subscriber Bundle",
+        "vendor": "Deep Vellum",
+        "product_type": "Bundles",
+        "published_at": "",
+        "tags": ["bundle"],
+        "body_html": "",
+        "images": [],
+        "variants": [{"id": 2, "sku": "", "title": ""}],
     }
     gift_card_product = {
-        "id": 3, "handle": "gift-card", "title": "Gift Card",
-        "vendor": "Deep Vellum", "product_type": "Gift Card",
-        "published_at": "", "tags": [], "body_html": "",
-        "images": [], "variants": [{"id": 3, "sku": "", "title": ""}],
+        "id": 3,
+        "handle": "gift-card",
+        "title": "Gift Card",
+        "vendor": "Deep Vellum",
+        "product_type": "Gift Card",
+        "published_at": "",
+        "tags": [],
+        "body_html": "",
+        "images": [],
+        "variants": [{"id": 3, "sku": "", "title": ""}],
     }
     sideline_product = {
-        "id": 4, "handle": "tote-bag", "title": "Tote Bag",
-        "vendor": "Deep Vellum", "product_type": "Sideline",
-        "published_at": "", "tags": ["merch"], "body_html": "",
-        "images": [], "variants": [{"id": 4, "sku": "", "title": ""}],
+        "id": 4,
+        "handle": "tote-bag",
+        "title": "Tote Bag",
+        "vendor": "Deep Vellum",
+        "product_type": "Sideline",
+        "published_at": "",
+        "tags": ["merch"],
+        "body_html": "",
+        "images": [],
+        "variants": [{"id": 4, "sku": "", "title": ""}],
     }
 
-    mock = _mock_httpx_client([
-        (200, {"products": [book_product, bundle_product, gift_card_product, sideline_product]}, {}),
-    ])
+    mock = _mock_httpx_client(
+        [
+            (
+                200,
+                {
+                    "products": [
+                        book_product,
+                        bundle_product,
+                        gift_card_product,
+                        sideline_product,
+                    ]
+                },
+                {},
+            ),
+        ]
+    )
 
     with mock:
-        response = client.post("/fetch/", json={
-            "provider": "deep_vellum_official_store",
-            "config": {
-                "api": {"type": "shopify", "endpoint": "https://store.deepvellum.org"},
-                "source_hosts": ["store.deepvellum.org"],
-                "rate_limit": {"min_delay_ms": 0, "max_bytes": 10485760},
+        response = client.post(
+            "/fetch/",
+            json={
+                "provider": "deep_vellum_official_store",
+                "config": {
+                    "api": {
+                        "type": "shopify",
+                        "endpoint": "https://store.deepvellum.org",
+                    },
+                    "source_hosts": ["store.deepvellum.org"],
+                    "rate_limit": {"min_delay_ms": 0, "max_bytes": 10485760},
+                },
             },
-        })
+        )
 
     assert response.status_code == 200
     data = response.json()
@@ -664,35 +1007,52 @@ def test_fetch_shopify_filters_bundles_and_non_books():
 
 def test_fetch_shopify_filters_by_allowed_vendors():
     dv_book = {
-        "id": 1, "handle": "dv-book", "title": "Deep Vellum Book",
-        "vendor": "Deep Vellum", "product_type": "Books",
-        "published_at": "", "tags": [], "body_html": "",
-        "images": [], "variants": [{"id": 1, "sku": "", "title": ""}],
+        "id": 1,
+        "handle": "dv-book",
+        "title": "Deep Vellum Book",
+        "vendor": "Deep Vellum",
+        "product_type": "Books",
+        "published_at": "",
+        "tags": [],
+        "body_html": "",
+        "images": [],
+        "variants": [{"id": 1, "sku": "", "title": ""}],
     }
     phoneme_book = {
-        "id": 2, "handle": "phoneme-book", "title": "Phoneme Book",
-        "vendor": "Phoneme", "product_type": "Books",
-        "published_at": "", "tags": [], "body_html": "",
-        "images": [], "variants": [{"id": 2, "sku": "", "title": ""}],
+        "id": 2,
+        "handle": "phoneme-book",
+        "title": "Phoneme Book",
+        "vendor": "Phoneme",
+        "product_type": "Books",
+        "published_at": "",
+        "tags": [],
+        "body_html": "",
+        "images": [],
+        "variants": [{"id": 2, "sku": "", "title": ""}],
     }
 
-    mock = _mock_httpx_client([
-        (200, {"products": [dv_book, phoneme_book]}, {}),
-    ])
+    mock = _mock_httpx_client(
+        [
+            (200, {"products": [dv_book, phoneme_book]}, {}),
+        ]
+    )
 
     with mock:
-        response = client.post("/fetch/", json={
-            "provider": "deep_vellum_official_store",
-            "config": {
-                "api": {
-                    "type": "shopify",
-                    "endpoint": "https://store.deepvellum.org",
-                    "allowed_vendors": ["Deep Vellum", "Deep Vellum Publishing"],
+        response = client.post(
+            "/fetch/",
+            json={
+                "provider": "deep_vellum_official_store",
+                "config": {
+                    "api": {
+                        "type": "shopify",
+                        "endpoint": "https://store.deepvellum.org",
+                        "allowed_vendors": ["Deep Vellum", "Deep Vellum Publishing"],
+                    },
+                    "source_hosts": ["store.deepvellum.org"],
+                    "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
                 },
-                "source_hosts": ["store.deepvellum.org"],
-                "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
             },
-        })
+        )
 
     assert response.status_code == 200
     data = response.json()
@@ -741,20 +1101,25 @@ def test_fetch_shopify_extracts_book_metadata_from_body_html():
         },
     ]
 
-    mock = _mock_httpx_client([
-        (200, {"products": products}, {}),
-    ])
+    mock = _mock_httpx_client(
+        [
+            (200, {"products": products}, {}),
+        ]
+    )
 
     with mock:
-        response = client.post("/fetch/", json={
-            "provider": "publisher",
-            "config": {
-                "api": {"type": "shopify", "endpoint": "https://store.example.com"},
-                "source_hosts": ["store.example.com"],
-                "publisher_name": "Coffee House Press",
-                "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+        response = client.post(
+            "/fetch/",
+            json={
+                "provider": "publisher",
+                "config": {
+                    "api": {"type": "shopify", "endpoint": "https://store.example.com"},
+                    "source_hosts": ["store.example.com"],
+                    "publisher_name": "Coffee House Press",
+                    "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+                },
             },
-        })
+        )
 
     assert response.status_code == 200
     data = response.json()
@@ -765,5 +1130,292 @@ def test_fetch_shopify_extracts_book_metadata_from_body_html():
     assert open_letter_record["publisher"] == "Coffee House Press"
     assert coffee_record["contributors"] == [{"name": "Kirmen Uribe", "role": "author"}]
     assert coffee_record["edition"]["isbn_13"] == "9781566897730"
-    assert open_letter_record["contributors"] == [{"name": "Arnon Grunberg", "role": "author"}]
+    assert open_letter_record["contributors"] == [
+        {"name": "Arnon Grunberg", "role": "author"}
+    ]
     assert open_letter_record["edition"]["isbn_13"] == "9781960385628"
+
+
+def test_fetch_wordpress_does_not_follow_off_host_detail_links():
+    taxonomy = [{"id": 16, "slug": "pushkin-press", "name": "Pushkin Press"}]
+    posts = [
+        {
+            "id": 10,
+            "slug": "the-gate",
+            "link": "https://attacker.example/book/the-gate/",
+            "date": "2026-02-26T10:45:21",
+            "title": {"rendered": "The Gate"},
+            "content": {"rendered": "<p>Safe summary.</p>"},
+            "imprint": [16],
+            "featured_media": 0,
+            "_embedded": {},
+        }
+    ]
+    mock = _mock_httpx_client(
+        [
+            (200, taxonomy, {}),
+            (200, posts, {"X-WP-TotalPages": "1"}),
+        ]
+    )
+
+    with mock:
+        response = client.post(
+            "/fetch/",
+            json={
+                "provider": "pushkin_press_us_official_store",
+                "config": {
+                    "api": {
+                        "type": "wordpress",
+                        "endpoint": "https://us.pushkinpress.com",
+                        "post_type": "book",
+                        "taxonomy": "imprint",
+                        "include_imprints": ["pushkin-press"],
+                        "fetch_detail_pages": True,
+                    },
+                    "source_hosts": ["us.pushkinpress.com"],
+                    "publisher_name": "Pushkin Press US",
+                    "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+                },
+            },
+        )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    record = data["records"][0]
+    assert record["source_uri"] == "https://us.pushkinpress.com/?p=10"
+    assert record["storefront_url"] == "https://us.pushkinpress.com/?p=10"
+
+
+def test_fetch_wordpress_does_not_follow_same_host_forbidden_detail_paths():
+    taxonomy = [{"id": 16, "slug": "pushkin-press", "name": "Pushkin Press"}]
+    posts = [
+        {
+            "id": 10,
+            "slug": "cart",
+            "link": "https://us.pushkinpress.com/cart/?return=/book/the-gate/#checkout",
+            "date": "2026-02-26T10:45:21",
+            "title": {"rendered": "The Gate"},
+            "content": {"rendered": "<p>Safe summary.</p>"},
+            "imprint": [16],
+            "featured_media": 0,
+            "_embedded": {},
+        }
+    ]
+    mock = _mock_httpx_client(
+        [
+            (200, taxonomy, {}),
+            (200, posts, {"X-WP-TotalPages": "1"}),
+        ]
+    )
+
+    with mock:
+        response = client.post(
+            "/fetch/",
+            json={
+                "provider": "pushkin_press_us_official_store",
+                "config": {
+                    "api": {
+                        "type": "wordpress",
+                        "endpoint": "https://us.pushkinpress.com",
+                        "post_type": "book",
+                        "taxonomy": "imprint",
+                        "include_imprints": ["pushkin-press"],
+                        "fetch_detail_pages": True,
+                    },
+                    "source_hosts": ["us.pushkinpress.com"],
+                    "publisher_name": "Pushkin Press US",
+                    "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+                },
+            },
+        )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    assert data["records"][0]["source_uri"] == "https://us.pushkinpress.com/?p=10"
+
+
+def test_fetch_wordpress_throttles_detail_page_requests():
+    taxonomy = [{"id": 16, "slug": "pushkin-press", "name": "Pushkin Press"}]
+    posts = [
+        {
+            "id": 10,
+            "slug": "the-gate",
+            "link": "https://us.pushkinpress.com/book/the-gate/",
+            "date": "2026-02-26T10:45:21",
+            "title": {"rendered": "The Gate"},
+            "content": {"rendered": "<p>Safe summary.</p>"},
+            "imprint": [16],
+            "featured_media": 0,
+            "_embedded": {},
+        }
+    ]
+    detail_html = "<html><body><h1>The Gate</h1><h2>Natsume Soseki</h2></body></html>"
+    slept: list[float] = []
+
+    async def fake_sleep(seconds: float) -> None:
+        slept.append(seconds)
+
+    mock = _mock_httpx_client(
+        [
+            (200, taxonomy, {}),
+            (200, posts, {"X-WP-TotalPages": "1"}),
+            (200, detail_html, {}),
+        ]
+    )
+
+    with mock, patch("anyio.sleep", new=fake_sleep):
+        response = client.post(
+            "/fetch/",
+            json={
+                "provider": "pushkin_press_us_official_store",
+                "config": {
+                    "api": {
+                        "type": "wordpress",
+                        "endpoint": "https://us.pushkinpress.com",
+                        "post_type": "book",
+                        "taxonomy": "imprint",
+                        "include_imprints": ["pushkin-press"],
+                        "fetch_detail_pages": True,
+                    },
+                    "source_hosts": ["us.pushkinpress.com"],
+                    "publisher_name": "Pushkin Press US",
+                    "rate_limit": {"min_delay_ms": 250, "max_bytes": 10_000_000},
+                },
+            },
+        )
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "success"
+    assert slept == [0.25]
+
+
+def test_fetch_wordpress_pushkin_filters_imprints_and_uses_embedded_cover():
+    taxonomy = [
+        {"id": 16, "slug": "pushkin-press", "name": "Pushkin Press", "count": 143},
+        {
+            "id": 7,
+            "slug": "pushkin-press-classics",
+            "name": "Pushkin Press Classics",
+            "count": 74,
+        },
+        {
+            "id": 8,
+            "slug": "pushkin-childrens-books",
+            "name": "Pushkin Children's Books",
+            "count": 117,
+        },
+    ]
+    posts = [
+        {
+            "id": 10,
+            "slug": "the-gate",
+            "link": "https://us.pushkinpress.com/book/the-gate/",
+            "date": "2026-02-26T10:45:21",
+            "title": {"rendered": "The Gate"},
+            "content": {
+                "rendered": "<p>Humble clerk Sosuke lives at the bottom of a cliff.</p><p>“Praise quote.”</p>"
+            },
+            "imprint": [16],
+            "featured_media": 99,
+            "_embedded": {
+                "wp:featuredmedia": [
+                    {
+                        "media_details": {
+                            "sizes": {
+                                "thumbnail": {
+                                    "width": 150,
+                                    "height": 150,
+                                    "source_url": "https://us.pushkinpress.com/thumb.jpg",
+                                },
+                                "full": {
+                                    "width": 1705,
+                                    "height": 2560,
+                                    "source_url": "https://us.pushkinpress.com/full.jpg",
+                                },
+                            }
+                        },
+                        "source_url": "https://us.pushkinpress.com/source.jpg",
+                    }
+                ]
+            },
+        },
+        {
+            "id": 11,
+            "slug": "childrens-book",
+            "link": "https://us.pushkinpress.com/book/childrens-book/",
+            "date": "2026-01-01T00:00:00",
+            "title": {"rendered": "Children's Book"},
+            "content": {"rendered": "<p>Children copy.</p>"},
+            "imprint": [8],
+            "featured_media": 0,
+        },
+        {
+            "id": 12,
+            "slug": "classic-book",
+            "link": "https://us.pushkinpress.com/book/classic-book/",
+            "date": "2026-01-01T00:00:00",
+            "title": {"rendered": "Classic Book"},
+            "content": {"rendered": "<p>Classic copy.</p>"},
+            "imprint": [7],
+            "featured_media": 0,
+        },
+    ]
+    detail_html = """
+        <html><body><h1>The Gate</h1><h2>Natsume Soseki</h2><h2>Translated by Francis Mathy</h2>
+        <p>ISBN 9781805332510 Published 13th October 2026 Format Paperback Pages 224</p></body></html>
+    """
+    mock = _mock_httpx_client(
+        [
+            (200, taxonomy, {}),
+            (200, posts, {"X-WP-TotalPages": "1"}),
+            (200, detail_html, {}),
+        ]
+    )
+
+    with mock:
+        response = client.post(
+            "/fetch/",
+            json={
+                "provider": "pushkin_press_us_official_store",
+                "config": {
+                    "api": {
+                        "type": "wordpress",
+                        "endpoint": "https://us.pushkinpress.com",
+                        "post_type": "book",
+                        "taxonomy": "imprint",
+                        "include_imprints": ["pushkin-press"],
+                        "exclude_imprints": [
+                            "pushkin-childrens-books",
+                            "pushkin-press-classics",
+                        ],
+                        "fetch_detail_pages": True,
+                    },
+                    "source_hosts": ["us.pushkinpress.com"],
+                    "publisher_name": "Pushkin Press US",
+                    "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+                },
+            },
+        )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    assert len(data["records"]) == 1
+    record = data["records"][0]
+    assert record["work"]["title"] == "The Gate"
+    assert record["publisher"] == "Pushkin Press US"
+    assert record["imprint"] == "Pushkin Press"
+    assert record["edition"]["isbn_13"] == "9781805332510"
+    assert record["edition"]["published_on"] == "2026-10-13"
+    assert record["edition"]["format"] == "paperback"
+    assert record["edition"]["page_count"] == 224
+    assert record["contributors"] == [
+        {"name": "Natsume Soseki", "role": "author"},
+        {"name": "Francis Mathy", "role": "translator"},
+    ]
+    assert (
+        record["description"] == "Humble clerk Sosuke lives at the bottom of a cliff."
+    )
+    assert record["cover"]["source_url"] == "https://us.pushkinpress.com/full.jpg"

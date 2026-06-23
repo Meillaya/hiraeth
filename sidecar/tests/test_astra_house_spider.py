@@ -7,6 +7,7 @@ from unittest.mock import AsyncMock, patch
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.spiders.astra_house import parse_astra_house_detail
 from app.spiders.deep_vellum_stealthy import StealthyFetcher
 
 client = TestClient(app)
@@ -34,7 +35,80 @@ def _ackermann_detail() -> str:
     """
 
 
-def test_scrape_astra_house_imprint_groups_sibling_format_pages(monkeypatch) -> None:
+
+def test_parse_astra_house_detail_uses_current_format_and_escaped_jsonld_cover() -> None:
+    # Given: current Astra pages expose the cover in escaped JSON-LD and mark the selected format.
+    html = r"""
+    <html><head>
+      <script type="application/ld+json">
+        {"thumbnailUrl":"http:\/\/images.penguinrandomhouse.com\/cover\/700jpg\/9781662603167"}
+      </script>
+    </head><body>
+      <h1 class="product_title">Another Bone-Swapping Event</h1>
+      <p class="author">by Brad Fox</p>
+      <span class="posted_in"><span>ISBN:</span> 9781662603167</span>
+      <select id="select-format">
+        <option value="43172" data-url="https://astrapublishinghouse.com/product/another-bone-swapping-event-9781662603174/">eBook</option>
+        <option value="43170" selected="selected">Hardcover (Current)</option>
+      </select>
+      <div class="description"><p>Generic header copy must not replace the About section.</p></div>
+      <div class="book-about-body">
+        <div class="row">
+          <div class="col-lg-9">
+            <p><b>A live-style publisher about headline.</b></p>
+            <p>Full official product-page about copy.</p>
+          </div>
+          <div class="col-lg-3"><div class="bookpage-detailslist">Book Details</div></div>
+        </div>
+      </div>
+      <div class="book-accordion-section" data-accordion="praise" id="praise-tab">
+        <div class="book-accordion-header"><span>Praise</span></div>
+        <div class="book-accordion-body">
+          <p>"Precise official praise excerpt."<br />—<b>Grace Byron, <em>BOMB</em></b></p>
+          <p>"Second official praise excerpt."<br />—<b>Hannah Bonner, <em>Hyperallergic</em></b></p>
+          <p>"Third official praise excerpt."<br />—<b>First Source</b><br />"Fourth official praise excerpt."<br />—<b>Second Source</b></p>
+        </div>
+      </div>
+    </body></html>
+    """
+
+    # When: the product detail parser reads the publisher page.
+    detail = parse_astra_house_detail(
+        html,
+        "https://astrapublishinghouse.com/product/another-bone-swapping-event-9781662603167/",
+    )
+
+    # Then: the fetched publisher page is the emitted record, with the real cover URL preserved.
+    assert detail.cover_url == "https://images.penguinrandomhouse.com/cover/700jpg/9781662603167"
+    assert detail.formats[0].source_uri == "https://astrapublishinghouse.com/product/another-bone-swapping-event-9781662603167/"
+    assert detail.formats[0].format == "hardcover"
+    assert detail.formats[0].isbn_13 == "9781662603167"
+    assert detail.description == "A live-style publisher about headline. Full official product-page about copy."
+    assert detail.editorial_praise == [
+        {
+            "quote": "Precise official praise excerpt.",
+            "source": "Grace Byron, BOMB",
+            "source_uri": "https://astrapublishinghouse.com/product/another-bone-swapping-event-9781662603167/",
+        },
+        {
+            "quote": "Second official praise excerpt.",
+            "source": "Hannah Bonner, Hyperallergic",
+            "source_uri": "https://astrapublishinghouse.com/product/another-bone-swapping-event-9781662603167/",
+        },
+        {
+            "quote": "Third official praise excerpt.",
+            "source": "First Source",
+            "source_uri": "https://astrapublishinghouse.com/product/another-bone-swapping-event-9781662603167/",
+        },
+        {
+            "quote": "Fourth official praise excerpt.",
+            "source": "Second Source",
+            "source_uri": "https://astrapublishinghouse.com/product/another-bone-swapping-event-9781662603167/",
+        },
+    ]
+
+
+def test_scrape_astra_house_imprint_dedupes_sibling_format_pages(monkeypatch) -> None:
     # Given: the Astra House imprint page and product detail pages returned by the sidecar fetcher.
     fetched_urls: list[str] = []
 
@@ -61,22 +135,22 @@ def test_scrape_astra_house_imprint_groups_sibling_format_pages(monkeypatch) -> 
         },
     )
 
-    # Then: only the imprint page is used as the seed and sibling format URLs share one work title.
+    # Then: only current publisher pages are emitted and sibling format URLs are de-duped.
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "success"
     records = data["records"]
-    assert len(records) == 3
+    assert len(records) == 2
     assert fetched_urls[0] == ASTRA_IMPRINT_URL
     assert "https://astrapublishinghouse.com/" not in fetched_urls
 
     early_records = [record for record in records if record["work"]["title"] == "Early Sobrieties"]
-    assert [record["edition"]["isbn_13"] for record in early_records] == ["9781662602245", "9781662602252"]
-    assert [record["edition"]["format"] for record in early_records] == ["paperback", "ebook"]
+    assert [record["edition"]["isbn_13"] for record in early_records] == ["9781662602245"]
+    assert [record["edition"]["format"] for record in early_records] == ["paperback"]
     assert {record["source_uri"] for record in early_records} == {
         "https://astrapublishinghouse.com/product/early-sobrieties-9781662602245/",
-        "https://astrapublishinghouse.com/product/early-sobrieties-9781662602252/",
     }
+    assert all("description" in record["displayed_fields"] for record in records)
     assert all(record["cover"]["source_url"].startswith("https://images.penguinrandomhouse.com/") for record in records)
 
 
@@ -124,4 +198,4 @@ def test_scrape_astra_house_excludes_non_product_links(monkeypatch) -> None:
     # Then: non-product links are not fetched or emitted.
     assert response.status_code == 200
     assert all("/imprints/minedition" not in url for url in fetched_urls)
-    assert len(response.json()["records"]) == 2
+    assert len(response.json()["records"]) == 1
