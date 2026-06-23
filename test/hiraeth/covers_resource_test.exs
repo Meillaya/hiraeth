@@ -910,6 +910,69 @@ defmodule Hiraeth.CoversResourceTest do
     assert Covers.public_cover_asset?(cached_asset)
   end
 
+  test "default cover fetch follows squarespace static cover redirects", %{admin: admin} do
+    cache_root = unique_cache_root("squarespace-cover-redirect")
+    on_exit(fn -> File.rm_rf!(cache_root) end)
+
+    source_url =
+      "https://static1.squarespace.com/static/site/collection/item/cover/"
+
+    _asset =
+      cover_asset!(admin, %{
+        source_url: source_url,
+        provider: "transit_books_official_site",
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed"
+      })
+
+    adapter = fn request ->
+      uri = URI.parse(to_string(request.url))
+
+      response =
+        cond do
+          uri.host == "static1.squarespace.com" ->
+            Req.Response.new(
+              status: 302,
+              headers: [{"location", "https://images.squarespace-cdn.com/content/cover.jpg"}]
+            )
+
+          uri.host == "images.squarespace-cdn.com" ->
+            response =
+              Req.Response.new(
+                status: 200,
+                headers: [{"content-type", "image/jpeg"}]
+              )
+
+            case request.into do
+              into when is_function(into, 2) ->
+                {:cont, {_request, streamed_response}} =
+                  into.({:data, jpeg_bytes()}, {request, response})
+
+                streamed_response
+
+              _not_streaming ->
+                %{response | body: jpeg_bytes()}
+            end
+
+          true ->
+            Req.Response.new(status: 500, body: "unexpected host")
+        end
+
+      {request, response}
+    end
+
+    summary =
+      Covers.cache_public_covers!(
+        cache_root: cache_root,
+        source_urls: [source_url],
+        req_options: [adapter: adapter],
+        thumbnailer: fn _cache_path, _thumbnail_path -> nil end
+      )
+
+    assert %{cached: 1, skipped: 0, failed: 0, assets: [cached_asset]} = summary
+    assert Covers.public_cover_asset?(cached_asset)
+  end
+
   test "cache task does not follow redirects from allowlisted cover hosts", %{admin: admin} do
     parent = self()
 

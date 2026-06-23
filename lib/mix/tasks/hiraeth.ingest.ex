@@ -12,14 +12,14 @@ defmodule Mix.Tasks.Hiraeth.Ingest do
   alias Hiraeth.Ingestion.ProviderManifest
   alias Hiraeth.Ingestion.SidecarClient
   alias Hiraeth.Oban.ProviderIngestionWorker
-  alias Hiraeth.RealCatalog.{Dataset, Validator}
+  alias Hiraeth.RealCatalog.{SourcePolicy, Validator}
 
   require Ash.Query
 
   @shortdoc "Ingest a new publisher's book metadata and covers"
 
   @poll_interval 2_000
-  @max_timeout_ms 600_000
+  @max_timeout_ms :timer.minutes(30)
 
   @impl Mix.Task
   def run(args) do
@@ -177,11 +177,16 @@ defmodule Mix.Tasks.Hiraeth.Ingest do
 
   defp run_dry_run(provider, manifest_path) do
     with :ok <- load_and_validate_manifest(manifest_path),
+         {:ok, _provider} <- register_provider(manifest_path),
          :ok <- check_sidecar_health(),
          {:ok, manifest} <- load_manifest(manifest_path),
          {:ok, records} <- fetch_records(manifest) do
       validate_and_print_dry_run(provider, records, manifest, manifest_path)
     end
+  end
+
+  defp register_provider(manifest_path) do
+    SourcePolicy.load_provider_manifest(manifest_path)
   end
 
   defp validate_and_print_dry_run(provider, records, manifest, manifest_path) do
@@ -193,7 +198,7 @@ defmodule Mix.Tasks.Hiraeth.Ingest do
         :ok
 
       {:error, findings} ->
-        print_validation_findings(findings)
+        print_validation_findings(List.wrap(findings))
         Mix.shell().info("Dry-run completed with validation issues (no data persisted).")
         :ok
     end
@@ -224,7 +229,7 @@ defmodule Mix.Tasks.Hiraeth.Ingest do
 
       case result do
         {:ok, %{records: records}} ->
-          {:ok, Dataset.normalize(records)}
+          ProviderIngestionWorker.normalize_provider_records(records, manifest, client)
 
         {:error, reason} when is_binary(reason) ->
           {:error, "sidecar #{source_mode} failed: #{reason}"}
@@ -247,7 +252,10 @@ defmodule Mix.Tasks.Hiraeth.Ingest do
 
     config =
       if source_mode == "api" and is_map(manifest.api) do
-        Map.put(config, :api, %{
+        config
+        |> Map.put(:source_hosts, manifest.source_hosts)
+        |> Map.put(:publisher_name, manifest.name)
+        |> Map.put(:api, %{
           type: manifest.api[:type],
           endpoint: manifest.api[:endpoint],
           auth: manifest.api[:auth],
@@ -301,14 +309,28 @@ defmodule Mix.Tasks.Hiraeth.Ingest do
       }
     }
 
-    Validator.validate_datasets([dataset])
+    with :ok <- validate_expected_record_count(records, manifest),
+         {:ok, summary} <- Validator.validate_datasets([dataset]) do
+      {:ok, summary}
+    end
+  end
+
+  defp validate_expected_record_count(records, manifest) do
+    expected = manifest.expected_record_count
+    actual = length(records)
+
+    if is_integer(expected) and expected != actual do
+      {:error, "expected_record_count #{expected} does not match fetched record count #{actual}"}
+    else
+      :ok
+    end
   end
 
   defp print_dry_run_summary(provider, records, manifest) do
     cover_count =
       records
       |> Enum.filter(fn record ->
-        is_map(record[:cover]) and is_binary(record[:cover][:source_url])
+        is_map(record[:cover]) and present?(record[:cover][:source_url])
       end)
       |> length()
 
@@ -390,4 +412,6 @@ defmodule Mix.Tasks.Hiraeth.Ingest do
     |> Ash.read!(authorize?: false)
     |> length()
   end
+
+  defp present?(value), do: is_binary(value) and String.trim(value) != ""
 end

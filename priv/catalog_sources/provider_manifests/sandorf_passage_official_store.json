@@ -1,0 +1,38 @@
+{
+  "provider": "sandorf_passage_official_store",
+  "name": "Sandorf Passage",
+  "source_mode": "api",
+  "source_urls": [
+    "https://sandorfpassage.org/shop/",
+    "https://sandorfpassage.org/product",
+    "https://sandorfpassage.org/wp-json/wc/store/products"
+  ],
+  "source_hosts": [
+    "sandorfpassage.org"
+  ],
+  "cover_hosts": [
+    "sandorfpassage.org"
+  ],
+  "permission_basis": "Operator-authorized public catalog refresh from official publisher pages/APIs; factual bibliographic metadata, official product descriptions, official cover URLs, purchase links, and source provenance preserved for each field.",
+  "takedown_contact": "https://sandorfpassage.org/contact/",
+  "excluded_content": [
+    "cart_checkout_account",
+    "inventory_state",
+    "prices",
+    "user_reviews",
+    "raw_html_without_sanitization"
+  ],
+  "cover_cache_policy": "cache_allowed",
+  "not_legal_advice": true,
+  "api": {
+    "type": "woocommerce",
+    "endpoint": "https://sandorfpassage.org",
+    "auth": null
+  },
+  "rate_limit": {
+    "max_concurrency": 2,
+    "min_delay_ms": 250,
+    "max_bytes": 15728640
+  },
+  "expected_record_count": 32
+}

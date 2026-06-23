@@ -155,7 +155,7 @@ defmodule Hiraeth.Covers do
     force? = Keyword.get(opts, :force?, false)
     req_options = Keyword.get(opts, :req_options, [])
     max_body_size = Keyword.get(opts, :max_body_size, @default_max_body_size)
-    fetch = Keyword.get(opts, :fetch, fn url -> req_fetch!(url, req_options, max_body_size) end)
+    fetch = Keyword.get(opts, :fetch)
     max_concurrency = Keyword.get(opts, :max_concurrency, 4)
     timeout = Keyword.get(opts, :timeout, 15_000)
     thumbnailer = Keyword.get(opts, :thumbnailer, &generate_thumbnail/2)
@@ -171,7 +171,7 @@ defmodule Hiraeth.Covers do
     |> filter_source_urls(source_urls)
     |> Enum.filter(&cache_candidate?/1)
     |> Task.async_stream(
-      &cover_cache_plan(&1, cache_root, force?, fetch, max_body_size),
+      &cover_cache_plan(&1, cache_root, force?, fetch, req_options, max_body_size),
       max_concurrency: max_concurrency,
       timeout: timeout,
       on_timeout: :kill_task
@@ -245,7 +245,14 @@ defmodule Hiraeth.Covers do
     Enum.filter(assets, &MapSet.member?(allowed, &1.source_url))
   end
 
-  defp cover_cache_plan(%CoverAsset{} = asset, cache_root, force?, fetch, max_body_size) do
+  defp cover_cache_plan(
+         %CoverAsset{} = asset,
+         cache_root,
+         force?,
+         fetch,
+         req_options,
+         max_body_size
+       ) do
     cache_path = cache_path(asset, cache_root)
     thumbnail_path = thumbnail_path(asset, cache_root)
 
@@ -263,13 +270,23 @@ defmodule Hiraeth.Covers do
       true ->
         try do
           {:cache, asset, cache_path,
-           fetch.(asset.source_url) |> validate_fetched_cover!(asset.source_url, max_body_size)}
+           fetch_cover_body(asset, fetch, req_options, max_body_size)
+           |> validate_fetched_cover!(asset.source_url, max_body_size)}
         rescue
           exception -> {:error, asset, Exception.message(exception)}
         catch
           kind, reason -> {:error, asset, "#{kind}: #{inspect(reason)}"}
         end
     end
+  end
+
+  defp fetch_cover_body(%CoverAsset{} = asset, nil, req_options, max_body_size) do
+    asset.source_url
+    |> req_fetch!(req_options, max_body_size, SourcePolicy.cover_hosts(asset.provider))
+  end
+
+  defp fetch_cover_body(%CoverAsset{} = asset, fetch, _req_options, _max_body_size) do
+    fetch.(asset.source_url)
   end
 
   defp handle_cache_failure(_summary, source_url, reason, true) do
@@ -563,7 +580,7 @@ defmodule Hiraeth.Covers do
   defp expanded_cache_root, do: Path.expand(@cache_root)
 
   @doc false
-  def req_fetch!(url, req_options, max_body_size) do
+  def req_fetch!(url, req_options, max_body_size, allowed_cover_hosts \\ :all) do
     request_url = encoded_cover_request_url(url)
 
     req_options =
@@ -575,7 +592,7 @@ defmodule Hiraeth.Covers do
     response =
       request_url
       |> Req.get!(req_options)
-      |> maybe_follow_open_library_cover_redirect(request_url, req_options)
+      |> maybe_follow_safe_cover_redirect(request_url, req_options, allowed_cover_hosts)
 
     cond do
       response.status not in 200..299 ->
@@ -610,62 +627,100 @@ defmodule Hiraeth.Covers do
     |> Enum.join("/")
   end
 
-  defp maybe_follow_open_library_cover_redirect(response, request_url, req_options),
-    do: follow_safe_open_library_cover_redirects(response, request_url, req_options, 3)
+  defp maybe_follow_safe_cover_redirect(response, request_url, req_options, allowed_cover_hosts),
+    do: follow_safe_cover_redirects(response, request_url, req_options, allowed_cover_hosts, 3)
 
-  defp follow_safe_open_library_cover_redirects(response, _request_url, _req_options, 0),
+  defp follow_safe_cover_redirects(response, _request_url, _req_options, _allowed_cover_hosts, 0),
     do: response
 
-  defp follow_safe_open_library_cover_redirects(
+  defp follow_safe_cover_redirects(
          %Req.Response{status: status} = response,
          request_url,
          req_options,
+         allowed_cover_hosts,
          remaining_hops
        )
        when status in 300..399 do
     with [location | _] <- Req.Response.get_header(response, "location"),
-         {:ok, redirect_url} <- safe_open_library_cover_redirect_url(request_url, location) do
+         {:ok, redirect_url} <-
+           safe_cover_redirect_url(request_url, location, allowed_cover_hosts) do
       redirect_url
       |> Req.get!(req_options)
-      |> follow_safe_open_library_cover_redirects(redirect_url, req_options, remaining_hops - 1)
+      |> follow_safe_cover_redirects(
+        redirect_url,
+        req_options,
+        allowed_cover_hosts,
+        remaining_hops - 1
+      )
     else
       _not_safe_or_not_present -> response
     end
   end
 
-  defp follow_safe_open_library_cover_redirects(
+  defp follow_safe_cover_redirects(
          response,
          _request_url,
          _req_options,
+         _allowed_cover_hosts,
          _remaining_hops
        ),
        do: response
 
-  defp safe_open_library_cover_redirect_url(request_url, location) do
+  defp safe_cover_redirect_url(request_url, location, allowed_cover_hosts) do
     source_uri = URI.parse(request_url)
     target_uri = request_url |> URI.merge(location)
 
-    if safe_open_library_cover_redirect?(source_uri.host, target_uri) do
+    if safe_cover_redirect?(source_uri.host, target_uri) and
+         redirect_host_allowed?(target_uri.host, allowed_cover_hosts) do
       {:ok, URI.to_string(target_uri)}
     else
       :error
     end
   end
 
-  defp safe_open_library_cover_redirect?("covers.openlibrary.org", %{
+  defp safe_cover_redirect?("covers.openlibrary.org", %{
          scheme: "https",
          host: "archive.org",
          path: "/download/" <> _rest
        }),
        do: true
 
-  defp safe_open_library_cover_redirect?("covers.openlibrary.org", %{scheme: "https", host: host}),
+  defp safe_cover_redirect?("covers.openlibrary.org", %{scheme: "https", host: host}),
     do: internet_archive_cover_host?(host)
 
-  defp safe_open_library_cover_redirect?("archive.org", %{scheme: "https", host: host}),
+  defp safe_cover_redirect?("archive.org", %{scheme: "https", host: host}),
     do: internet_archive_cover_host?(host)
 
-  defp safe_open_library_cover_redirect?(_source_host, _target_uri), do: false
+  defp safe_cover_redirect?("static1.squarespace.com", %{
+         scheme: "https",
+         host: "images.squarespace-cdn.com"
+       }),
+       do: true
+
+  defp safe_cover_redirect?("images.squarespace-cdn.com", %{
+         scheme: "https",
+         host: "images.squarespace-cdn.com"
+       }),
+       do: true
+
+  defp safe_cover_redirect?(_source_host, _target_uri), do: false
+
+  defp redirect_host_allowed?(_host, :all), do: true
+
+  defp redirect_host_allowed?(host, allowed_cover_hosts) do
+    allowed_hosts = Enum.map(allowed_cover_hosts, &to_string/1)
+
+    Enum.any?(allowed_hosts, &redirect_host_matches?(host, &1)) or
+      open_library_redirect_host_allowed?(host, allowed_hosts)
+  end
+
+  defp redirect_host_matches?(host, "." <> suffix), do: String.ends_with?(host, "." <> suffix)
+  defp redirect_host_matches?(host, allowed_host), do: host == allowed_host
+
+  defp open_library_redirect_host_allowed?(host, allowed_hosts) do
+    "covers.openlibrary.org" in allowed_hosts and
+      (host == "archive.org" or internet_archive_cover_host?(host))
+  end
 
   defp internet_archive_cover_host?(host) when is_binary(host),
     do: String.ends_with?(host, ".us.archive.org")

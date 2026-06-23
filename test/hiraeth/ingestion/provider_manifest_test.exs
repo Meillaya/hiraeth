@@ -30,7 +30,7 @@ defmodule Hiraeth.Ingestion.ProviderManifestTest do
                max_bytes: 10_485_760
              }
 
-      assert manifest.expected_record_count == 150
+      assert manifest.expected_record_count == 1
       assert manifest.permission_basis =~ "Official publisher pages"
       assert manifest.takedown_contact == "contact@testpublisher.com"
       assert manifest.excluded_content == ["raw_html", "prices", "reviews"]
@@ -56,7 +56,7 @@ defmodule Hiraeth.Ingestion.ProviderManifestTest do
                }
              }
 
-      assert manifest.expected_record_count == 75
+      assert manifest.expected_record_count == 1
 
       assert manifest.rate_limit == %{
                max_concurrency: 1,

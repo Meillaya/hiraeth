@@ -213,7 +213,11 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
       manifest_cover_host_allowed?(provider, host)
   end
 
-  def cover_hosts(provider), do: Map.get(@cover_hosts, provider, MapSet.new())
+  def cover_hosts(provider) do
+    @cover_hosts
+    |> Map.get(provider, MapSet.new())
+    |> MapSet.union(manifest_cover_hosts(provider))
+  end
 
   def source_host_allowed?(provider, host) do
     provider
@@ -222,7 +226,11 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
       manifest_source_host_allowed?(provider, host)
   end
 
-  def source_hosts(provider), do: Map.get(@source_hosts, provider, MapSet.new())
+  def source_hosts(provider) do
+    @source_hosts
+    |> Map.get(provider, MapSet.new())
+    |> MapSet.union(manifest_source_hosts(provider))
+  end
 
   def source_path_prefixes(provider), do: Map.get(@source_path_prefixes, provider, [])
 
@@ -430,7 +438,8 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
          path
        ) do
     with true <- String.starts_with?(path, prefix),
-         handle when handle != "" <- String.replace_prefix(path, prefix, ""),
+         handle when handle != "" <-
+           path |> String.replace_prefix(prefix, "") |> String.trim_trailing("/"),
          false <- String.contains?(handle, "/") do
       safe_source_handle?(handle, pattern)
     else
@@ -450,7 +459,8 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
   defp source_handle_vendor_allowed?(_pattern_without_vendor_gate, _context), do: true
 
   defp context_vendor(context) when is_map(context) do
-    map_value(context, :vendor) || map_value(context, :publisher) || map_value(context, :provider)
+    map_value(context, :vendor) || map_value(context, :imprint) || map_value(context, :publisher) ||
+      map_value(context, :provider)
   end
 
   defp context_vendor(_context), do: nil
@@ -614,13 +624,20 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
   end
 
   defp default_manifest_provider_entry(provider) do
-    @default_provider_manifest_files
-    |> Map.get(provider)
-    |> case do
-      nil -> %{}
-      file -> file |> default_provider_manifest_path() |> load_manifest_provider_entry()
+    case Map.get(@default_provider_manifest_files, provider) do
+      nil ->
+        provider
+        |> provider_manifest_filename()
+        |> default_provider_manifest_path()
+        |> load_manifest_provider_entry()
+
+      file ->
+        file |> default_provider_manifest_path() |> load_manifest_provider_entry()
     end
   end
+
+  defp provider_manifest_filename(provider),
+    do: Path.join("catalog_sources/provider_manifests", "#{provider}.json")
 
   defp default_provider_manifest_path(file) do
     case :code.priv_dir(:hiraeth) do
@@ -630,16 +647,20 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
   end
 
   defp load_manifest_provider_entry(file_path) do
-    manifest = Hiraeth.Ingestion.ProviderManifest.load!(file_path)
+    if File.exists?(file_path) do
+      manifest = Hiraeth.Ingestion.ProviderManifest.load!(file_path)
 
-    %{}
-    |> Map.put(:cover_hosts, MapSet.new(manifest.cover_hosts || []))
-    |> Map.put(:source_hosts, MapSet.new(manifest.source_hosts || []))
-    |> Map.put(
-      :source_path_prefixes,
-      manifest_source_path_prefixes_from_urls(manifest.source_urls || [])
-    )
-    |> Map.put(:source_handle_patterns, source_handle_patterns(manifest))
+      %{}
+      |> Map.put(:cover_hosts, MapSet.new(manifest.cover_hosts || []))
+      |> Map.put(:source_hosts, MapSet.new(manifest.source_hosts || []))
+      |> Map.put(
+        :source_path_prefixes,
+        manifest_source_path_prefixes_from_urls(manifest.source_urls || [])
+      )
+      |> Map.put(:source_handle_patterns, source_handle_patterns(manifest))
+    else
+      %{}
+    end
   end
 
   defp manifest_source_path_prefixes_from_urls(source_urls) do

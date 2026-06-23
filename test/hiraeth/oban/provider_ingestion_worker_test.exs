@@ -397,6 +397,88 @@ defmodule Hiraeth.Oban.ProviderIngestionWorkerTest do
     end
   end
 
+  defmodule MockDetailTriggeredSidecarClient do
+    def fetch(_provider_config, _opts \\ []) do
+      {:ok, %{records: [record_missing_isbn()]}}
+    end
+
+    def scrape(_provider_config, _opts \\ []) do
+      {:error, "scrape should not be called for api mode"}
+    end
+
+    def detail(source_uri, provider, opts) do
+      send(
+        Application.fetch_env!(:hiraeth, :test_pid),
+        {:detail_called, source_uri, provider, opts}
+      )
+
+      {:ok,
+       %{
+         isbn_13: "9781931883702",
+         published_on: "2018-03-13",
+         contributors: [%{name: "Angus Turvill", role: "translator"}],
+         description: "Two Lines detail page description.",
+         cover: %{source_url: "https://www.twolinespress.com/wp-content/uploads/lion.jpg"}
+       }}
+    end
+
+    defp record_missing_isbn do
+      %{
+        source_uri: "https://www.twolinespress.com/shop/books/lion-cross-point/",
+        publisher: "Two Lines Press",
+        imprint: nil,
+        source_product_id: "lion-cross-point",
+        work: %{title: "Lion Cross Point", publication_state: "published"},
+        edition: %{
+          title: "Lion Cross Point",
+          format: "paperback",
+          published_on: nil,
+          isbn_13: nil
+        },
+        contributors: [%{name: "Masatsugu Ono", role: "author"}],
+        curation: %{status: "approved"},
+        displayed_fields: ["title", "contributors", "publisher", "format", "cover"],
+        field_sources:
+          Map.new(["title", "contributors", "publisher", "format", "cover"], fn field ->
+            {field,
+             %{
+               provider: "two_lines_press_official_store",
+               source_uri: "https://www.twolinespress.com/shop/books/lion-cross-point/",
+               source_type: "publisher_dataset",
+               rights_basis: "test"
+             }}
+          end),
+        cover: %{
+          source_url: "https://www.twolinespress.com/wp-content/uploads/lion.jpg",
+          provider: "two_lines_press_official_store",
+          rights_basis: "local_cache_permitted",
+          cache_policy: "cache_allowed"
+        },
+        missing_fields: %{isbn_13: "not present in source record"},
+        series: [],
+        review_links: [],
+        editorial_praise: [],
+        description: "",
+        synopsis: nil,
+        storefront_url: "https://www.twolinespress.com/shop/books/lion-cross-point/",
+        source_sku: nil
+      }
+    end
+  end
+
+  defmodule MockCapturingImporter do
+    def seed_provider!(dataset, _import_run) do
+      send(Application.fetch_env!(:hiraeth, :test_pid), {:import_dataset, dataset})
+
+      {:ok,
+       %{
+         publishers: 1,
+         editions: length(dataset.records),
+         source_records: length(dataset.records)
+       }}
+    end
+  end
+
   defmodule MockCoverPipeline do
     def download_and_cache!(_cover_urls, _provider_config) do
       {:ok, %{}}
@@ -443,6 +525,28 @@ defmodule Hiraeth.Oban.ProviderIngestionWorkerTest do
       worker: "Hiraeth.Oban.ProviderIngestionWorker",
       queue: :ingestion
     }
+  end
+
+  defp write_temp_manifest(manifest) do
+    dir =
+      Path.join(
+        System.tmp_dir!(),
+        "hiraeth_worker_manifest_test_#{System.unique_integer([:positive])}"
+      )
+
+    File.mkdir_p!(dir)
+    path = Path.join(dir, "manifest.json")
+    File.write!(path, Jason.encode!(manifest))
+    path
+  end
+
+  defp cleanup_temp_manifests do
+    System.tmp_dir!()
+    |> File.ls!()
+    |> Enum.filter(&String.starts_with?(&1, "hiraeth_worker_manifest_test_"))
+    |> Enum.each(fn dir ->
+      File.rm_rf!(Path.join(System.tmp_dir!(), dir))
+    end)
   end
 
   # --- Tests ---
@@ -561,6 +665,26 @@ defmodule Hiraeth.Oban.ProviderIngestionWorkerTest do
         |> length()
 
       assert source_count == 0
+    end
+  end
+
+  describe "validation failure - expected record count" do
+    setup :setup_mocks
+
+    test "returns an error before import when fetched count differs from manifest count" do
+      manifest_path =
+        @api_manifest_path
+        |> File.read!()
+        |> Jason.decode!()
+        |> Map.put("expected_record_count", 2)
+        |> write_temp_manifest()
+
+      job = build_job(manifest_path, "test_publisher_api")
+
+      assert {:error, reason} = ProviderIngestionWorker.perform(job)
+      assert reason == "expected_record_count 2 does not match fetched record count 1"
+    after
+      cleanup_temp_manifests()
     end
   end
 
@@ -754,6 +878,62 @@ defmodule Hiraeth.Oban.ProviderIngestionWorkerTest do
       assert summary.provider == "test_publisher_api"
       assert summary.record_count == 1
       assert summary.source_mode == "api"
+    end
+  end
+
+  describe "provider-specific detail enrichment" do
+    setup do
+      Application.put_env(:hiraeth, :test_pid, self())
+      Application.put_env(:hiraeth, :sidecar_client, MockDetailTriggeredSidecarClient)
+      Application.put_env(:hiraeth, :cover_pipeline, MockCoverPipeline)
+      Application.put_env(:hiraeth, :importer, MockCapturingImporter)
+
+      on_exit(fn ->
+        Application.delete_env(:hiraeth, :test_pid)
+        Application.delete_env(:hiraeth, :sidecar_client)
+        Application.delete_env(:hiraeth, :cover_pipeline)
+        Application.delete_env(:hiraeth, :importer)
+      end)
+
+      :ok
+    end
+
+    test "enriches missing ISBN and publication date even when contributors and cover are present" do
+      manifest_path =
+        %{
+          provider: "two_lines_press_official_store",
+          name: "Two Lines Press",
+          source_mode: "api",
+          source_urls: ["https://www.twolinespress.com/shop/books"],
+          source_hosts: ["www.twolinespress.com"],
+          cover_hosts: ["www.twolinespress.com"],
+          api: %{type: "woocommerce", endpoint: "https://www.twolinespress.com"},
+          rate_limit: %{max_concurrency: 1, min_delay_ms: 0, max_bytes: 12_345},
+          expected_record_count: 1,
+          permission_basis: "Official publisher pages expose public catalog facts.",
+          takedown_contact: "https://www.twolinespress.com/contact/",
+          excluded_content: ["raw_html"],
+          cover_cache_policy: "cache_allowed",
+          not_legal_advice: true
+        }
+        |> write_temp_manifest()
+
+      job = build_job(manifest_path, "two_lines_press_official_store")
+
+      assert {:ok, summary} = ProviderIngestionWorker.perform(job)
+      assert summary.record_count == 1
+
+      assert_receive {:detail_called,
+                      "https://www.twolinespress.com/shop/books/lion-cross-point/",
+                      "two_lines_press_official_store", [max_bytes: 12_345]}
+
+      assert_receive {:import_dataset, dataset}
+      [record] = dataset.records
+      assert record.edition.isbn_13 == "9781931883702"
+      assert record.edition.published_on == "2018-03-13"
+      assert record.description == "Two Lines detail page description."
+    after
+      cleanup_temp_manifests()
     end
   end
 

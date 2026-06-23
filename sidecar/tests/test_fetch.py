@@ -1,7 +1,6 @@
 import json
-from unittest.mock import AsyncMock, patch
-
-import pytest
+from typing import Any
+from unittest.mock import patch
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -9,7 +8,7 @@ from app.main import app
 client = TestClient(app)
 
 
-def _mock_httpx_client(responses: list[tuple[int, dict | list, dict]]):
+def _mock_httpx_client(responses: list[tuple[int, dict[str, Any] | list[Any] | str | bytes, dict[str, str]]]):
     """Return a patch target that yields an AsyncClient mock.
 
     responses: list of (status_code, json_body, headers) tuples.
@@ -21,6 +20,7 @@ def _mock_httpx_client(responses: list[tuple[int, dict | list, dict]]):
             self._json = json_body
             self.headers = headers
             self.content = content
+            self.text = content.decode("utf-8", "replace")
 
         def raise_for_status(self):
             if self.status_code >= 400:
@@ -39,7 +39,12 @@ def _mock_httpx_client(responses: list[tuple[int, dict | list, dict]]):
                 raise Exception("No more mock responses")
             status_code, json_body, headers = self._responses[self._index]
             self._index += 1
-            content = json.dumps(json_body).encode("utf-8")
+            if isinstance(json_body, bytes):
+                content = json_body
+            elif isinstance(json_body, str):
+                content = json_body.encode("utf-8")
+            else:
+                content = json.dumps(json_body).encode("utf-8")
             return MockResponse(status_code, json_body, headers, content)
 
         async def __aenter__(self):
@@ -84,6 +89,7 @@ def test_fetch_shopify_basic():
             "provider": "test_press",
             "config": {
                 "api": {"type": "shopify", "endpoint": "https://store.example.com"},
+                "source_hosts": ["store.example.com"],
                 "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
             },
         })
@@ -123,6 +129,7 @@ def test_fetch_shopify_pagination():
             "provider": "p",
             "config": {
                 "api": {"type": "shopify", "endpoint": "https://store.example.com"},
+                "source_hosts": ["store.example.com"],
                 "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
             },
         })
@@ -154,6 +161,7 @@ def test_fetch_shopify_no_variants():
             "provider": "v",
             "config": {
                 "api": {"type": "shopify", "endpoint": "https://store.example.com"},
+                "source_hosts": ["store.example.com"],
                 "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
             },
         })
@@ -174,7 +182,7 @@ def test_fetch_woocommerce_basic():
             "id": 101,
             "name": "Woo Book",
             "permalink": "https://shop.example.com/book/woo-book/",
-            "sku": "9780987654321",
+            "sku": "9780987654328",
             "vendor": "Woo Press",
             "date_created": "2024-02-20T00:00:00",
             "short_description": "A woo book.",
@@ -194,6 +202,7 @@ def test_fetch_woocommerce_basic():
             "provider": "woo_press",
             "config": {
                 "api": {"type": "woocommerce", "endpoint": "https://shop.example.com"},
+                "source_hosts": ["shop.example.com"],
                 "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
             },
         })
@@ -205,8 +214,8 @@ def test_fetch_woocommerce_basic():
 
     record = data["records"][0]
     assert record["source_uri"] == "https://shop.example.com/book/woo-book/"
-    assert record["source_sku"] == "9780987654321"
-    assert record["edition"]["isbn_13"] == "9780987654321"
+    assert record["source_sku"] == "9780987654328"
+    assert record["edition"]["isbn_13"] == "9780987654328"
     assert record["edition"]["format"] == "paperback"
     assert record["edition"]["published_on"] == "2024-02-20"
     assert record["work"]["subjects"] == ["Fiction"]
@@ -227,6 +236,7 @@ def test_fetch_woocommerce_pagination():
             "provider": "p",
             "config": {
                 "api": {"type": "woocommerce", "endpoint": "https://shop.example.com"},
+                "source_hosts": ["shop.example.com"],
                 "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
             },
         })
@@ -266,6 +276,7 @@ def test_fetch_squarespace_basic():
 
     mock = _mock_httpx_client([
         (200, collection, {}),
+        (200, "", {}),
     ])
 
     with mock:
@@ -273,6 +284,7 @@ def test_fetch_squarespace_basic():
             "provider": "square_site",
             "config": {
                 "api": {"type": "squarespace", "endpoint": "https://site.example.com/books"},
+                "source_hosts": ["site.example.com"],
                 "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
             },
         })
@@ -297,12 +309,21 @@ def test_fetch_squarespace_flat_items():
     """Some Squarespace JSON responses put items directly under 'items'."""
     body = {
         "items": [
-            {"id": "sq-2", "title": "Flat", "fullUrl": "", "body": "", "assets": [], "tags": []}
+            {
+                "id": "sq-2",
+                "title": "Flat",
+                "fullUrl": "",
+                "body": "",
+                "customContent": {"author": "Flat Author"},
+                "assets": [],
+                "tags": [],
+            }
         ]
     }
 
     mock = _mock_httpx_client([
         (200, body, {}),
+        (200, "", {}),
     ])
 
     with mock:
@@ -310,6 +331,7 @@ def test_fetch_squarespace_flat_items():
             "provider": "sq",
             "config": {
                 "api": {"type": "squarespace", "endpoint": "https://site.example.com/all-books"},
+                "source_hosts": ["site.example.com"],
                 "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
             },
         })
@@ -318,6 +340,119 @@ def test_fetch_squarespace_flat_items():
     data = response.json()
     assert len(data["records"]) == 1
     assert data["records"][0]["work"]["title"] == "Flat"
+
+
+def test_fetch_squarespace_filters_bundles_and_uses_store_item_fields():
+    body = {
+        "collection": {
+            "items": [
+                {
+                    "id": "bundle-1",
+                    "title": "2026 Fiction Bundle",
+                    "fullUrl": "/bookstore/2026-bundle",
+                    "categories": ["Bundles", "All"],
+                    "assetUrl": "https://images.example.com/bundle.png",
+                    "structuredContent": {
+                        "variants": [
+                            {"sku": "2026Bundle", "price": 9000},
+                        ],
+                        "mainImage": {"assetUrl": "https://images.example.com/bundle-main.png"},
+                    },
+                },
+                {
+                    "id": "book-1",
+                    "title": "Cathedrals",
+                    "fullUrl": "/bookstore/cathedrals",
+                    "excerpt": "<h3>Claudia Piñeiro</h3><p>Translated by Frances Riddle</p>",
+                    "assetUrl": "https://static1.squarespace.com/static/583cb891/5840506a/book-1/1762952699163/",
+                    "structuredContent": {
+                        "variants": [
+                            {"sku": "9781917260282", "price": 1199},
+                        ],
+                    },
+                    "categories": ["All", "Print"],
+                },
+                {
+                    "id": "book-1-ebook",
+                    "title": "Cathedrals (eBook)",
+                    "fullUrl": "/bookstore/cathedrals-ebook",
+                    "excerpt": "<h3>Claudia Piñeiro</h3><p>Translated by Frances Riddle</p>",
+                    "assetUrl": "https://images.squarespace-cdn.com/content/v1/583cb891/cathedrals-ebook.png",
+                    "structuredContent": {"productType": 2, "variants": []},
+                    "categories": ["All", "Digital"],
+                },
+                {
+                    "id": "placeholder-1",
+                    "title": "Placeholder Cover Book",
+                    "fullUrl": "/bookstore/placeholder-cover-book",
+                    "excerpt": "<h3>Placeholder Author</h3>",
+                    "assetUrl": "https://static1.squarespace.com/static/book-cover/",
+                    "structuredContent": {
+                        "variants": [
+                            {"sku": "9781917260992", "price": 1199},
+                        ],
+                    },
+                    "categories": ["All", "Print"],
+                },
+            ]
+        }
+    }
+
+    listing_html = """
+    <article data-item-id="book-1">
+      <img data-src="https://images.squarespace-cdn.com/content/v1/583cb891/cathedrals.jpg" />
+    </article>
+    <article data-item-id="book-1-ebook">
+      <img data-src="https://images.squarespace-cdn.com/content/v1/583cb891/cathedrals-ebook.png" />
+    </article>
+    <article data-item-id="placeholder-1">
+      <img data-src="https://assets.squarespace.com/universal/images-v6/configuration/no-image.png" />
+    </article>
+    """
+
+    mock = _mock_httpx_client([
+        (200, body, {}),
+        (200, listing_html, {}),
+    ])
+
+    with mock:
+        response = client.post("/fetch/", json={
+            "provider": "charco_press",
+            "config": {
+                "api": {"type": "squarespace", "endpoint": "https://charcopress.com/bookstore"},
+                "source_hosts": ["charcopress.com"],
+                "publisher_name": "Charco Press",
+                "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+            },
+        })
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    assert len(data["records"]) == 3
+
+    record = data["records"][0]
+    assert record["publisher"] == "Charco Press"
+    assert record["source_uri"] == "https://charcopress.com/bookstore/cathedrals"
+    assert record["storefront_url"] == "https://charcopress.com/bookstore/cathedrals"
+    assert record["source_sku"] == "9781917260282"
+    assert record["edition"]["isbn_13"] == "9781917260282"
+    assert record["edition"]["format"] == "paperback"
+    assert record["cover"]["source_url"] == "https://images.squarespace-cdn.com/content/v1/583cb891/cathedrals.jpg"
+    assert "cover" in record["displayed_fields"]
+    assert record["description"] == "Claudia Piñeiro Translated by Frances Riddle"
+    assert "published_on" not in record["displayed_fields"]
+
+    ebook = data["records"][1]
+    assert ebook["work"]["title"] == "Cathedrals"
+    assert ebook["edition"]["title"] == "Cathedrals"
+    assert ebook["edition"]["format"] == "ebook"
+    assert ebook["cover"]["source_url"] == "https://images.squarespace-cdn.com/content/v1/583cb891/cathedrals-ebook.png"
+
+    placeholder = data["records"][2]
+    assert placeholder["cover"]["source_url"] == ""
+    assert placeholder["no_cover_reason"] == "no usable cover image URL present in source record"
+    assert "cover" not in placeholder["displayed_fields"]
 
 
 # ---------------------------------------------------------------------------
@@ -348,6 +483,7 @@ def test_fetch_wordpress_basic():
             "provider": "wp_site",
             "config": {
                 "api": {"type": "wordpress", "endpoint": "https://blog.example.com"},
+                "source_hosts": ["blog.example.com"],
                 "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
             },
         })
@@ -382,6 +518,7 @@ def test_fetch_wordpress_pagination():
             "provider": "wp",
             "config": {
                 "api": {"type": "wordpress", "endpoint": "https://blog.example.com"},
+                "source_hosts": ["blog.example.com"],
                 "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
             },
         })
@@ -413,6 +550,45 @@ def test_fetch_unsupported_api_type():
     assert "Unsupported api.type" in response.json()["detail"]
 
 
+def test_fetch_rejects_endpoint_host_outside_source_hosts():
+    response = client.post("/fetch/", json={
+        "provider": "x",
+        "config": {
+            "api": {"type": "shopify", "endpoint": "https://evil.example.com"},
+            "source_hosts": ["store.example.com"],
+        },
+    })
+
+    assert response.status_code == 400
+    assert "host must be listed in source_hosts" in response.json()["detail"]
+
+
+def test_fetch_rejects_private_endpoint_hosts():
+    response = client.post("/fetch/", json={
+        "provider": "x",
+        "config": {
+            "api": {"type": "shopify", "endpoint": "https://127.0.0.1"},
+            "source_hosts": ["127.0.0.1"],
+        },
+    })
+
+    assert response.status_code == 400
+    assert "must not be private" in response.json()["detail"]
+
+
+def test_fetch_rejects_endpoint_userinfo():
+    response = client.post("/fetch/", json={
+        "provider": "x",
+        "config": {
+            "api": {"type": "shopify", "endpoint": "https://user:pass@store.example.com"},
+            "source_hosts": ["store.example.com"],
+        },
+    })
+
+    assert response.status_code == 400
+    assert "must not include userinfo" in response.json()["detail"]
+
+
 # ---------------------------------------------------------------------------
 # Rate limiting / max_bytes
 # ---------------------------------------------------------------------------
@@ -430,6 +606,7 @@ def test_fetch_shopify_max_bytes():
             "provider": "p",
             "config": {
                 "api": {"type": "shopify", "endpoint": "https://store.example.com"},
+                "source_hosts": ["store.example.com"],
                 "rate_limit": {"min_delay_ms": 0, "max_bytes": 10},
             },
         })
@@ -474,6 +651,7 @@ def test_fetch_shopify_filters_bundles_and_non_books():
             "provider": "deep_vellum_official_store",
             "config": {
                 "api": {"type": "shopify", "endpoint": "https://store.deepvellum.org"},
+                "source_hosts": ["store.deepvellum.org"],
                 "rate_limit": {"min_delay_ms": 0, "max_bytes": 10485760},
             },
         })
@@ -511,6 +689,7 @@ def test_fetch_shopify_filters_by_allowed_vendors():
                     "endpoint": "https://store.deepvellum.org",
                     "allowed_vendors": ["Deep Vellum", "Deep Vellum Publishing"],
                 },
+                "source_hosts": ["store.deepvellum.org"],
                 "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
             },
         })
@@ -520,3 +699,71 @@ def test_fetch_shopify_filters_by_allowed_vendors():
     assert len(data["records"]) == 1
     assert data["records"][0]["work"]["title"] == "Deep Vellum Book"
     assert data["records"][0]["publisher"] == "Deep Vellum"
+
+
+def test_fetch_shopify_extracts_book_metadata_from_body_html():
+    products = [
+        {
+            "id": 1,
+            "handle": "life-before-dolphins",
+            "title": "Life Before Dolphins",
+            "vendor": "CHPbeta",
+            "product_type": "Book",
+            "tags": ["fiction"],
+            "body_html": "Novel by Kirmen Uribe January 26, 2027 • 978-1-56689-773-0",
+            "images": [{"src": "https://cdn.example.com/dolphins.jpg"}],
+            "variants": [{"id": 11, "sku": None, "title": "Paperback"}],
+        },
+        {
+            "id": 2,
+            "handle": "the-man-without-illness",
+            "title": "The Man Without Illness",
+            "vendor": "Arnon Grunberg",
+            "product_type": "paperback",
+            "tags": ["books"],
+            "body_html": "February 24, 2027 novel | pb | 978-1-960385-62-8",
+            "images": [{"src": "https://cdn.example.com/man.jpg"}],
+            "variants": [
+                {"id": 22, "sku": "", "title": "Paperback"},
+                {"id": 23, "sku": "", "title": "Ebook"},
+            ],
+        },
+        {
+            "id": 3,
+            "handle": "unknown-book",
+            "title": "Unknown Book",
+            "vendor": "CHPbeta",
+            "product_type": "Book",
+            "tags": ["fiction"],
+            "body_html": "A book without contributor metadata.",
+            "images": [{"src": "https://cdn.example.com/unknown.jpg"}],
+            "variants": [{"id": 33, "sku": "", "title": "Paperback"}],
+        },
+    ]
+
+    mock = _mock_httpx_client([
+        (200, {"products": products}, {}),
+    ])
+
+    with mock:
+        response = client.post("/fetch/", json={
+            "provider": "publisher",
+            "config": {
+                "api": {"type": "shopify", "endpoint": "https://store.example.com"},
+                "source_hosts": ["store.example.com"],
+                "publisher_name": "Coffee House Press",
+                "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+            },
+        })
+
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["records"]) == 2
+
+    coffee_record, open_letter_record = data["records"]
+    assert coffee_record["publisher"] == "Coffee House Press"
+    assert open_letter_record["publisher"] == "Coffee House Press"
+    assert coffee_record["contributors"] == [{"name": "Kirmen Uribe", "role": "author"}]
+    assert coffee_record["edition"]["isbn_13"] == "9781566897730"
+    assert open_letter_record["contributors"] == [{"name": "Arnon Grunberg", "role": "author"}]
+    assert open_letter_record["edition"]["isbn_13"] == "9781960385628"

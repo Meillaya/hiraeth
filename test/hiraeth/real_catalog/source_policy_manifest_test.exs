@@ -15,7 +15,8 @@ defmodule Hiraeth.RealCatalog.SourcePolicyManifestTest do
     "source_hosts": ["www.manifesttest.example"],
     "cover_hosts": ["cdn.manifesttest.example", "covers.openlibrary.org"],
     "api": {
-      "type": "shopify"
+      "type": "shopify",
+      "endpoint": "https://www.manifesttest.example"
     },
     "permission_basis": "Test manifest provider for source policy",
     "takedown_contact": "test@manifesttest.example",
@@ -307,6 +308,123 @@ defmodule Hiraeth.RealCatalog.SourcePolicyManifestTest do
       refute SourcePolicy.source_uri_allowed?("deep_vellum_official_store", nil)
       refute SourcePolicy.source_uri_allowed?("deep_vellum_official_store", "")
       refute SourcePolicy.source_uri_allowed?("deep_vellum_official_store", "not a uri")
+    end
+  end
+
+  describe "provider manifest defaults" do
+    test "new provider manifests are available without process registration" do
+      Process.delete(:manifest_providers)
+
+      assert SourcePolicy.source_host_allowed?(
+               "coffee_house_press_official_store",
+               "coffeehousepress.org"
+             )
+
+      assert SourcePolicy.cover_host_allowed?(
+               "coffee_house_press_official_store",
+               "cdn.shopify.com"
+             )
+
+      assert SourcePolicy.source_host_allowed?(
+               "open_letter_books_official_store",
+               "www.openletterbooks.org"
+             )
+
+      assert SourcePolicy.cover_host_allowed?(
+               "open_letter_books_official_store",
+               "cdn.shopify.com"
+             )
+
+      assert SourcePolicy.source_host_allowed?(
+               "charco_press_official_store",
+               "charcopress.com"
+             )
+
+      assert SourcePolicy.cover_host_allowed?(
+               "charco_press_official_store",
+               "images.squarespace-cdn.com"
+             )
+
+      assert SourcePolicy.source_host_allowed?(
+               "two_lines_press_official_store",
+               "www.twolinespress.com"
+             )
+
+      assert SourcePolicy.cover_host_allowed?(
+               "two_lines_press_official_store",
+               "www.twolinespress.com"
+             )
+
+      assert SourcePolicy.source_host_allowed?(
+               "wakefield_press_official_store",
+               "wakefieldpress.com"
+             )
+
+      assert SourcePolicy.cover_host_allowed?(
+               "wakefield_press_official_store",
+               "cdn.shopify.com"
+             )
+
+      assert SourcePolicy.source_host_allowed?(
+               "astra_house_official_store",
+               "astrapublishinghouse.com"
+             )
+
+      assert SourcePolicy.cover_host_allowed?(
+               "astra_house_official_store",
+               "images.penguinrandomhouse.com"
+             )
+
+      assert SourcePolicy.source_host_allowed?(
+               "sandorf_passage_official_store",
+               "sandorfpassage.org"
+             )
+
+      assert SourcePolicy.cover_host_allowed?(
+               "sandorf_passage_official_store",
+               "sandorfpassage.org"
+             )
+    end
+
+    test "new provider manifest source paths allow products but reject global Astra root" do
+      Process.delete(:manifest_providers)
+
+      assert SourcePolicy.source_uri_allowed?(
+               "two_lines_press_official_store",
+               "https://www.twolinespress.com/shop/books/lion-cross-point/"
+             )
+
+      assert SourcePolicy.source_uri_allowed?(
+               "wakefield_press_official_store",
+               "https://wakefieldpress.com/products/a-book"
+             )
+
+      refute SourcePolicy.source_uri_allowed?(
+               "astra_house_official_store",
+               "https://astrapublishinghouse.com/product/early-sobrieties-9781662602245/"
+             )
+
+      refute SourcePolicy.source_uri_allowed?(
+               "astra_house_official_store",
+               "https://astrapublishinghouse.com/product/early-sobrieties-9781662602245/",
+               %{publisher: "Astra Books for Young Readers"}
+             )
+
+      assert SourcePolicy.source_uri_allowed?(
+               "astra_house_official_store",
+               "https://astrapublishinghouse.com/product/early-sobrieties-9781662602245/",
+               %{imprint: "Astra House"}
+             )
+
+      refute SourcePolicy.source_uri_allowed?(
+               "astra_house_official_store",
+               "https://astrapublishinghouse.com/"
+             )
+
+      assert SourcePolicy.source_uri_allowed?(
+               "sandorf_passage_official_store",
+               "https://sandorfpassage.org/product/sample-book/"
+             )
     end
   end
 

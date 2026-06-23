@@ -120,7 +120,10 @@ defmodule Mix.Tasks.Hiraeth.Scrape do
 
     config =
       if is_map(manifest.api) and manifest.api != %{} do
-        Map.put(config, :api, %{
+        config
+        |> Map.put(:source_hosts, manifest.source_hosts)
+        |> Map.put(:publisher_name, manifest.name)
+        |> Map.put(:api, %{
           type: manifest.api[:type],
           endpoint: manifest.api[:endpoint],
           auth: manifest.api[:auth]

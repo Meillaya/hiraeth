@@ -40,6 +40,12 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
   require Ash.Query
   require Logger
 
+  @detail_enrichment_providers MapSet.new([
+                                 "deep_vellum",
+                                 "deep_vellum_official_store",
+                                 "two_lines_press_official_store"
+                               ])
+
   @impl Oban.Worker
   def perform(%Oban.Job{args: args}) do
     manifest_path = args["manifest_path"]
@@ -50,7 +56,7 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
          {:ok, dataset} <- validate_records(records, manifest, manifest_path),
          {:ok, _covers} <- cache_covers(dataset, manifest),
          {:ok, _import} <- import_provider(dataset),
-         {:ok, _audit} <- run_audit() do
+         {:ok, _audit} <- run_audit(manifest.provider) do
       {:ok,
        %{
          provider: manifest.provider,
@@ -89,7 +95,7 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
       "scrape" ->
         case client.scrape(provider_config) do
           {:ok, %{records: records}} when records != [] ->
-            {:ok, Dataset.normalize(records)}
+            process_successful_records(records, manifest, client)
 
           scrape_result ->
             if has_api_config?(manifest) do
@@ -102,18 +108,19 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
 
       "api" ->
         client.fetch(provider_config)
-        |> process_final_result("fetch")
+        |> process_final_result("fetch", manifest, client)
 
       {:error, reason} ->
         {:error, reason}
     end
   end
 
-  defp process_final_result({:ok, %{records: records}}, _source_label) do
-    {:ok, Dataset.normalize(records)}
+  defp process_final_result({:ok, %{records: records}}, _source_label, manifest, client) do
+    process_successful_records(records, manifest, client)
   end
 
-  defp process_final_result({:error, reason}, source_label) when is_binary(reason) do
+  defp process_final_result({:error, reason}, source_label, _manifest, _client)
+       when is_binary(reason) do
     if rate_limit_error?(reason) do
       {:snooze, rate_limit_snooze_seconds()}
     else
@@ -121,12 +128,21 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
     end
   end
 
-  defp process_final_result({:error, reason}, source_label) do
+  defp process_final_result({:error, reason}, source_label, _manifest, _client) do
     {:error, "sidecar #{source_label} failed: #{inspect(reason)}"}
   end
 
   defp process_api_fallback_result({:ok, %{records: records}}, manifest, client) do
+    process_successful_records(records, manifest, client)
+  end
+
+  defp process_api_fallback_result(result, manifest, client) do
+    process_final_result(result, "fetch (scrape fallback)", manifest, client)
+  end
+
+  def normalize_provider_records(records, manifest, client) do
     {records, enriched_count} = enrich_detail_records(records, manifest, client)
+    records = dedupe_records_by_isbn(records)
 
     if enriched_count > 0 do
       Logger.warning("enriched detail for #{enriched_count} records")
@@ -135,8 +151,30 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
     {:ok, Dataset.normalize(records)}
   end
 
-  defp process_api_fallback_result(result, _manifest, _client) do
-    process_final_result(result, "fetch (scrape fallback)")
+  defp dedupe_records_by_isbn(records) do
+    {_seen, records} =
+      Enum.reduce(records, {MapSet.new(), []}, fn record, {seen, kept} ->
+        isbn = normalized_isbn(record)
+
+        if is_nil(isbn) or not MapSet.member?(seen, isbn) do
+          {if(is_nil(isbn), do: seen, else: MapSet.put(seen, isbn)), [record | kept]}
+        else
+          {seen, kept}
+        end
+      end)
+
+    Enum.reverse(records)
+  end
+
+  defp normalized_isbn(record) do
+    case Hiraeth.RealCatalog.ISBN.normalize(get_in_map(record, [:edition, :isbn_13])) do
+      {:ok, isbn} -> isbn
+      {:error, _reason} -> nil
+    end
+  end
+
+  defp process_successful_records(records, manifest, client) do
+    normalize_provider_records(records, manifest, client)
   end
 
   defp to_scrape_error({:ok, %{records: []}}) do
@@ -165,7 +203,10 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
 
     config =
       if is_map(manifest.api) and manifest.api != %{} do
-        Map.put(config, :api, %{
+        config
+        |> Map.put(:source_hosts, manifest.source_hosts)
+        |> Map.put(:publisher_name, manifest.name)
+        |> Map.put(:api, %{
           type: manifest.api[:type],
           endpoint: manifest.api[:endpoint],
           auth: manifest.api[:auth],
@@ -180,7 +221,8 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
         Map.put(config, :spider, %{
           module: manifest.spider[:module],
           start_urls: manifest.spider[:start_urls],
-          selectors: manifest.spider[:selectors]
+          selectors: manifest.spider[:selectors],
+          use_stealthy_fetcher: manifest.spider[:use_stealthy_fetcher]
         })
       else
         config
@@ -217,20 +259,22 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
 
   defp detail_enrichment_opts(manifest) do
     max_bytes = get_in(manifest.rate_limit || %{}, [:max_bytes])
+    opts = [enabled: manifest.detail_enrichment == true]
 
     if is_integer(max_bytes) and max_bytes > 0 do
-      [max_bytes: max_bytes]
+      Keyword.put(opts, :max_bytes, max_bytes)
     else
-      []
+      opts
     end
   end
 
   defp enrich_detail_record(record, provider, client, detail_opts) do
-    if needs_detail_enrichment?(record) do
+    if detail_enrichment_provider?(provider, detail_opts) and needs_detail_enrichment?(record) and
+         function_exported?(client, :detail, 3) do
       source_uri = map_value(record, :source_uri)
 
       if is_binary(source_uri) and present?(source_uri) do
-        case client.detail(source_uri, provider, detail_opts) do
+        case client.detail(source_uri, provider, Keyword.delete(detail_opts, :enabled)) do
           {:ok, detail} when is_map(detail) ->
             merge_detail(record, detail, provider)
 
@@ -276,7 +320,14 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
 
   defp needs_detail_enrichment?(record) do
     blank_contributors?(map_value(record, :contributors)) or
-      blank?(get_in_map(record, [:cover, :source_url]))
+      blank?(get_in_map(record, [:cover, :source_url])) or
+      blank?(get_in_map(record, [:edition, :isbn_13])) or
+      blank?(get_in_map(record, [:edition, :published_on]))
+  end
+
+  defp detail_enrichment_provider?(provider, opts) do
+    Keyword.get(opts, :enabled, false) or
+      MapSet.member?(@detail_enrichment_providers, to_string(provider))
   end
 
   defp put_missing(map, key, value) do
@@ -387,16 +438,30 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
       }
     }
 
-    case Validator.validate_datasets([dataset]) do
-      {:ok, _summary} -> {:ok, dataset}
+    with :ok <- validate_expected_record_count(records, manifest),
+         {:ok, _summary} <- Validator.validate_datasets([dataset]) do
+      {:ok, dataset}
+    else
       {:error, reason} -> {:error, reason}
+    end
+  end
+
+  defp validate_expected_record_count(records, manifest) do
+    expected = manifest.expected_record_count
+    actual = length(records)
+
+    if is_integer(expected) and expected != actual do
+      {:error, "expected_record_count #{expected} does not match fetched record count #{actual}"}
+    else
+      :ok
     end
   end
 
   # --- Step 5: Cache covers ---
 
   defp cache_covers(dataset, manifest) do
-    cover_urls = extract_cover_urls(dataset.records, manifest.provider)
+    cover_urls =
+      extract_cover_urls(dataset.records, manifest.provider, manifest.cover_hosts || [])
 
     if cover_urls == [] do
       {:ok, %{}}
@@ -418,10 +483,10 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
     error -> {:error, "cover cache failed: #{Exception.message(error)}"}
   end
 
-  defp extract_cover_urls(records, provider) do
+  defp extract_cover_urls(records, provider, allowed_cover_hosts) do
     records
     |> Enum.filter(fn record ->
-      is_map(record[:cover]) and is_binary(record[:cover][:source_url])
+      is_map(record[:cover]) and present?(record[:cover][:source_url])
     end)
     |> Enum.map(fn record ->
       cover = record[:cover]
@@ -430,7 +495,8 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
         source_url: cover[:source_url],
         provider: provider,
         rights_basis: cover[:rights_basis] || "local_cache_permitted",
-        attribution_text: cover[:attribution_text]
+        attribution_text: cover[:attribution_text],
+        allowed_cover_hosts: allowed_cover_hosts
       }
     end)
   end
@@ -467,8 +533,8 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
 
   # --- Step 7: Run provenance audit ---
 
-  defp run_audit do
-    ProvenanceAudit.run!()
+  defp run_audit(provider) do
+    ProvenanceAudit.run!(providers: [provider])
     {:ok, :audited}
   rescue
     error -> {:error, "audit failed: #{Exception.message(error)}"}

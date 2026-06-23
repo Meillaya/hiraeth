@@ -16,7 +16,7 @@ defmodule Hiraeth.ProvenanceAudit do
   def run!(opts \\ []) do
     output_dir = Keyword.get(opts, :output_dir, @default_output_dir)
     fail_on_error? = Keyword.get(opts, :fail_on_error?, true)
-    audit = audit!()
+    audit = audit!(opts)
 
     File.mkdir_p!(output_dir)
 
@@ -44,14 +44,32 @@ defmodule Hiraeth.ProvenanceAudit do
     audit
   end
 
-  def audit! do
-    source_records = Ash.read!(SourceRecord, authorize?: false)
-    ledger_entries = Ash.read!(SourceLedgerEntry, authorize?: false)
+  def audit!(opts \\ []) do
+    providers = Keyword.get(opts, :providers, :all)
+
+    source_records =
+      SourceRecord
+      |> Ash.read!(authorize?: false)
+      |> filter_by_provider(providers)
+
+    source_record_ids = source_records |> Enum.map(& &1.id) |> MapSet.new()
+
+    ledger_entries =
+      SourceLedgerEntry
+      |> Ash.read!(authorize?: false)
+      |> Enum.filter(&MapSet.member?(source_record_ids, &1.source_record_id))
 
     cover_assignments =
-      CoverAssignment |> Ash.read!(authorize?: false) |> Ash.load!([:cover_asset, :edition])
+      CoverAssignment
+      |> Ash.read!(authorize?: false)
+      |> Ash.load!([:cover_asset, :edition])
+      |> filter_assignments_by_provider(providers)
 
-    cover_assets = Ash.read!(CoverAsset, authorize?: false)
+    cover_assets =
+      CoverAsset
+      |> Ash.read!(authorize?: false)
+      |> filter_by_provider(providers)
+
     audit_events = Ash.read!(AuditEvent, authorize?: false)
 
     source_ledger = Enum.flat_map(source_records, &source_rows/1)
@@ -71,6 +89,26 @@ defmodule Hiraeth.ProvenanceAudit do
       audit_events: audit_event_rows(audit_events),
       long_copied_text: copied_text_findings(source_records)
     }
+  end
+
+  defp filter_by_provider(records, :all), do: records
+
+  defp filter_by_provider(records, providers) when is_list(providers) do
+    provider_set = MapSet.new(providers)
+    Enum.filter(records, &MapSet.member?(provider_set, &1.provider))
+  end
+
+  defp filter_assignments_by_provider(assignments, :all), do: assignments
+
+  defp filter_assignments_by_provider(assignments, providers) when is_list(providers) do
+    provider_set = MapSet.new(providers)
+
+    Enum.filter(assignments, fn assignment ->
+      case loaded_or_nil(assignment.cover_asset) do
+        %CoverAsset{} = asset -> MapSet.member?(provider_set, asset.provider)
+        _ -> false
+      end
+    end)
   end
 
   defp failed?(audit) do

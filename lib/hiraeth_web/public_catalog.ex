@@ -531,7 +531,7 @@ defmodule HiraethWeb.PublicCatalog do
 
   def publisher(slug) do
     cached({:publisher, slug}, fn ->
-      case publisher_summary_by_slug(slug) do
+      case publisher_summary_for_slug(slug) do
         nil ->
           nil
 
@@ -544,6 +544,14 @@ defmodule HiraethWeb.PublicCatalog do
           |> Map.put(:groupings, publisher_groupings(books))
       end
     end)
+  end
+
+  defp publisher_summary_for_slug(slug) do
+    if public_catalog_cache?() do
+      Enum.find(publishers(), &(&1.slug == slug))
+    else
+      publisher_summary_by_slug(slug)
+    end
   end
 
   def clear_cache do

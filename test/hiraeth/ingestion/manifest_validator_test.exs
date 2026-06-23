@@ -130,6 +130,66 @@ defmodule Hiraeth.Ingestion.ManifestValidatorTest do
     end
   end
 
+  describe "validate/1 with unsafe api.endpoint values" do
+    test "rejects API endpoint hosts outside source_hosts" do
+      manifest =
+        valid_api_manifest(%{
+          api: %{type: "shopify", endpoint: "https://evil.example.com"},
+          source_hosts: ["www.example.com"]
+        })
+
+      assert {:error, findings} = ManifestValidator.validate(manifest)
+
+      assert findings
+             |> Enum.map(& &1.reason)
+             |> Enum.any?(
+               &String.contains?(&1, "api.endpoint host must be listed in source_hosts")
+             )
+    end
+
+    test "rejects private API endpoint hosts even when source_hosts includes them" do
+      manifest =
+        valid_api_manifest(%{
+          api: %{type: "shopify", endpoint: "https://127.0.0.1"},
+          source_hosts: ["127.0.0.1"]
+        })
+
+      assert {:error, findings} = ManifestValidator.validate(manifest)
+
+      assert findings
+             |> Enum.map(& &1.reason)
+             |> Enum.any?(&String.contains?(&1, "api.endpoint host must not be private"))
+    end
+
+    test "rejects private IPv6 API endpoint hosts" do
+      manifest =
+        valid_api_manifest(%{
+          api: %{type: "shopify", endpoint: "https://[fd12::1]"},
+          source_hosts: ["fd12::1"]
+        })
+
+      assert {:error, findings} = ManifestValidator.validate(manifest)
+
+      assert findings
+             |> Enum.map(& &1.reason)
+             |> Enum.any?(&String.contains?(&1, "api.endpoint host must not be private"))
+    end
+
+    test "rejects API endpoints with userinfo" do
+      manifest =
+        valid_api_manifest(%{
+          api: %{type: "shopify", endpoint: "https://user:pass@www.example.com"},
+          source_hosts: ["www.example.com"]
+        })
+
+      assert {:error, findings} = ManifestValidator.validate(manifest)
+
+      assert findings
+             |> Enum.map(& &1.reason)
+             |> Enum.any?(&String.contains?(&1, "api.endpoint must not include userinfo"))
+    end
+  end
+
   describe "validate/1 with non-integer expected_record_count" do
     test "rejects string expected_record_count" do
       manifest = load_fixture("invalid_record_count_string.json")
@@ -204,5 +264,70 @@ defmodule Hiraeth.Ingestion.ManifestValidatorTest do
       reasons = Enum.map(findings, & &1.reason)
       assert Enum.any?(reasons, &String.contains?(&1, "permission_basis is required"))
     end
+  end
+
+  describe "real publisher ingestion manifests" do
+    @real_manifest_dir Path.expand("../../../priv/catalog_sources/provider_manifests", __DIR__)
+    @new_provider_expectations %{
+      "two_lines_press_official_store" => %{
+        mode: "api",
+        cover_host: "www.twolinespress.com",
+        count: 83
+      },
+      "wakefield_press_official_store" => %{
+        mode: "api",
+        cover_host: "cdn.shopify.com",
+        count: 104
+      },
+      "astra_house_official_store" => %{
+        mode: "scrape",
+        cover_host: "images.penguinrandomhouse.com",
+        count: 66
+      },
+      "sandorf_passage_official_store" => %{
+        mode: "api",
+        cover_host: "sandorfpassage.org",
+        count: 32
+      }
+    }
+
+    for {provider, expectation} <- @new_provider_expectations do
+      @provider provider
+      @expectation expectation
+
+      test "accepts #{@provider} manifest with expected source and cover policy" do
+        manifest =
+          @real_manifest_dir
+          |> Path.join("#{@provider}.json")
+          |> File.read!()
+          |> Jason.decode!()
+          |> atomize()
+
+        assert {:ok, validated} = ManifestValidator.validate(manifest)
+        assert validated.provider == @provider
+        assert validated.source_mode == @expectation.mode
+        assert @expectation.cover_host in validated.cover_hosts
+        assert validated.expected_record_count == @expectation.count
+        assert "cart_checkout_account" in validated.excluded_content
+      end
+    end
+  end
+
+  defp valid_api_manifest(overrides) do
+    %{
+      provider: "test_api_endpoint",
+      name: "Test API Endpoint",
+      source_mode: "api",
+      source_urls: ["https://www.example.com"],
+      source_hosts: ["www.example.com"],
+      cover_hosts: ["cdn.example.com"],
+      api: %{type: "shopify", endpoint: "https://www.example.com"},
+      permission_basis: "Test.",
+      takedown_contact: "test@example.com",
+      excluded_content: ["raw_html"],
+      cover_cache_policy: "cache_allowed",
+      not_legal_advice: true
+    }
+    |> Map.merge(overrides)
   end
 end

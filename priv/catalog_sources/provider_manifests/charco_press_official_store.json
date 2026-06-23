@@ -1,0 +1,36 @@
+{
+  "provider": "charco_press_official_store",
+  "name": "Charco Press",
+  "source_mode": "api",
+  "source_urls": [
+    "https://charcopress.com/bookstore"
+  ],
+  "source_hosts": [
+    "charcopress.com"
+  ],
+  "cover_hosts": [
+    "static1.squarespace.com",
+    "images.squarespace-cdn.com"
+  ],
+  "permission_basis": "Operator-authorized public catalog refresh from official publisher pages/APIs; factual bibliographic metadata, official product descriptions, official cover URLs, purchase links, and source provenance preserved for each field.",
+  "takedown_contact": "https://charcopress.com/contact",
+  "excluded_content": [
+    "cart_checkout_account",
+    "inventory_state",
+    "user_reviews",
+    "raw_html_without_sanitization"
+  ],
+  "cover_cache_policy": "cache_allowed",
+  "not_legal_advice": "Operator-authorized ingestion policy and provenance metadata; not legal advice.",
+  "api": {
+    "type": "squarespace",
+    "endpoint": "https://charcopress.com/bookstore",
+    "auth": null
+  },
+  "rate_limit": {
+    "max_concurrency": 2,
+    "min_delay_ms": 250,
+    "max_bytes": 52428800
+  },
+  "expected_record_count": 170
+}

@@ -1,0 +1,9 @@
+{
+  "retrieved_at": "2026-06-23",
+  "source_research": ".omo/ultraresearch/20260623-030601-publisher-ingestion-research/SYNTHESIS.md",
+  "fixtures": {
+    "two_lines_detail_lion_cross_point.html": "https://www.twolinespress.com/shop/books/lion-cross-point",
+    "astra_house_imprint.html": "https://astrapublishinghouse.com/imprints/astra-house/",
+    "astra_house_detail_early_sobrieties.html": "https://astrapublishinghouse.com/product/early-sobrieties-9781662602245/"
+  }
+}

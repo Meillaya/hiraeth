@@ -16,6 +16,7 @@ defmodule Hiraeth.Ingestion.ProviderManifest do
     :api,
     :spider,
     :rate_limit,
+    :detail_enrichment,
     :expected_record_count,
     :permission_basis,
     :takedown_contact,
@@ -86,9 +87,9 @@ defmodule Hiraeth.Ingestion.ProviderManifest do
 
   @known_keys ~w(
     provider name source_mode source_urls source_hosts cover_hosts
-    api spider rate_limit expected_record_count permission_basis
+    api spider rate_limit detail_enrichment expected_record_count permission_basis
     takedown_contact excluded_content cover_cache_policy not_legal_advice
-    type endpoint auth allowed_vendors source_handle_patterns host path_prefix handle_pattern module start_urls selectors
+    type endpoint auth allowed_vendors source_handle_patterns host path_prefix handle_pattern module start_urls selectors use_stealthy_fetcher
     max_concurrency min_delay_ms max_bytes
     method key_env book title author
   )

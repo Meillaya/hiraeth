@@ -84,7 +84,7 @@ defmodule Hiraeth.Ingestion.CoverPipeline do
 
   defp process_cover(cover, cache_root, max_body_size, req_options, thumbnailer) do
     with :ok <- validate_url(cover),
-         {:ok, body} <- fetch_cover(cover.source_url, req_options, max_body_size),
+         {:ok, body} <- fetch_cover(cover, req_options, max_body_size),
          cache_path = cache_path(cover.source_url, cache_root),
          :ok <- ensure_safe_cache_write_path!(cache_path, cache_root),
          :ok <- File.write(cache_path, body),
@@ -102,14 +102,14 @@ defmodule Hiraeth.Ingestion.CoverPipeline do
     kind, reason -> {:error, cover, "#{kind}: #{inspect(reason)}"}
   end
 
-  defp validate_url(%{source_url: url, provider: provider}) do
+  defp validate_url(%{source_url: url, provider: provider} = cover) do
     uri = URI.parse(url)
 
     cond do
       uri.scheme != "https" ->
         {:error, "cover source URL must be HTTPS"}
 
-      not SourcePolicy.cover_host_allowed?(provider, uri.host) ->
+      uri.host not in allowed_cover_hosts(cover, provider) ->
         {:error, "cover source URL host is not allowlisted for provider"}
 
       true ->
@@ -117,8 +117,16 @@ defmodule Hiraeth.Ingestion.CoverPipeline do
     end
   end
 
-  defp fetch_cover(url, req_options, max_body_size) do
-    {:ok, Covers.req_fetch!(url, req_options, max_body_size)}
+  defp allowed_cover_hosts(cover, provider) do
+    cover
+    |> Map.get(:allowed_cover_hosts, [])
+    |> Enum.concat(SourcePolicy.cover_hosts(provider))
+    |> Enum.uniq()
+  end
+
+  defp fetch_cover(%{source_url: url, provider: provider} = cover, req_options, max_body_size) do
+    {:ok,
+     Covers.req_fetch!(url, req_options, max_body_size, allowed_cover_hosts(cover, provider))}
   rescue
     exception -> {:error, Exception.message(exception)}
   end

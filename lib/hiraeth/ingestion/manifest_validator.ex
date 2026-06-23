@@ -3,6 +3,8 @@ defmodule Hiraeth.Ingestion.ManifestValidator do
   Validates provider config manifests before they are accepted into the ingestion orchestration system.
   """
 
+  import Bitwise, only: [band: 2]
+
   defmodule Finding do
     @moduledoc false
     defstruct [:provider, :field, :reason]
@@ -35,6 +37,7 @@ defmodule Hiraeth.Ingestion.ManifestValidator do
       |> add_source_mode_finding(manifest)
       |> add_source_urls_finding(manifest)
       |> add_api_type_finding(manifest)
+      |> add_api_endpoint_finding(manifest)
       |> add_spider_module_finding(manifest)
       |> add_expected_record_count_finding(manifest)
 
@@ -121,6 +124,53 @@ defmodule Hiraeth.Ingestion.ManifestValidator do
     )
   end
 
+  defp add_api_endpoint_finding(findings, manifest) do
+    mode = effective_source_mode_for_validation(manifest)
+    api = get_field(manifest, :api) || %{}
+    endpoint = Map.get(api, :endpoint) || Map.get(api, "endpoint")
+    uri = parse_uri(endpoint)
+    source_hosts = source_hosts(manifest)
+
+    findings
+    |> add_if(
+      mode == "api" and blank?(endpoint),
+      manifest,
+      :api,
+      "api.endpoint is required when source_mode is \"api\""
+    )
+    |> add_if(
+      mode == "api" and present?(endpoint) and uri.scheme != "https",
+      manifest,
+      :api,
+      "api.endpoint must be HTTPS"
+    )
+    |> add_if(
+      mode == "api" and present?(endpoint) and present?(uri.userinfo),
+      manifest,
+      :api,
+      "api.endpoint must not include userinfo"
+    )
+    |> add_if(
+      mode == "api" and present?(endpoint) and blank?(uri.host),
+      manifest,
+      :api,
+      "api.endpoint must include a host"
+    )
+    |> add_if(
+      mode == "api" and present?(endpoint) and present?(uri.host) and
+        uri.host not in source_hosts,
+      manifest,
+      :api,
+      "api.endpoint host must be listed in source_hosts"
+    )
+    |> add_if(
+      mode == "api" and present?(endpoint) and private_endpoint_host?(uri.host),
+      manifest,
+      :api,
+      "api.endpoint host must not be private, loopback, or link-local"
+    )
+  end
+
   # --- spider.module when effective source_mode is "scrape" ---
 
   defp add_spider_module_finding(findings, manifest) do
@@ -197,8 +247,46 @@ defmodule Hiraeth.Ingestion.ManifestValidator do
     Map.get(manifest, key) || Map.get(manifest, to_string(key))
   end
 
+  defp source_hosts(manifest) do
+    manifest
+    |> get_field(:source_hosts)
+    |> List.wrap()
+    |> Enum.filter(&present?/1)
+  end
+
   defp parse_uri(value) when is_binary(value), do: URI.parse(value)
   defp parse_uri(_value), do: %URI{}
+
+  defp private_endpoint_host?(host) when is_binary(host) do
+    case host |> String.to_charlist() |> :inet.parse_address() do
+      {:ok, address} ->
+        private_address?(address)
+
+      {:error, :einval} ->
+        String.downcase(host) in ["localhost", "localhost.localdomain"]
+    end
+  end
+
+  defp private_endpoint_host?(_host), do: false
+
+  defp private_address?({127, _, _, _}), do: true
+  defp private_address?({10, _, _, _}), do: true
+  defp private_address?({172, second, _, _}) when second in 16..31, do: true
+  defp private_address?({192, 168, _, _}), do: true
+  defp private_address?({169, 254, _, _}), do: true
+  defp private_address?({0, _, _, _}), do: true
+  defp private_address?({_, _, _, _}), do: false
+  defp private_address?({0, 0, 0, 0, 0, 0, 0, 1}), do: true
+
+  defp private_address?({first, _, _, _, _, _, _, _})
+       when band(first, 0xFFC0) == 0xFE80,
+       do: true
+
+  defp private_address?({first, _, _, _, _, _, _, _})
+       when band(first, 0xFE00) == 0xFC00,
+       do: true
+
+  defp private_address?({_, _, _, _, _, _, _, _}), do: false
 
   defp present?(value), do: is_binary(value) and String.trim(value) != ""
 

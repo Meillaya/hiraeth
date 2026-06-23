@@ -36,6 +36,10 @@ defmodule Hiraeth.Ingestion.MixTaskTest do
       {:ok, %{records: [scrape_record()]}}
     end
 
+    def detail(_source_uri, _provider, _opts) do
+      {:ok, %{}}
+    end
+
     defp api_record do
       %{
         source_uri: "https://www.testpublisher.com/books/test-book",
@@ -303,6 +307,33 @@ defmodule Hiraeth.Ingestion.MixTaskTest do
 
       assert output =~ "effective_source_mode=api"
       assert output =~ "first_record_title=Test Book Title"
+      assert output =~ "Dry-run validation passed"
+    end
+
+    test "dry-run reports expected_record_count mismatch without persisting" do
+      manifest_path =
+        @valid_manifest
+        |> File.read!()
+        |> Jason.decode!()
+        |> Map.put("expected_record_count", 2)
+        |> write_temp_manifest()
+
+      output =
+        ExUnit.CaptureIO.capture_io(fn ->
+          assert :ok =
+                   Mix.Tasks.Hiraeth.Ingest.do_run([
+                     "--provider",
+                     "test_publisher_api",
+                     "--manifest",
+                     manifest_path,
+                     "--dry-run"
+                   ])
+        end)
+
+      assert output =~ "expected_record_count 2 does not match fetched record count 1"
+      assert output =~ "Dry-run completed with validation issues"
+    after
+      cleanup_temp_manifests()
     end
 
     test "dry-run prints effective_source_mode=scrape for Deep Vellum manifest" do
@@ -320,5 +351,27 @@ defmodule Hiraeth.Ingestion.MixTaskTest do
 
       assert output =~ "effective_source_mode=scrape"
     end
+  end
+
+  defp write_temp_manifest(manifest) do
+    dir =
+      Path.join(
+        System.tmp_dir!(),
+        "hiraeth_mix_task_manifest_test_#{System.unique_integer([:positive])}"
+      )
+
+    File.mkdir_p!(dir)
+    path = Path.join(dir, "manifest.json")
+    File.write!(path, Jason.encode!(manifest))
+    path
+  end
+
+  defp cleanup_temp_manifests do
+    System.tmp_dir!()
+    |> File.ls!()
+    |> Enum.filter(&String.starts_with?(&1, "hiraeth_mix_task_manifest_test_"))
+    |> Enum.each(fn dir ->
+      File.rm_rf!(Path.join(System.tmp_dir!(), dir))
+    end)
   end
 end

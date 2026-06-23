@@ -69,6 +69,22 @@ defmodule Hiraeth.RealCatalogImporterProviderTest do
   end
 
   @tag timeout: 60_000
+  test "seed_provider!/2 accepts an extended transaction timeout for large provider imports" do
+    clear_catalog!()
+
+    {:ok, dataset} = Dataset.load_file(@fixture_path)
+    import_run = create_import_run!(dataset)
+
+    assert {:ok, summary} =
+             Hiraeth.RealCatalog.Importer.seed_provider!(dataset, import_run,
+               transaction_timeout: :infinity
+             )
+
+    assert summary.source_records == 3
+    assert length(Ash.read!(SourceRecord, authorize?: false)) == 3
+  end
+
+  @tag timeout: 60_000
   test "seed_provider!/2 rolls back entire transaction on partial failure" do
     clear_catalog!()
 
@@ -163,6 +179,26 @@ defmodule Hiraeth.RealCatalogImporterProviderTest do
     assert length(Ash.read!(Edition, authorize?: false)) == 3
   end
 
+  @tag timeout: 60_000
+  test "seed_provider!/2 groups Astra sibling format pages into one work with multiple editions" do
+    clear_catalog!()
+
+    dataset = astra_house_sibling_dataset()
+    import_run = create_import_run!(dataset)
+
+    assert {:ok, summary} = Hiraeth.RealCatalog.Importer.seed_provider!(dataset, import_run)
+    assert summary.editions == 2
+
+    works = Ash.read!(Work, authorize?: false)
+    assert length(works) == 1
+    assert hd(works).title == "Early Sobrieties"
+
+    editions = Ash.read!(Edition, authorize?: false)
+    assert length(editions) == 2
+    assert Enum.map(editions, & &1.work_id) |> Enum.uniq() == [hd(works).id]
+    assert Enum.sort(Enum.map(editions, & &1.format)) == ["ebook", "paperback"]
+  end
+
   @tag timeout: 300_000
   test "existing seed!/1 still works after adding seed_provider!/2" do
     clear_catalog!()
@@ -177,6 +213,92 @@ defmodule Hiraeth.RealCatalogImporterProviderTest do
     assert length(Ash.read!(Edition, authorize?: false)) == expected_total
     assert length(Ash.read!(Identifier, authorize?: false)) == expected_total
     assert length(Ash.read!(SourceRecord, authorize?: false)) == expected_total
+  end
+
+  defp astra_house_sibling_dataset do
+    records = [
+      astra_house_record(
+        "https://astrapublishinghouse.com/product/early-sobrieties-9781662602245/",
+        "9781662602245",
+        "paperback"
+      ),
+      astra_house_record(
+        "https://astrapublishinghouse.com/product/early-sobrieties-9781662602252/",
+        "9781662602252",
+        "ebook"
+      )
+    ]
+
+    Dataset.normalize(%{
+      provider: "astra_house_official_store",
+      file: "astra-house-sibling-test.json",
+      file_path: "test/fixtures/astra-house-sibling-test.json",
+      file_checksum: "astra-house-sibling-checksum",
+      license_note: "fixture",
+      provider_permissions: %{
+        provider: "astra_house_official_store",
+        source_urls: ["https://astrapublishinghouse.com/imprints/astra-house/"],
+        source_hosts: ["astrapublishinghouse.com"],
+        cover_hosts: ["images.penguinrandomhouse.com"],
+        permission_basis: "test permission",
+        cover_cache_policy: "cache_allowed",
+        excluded_content: ["raw_html"],
+        takedown_contact: "https://astrapublishinghouse.com/contact/",
+        not_legal_advice: true
+      },
+      records: records
+    })
+  end
+
+  defp astra_house_record(source_uri, isbn, format) do
+    fields =
+      ~w(title contributors publisher format published_on isbn_13 cover description storefront_url)
+
+    %{
+      source_uri: source_uri,
+      source_product_id: isbn,
+      source_sku: isbn,
+      publisher: "Astra House",
+      imprint: "Astra House",
+      work: %{
+        title: "Early Sobrieties",
+        subtitle: nil,
+        original_title: nil,
+        original_language_code: nil,
+        publication_state: "published",
+        subjects: ["fiction"]
+      },
+      edition: %{
+        title: "Early Sobrieties",
+        subtitle: nil,
+        format: format,
+        published_on: "2024-05-07",
+        isbn_13: isbn
+      },
+      contributors: [%{name: "Michael Deagler", role: "author"}],
+      displayed_fields: fields,
+      curation: %{status: "approved", notes: "fixture"},
+      storefront_url: source_uri,
+      field_sources:
+        Map.new(fields, fn field ->
+          {field,
+           %{
+             provider: "astra_house_official_store",
+             source_uri: source_uri,
+             source_type: "publisher_dataset",
+             rights_basis: "test"
+           }}
+        end),
+      cover: %{
+        source_url: "https://images.penguinrandomhouse.com/cover/700jpg/#{isbn}",
+        provider: "astra_house_official_store",
+        rights_basis: "local_cache_permitted",
+        attribution_text: "Cover via Astra House official source",
+        attribution_url: source_uri,
+        cache_policy: "cache_allowed"
+      },
+      description: "An Astra House novel fixture."
+    }
   end
 
   defp clear_catalog! do

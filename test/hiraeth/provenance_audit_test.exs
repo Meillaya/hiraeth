@@ -239,6 +239,46 @@ defmodule Hiraeth.ProvenanceAuditTest do
     end
   end
 
+  test "provider scoped audit ignores invalid public covers from other providers", %{admin: admin} do
+    seed_provenance_catalog!(admin)
+    edition = edition!(admin)
+
+    cache_path =
+      "priv/static/covers/cache/scoped-fixture-#{System.unique_integer([:positive])}.jpg"
+
+    File.mkdir_p!(Path.dirname(cache_path))
+    File.write!(cache_path, "fixture")
+    on_exit(fn -> File.rm(cache_path) end)
+
+    fixture_cover =
+      cover_asset!(admin, %{
+        rights_basis: "local_cache_permitted",
+        cache_policy: "cache_allowed",
+        cached_file_path: cache_path
+      })
+
+    assignment!(admin, edition, fixture_cover)
+
+    other_cover =
+      cover_asset!(admin, %{
+        source_url: "https://evil.example.test/not-this-provider.jpg",
+        provider: "deep_vellum_official_store"
+      })
+
+    assignment!(admin, edition, other_cover)
+
+    global_audit = Hiraeth.ProvenanceAudit.audit!()
+
+    assert Enum.any?(
+             global_audit.invalid_public_covers,
+             &(&1.cover_asset_id == other_cover.id)
+           )
+
+    scoped_audit = Hiraeth.ProvenanceAudit.audit!(providers: ["fixture-covers"])
+
+    assert scoped_audit.invalid_public_covers == []
+  end
+
   test "takedown audit trail is exported and audit events are append-only", %{
     admin: admin,
     output_dir: output_dir

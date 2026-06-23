@@ -66,6 +66,83 @@ defmodule Hiraeth.Ingestion.CoverPipelineTest do
     end
   end
 
+  test "cover-specific manifest hosts are available inside async cache workers" do
+    plug = fn conn ->
+      conn
+      |> Plug.Conn.put_resp_content_type("image/jpeg")
+      |> Plug.Conn.resp(200, jpeg_bytes())
+    end
+
+    cover_urls = [
+      %{
+        source_url: "https://manifest-cdn.example.test/cover.jpg",
+        provider: "manifest-provider",
+        rights_basis: "local_cache_permitted",
+        attribution_text: "Manifest cover",
+        allowed_cover_hosts: ["manifest-cdn.example.test"]
+      }
+    ]
+
+    provider_config = %{
+      max_concurrency: 1,
+      req_options: [plug: plug],
+      thumbnailer: fn _source_path, thumbnail_path ->
+        File.write!(thumbnail_path, "fake thumbnail bytes")
+        {:ok, thumbnail_path}
+      end
+    }
+
+    assert {:ok, cover_paths} = CoverPipeline.download_and_cache!(cover_urls, provider_config)
+    assert Map.has_key?(cover_paths, "https://manifest-cdn.example.test/cover.jpg")
+  end
+
+  test "cover redirects must stay within cover-specific manifest hosts" do
+    parent = self()
+
+    adapter = fn request ->
+      uri = URI.parse(to_string(request.url))
+      send(parent, {:cover_request, uri.host})
+
+      response =
+        if uri.host == "static1.squarespace.com" do
+          Req.Response.new(
+            status: 302,
+            headers: [{"location", "https://images.squarespace-cdn.com/content/cover.jpg"}]
+          )
+        else
+          Req.Response.new(status: 500, body: "unexpected redirected request")
+        end
+
+      {request, response}
+    end
+
+    cover_urls = [
+      %{
+        source_url: "https://static1.squarespace.com/static/site/cover/",
+        provider: "manifest-provider",
+        rights_basis: "local_cache_permitted",
+        attribution_text: "Manifest cover",
+        allowed_cover_hosts: ["static1.squarespace.com"]
+      }
+    ]
+
+    provider_config = %{
+      max_concurrency: 1,
+      req_options: [adapter: adapter],
+      thumbnailer: fn _source_path, thumbnail_path ->
+        File.write!(thumbnail_path, "fake thumbnail bytes")
+        {:ok, thumbnail_path}
+      end
+    }
+
+    assert {:error, [%{reason: reason}]} =
+             CoverPipeline.download_and_cache!(cover_urls, provider_config)
+
+    assert reason =~ "status 302"
+    assert_received {:cover_request, "static1.squarespace.com"}
+    refute_receive {:cover_request, "images.squarespace-cdn.com"}
+  end
+
   test "one cover fails returns error and cleans up all covers" do
     plug = fn conn ->
       if conn.request_path == "/fail.jpg" do
