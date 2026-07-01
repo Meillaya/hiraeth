@@ -7,7 +7,9 @@ from urllib.parse import urljoin, urlparse
 from app.spiders.deep_vellum_stealthy import StealthyFetcher, _response_text
 
 
-AstraHouseCatalogUrlNotAllowedError = ValueError
+class AstraHouseCatalogUrlNotAllowedError(ValueError):
+    def __init__(self) -> None:
+        super().__init__("Astra House catalog URL is not allowlisted")
 
 
 @dataclass(frozen=True, slots=True)
@@ -136,7 +138,7 @@ def _validate_catalog_url(url: str) -> str:
         and not parsed.password
     ):
         return url
-    raise AstraHouseCatalogUrlNotAllowedError(f"Astra House catalog URL is not allowlisted: {url}")
+    raise AstraHouseCatalogUrlNotAllowedError()
 
 
 def _product_urls(html: str, base_url: str) -> list[str]:

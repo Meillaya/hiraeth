@@ -78,7 +78,8 @@ class TestDeepVellumDetailScrapeRouter:
         )
 
         assert response.status_code == 422
-        assert response.json()["detail"] == (
+        assert response.json()["detail"]["code"] == "blocked"
+        assert response.json()["detail"]["message"] == (
             f"fetched response exceeded max_bytes={len(fixture.encode('utf-8')) - 1}"
         )
         assert parsed is False
@@ -93,7 +94,7 @@ class TestDeepVellumDetailScrapeRouter:
         )
 
         assert response.status_code == 422
-        assert response.json()["detail"]
+        assert response.json()["detail"]["code"] == "invalid_host"
 
     def test_scrape_detail_endpoint_rejects_query_urls(self):
         response = client.post(
@@ -105,7 +106,7 @@ class TestDeepVellumDetailScrapeRouter:
         )
 
         assert response.status_code == 422
-        assert response.json()["detail"]
+        assert response.json()["detail"]["code"] == "invalid_host"
 
     def test_scrape_detail_endpoint_rejects_nested_product_paths(self):
         # Given: a Deep Vellum detail URL with a valid-looking handle plus an extra path segment.
@@ -121,5 +122,9 @@ class TestDeepVellumDetailScrapeRouter:
 
         # Then: the endpoint rejects it before fetching remote content.
         assert response.status_code == 422
-        assert response.json()["detail"] == "Detail URL must target a Deep Vellum product"
+        assert response.json()["detail"]["code"] == "invalid_host"
+        assert (
+            response.json()["detail"]["message"]
+            == "Detail URL must target a Deep Vellum product"
+        )
         fetch_async.assert_not_awaited()

@@ -59,7 +59,8 @@ def test_scrape_detail_endpoint_rejects_two_lines_disallowed_host_before_fetch()
 
     # Then: it rejects before network fetch.
     assert response.status_code == 422
-    assert response.json()["detail"] == "Unsupported detail URL host"
+    assert response.json()["detail"]["code"] == "invalid_host"
+    assert response.json()["detail"]["message"] == "Unsupported detail URL host"
     fetch_async.assert_not_awaited()
 
 
@@ -77,5 +78,6 @@ def test_scrape_detail_endpoint_rejects_two_lines_cart_paths_before_fetch() -> N
 
     # Then: it rejects before network fetch.
     assert response.status_code == 422
-    assert response.json()["detail"] == "Detail URL must target a Two Lines book"
+    assert response.json()["detail"]["code"] == "invalid_host"
+    assert response.json()["detail"]["message"] == "Detail URL must target a Two Lines book"
     fetch_async.assert_not_awaited()

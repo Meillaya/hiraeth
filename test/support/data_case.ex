@@ -28,6 +28,14 @@ defmodule Hiraeth.DataCase do
   end
 
   setup tags do
+    if tags[:reset_committed_catalog] do
+      Hiraeth.CatalogCleanup.reset_committed_catalog!()
+    end
+
+    if tags[:reset_committed_ingestion] do
+      Hiraeth.CatalogCleanup.reset_committed_ingestion_control_plane!()
+    end
+
     Hiraeth.DataCase.setup_sandbox(tags)
     :ok
   end

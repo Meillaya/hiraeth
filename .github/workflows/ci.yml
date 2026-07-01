@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  phoenix:
+    name: Phoenix precommit and assets
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      MIX_ENV: test
+      DATABASE_HOST: localhost
+      DATABASE_PORT: "5432"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up BEAM
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27"
+          elixir-version: "1.18"
+
+      - name: Cache Mix dependencies and build
+        uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+            ~/.mix
+          key: ${{ runner.os }}-mix-${{ hashFiles('mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-
+
+      - name: Install Mix dependencies
+        run: mix deps.get
+
+      - name: Install asset toolchain
+        run: mix assets.setup
+
+      - name: Check assets build
+        run: mix assets.build
+
+      - name: Run Phoenix precommit gate
+        run: mix precommit
+
+  sidecar:
+    name: Sidecar dev tests
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: sidecar
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: sidecar/uv.lock
+
+      - name: Run sidecar dev test gate
+        run: uv run --extra dev pytest -q

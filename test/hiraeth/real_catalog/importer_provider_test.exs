@@ -1,8 +1,10 @@
 defmodule Hiraeth.RealCatalogImporterProviderTest do
   use Hiraeth.DataCase, async: false
 
+  @moduletag :reset_committed_catalog
+
   alias Hiraeth.Catalog.{Edition, Identifier, Publisher, Work}
-  alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
+  alias Hiraeth.Covers.CoverAssignment
   alias Hiraeth.Imports.ImportRun
   alias Hiraeth.RealCatalog.Dataset
   alias Hiraeth.Sources.{SourceLedgerEntry, SourceRecord}
@@ -301,26 +303,7 @@ defmodule Hiraeth.RealCatalogImporterProviderTest do
     }
   end
 
-  defp clear_catalog! do
-    for resource <- [
-          SourceLedgerEntry,
-          SourceRecord,
-          ImportRun,
-          CoverAssignment,
-          CoverAsset,
-          Identifier,
-          Hiraeth.Catalog.Contribution,
-          Hiraeth.Catalog.SeriesMembership,
-          Edition,
-          Hiraeth.Catalog.Work,
-          Hiraeth.Catalog.Series,
-          Hiraeth.Catalog.Imprint,
-          Hiraeth.Catalog.Contributor,
-          Publisher
-        ] do
-      Hiraeth.Repo.delete_all(resource)
-    end
-  end
+  defp clear_catalog!, do: Hiraeth.CatalogCleanup.clear_catalog!()
 
   defp create_import_run!(dataset) do
     ImportRun

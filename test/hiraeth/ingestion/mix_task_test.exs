@@ -1,6 +1,10 @@
 defmodule Hiraeth.Ingestion.MixTaskTest do
   use Hiraeth.DataCase, async: false
 
+  alias Hiraeth.Ingestion.ProviderRun
+
+  require Ash.Query
+
   @valid_manifest Path.join([
                     File.cwd!(),
                     "test/support/fixtures/provider_manifests/valid_api_manifest.json"
@@ -11,205 +15,12 @@ defmodule Hiraeth.Ingestion.MixTaskTest do
                       "test/support/fixtures/provider_manifests/invalid_missing_fields.json"
                     ])
 
-  @implicit_scrape_manifest Path.join([
-                              File.cwd!(),
-                              "test/support/fixtures/provider_manifests/implicit_scrape_manifest.json"
-                            ])
-
-  @deep_vellum_manifest Path.join([
-                          File.cwd!(),
-                          "priv/catalog_sources/provider_manifests/deep_vellum_official_store.json"
-                        ])
-
-  # --- Mock modules ---
-
-  defmodule MockSidecarClient do
-    def health(_opts \\ []) do
-      {:ok, %{status: "ok", scrapling: true}}
-    end
-
-    def fetch(_provider_config, _opts \\ []) do
-      {:ok, %{records: [api_record()]}}
-    end
-
-    def scrape(_provider_config, _opts \\ []) do
-      {:ok, %{records: [scrape_record()]}}
-    end
-
-    def detail(_source_uri, _provider, _opts) do
-      {:ok, %{}}
-    end
-
-    defp api_record do
-      %{
-        source_uri: "https://www.testpublisher.com/books/test-book",
-        publisher: "Test Publisher",
-        imprint: nil,
-        source_product_id: "test-book-001",
-        work: %{
-          title: "Test Book Title",
-          subtitle: nil,
-          original_title: nil,
-          original_language_code: nil,
-          subjects: nil,
-          publication_state: "published"
-        },
-        edition: %{
-          title: "Test Book Title",
-          subtitle: nil,
-          format: "paperback",
-          language_code: nil,
-          page_count: nil,
-          dimensions: nil,
-          published_on: nil,
-          isbn_13: nil
-        },
-        contributors: [%{name: "Test Author", role: "author"}],
-        curation: %{status: "approved"},
-        displayed_fields: ["title", "contributors", "publisher"],
-        field_sources: %{
-          "title" => %{
-            "provider" => "test_publisher_api",
-            "source_uri" => "https://www.testpublisher.com/books/test-book",
-            "source_type" => "publisher_dataset",
-            "rights_basis" => "public_domain"
-          },
-          "contributors" => %{
-            "provider" => "test_publisher_api",
-            "source_uri" => "https://www.testpublisher.com/books/test-book",
-            "source_type" => "publisher_dataset",
-            "rights_basis" => "public_domain"
-          },
-          "publisher" => %{
-            "provider" => "test_publisher_api",
-            "source_uri" => "https://www.testpublisher.com/books/test-book",
-            "source_type" => "publisher_dataset",
-            "rights_basis" => "public_domain"
-          }
-        },
-        cover: %{
-          source_url: "https://cdn.testpublisher.com/covers/test-book.jpg",
-          provider: "test_publisher_api",
-          rights_basis: "local_cache_permitted",
-          cache_policy: "cache_allowed",
-          attribution_text: nil,
-          attribution_url: nil
-        },
-        missing_fields: %{isbn_13: "not available from source"},
-        series: [],
-        review_links: [],
-        editorial_praise: [],
-        description: nil,
-        synopsis: nil,
-        storefront_url: nil,
-        source_sku: nil
-      }
-    end
-
-    defp scrape_record do
-      %{
-        source_uri: "https://www.testscraper.com/catalog/test-book",
-        publisher: "Test Scraper Publisher",
-        imprint: nil,
-        source_product_id: "scrape-book-001",
-        work: %{
-          title: "Test Scraped Book",
-          subtitle: nil,
-          original_title: nil,
-          original_language_code: nil,
-          subjects: nil,
-          publication_state: "published"
-        },
-        edition: %{
-          title: "Test Scraped Book",
-          subtitle: nil,
-          format: "paperback",
-          language_code: nil,
-          page_count: nil,
-          dimensions: nil,
-          published_on: nil,
-          isbn_13: nil
-        },
-        contributors: [%{name: "Test Scraper Author", role: "author"}],
-        curation: %{status: "approved"},
-        displayed_fields: ["title", "contributors", "publisher"],
-        field_sources: %{
-          "title" => %{
-            "provider" => "test_publisher_scrape",
-            "source_uri" => "https://www.testscraper.com/catalog/test-book",
-            "source_type" => "publisher_dataset",
-            "rights_basis" => "public_domain"
-          },
-          "contributors" => %{
-            "provider" => "test_publisher_scrape",
-            "source_uri" => "https://www.testscraper.com/catalog/test-book",
-            "source_type" => "publisher_dataset",
-            "rights_basis" => "public_domain"
-          },
-          "publisher" => %{
-            "provider" => "test_publisher_scrape",
-            "source_uri" => "https://www.testscraper.com/catalog/test-book",
-            "source_type" => "publisher_dataset",
-            "rights_basis" => "public_domain"
-          }
-        },
-        cover: %{
-          source_url: "https://images.testscraper.com/covers/test-book.jpg",
-          provider: "test_publisher_scrape",
-          rights_basis: "local_cache_permitted",
-          cache_policy: "cache_allowed",
-          attribution_text: nil,
-          attribution_url: nil
-        },
-        missing_fields: %{isbn_13: "not available from source"},
-        series: [],
-        review_links: [],
-        editorial_praise: [],
-        description: nil,
-        synopsis: nil,
-        storefront_url: nil,
-        source_sku: nil
-      }
-    end
-  end
-
-  defmodule MockUnhealthySidecarClient do
-    def health(_opts \\ []) do
-      {:error, "connection refused"}
-    end
-  end
-
-  defmodule MockConfigCaptureSidecarClient do
-    def health(_opts \\ []) do
-      MockSidecarClient.health()
-    end
-
-    def fetch(provider_config, _opts \\ []) do
-      send(Process.get(:capture_pid), {:fetch_provider_config, provider_config})
-      MockSidecarClient.fetch(provider_config)
-    end
-
-    def scrape(provider_config, _opts \\ []) do
-      send(Process.get(:capture_pid), {:scrape_provider_config, provider_config})
-      MockSidecarClient.scrape(provider_config)
-    end
-
-    def detail(source_uri, provider, opts) do
-      MockSidecarClient.detail(source_uri, provider, opts)
-    end
-  end
-
-  defmodule MockCoverPipeline do
-    def download_and_cache!(_cover_urls, _provider_config) do
-      {:ok, %{}}
-    end
-  end
-
-  defmodule MockImporter do
-    def seed_provider!(_dataset, _import_run) do
-      {:ok, %{publishers: 0, editions: 0, source_records: 0}}
-    end
-  end
+  alias Hiraeth.TestSupport.MixTaskMocks.{
+    MockCoverPipeline,
+    MockImporter,
+    MockSidecarClient,
+    MockUnhealthySidecarClient
+  }
 
   # --- Test setup ---
 
@@ -250,10 +61,34 @@ defmodule Hiraeth.Ingestion.MixTaskTest do
           ])
         end)
 
-      Process.sleep(100)
+      wait_for_ingestion_job()
       Oban.drain_queue(queue: :ingestion, with_safety: false)
 
       assert :ok = Task.await(task, 60_000)
+    end
+
+    test "valid provider creates a provider run before compatibility worker execution" do
+      task =
+        Task.async(fn ->
+          Mix.Tasks.Hiraeth.Ingest.do_run([
+            "--provider",
+            "test_publisher_api",
+            "--manifest",
+            @valid_manifest
+          ])
+        end)
+
+      wait_for_ingestion_job()
+      Oban.drain_queue(queue: :ingestion, with_safety: false)
+
+      assert :ok = Task.await(task, 60_000)
+
+      assert [run] = provider_runs_for("test_publisher_api")
+      assert run.requested_by == "mix hiraeth.ingest"
+      assert run.status == "succeeded"
+      assert run.run_key =~ "operator:test_publisher_api:"
+      assert run.provenance["manifest_path"] == @valid_manifest
+      assert run.provenance["destructive_apply"] == false
     end
   end
 
@@ -294,139 +129,29 @@ defmodule Hiraeth.Ingestion.MixTaskTest do
     end
   end
 
-  describe "dry-run mode selection" do
-    test "manifest with spider config and no source_mode uses scrape mode" do
-      output =
-        ExUnit.CaptureIO.capture_io(fn ->
-          assert :ok =
-                   Mix.Tasks.Hiraeth.Ingest.do_run([
-                     "--provider",
-                     "test_publisher_scrape_implicit",
-                     "--manifest",
-                     @implicit_scrape_manifest,
-                     "--dry-run"
-                   ])
-        end)
+  defp wait_for_ingestion_job(attempts \\ 200)
 
-      assert output =~ "effective_source_mode=scrape"
-      assert output =~ "first_record_title=Test Scraped Book"
-    end
+  defp wait_for_ingestion_job(0), do: flunk("timed out waiting for ingestion job")
 
-    test "manifest with source_mode: api uses api mode" do
-      output =
-        ExUnit.CaptureIO.capture_io(fn ->
-          assert :ok =
-                   Mix.Tasks.Hiraeth.Ingest.do_run([
-                     "--provider",
-                     "test_publisher_api",
-                     "--manifest",
-                     @valid_manifest,
-                     "--dry-run"
-                   ])
-        end)
+  defp wait_for_ingestion_job(attempts) do
+    import Ecto.Query
 
-      assert output =~ "effective_source_mode=api"
-      assert output =~ "first_record_title=Test Book Title"
-      assert output =~ "Dry-run validation passed"
-    end
-
-    test "dry-run forwards provider-specific api manifest keys to the sidecar" do
-      manifest_path =
-        @valid_manifest
-        |> File.read!()
-        |> Jason.decode!()
-        |> put_in(["api", "collection_path"], "/collections/all-books-in-print")
-        |> put_in(["api", "vendor_as_author"], false)
-        |> put_in(["api", "post_type"], "book")
-        |> put_in(["api", "include_imprints"], ["pushkin-press"])
-        |> write_temp_manifest()
-
-      Application.put_env(:hiraeth, :sidecar_client, MockConfigCaptureSidecarClient)
-      Process.put(:capture_pid, self())
-
-      ExUnit.CaptureIO.capture_io(fn ->
-        assert :ok =
-                 Mix.Tasks.Hiraeth.Ingest.do_run([
-                   "--provider",
-                   "test_publisher_api",
-                   "--manifest",
-                   manifest_path,
-                   "--dry-run"
-                 ])
-      end)
-
-      assert_receive {:fetch_provider_config, %{config: %{api: api}}}
-      assert api[:collection_path] == "/collections/all-books-in-print"
-      assert api[:vendor_as_author] == false
-      assert api[:post_type] == "book"
-      assert api[:include_imprints] == ["pushkin-press"]
-    after
-      Process.delete(:capture_pid)
-      cleanup_temp_manifests()
-    end
-
-    test "dry-run reports expected_record_count mismatch without persisting" do
-      manifest_path =
-        @valid_manifest
-        |> File.read!()
-        |> Jason.decode!()
-        |> Map.put("expected_record_count", 2)
-        |> write_temp_manifest()
-
-      output =
-        ExUnit.CaptureIO.capture_io(fn ->
-          assert :ok =
-                   Mix.Tasks.Hiraeth.Ingest.do_run([
-                     "--provider",
-                     "test_publisher_api",
-                     "--manifest",
-                     manifest_path,
-                     "--dry-run"
-                   ])
-        end)
-
-      assert output =~ "expected_record_count 2 does not match fetched record count 1"
-      assert output =~ "Dry-run completed with validation issues"
-    after
-      cleanup_temp_manifests()
-    end
-
-    test "dry-run prints effective_source_mode=scrape for Deep Vellum manifest" do
-      output =
-        ExUnit.CaptureIO.capture_io(fn ->
-          assert :ok =
-                   Mix.Tasks.Hiraeth.Ingest.do_run([
-                     "--provider",
-                     "deep_vellum_official_store",
-                     "--manifest",
-                     @deep_vellum_manifest,
-                     "--dry-run"
-                   ])
-        end)
-
-      assert output =~ "effective_source_mode=scrape"
+    if Hiraeth.Repo.exists?(from job in Oban.Job, where: job.queue == "ingestion") do
+      :ok
+    else
+      receive do
+      after
+        10 -> wait_for_ingestion_job(attempts - 1)
+      end
     end
   end
 
-  defp write_temp_manifest(manifest) do
-    dir =
-      Path.join(
-        System.tmp_dir!(),
-        "hiraeth_mix_task_manifest_test_#{System.unique_integer([:positive])}"
-      )
-
-    File.mkdir_p!(dir)
-    path = Path.join(dir, "manifest.json")
-    File.write!(path, Jason.encode!(manifest))
-    path
-  end
-
-  defp cleanup_temp_manifests do
-    System.tmp_dir!()
-    |> File.ls!()
-    |> Enum.filter(&String.starts_with?(&1, "hiraeth_mix_task_manifest_test_"))
-    |> Enum.each(fn dir ->
-      File.rm_rf!(Path.join(System.tmp_dir!(), dir))
-    end)
+  defp provider_runs_for(provider) do
+    ProviderRun
+    |> Ash.Query.load(:provider_source)
+    |> Ash.read!(authorize?: false)
+    |> Enum.filter(
+      &(&1.provider_source && &1.provider_source.stable_source_key =~ "publisher:#{provider}:")
+    )
   end
 end

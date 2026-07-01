@@ -21,7 +21,6 @@ class GenericBookSpider(BaseSpider):
         item_selector = selectors.get("item", ".book")
         title_sel = selectors.get("title", "h2::text")
         author_sel = selectors.get("author", ".author::text")
-        publisher_sel = selectors.get("publisher", ".publisher::text")
         isbn_sel = selectors.get("isbn", ".isbn::text")
         cover_sel = selectors.get("cover", ".cover::attr(src)")
         description_sel = selectors.get("description", ".description::text")
@@ -35,7 +34,6 @@ class GenericBookSpider(BaseSpider):
                 continue
 
             author = self._extract(item, author_sel)
-            publisher = self._extract(item, publisher_sel)
             isbn = self._extract(item, isbn_sel)
             cover_url = self._absolute_url(response.url, self._extract(item, cover_sel))
             description = self._extract(item, description_sel)

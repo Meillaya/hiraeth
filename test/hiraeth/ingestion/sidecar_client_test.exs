@@ -81,17 +81,14 @@ defmodule Hiraeth.Ingestion.SidecarClientTest do
                )
     end
 
-    test "returns error when sidecar reports error status" do
+    test "maps typed sidecar error responses to tagged errors" do
       plug = fn conn ->
         conn
         |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.resp(
-          200,
-          ~s({"provider":"deep_vellum","status":"error: something","records":[]})
-        )
+        |> Plug.Conn.resp(429, ~s({"detail":{"code":"rate_limited","message":"slow down"}}))
       end
 
-      assert {:error, "error: something"} =
+      assert {:error, {:rate_limited, "slow down"}} =
                SidecarClient.fetch(
                  %{provider: "deep_vellum", config: %{}},
                  req_options: [plug: plug]
@@ -141,17 +138,14 @@ defmodule Hiraeth.Ingestion.SidecarClientTest do
                )
     end
 
-    test "returns error when sidecar reports error status" do
+    test "maps typed scrape errors to tagged errors" do
       plug = fn conn ->
         conn
         |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.resp(
-          200,
-          ~s({"provider":"deep_vellum","status":"error: something","records":[]})
-        )
+        |> Plug.Conn.resp(422, ~s({"detail":{"code":"parse_failed","message":"selector broke"}}))
       end
 
-      assert {:error, "error: something"} =
+      assert {:error, {:parse_failed, "selector broke"}} =
                SidecarClient.scrape(
                  %{provider: "deep_vellum", config: %{}},
                  req_options: [plug: plug]
@@ -227,14 +221,17 @@ defmodule Hiraeth.Ingestion.SidecarClientTest do
                )
     end
 
-    test "returns error when detail endpoint returns non-200" do
+    test "maps typed detail errors to tagged errors" do
       plug = fn conn ->
         conn
         |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.resp(422, ~s({"detail":"non-allowlisted host"}))
+        |> Plug.Conn.resp(
+          422,
+          ~s({"detail":{"code":"invalid_host","message":"non-allowlisted host"}})
+        )
       end
 
-      assert {:error, "sidecar detail failed with status 422"} =
+      assert {:error, {:invalid_host, "non-allowlisted host"}} =
                SidecarClient.detail(
                  "https://evil.example/books/1",
                  "deep_vellum_official_store",

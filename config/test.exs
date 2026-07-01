@@ -13,7 +13,7 @@ config :hiraeth, Hiraeth.Repo,
   database: "hiraeth_test#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 20,
-  ownership_timeout: 300_000
+  ownership_timeout: :timer.minutes(30)
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
@@ -47,3 +47,7 @@ config :phoenix,
 config :hiraeth, Oban, testing: :manual
 
 config :hiraeth, :scrapling_sidecar, base_url: "http://localhost:8000"
+
+config :hiraeth,
+       :source_snapshot_retention_root,
+       Path.expand("../tmp/source_snapshots/test", __DIR__)

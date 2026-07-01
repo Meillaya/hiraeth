@@ -1,6 +1,8 @@
 defmodule Hiraeth.Ingestion.E2EIngestionTest do
   use Hiraeth.DataCase, async: false
 
+  @moduletag :reset_committed_catalog
+
   import Ecto.Query
 
   alias Hiraeth.Catalog.{
@@ -9,8 +11,6 @@ defmodule Hiraeth.Ingestion.E2EIngestionTest do
     Identifier,
     Imprint,
     Publisher,
-    Series,
-    SeriesMembership,
     Work
   }
 
@@ -330,25 +330,7 @@ defmodule Hiraeth.Ingestion.E2EIngestionTest do
 
   # --- Helpers ---
 
-  defp clear_catalog! do
-    for resource <- [
-          SourceLedgerEntry,
-          SourceRecord,
-          ImportRun,
-          CoverAssignment,
-          CoverAsset,
-          Identifier,
-          Contribution,
-          SeriesMembership,
-          Edition,
-          Work,
-          Series,
-          Imprint,
-          Publisher
-        ] do
-      Hiraeth.Repo.delete_all(resource)
-    end
-  end
+  defp clear_catalog!, do: Hiraeth.CatalogCleanup.clear_catalog!()
 
   defp wait_for_job!(timeout_ms \\ 5_000) do
     deadline = System.monotonic_time(:millisecond) + timeout_ms

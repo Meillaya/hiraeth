@@ -9,6 +9,7 @@ defmodule Hiraeth.Ingestion.CoverPipeline do
   """
 
   alias Hiraeth.Covers
+  alias Hiraeth.Ingestion.{CoverCacheRoot, CoverCandidateCache}
   alias Hiraeth.RealCatalog.SourcePolicy
 
   @cache_root "priv/static/covers/cache"
@@ -79,6 +80,94 @@ defmodule Hiraeth.Ingestion.CoverPipeline do
         end)
 
       {:ok, cover_paths}
+    end
+  end
+
+  @doc """
+  Caches cover `RecordCandidate` rows independently.
+
+  Successful candidates are marked accepted and receive local cache provenance in
+  `normalized_metadata["cover_cache"]`. Failed candidates are quarantined with a
+  retry state unless `strict?: true` is configured, in which case successful
+  writes from the batch are cleaned up and the caller receives `{:error, failures}`.
+  """
+  def cache_cover_candidates!(cover_candidates, provider_config) when is_list(cover_candidates) do
+    case normalize_candidate_cache_root(Map.get(provider_config, :cache_root, @cache_root)) do
+      {:ok, cache_root} ->
+        cache_cover_candidates_under_root!(cover_candidates, provider_config, cache_root)
+
+      {:error, reason} ->
+        {:error, [%{reason: reason}]}
+    end
+  end
+
+  defp cache_cover_candidates_under_root!(cover_candidates, provider_config, cache_root) do
+    max_concurrency = Map.get(provider_config, :max_concurrency, @default_max_concurrency)
+    max_body_size = Map.get(provider_config, :max_body_size, @default_max_body_size)
+    req_options = Map.get(provider_config, :req_options, [])
+    thumbnailer = Map.get(provider_config, :thumbnailer, &Covers.generate_thumbnail/2)
+    strict? = Map.get(provider_config, :strict?, false)
+
+    File.mkdir_p!(cache_root)
+
+    results =
+      cover_candidates
+      |> Enum.filter(&CoverCandidateCache.cover_record_candidate?/1)
+      |> Task.async_stream(
+        fn candidate ->
+          cover = CoverCandidateCache.cover_from_candidate(candidate)
+
+          case process_cover(cover, cache_root, max_body_size, req_options, thumbnailer) do
+            {:ok, _cover, cached_path, thumbnail_path} ->
+              {:ok, candidate, cached_path, thumbnail_path}
+
+            {:error, _cover, reason} ->
+              {:error, candidate, reason}
+          end
+        end,
+        max_concurrency: max_concurrency,
+        timeout: :infinity
+      )
+      |> Enum.map(fn {:ok, result} -> result end)
+
+    persist_candidate_results(results, strict?)
+  end
+
+  defp persist_candidate_results(results, strict?) do
+    {successes, failures} =
+      Enum.split_with(results, fn
+        {:ok, _candidate, _cached_path, _thumbnail_path} -> true
+        _result -> false
+      end)
+
+    failure_summaries = Enum.map(failures, &CoverCandidateCache.failure_summary/1)
+
+    if strict? and failures != [] do
+      Enum.each(successes, fn {:ok, _candidate, cached_path, thumbnail_path} ->
+        File.rm(cached_path)
+        File.rm(thumbnail_path)
+      end)
+
+      {:error, failure_summaries}
+    else
+      cached_candidates =
+        Enum.map(successes, fn {:ok, candidate, cached_path, thumbnail_path} ->
+          CoverCandidateCache.mark_cached!(candidate, cached_path, thumbnail_path)
+        end)
+
+      quarantined_candidates =
+        Enum.map(failures, fn {:error, candidate, reason} ->
+          CoverCandidateCache.mark_failed!(candidate, reason)
+        end)
+
+      {:ok,
+       %{
+         cached: length(cached_candidates),
+         failed: length(quarantined_candidates),
+         quarantined: length(quarantined_candidates),
+         failures: failure_summaries,
+         candidates: cached_candidates ++ quarantined_candidates
+       }}
     end
   end
 
@@ -159,6 +248,10 @@ defmodule Hiraeth.Ingestion.CoverPipeline do
     else
       {:error, "cover cache path must stay under cache root: #{cache_path}"}
     end
+  end
+
+  defp normalize_candidate_cache_root(cache_root) do
+    CoverCacheRoot.normalize_candidate_root(cache_root)
   end
 
   defp extension_from_path(path) when is_binary(path) do

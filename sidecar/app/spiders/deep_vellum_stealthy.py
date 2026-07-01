@@ -19,7 +19,9 @@ JsonDict = dict[str, Any]
 
 @dataclass(frozen=True, slots=True)
 class FetchControls:
-    concurrency: int; min_delay_seconds: float; max_bytes: int | None
+    concurrency: int
+    min_delay_seconds: float
+    max_bytes: int | None
 
 
 class ResponseTooLargeError(RuntimeError):
@@ -27,8 +29,8 @@ class ResponseTooLargeError(RuntimeError):
 
 
 class CatalogUrlNotAllowedError(ValueError):
-    def __init__(self, url: str) -> None:
-        super().__init__(f"Unsupported Deep Vellum catalog URL: {url}")
+    def __init__(self) -> None:
+        super().__init__("Unsupported Deep Vellum catalog URL")
 
 
 class StealthyFetcher:
@@ -138,7 +140,7 @@ class DeepVellumStealthySpider:
             and not parsed.password
         ):
             return url
-        raise CatalogUrlNotAllowedError(url)
+        raise CatalogUrlNotAllowedError()
 
     @classmethod
     def _detail_url(cls, handle: str) -> str:

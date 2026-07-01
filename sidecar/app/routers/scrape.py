@@ -1,17 +1,23 @@
 import importlib
 import re
-from typing import Any, Final, Protocol
-from urllib.parse import urlparse
+from typing import Final, Protocol
+from urllib.parse import ParseResult, urlparse
 
 from anyio import to_thread
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from app.models import (
     DetailScrapeRequest,
     DetailScrapeResponse,
+    ERROR_RESPONSES,
+    JsonObject,
     ScrapeRequest,
     ScrapeResponse,
+    SidecarErrorCode,
+    sidecar_http_error,
+    sidecar_runtime_error,
 )
+from app.url_validation import validate_start_urls_against_source_hosts
 from app.spiders.astra_house import (
     ASTRA_HOUSE_PROVIDER,
     AstraHouseCatalogUrlNotAllowedError,
@@ -30,13 +36,13 @@ router = APIRouter(prefix="/scrape", tags=["scrape"])
 
 
 class CatalogSpider(Protocol):
-    def to_json(self) -> list[dict[str, Any]]:
+    def to_json(self) -> list[JsonObject]:
         """Return extracted catalog records."""
         ...
 
 
 class CatalogSpiderFactory(Protocol):
-    def __call__(self, *, config: dict[str, Any]) -> CatalogSpider:
+    def __call__(self, *, config: JsonObject) -> CatalogSpider:
         """Create a configured spider."""
         ...
 
@@ -81,48 +87,67 @@ def _ensure_detail_request(request: DetailScrapeRequest) -> None:
     if request.vendor in _TWO_LINES_PROVIDERS:
         _ensure_two_lines_detail_url(parsed)
         return
-    raise HTTPException(status_code=422, detail="Unsupported detail vendor")
+    raise sidecar_http_error(
+        422,
+        SidecarErrorCode.INVALID_HOST,
+        "Unsupported detail vendor",
+    )
 
 
-def _ensure_common_detail_url(parsed) -> None:
+def _ensure_common_detail_url(parsed: ParseResult) -> None:
     if parsed.scheme != "https" or parsed.username or parsed.password:
-        raise HTTPException(status_code=422, detail="Unsupported detail URL host")
+        raise sidecar_http_error(
+            422,
+            SidecarErrorCode.INVALID_HOST,
+            "Unsupported detail URL host",
+        )
     if parsed.query or parsed.fragment:
-        raise HTTPException(
-            status_code=422,
-            detail="Detail URL must not include query or fragment",
+        raise sidecar_http_error(
+            422,
+            SidecarErrorCode.INVALID_HOST,
+            "Detail URL must not include query or fragment",
         )
 
 
-def _ensure_deep_vellum_detail_url(parsed) -> None:
+def _ensure_deep_vellum_detail_url(parsed: ParseResult) -> None:
     _ensure_common_detail_url(parsed)
     allowed_host = DeepVellumStealthySpider.base_url.removeprefix("https://")
     if parsed.netloc != allowed_host:
-        raise HTTPException(status_code=422, detail="Unsupported detail URL host")
+        raise sidecar_http_error(
+            422,
+            SidecarErrorCode.INVALID_HOST,
+            "Unsupported detail URL host",
+        )
 
     path_match = _DEEP_VELLUM_PRODUCT_PATH.fullmatch(parsed.path)
     if not path_match or path_match.group(1) in _FORBIDDEN_DETAIL_SEGMENTS:
-        raise HTTPException(
-            status_code=422,
-            detail="Detail URL must target a Deep Vellum product",
+        raise sidecar_http_error(
+            422,
+            SidecarErrorCode.INVALID_HOST,
+            "Detail URL must target a Deep Vellum product",
         )
 
 
-def _ensure_two_lines_detail_url(parsed) -> None:
+def _ensure_two_lines_detail_url(parsed: ParseResult) -> None:
     _ensure_common_detail_url(parsed)
     if parsed.netloc != "www.twolinespress.com":
-        raise HTTPException(status_code=422, detail="Unsupported detail URL host")
+        raise sidecar_http_error(
+            422,
+            SidecarErrorCode.INVALID_HOST,
+            "Unsupported detail URL host",
+        )
 
     path_match = _TWO_LINES_BOOK_PATH.fullmatch(parsed.path)
     segments = set(parsed.path.strip("/").split("/"))
     if not path_match or segments.intersection(_FORBIDDEN_DETAIL_SEGMENTS):
-        raise HTTPException(
-            status_code=422,
-            detail="Detail URL must target a Two Lines book",
+        raise sidecar_http_error(
+            422,
+            SidecarErrorCode.INVALID_HOST,
+            "Detail URL must target a Two Lines book",
         )
 
 
-@router.post("/")
+@router.post("/", responses=ERROR_RESPONSES)
 async def scrape_catalog(request: ScrapeRequest) -> ScrapeResponse:
     """Run a Scrapling spider to extract structured book metadata.
 
@@ -144,6 +169,11 @@ async def scrape_catalog(request: ScrapeRequest) -> ScrapeResponse:
             _ = DeepVellumStealthySpider.catalog_url(config)
         if request.provider in _ASTRA_HOUSE_PROVIDERS:
             _ = AstraHouseSpider.catalog_url(config)
+        if (
+            request.provider not in _DEEP_VELLUM_PROVIDERS
+            and request.provider not in _ASTRA_HOUSE_PROVIDERS
+        ):
+            validate_start_urls_against_source_hosts(config)
 
         if _uses_deep_vellum_stealthy(request):
             records = await DeepVellumStealthySpider().scrape_catalog(config)
@@ -163,30 +193,71 @@ async def scrape_catalog(request: ScrapeRequest) -> ScrapeResponse:
             status="success",
             records=records,
         )
-    except (CatalogUrlNotAllowedError, AstraHouseCatalogUrlNotAllowedError) as error:
-        raise HTTPException(status_code=422, detail=str(error)) from error
-    except (OSError, RuntimeError, ValueError) as error:
-        return ScrapeResponse(
-            provider=request.provider,
-            status=f"error: {str(error)}",
-            records=[],
-        )
+    except CatalogUrlNotAllowedError as error:
+        raise sidecar_http_error(
+            422,
+            SidecarErrorCode.INVALID_HOST,
+            "Unsupported Deep Vellum catalog URL",
+        ) from error
+    except AstraHouseCatalogUrlNotAllowedError as error:
+        raise sidecar_http_error(
+            422,
+            SidecarErrorCode.INVALID_HOST,
+            "Astra House catalog URL is not allowlisted",
+        ) from error
+    except KeyError as error:
+        raise sidecar_http_error(
+            502,
+            SidecarErrorCode.SCHEMA_CHANGED,
+            "sidecar scrape response schema changed",
+        ) from error
+    except OSError as error:
+        raise sidecar_http_error(
+            502,
+            SidecarErrorCode.NETWORK,
+            "sidecar scrape network failure",
+        ) from error
+    except (RuntimeError, ValueError) as error:
+        raise sidecar_runtime_error("scrape", error) from error
 
 
-@router.post("/detail")
+@router.post("/detail", responses=ERROR_RESPONSES)
 async def scrape_detail(request: DetailScrapeRequest) -> DetailScrapeResponse:
     """Fetch and parse a single allowlisted publisher product detail page."""
     _ensure_detail_request(request)
 
     spider = DeepVellumStealthySpider()
-    response = await StealthyFetcher.fetch_async(request.url, **spider.fetch_options)
+    try:
+        response = await StealthyFetcher.fetch_async(
+            request.url, **spider.fetch_options
+        )
+    except OSError as error:
+        raise sidecar_http_error(
+            502,
+            SidecarErrorCode.NETWORK,
+            "sidecar detail network failure",
+        ) from error
     try:
         detail_text = _response_text(response, request.max_bytes)
     except ResponseTooLargeError as error:
-        raise HTTPException(status_code=422, detail=str(error)) from error
+        raise sidecar_http_error(422, SidecarErrorCode.BLOCKED, str(error)) from error
+
+    if detail_text.strip() == "":
+        raise sidecar_http_error(
+            422,
+            SidecarErrorCode.EMPTY_RESPONSE,
+            "sidecar detail returned an empty response",
+        )
 
     if request.vendor in _TWO_LINES_PROVIDERS:
-        detail = parse_two_lines_detail(detail_text)
+        try:
+            detail = parse_two_lines_detail(detail_text)
+        except (RuntimeError, ValueError) as error:
+            raise sidecar_http_error(
+                422,
+                SidecarErrorCode.PARSE_FAILED,
+                "sidecar detail failed to parse the response",
+            ) from error
         return DetailScrapeResponse(
             vendor=request.vendor,
             source_uri=request.url,
@@ -201,7 +272,14 @@ async def scrape_detail(request: DetailScrapeRequest) -> DetailScrapeResponse:
             description=detail.description,
         )
 
-    detail = spider._parse_detail(detail_text)
+    try:
+        detail = spider._parse_detail(detail_text)
+    except (RuntimeError, ValueError) as error:
+        raise sidecar_http_error(
+            422,
+            SidecarErrorCode.PARSE_FAILED,
+            "sidecar detail failed to parse the response",
+        ) from error
     description = detail.description
 
     return DetailScrapeResponse(

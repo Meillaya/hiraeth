@@ -1,6 +1,8 @@
 import json
 from typing import Any
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
+
+import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -807,7 +809,8 @@ def test_fetch_missing_api_type():
         },
     )
     assert response.status_code == 400
-    assert "Missing config.api.type" in response.json()["detail"]
+    assert response.json()["detail"]["code"] == "schema_changed"
+    assert "Missing config.api.type" in response.json()["detail"]["message"]
 
 
 def test_fetch_unsupported_api_type():
@@ -819,7 +822,8 @@ def test_fetch_unsupported_api_type():
         },
     )
     assert response.status_code == 400
-    assert "Unsupported api.type" in response.json()["detail"]
+    assert response.json()["detail"]["code"] == "schema_changed"
+    assert "Unsupported api.type" in response.json()["detail"]["message"]
 
 
 def test_fetch_rejects_endpoint_host_outside_source_hosts():
@@ -834,8 +838,9 @@ def test_fetch_rejects_endpoint_host_outside_source_hosts():
         },
     )
 
-    assert response.status_code == 400
-    assert "host must be listed in source_hosts" in response.json()["detail"]
+    assert response.status_code == 422
+    assert response.json()["detail"]["code"] == "invalid_host"
+    assert "host must be listed in source_hosts" in response.json()["detail"]["message"]
 
 
 def test_fetch_rejects_private_endpoint_hosts():
@@ -850,8 +855,42 @@ def test_fetch_rejects_private_endpoint_hosts():
         },
     )
 
-    assert response.status_code == 400
-    assert "must not be private" in response.json()["detail"]
+    assert response.status_code == 422
+    assert response.json()["detail"]["code"] == "invalid_host"
+    assert "must not be private" in response.json()["detail"]["message"]
+
+
+@pytest.mark.parametrize(
+    "alias_url",
+    [
+        "https://127.1",
+        "https://0177.0.0.1",
+        "https://2130706433",
+        "https://0x7f000001",
+        "https://localhost.",
+        "https://LOCALHOST.",
+    ],
+)
+def test_fetch_rejects_https_private_endpoint_aliases_before_adapter(alias_url):
+    endpoint_host = alias_url.removeprefix("https://")
+    adapter = AsyncMock(return_value=[])
+
+    with patch.dict("app.routers.fetch.ADAPTERS", {"shopify": adapter}):
+        response = client.post(
+            "/fetch/",
+            json={
+                "provider": "x",
+                "config": {
+                    "api": {"type": "shopify", "endpoint": alias_url},
+                    "source_hosts": [endpoint_host],
+                },
+            },
+        )
+
+    assert response.status_code == 422
+    assert response.json()["detail"]["code"] == "invalid_host"
+    assert "must not be private" in response.json()["detail"]["message"]
+    adapter.assert_not_awaited()
 
 
 def test_fetch_rejects_endpoint_userinfo():
@@ -869,8 +908,9 @@ def test_fetch_rejects_endpoint_userinfo():
         },
     )
 
-    assert response.status_code == 400
-    assert "must not include userinfo" in response.json()["detail"]
+    assert response.status_code == 422
+    assert response.json()["detail"]["code"] == "invalid_host"
+    assert "must not include userinfo" in response.json()["detail"]["message"]
 
 
 # ---------------------------------------------------------------------------

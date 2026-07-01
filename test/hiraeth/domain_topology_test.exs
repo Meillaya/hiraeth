@@ -2,15 +2,21 @@ defmodule Hiraeth.DomainTopologyTest do
   use ExUnit.Case, async: true
 
   @domains [
+    Hiraeth.Accounts,
     Hiraeth.Catalog,
     Hiraeth.Sources,
     Hiraeth.Covers,
     Hiraeth.Imports,
+    Hiraeth.Ingestion,
     Hiraeth.Search,
     Hiraeth.Audit
   ]
 
   @resources %{
+    Hiraeth.Accounts => [
+      Hiraeth.Accounts.AdminUser,
+      Hiraeth.Accounts.AdminSessionToken
+    ],
     Hiraeth.Catalog => [
       Hiraeth.Catalog.Publisher,
       Hiraeth.Catalog.Imprint,
@@ -33,6 +39,13 @@ defmodule Hiraeth.DomainTopologyTest do
       Hiraeth.Imports.ImportMapping,
       Hiraeth.Imports.StagedImportRow,
       Hiraeth.Imports.ReviewItem
+    ],
+    Hiraeth.Ingestion => [
+      Hiraeth.Ingestion.ProviderSource,
+      Hiraeth.Ingestion.ProviderRun,
+      Hiraeth.Ingestion.SourceSnapshot,
+      Hiraeth.Ingestion.RecordCandidate,
+      Hiraeth.Ingestion.IngestionEvent
     ],
     Hiraeth.Search => [Hiraeth.Search.Result],
     Hiraeth.Audit => [Hiraeth.Audit.AuditEvent]

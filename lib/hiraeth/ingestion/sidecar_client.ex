@@ -64,6 +64,9 @@ defmodule Hiraeth.Ingestion.SidecarClient do
           {:ok, %{records: body["records"] || []}}
         end
 
+      {:ok, %{status: status, body: body}} ->
+        sidecar_error_or_status_error("fetch", status, body)
+
       {:ok, %{status: status}} ->
         {:error, "sidecar fetch failed with status #{status}"}
 
@@ -98,6 +101,9 @@ defmodule Hiraeth.Ingestion.SidecarClient do
           {:ok, %{records: body["records"] || []}}
         end
 
+      {:ok, %{status: status, body: body}} ->
+        sidecar_error_or_status_error("scrape", status, body)
+
       {:ok, %{status: status}} ->
         {:error, "sidecar scrape failed with status #{status}"}
 
@@ -128,6 +134,9 @@ defmodule Hiraeth.Ingestion.SidecarClient do
       {:ok, %{status: status, body: body}} when status in 200..299 and is_map(body) ->
         {:ok, body}
 
+      {:ok, %{status: status, body: body}} ->
+        sidecar_error_or_status_error("detail", status, body)
+
       {:ok, %{status: status}} ->
         {:error, "sidecar detail failed with status #{status}"}
 
@@ -149,4 +158,30 @@ defmodule Hiraeth.Ingestion.SidecarClient do
         %{url: source_uri, vendor: vendor}
     end
   end
+
+  defp sidecar_error_or_status_error(operation, status, body) do
+    case typed_sidecar_error(body) do
+      {:ok, error} -> {:error, error}
+      :error -> {:error, "sidecar #{operation} failed with status #{status}"}
+    end
+  end
+
+  defp typed_sidecar_error(%{"detail" => %{"code" => code, "message" => message}})
+       when is_binary(message) do
+    case sidecar_error_code(code) do
+      {:ok, atom} -> {:ok, {atom, message}}
+      :error -> :error
+    end
+  end
+
+  defp typed_sidecar_error(_body), do: :error
+
+  defp sidecar_error_code("rate_limited"), do: {:ok, :rate_limited}
+  defp sidecar_error_code("blocked"), do: {:ok, :blocked}
+  defp sidecar_error_code("schema_changed"), do: {:ok, :schema_changed}
+  defp sidecar_error_code("empty_response"), do: {:ok, :empty_response}
+  defp sidecar_error_code("invalid_host"), do: {:ok, :invalid_host}
+  defp sidecar_error_code("network"), do: {:ok, :network}
+  defp sidecar_error_code("parse_failed"), do: {:ok, :parse_failed}
+  defp sidecar_error_code(_code), do: :error
 end

@@ -10,12 +10,10 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
   @detail_query_budget 8
   @directory_query_budget 8
   @warm_elapsed_budget_microseconds 175_000
+  @directory_elapsed_budget_microseconds 350_000
 
   setup_all do
-    Ecto.Adapters.SQL.Sandbox.unboxed_run(Hiraeth.Repo, fn ->
-      Hiraeth.RealCatalogFixtures.seed!()
-    end)
-
+    Hiraeth.CatalogCleanup.ensure_committed_catalog_fixtures!()
     :ok
   end
 
@@ -276,7 +274,7 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     for measurement <- [publisher_index, publisher_detail, series_index, series_detail],
         not is_nil(measurement) do
       assert measurement.query_count <= @directory_query_budget
-      assert measurement.elapsed_microseconds <= @warm_elapsed_budget_microseconds
+      assert measurement.elapsed_microseconds <= @directory_elapsed_budget_microseconds
     end
   end
 

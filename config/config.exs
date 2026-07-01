@@ -12,10 +12,12 @@ config :hiraeth,
   generators: [timestamp_type: :utc_datetime]
 
 config :hiraeth, :ash_domains, [
+  Hiraeth.Accounts,
   Hiraeth.Catalog,
   Hiraeth.Sources,
   Hiraeth.Covers,
   Hiraeth.Imports,
+  Hiraeth.Ingestion,
   Hiraeth.Search,
   Hiraeth.Audit
 ]
@@ -78,9 +80,19 @@ config :phoenix, :json_library, Jason
 config :hiraeth, Oban,
   repo: Hiraeth.Repo,
   queues: [ingestion: 4, covers: 4, audit: 2],
-  plugins: [Oban.Plugins.Pruner]
+  plugins: [
+    Oban.Plugins.Pruner,
+    {Oban.Plugins.Cron,
+     crontab: [
+       {"*/15 * * * *", Hiraeth.Oban.ProviderSchedulerWorker}
+     ]}
+  ]
 
 config :hiraeth, :scrapling_sidecar, base_url: "http://localhost:8000"
+
+config :hiraeth,
+       :source_snapshot_retention_root,
+       Path.expand("../priv/source_snapshots", __DIR__)
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

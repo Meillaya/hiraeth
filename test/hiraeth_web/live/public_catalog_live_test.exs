@@ -25,10 +25,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
   @immigrant_slug "deep-vellum-immigrant-paperback-9781646054541"
 
   setup_all do
-    Ecto.Adapters.SQL.Sandbox.unboxed_run(Hiraeth.Repo, fn ->
-      Hiraeth.RealCatalogFixtures.seed!()
-    end)
-
+    Hiraeth.CatalogCleanup.ensure_committed_catalog_fixtures!()
     :ok
   end
 

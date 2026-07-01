@@ -1,6 +1,7 @@
 defmodule Hiraeth.Ingestion.ProviderManifestTest do
   use ExUnit.Case, async: true
 
+  alias Hiraeth.Ingestion.OperatorManifest
   alias Hiraeth.Ingestion.ProviderManifest
 
   @fixtures_dir Path.expand("../../support/fixtures/provider_manifests", __DIR__)
@@ -152,5 +153,86 @@ defmodule Hiraeth.Ingestion.ProviderManifestTest do
         ProviderManifest.load!(Path.join(@fixtures_dir, "nonexistent.json"))
       end
     end
+
+    test "does not reflect secret-bearing source URLs in raised validation errors" do
+      secret_url = secret_source_url()
+      path = write_temp_manifest(secret_manifest(secret_url))
+
+      error =
+        assert_raise RuntimeError, fn ->
+          ProviderManifest.load!(path)
+        end
+
+      assert Exception.message(error) =~ "source_url must not include userinfo"
+      refute_secret_reflection(Exception.message(error), secret_url)
+    after
+      cleanup_temp_manifests()
+    end
+  end
+
+  describe "OperatorManifest.load/1 with invalid manifests" do
+    test "does not reflect secret-bearing source URLs in returned load errors" do
+      secret_url = secret_source_url()
+      path = write_temp_manifest(secret_manifest(secret_url))
+
+      assert {:error, message} = OperatorManifest.load(path)
+      assert message =~ "source_url must not include userinfo"
+      refute_secret_reflection(message, secret_url)
+    after
+      cleanup_temp_manifests()
+    end
+  end
+
+  defp secret_manifest(secret_url) do
+    %{
+      provider: "secret_reflection_test",
+      name: "Secret Reflection Test",
+      source_mode: "api",
+      source_urls: [secret_url],
+      source_hosts: ["www.example.com"],
+      cover_hosts: ["cdn.example.com"],
+      api: %{type: "shopify", endpoint: "https://www.example.com"},
+      permission_basis: "Official publisher pages expose public catalog facts.",
+      takedown_contact: "security@example.com",
+      excluded_content: ["raw_html"],
+      cover_cache_policy: "cache_allowed",
+      not_legal_advice: true
+    }
+  end
+
+  defp secret_source_url do
+    "http://user:GLOBAL_REPAIR4_PASSWORD@evil.example.com/books?token=GLOBAL_REPAIR4_QUERY#GLOBAL_REPAIR4_FRAGMENT"
+  end
+
+  defp write_temp_manifest(manifest) do
+    dir =
+      Path.join(
+        System.tmp_dir!(),
+        "hiraeth_provider_manifest_test_#{System.unique_integer([:positive])}"
+      )
+
+    File.mkdir_p!(dir)
+    path = Path.join(dir, "manifest.json")
+    File.write!(path, Jason.encode!(manifest))
+    path
+  end
+
+  defp cleanup_temp_manifests do
+    System.tmp_dir!()
+    |> File.ls!()
+    |> Enum.filter(&String.starts_with?(&1, "hiraeth_provider_manifest_test_"))
+    |> Enum.each(fn dir ->
+      File.rm_rf!(Path.join(System.tmp_dir!(), dir))
+    end)
+  end
+
+  defp refute_secret_reflection(message, full_url) do
+    refute message =~ full_url
+    refute message =~ "user:GLOBAL_REPAIR4_PASSWORD"
+    refute message =~ "GLOBAL_REPAIR4_PASSWORD"
+    refute message =~ "GLOBAL_REPAIR4_QUERY"
+    refute message =~ "GLOBAL_REPAIR4_FRAGMENT"
+    refute message =~ "?token="
+    refute message =~ "#GLOBAL"
   end
 end

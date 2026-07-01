@@ -70,6 +70,26 @@ defmodule Hiraeth.Ingestion.ManifestValidatorTest do
       reasons = Enum.map(findings, & &1.reason)
       assert Enum.any?(reasons, &String.contains?(&1, "must be HTTPS"))
     end
+
+    test "does not reflect secret-bearing source URLs in finding reasons" do
+      secret_url = secret_source_url()
+
+      manifest =
+        valid_api_manifest(%{
+          source_urls: [secret_url],
+          source_hosts: ["www.example.com"]
+        })
+
+      assert {:error, findings} = ManifestValidator.validate(manifest)
+
+      reasons = Enum.map(findings, & &1.reason)
+      joined_reasons = Enum.join(reasons, "\n")
+
+      assert Enum.any?(reasons, &(&1 == "source_url must be HTTPS"))
+      assert Enum.any?(reasons, &(&1 == "source_url must not include userinfo"))
+      assert Enum.any?(reasons, &(&1 == "source_url host must be listed in source_hosts"))
+      refute_secret_reflection(joined_reasons, secret_url)
+    end
   end
 
   describe "validate/1 with missing api.type for api mode" do
@@ -175,6 +195,64 @@ defmodule Hiraeth.Ingestion.ManifestValidatorTest do
              |> Enum.any?(&String.contains?(&1, "api.endpoint host must not be private"))
     end
 
+    test "accepts public IPv6 API endpoint hosts when allowlisted" do
+      endpoint = "https://[2606:4700:4700::1111]/api"
+      source_url = "https://[2606:4700:4700::1111]/catalog"
+      host = URI.parse(endpoint).host
+
+      manifest =
+        valid_api_manifest(%{
+          api: %{type: "shopify", endpoint: endpoint},
+          source_urls: [source_url],
+          source_hosts: [host]
+        })
+
+      assert {:ok, _manifest} = ManifestValidator.validate(manifest)
+    end
+
+    test "rejects IPv4-mapped and loopback IPv6 API endpoint aliases even when allowlisted" do
+      urls = [
+        "https://[::ffff:127.0.0.1]",
+        "https://[::1]"
+      ]
+
+      for url <- urls do
+        manifest =
+          valid_api_manifest(%{
+            api: %{type: "shopify", endpoint: url},
+            source_hosts: [URI.parse(url).host, "www.example.com"]
+          })
+
+        assert {:error, findings} = ManifestValidator.validate(manifest)
+        assert_private_host_finding(findings, :api, "api.endpoint host")
+      end
+    end
+
+    test "rejects resolver-accepted loopback API endpoint aliases even when allowlisted" do
+      urls = [
+        "https://127.1",
+        "https://0177.0.0.1",
+        "https://2130706433",
+        "https://0x7f000001",
+        "https://localhost.",
+        "https://LOCALHOST."
+      ]
+
+      for url <- urls do
+        manifest =
+          valid_api_manifest(%{
+            api: %{type: "shopify", endpoint: url},
+            source_hosts: [URI.parse(url).host]
+          })
+
+        assert {:error, findings} = ManifestValidator.validate(manifest)
+
+        assert findings
+               |> Enum.map(& &1.reason)
+               |> Enum.any?(&String.contains?(&1, "api.endpoint host must not be private"))
+      end
+    end
+
     test "rejects API endpoints with userinfo" do
       manifest =
         valid_api_manifest(%{
@@ -187,6 +265,173 @@ defmodule Hiraeth.Ingestion.ManifestValidatorTest do
       assert findings
              |> Enum.map(& &1.reason)
              |> Enum.any?(&String.contains?(&1, "api.endpoint must not include userinfo"))
+    end
+  end
+
+  describe "validate/1 with unsafe scrape start_urls" do
+    test "rejects scrape spider start_urls outside source_hosts" do
+      manifest =
+        valid_scrape_manifest(%{
+          spider: %{
+            module: "Hiraeth.Ingestion.Spiders.TestScraper",
+            start_urls: ["https://evil.example.com/books"]
+          },
+          source_hosts: ["www.example.com"]
+        })
+
+      assert {:error, findings} = ManifestValidator.validate(manifest)
+
+      assert findings
+             |> Enum.map(& &1.reason)
+             |> Enum.any?(&String.contains?(&1, "spider.start_url"))
+
+      assert findings
+             |> Enum.map(& &1.reason)
+             |> Enum.any?(&String.contains?(&1, "host must be listed in source_hosts"))
+    end
+
+    test "rejects private scrape spider start_urls" do
+      manifest =
+        valid_scrape_manifest(%{
+          spider: %{
+            module: "Hiraeth.Ingestion.Spiders.TestScraper",
+            start_urls: ["https://127.0.0.1/books"]
+          },
+          source_hosts: ["127.0.0.1"]
+        })
+
+      assert {:error, findings} = ManifestValidator.validate(manifest)
+
+      assert findings
+             |> Enum.map(& &1.reason)
+             |> Enum.any?(&String.contains?(&1, "host must not be private"))
+    end
+
+    test "rejects localhost trailing-dot scrape start_urls even when allowlisted" do
+      manifest =
+        valid_scrape_manifest(%{
+          spider: %{
+            module: "Hiraeth.Ingestion.Spiders.TestScraper",
+            start_urls: ["https://localhost./books"]
+          },
+          source_urls: ["https://localhost./books"],
+          source_hosts: ["localhost."]
+        })
+
+      assert {:error, findings} = ManifestValidator.validate(manifest)
+
+      assert findings
+             |> Enum.map(& &1.reason)
+             |> Enum.any?(&String.contains?(&1, "host must not be private"))
+    end
+
+    test "rejects IPv4-mapped and loopback IPv6 scrape source_urls even when allowlisted" do
+      urls = [
+        "https://[::ffff:127.0.0.1]/books",
+        "https://[::1]/books"
+      ]
+
+      for url <- urls do
+        manifest =
+          valid_scrape_manifest(%{
+            source_urls: [url],
+            source_hosts: [URI.parse(url).host, "www.example.com"]
+          })
+
+        assert {:error, findings} = ManifestValidator.validate(manifest)
+        assert_private_host_finding(findings, :source_urls, "source_url")
+      end
+    end
+
+    test "rejects IPv4-mapped and loopback IPv6 scrape spider start_urls even when allowlisted" do
+      urls = [
+        "https://[::ffff:127.0.0.1]/books",
+        "https://[::1]/books"
+      ]
+
+      for url <- urls do
+        manifest =
+          valid_scrape_manifest(%{
+            spider: %{
+              module: "Hiraeth.Ingestion.Spiders.TestScraper",
+              start_urls: [url]
+            },
+            source_hosts: [URI.parse(url).host, "www.example.com"]
+          })
+
+        assert {:error, findings} = ManifestValidator.validate(manifest)
+        assert_private_host_finding(findings, :spider, "spider.start_url")
+      end
+    end
+
+    test "rejects resolver-accepted loopback scrape start_url aliases even when allowlisted" do
+      urls = [
+        "https://127.1/books",
+        "https://0177.0.0.1/books",
+        "https://2130706433/books",
+        "https://0x7f000001/books"
+      ]
+
+      for url <- urls do
+        manifest =
+          valid_scrape_manifest(%{
+            spider: %{
+              module: "Hiraeth.Ingestion.Spiders.TestScraper",
+              start_urls: [url]
+            },
+            source_urls: [url],
+            source_hosts: [URI.parse(url).host]
+          })
+
+        assert {:error, findings} = ManifestValidator.validate(manifest)
+
+        assert findings
+               |> Enum.map(& &1.reason)
+               |> Enum.any?(&String.contains?(&1, "host must not be private"))
+      end
+    end
+
+    test "rejects userinfo in scrape spider start_urls" do
+      manifest =
+        valid_scrape_manifest(%{
+          spider: %{
+            module: "Hiraeth.Ingestion.Spiders.TestScraper",
+            start_urls: ["https://user:pass@www.example.com/books"]
+          }
+        })
+
+      assert {:error, findings} = ManifestValidator.validate(manifest)
+
+      assert findings
+             |> Enum.map(& &1.reason)
+             |> Enum.any?(&String.contains?(&1, "must not include userinfo"))
+    end
+
+    test "does not reflect secret-bearing spider start_urls in finding reasons" do
+      secret_url = secret_source_url()
+
+      manifest =
+        valid_scrape_manifest(%{
+          spider: %{
+            module: "Hiraeth.Ingestion.Spiders.TestScraper",
+            start_urls: [secret_url]
+          }
+        })
+
+      assert {:error, findings} = ManifestValidator.validate(manifest)
+
+      reasons = Enum.map(findings, & &1.reason)
+      joined_reasons = Enum.join(reasons, "\n")
+
+      assert Enum.any?(reasons, &(&1 == "spider.start_url must be HTTPS"))
+      assert Enum.any?(reasons, &(&1 == "spider.start_url must not include userinfo"))
+
+      assert Enum.any?(
+               reasons,
+               &(&1 == "spider.start_url host must be listed in source_hosts")
+             )
+
+      refute_secret_reflection(joined_reasons, secret_url)
     end
   end
 
@@ -323,6 +568,35 @@ defmodule Hiraeth.Ingestion.ManifestValidatorTest do
     end
   end
 
+  defp assert_private_host_finding(findings, field, reason_fragment) do
+    assert Enum.any?(findings, fn finding ->
+             finding.field == field and
+               String.contains?(finding.reason, reason_fragment) and
+               String.contains?(finding.reason, "host must not be private")
+           end)
+  end
+
+  defp valid_scrape_manifest(overrides) do
+    %{
+      provider: "test_scrape_endpoint",
+      name: "Test Scrape Endpoint",
+      source_mode: "scrape",
+      source_urls: ["https://www.example.com/books"],
+      source_hosts: ["www.example.com"],
+      cover_hosts: ["cdn.example.com"],
+      spider: %{
+        module: "Hiraeth.Ingestion.Spiders.TestScraper",
+        start_urls: ["https://www.example.com/books"]
+      },
+      permission_basis: "Test.",
+      takedown_contact: "test@example.com",
+      excluded_content: ["raw_html"],
+      cover_cache_policy: "cache_allowed",
+      not_legal_advice: true
+    }
+    |> Map.merge(overrides)
+  end
+
   defp valid_api_manifest(overrides) do
     %{
       provider: "test_api_endpoint",
@@ -339,5 +613,19 @@ defmodule Hiraeth.Ingestion.ManifestValidatorTest do
       not_legal_advice: true
     }
     |> Map.merge(overrides)
+  end
+
+  defp secret_source_url do
+    "http://user:GLOBAL_REPAIR4_PASSWORD@evil.example.com/books?token=GLOBAL_REPAIR4_QUERY#GLOBAL_REPAIR4_FRAGMENT"
+  end
+
+  defp refute_secret_reflection(message, full_url) do
+    refute message =~ full_url
+    refute message =~ "user:GLOBAL_REPAIR4_PASSWORD"
+    refute message =~ "GLOBAL_REPAIR4_PASSWORD"
+    refute message =~ "GLOBAL_REPAIR4_QUERY"
+    refute message =~ "GLOBAL_REPAIR4_FRAGMENT"
+    refute message =~ "?token="
+    refute message =~ "#GLOBAL"
   end
 end

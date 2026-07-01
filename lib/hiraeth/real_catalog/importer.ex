@@ -18,7 +18,7 @@ defmodule Hiraeth.RealCatalog.Importer do
   alias Hiraeth.Covers
   alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
   alias Hiraeth.Imports.ImportRun
-  alias Hiraeth.RealCatalog.{Dataset, ISBN, Slug, Validator}
+  alias Hiraeth.RealCatalog.{Dataset, ISBN, Slug, SourceIdentity, Validator}
   alias Hiraeth.Sources.{SourceLedgerEntry, SourceRecord}
 
   require Ash.Query
@@ -28,6 +28,22 @@ defmodule Hiraeth.RealCatalog.Importer do
   @contribution_key_cache_key {__MODULE__, :contribution_key_cache}
   @previous_source_work_cache_key {__MODULE__, :previous_source_work_cache}
   @provider_transaction_timeout :timer.minutes(30)
+  @provider_transaction_resources [
+    Contribution,
+    Contributor,
+    Edition,
+    Identifier,
+    Imprint,
+    Publisher,
+    Series,
+    SeriesMembership,
+    Work,
+    CoverAsset,
+    CoverAssignment,
+    ImportRun,
+    SourceLedgerEntry,
+    SourceRecord
+  ]
 
   def seed!(dir \\ Dataset.default_dir()) do
     Process.put(@import_cache_key, %{})
@@ -51,12 +67,18 @@ defmodule Hiraeth.RealCatalog.Importer do
   def seed_provider!(dataset, import_run, opts \\ []) do
     Process.put(@import_cache_key, %{})
     transaction_timeout = Keyword.get(opts, :transaction_timeout, @provider_transaction_timeout)
+    prune_stale? = Keyword.get(opts, :prune_stale?, true)
 
     try do
-      Hiraeth.Repo.transaction(
+      Ash.transact(
+        @provider_transaction_resources,
         fn ->
           Enum.each(dataset.records, &import_record!(dataset, &1, import_run))
-          prune_stale_source_records!(dataset.provider, dataset.file_checksum)
+
+          if prune_stale? do
+            prune_stale_source_records!(dataset.provider, dataset.file_checksum)
+          end
+
           summary()
         end,
         timeout: transaction_timeout
@@ -778,7 +800,8 @@ defmodule Hiraeth.RealCatalog.Importer do
         and source.source_type = 'publisher_dataset'
         and coalesce(source.file_checksum, '') <> $2
       """,
-      [provider, file_checksum]
+      [provider, file_checksum],
+      timeout: @provider_transaction_timeout
     )
 
     Hiraeth.Repo.query!(
@@ -790,7 +813,8 @@ defmodule Hiraeth.RealCatalog.Importer do
         and source.source_type = 'publisher_dataset'
         and coalesce(source.file_checksum, '') <> $2
       """,
-      [provider, file_checksum]
+      [provider, file_checksum],
+      timeout: @provider_transaction_timeout
     )
 
     Hiraeth.Repo.query!(
@@ -800,7 +824,8 @@ defmodule Hiraeth.RealCatalog.Importer do
         and source_type = 'publisher_dataset'
         and coalesce(file_checksum, '') <> $2
       """,
-      [provider, file_checksum]
+      [provider, file_checksum],
+      timeout: @provider_transaction_timeout
     )
 
     :ok
@@ -840,6 +865,7 @@ defmodule Hiraeth.RealCatalog.Importer do
       "publisher" => record.publisher,
       "imprint" => record.imprint,
       "provider_permissions" => Map.get(dataset, :provider_permissions),
+      "ingestion_candidate" => ingestion_candidate_payload(dataset, record),
       "field_sources" => Map.get(record, :field_sources),
       "work" =>
         Map.take(record.work, [
@@ -863,6 +889,12 @@ defmodule Hiraeth.RealCatalog.Importer do
     |> maybe_put_payload_value("missing_fields", Map.get(record, :missing_fields))
     |> maybe_put_cover_payload(record)
     |> maybe_put_no_cover_reason(record)
+  end
+
+  defp ingestion_candidate_payload(dataset, record) do
+    dataset
+    |> Map.get(:ingestion_candidates_by_source_uri, %{})
+    |> Map.get(edition_source_uri(record))
   end
 
   defp series_payload(record) do
@@ -1029,9 +1061,7 @@ defmodule Hiraeth.RealCatalog.Importer do
     end
   end
 
-  defp source_identity(dataset, record) do
-    normalized_isbn(record) || "source:#{dataset.provider}:#{record.source_product_id}"
-  end
+  defp source_identity(dataset, record), do: SourceIdentity.for_record(dataset.provider, record)
 
   defp normalized_isbn(record) do
     case ISBN.normalize(Map.get(record.edition, :isbn_13)) do

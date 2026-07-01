@@ -1,6 +1,7 @@
 defmodule Hiraeth.Oban.ProviderIngestionWorkerTest do
   use Hiraeth.DataCase, async: true
 
+  alias Hiraeth.Ingestion.ProviderRun
   alias Hiraeth.Oban.ProviderIngestionWorker
 
   require Ash.Query
@@ -22,7 +23,27 @@ defmodule Hiraeth.Oban.ProviderIngestionWorkerTest do
 
   setup do
     Process.delete(:manifest_providers)
-    :ok
+    previous_root = Application.get_env(:hiraeth, :source_snapshot_retention_root)
+
+    root =
+      Path.join(
+        System.tmp_dir!(),
+        "hiraeth-provider-worker-#{System.unique_integer([:positive])}"
+      )
+
+    Application.put_env(:hiraeth, :source_snapshot_retention_root, root)
+
+    on_exit(fn ->
+      if previous_root do
+        Application.put_env(:hiraeth, :source_snapshot_retention_root, previous_root)
+      else
+        Application.delete_env(:hiraeth, :source_snapshot_retention_root)
+      end
+
+      File.rm_rf!(root)
+    end)
+
+    {:ok, retention_root: root}
   end
 
   # --- Mock modules ---
@@ -317,11 +338,11 @@ defmodule Hiraeth.Oban.ProviderIngestionWorkerTest do
 
   defmodule MockRateLimitSidecarClient do
     def fetch(_provider_config, _opts \\ []) do
-      {:error, "429 too many requests"}
+      {:error, {:rate_limited, "too many requests"}}
     end
 
     def scrape(_provider_config, _opts \\ []) do
-      {:error, "rate limit exceeded"}
+      {:error, {:rate_limited, "too many requests"}}
     end
   end
 
@@ -697,6 +718,23 @@ defmodule Hiraeth.Oban.ProviderIngestionWorkerTest do
       assert {:error, reason} = ProviderIngestionWorker.perform(job)
       assert reason =~ "manifest load failed"
     end
+
+    test "does not reflect secret-bearing source URLs in manifest load failures" do
+      secret_url = secret_source_url()
+
+      manifest_path =
+        secret_manifest(secret_url)
+        |> write_temp_manifest()
+
+      job = build_job(manifest_path, "secret_reflection_test")
+
+      assert {:error, reason} = ProviderIngestionWorker.perform(job)
+      assert reason =~ "manifest load failed"
+      assert reason =~ "source_url must not include userinfo"
+      refute_secret_reflection(reason, secret_url)
+    after
+      cleanup_temp_manifests()
+    end
   end
 
   describe "cover cache failure" do
@@ -718,6 +756,26 @@ defmodule Hiraeth.Oban.ProviderIngestionWorkerTest do
       assert {:error, reason} = ProviderIngestionWorker.perform(job)
       assert is_binary(reason)
       assert reason =~ "cover cache failed"
+    end
+
+    test "marks provider run failed when cover cache fails after diff succeeds" do
+      job = build_job(@api_manifest_path, "test_publisher_api")
+      before_run_ids = ProviderRun |> Ash.read!(authorize?: false) |> MapSet.new(& &1.id)
+
+      assert {:error, reason} = ProviderIngestionWorker.perform(job)
+      assert reason =~ "cover cache failed"
+
+      [run] =
+        ProviderRun
+        |> Ash.read!(authorize?: false)
+        |> Enum.reject(&MapSet.member?(before_run_ids, &1.id))
+
+      assert run.status == "failed"
+      assert get_in(run.provenance, ["phases", "diff_candidates", "status"]) == "succeeded"
+      assert get_in(run.provenance, ["phases", "provider_ingestion_worker", "status"]) == "failed"
+
+      assert get_in(run.provenance, ["phases", "provider_ingestion_worker", "error", "code"]) ==
+               "provider_ingestion_failed"
     end
 
     test "zero DB writes when cover cache fails" do
@@ -961,5 +1019,36 @@ defmodule Hiraeth.Oban.ProviderIngestionWorkerTest do
 
       assert checksum_atom == checksum_string
     end
+  end
+
+  defp secret_manifest(secret_url) do
+    %{
+      provider: "secret_reflection_test",
+      name: "Secret Reflection Test",
+      source_mode: "api",
+      source_urls: [secret_url],
+      source_hosts: ["www.example.com"],
+      cover_hosts: ["cdn.example.com"],
+      api: %{type: "shopify", endpoint: "https://www.example.com"},
+      permission_basis: "Official publisher pages expose public catalog facts.",
+      takedown_contact: "security@example.com",
+      excluded_content: ["raw_html"],
+      cover_cache_policy: "cache_allowed",
+      not_legal_advice: true
+    }
+  end
+
+  defp secret_source_url do
+    "http://user:GLOBAL_REPAIR4_PASSWORD@evil.example.com/books?token=GLOBAL_REPAIR4_QUERY#GLOBAL_REPAIR4_FRAGMENT"
+  end
+
+  defp refute_secret_reflection(message, full_url) do
+    refute message =~ full_url
+    refute message =~ "user:GLOBAL_REPAIR4_PASSWORD"
+    refute message =~ "GLOBAL_REPAIR4_PASSWORD"
+    refute message =~ "GLOBAL_REPAIR4_QUERY"
+    refute message =~ "GLOBAL_REPAIR4_FRAGMENT"
+    refute message =~ "?token="
+    refute message =~ "#GLOBAL"
   end
 end

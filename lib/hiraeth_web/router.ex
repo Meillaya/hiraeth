@@ -10,8 +10,41 @@ defmodule HiraethWeb.Router do
     plug :put_secure_browser_headers
   end
 
-  pipeline :api do
+  pipeline :admin_browser do
+    plug HiraethWeb.AdminAuth, :require_admin
+  end
+
+  pipeline :ops do
     plug :accepts, ["json"]
+  end
+
+  scope "/", HiraethWeb do
+    pipe_through :ops
+
+    get "/health", HealthController, :health
+    get "/ready", HealthController, :ready
+  end
+
+  scope "/admin", HiraethWeb do
+    pipe_through [:browser]
+
+    get "/session/:token", AdminSessionController, :create
+  end
+
+  scope "/admin", HiraethWeb.Admin do
+    pipe_through [:browser, :admin_browser]
+
+    live_session :admin, on_mount: [{HiraethWeb.AdminAuth, :require_admin}] do
+      live "/", IngestionLive, :index
+      live "/ingestion", IngestionLive, :index
+      live "/ingestion/providers/:id", IngestionLive, :show
+      live "/ingestion/artifacts/:artifact_id", IngestionLive, :artifact
+      live "/ingestion/quarantine", QuarantineLive, :index
+      live "/ingestion/quarantine/runs/:run_id", QuarantineLive, :run
+      live "/ingestion/quarantine/candidates/:candidate_id", QuarantineLive, :candidate
+    end
+
+    get "/ingestion/audit/:run_id/export", AuditExportController, :show
   end
 
   scope "/", HiraethWeb do

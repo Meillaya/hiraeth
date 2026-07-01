@@ -75,6 +75,19 @@ defmodule HiraethWeb.Telemetry do
           "The time the connection spent waiting before being checked out for the query"
       ),
 
+      # Ingestion Operations Metrics
+      summary("hiraeth.ingestion.phase.stop.source_count", tags: [:phase, :status]),
+      summary("hiraeth.ingestion.phase.stop.candidate_count", tags: [:phase, :status]),
+      summary("hiraeth.ingestion.phase.stop.error_count", tags: [:phase, :status]),
+      last_value("hiraeth.ingestion.phase.stop.quarantine_age_seconds", tags: [:phase, :status]),
+      summary("hiraeth.ingestion.scheduler.tick.duration"),
+      summary("hiraeth.ingestion.scheduler.tick.created_count"),
+      summary("hiraeth.ingestion.scheduler.tick.skipped_count"),
+      summary("hiraeth.ingestion.queue.latency.duration", tags: [:worker]),
+      sum("hiraeth.ingestion.sidecar.error.count", tags: [:operation, :error_code]),
+      summary("hiraeth.ingestion.cover.cache.failed_count", tags: [:status]),
+      summary("hiraeth.ingestion.cover.cache.error_count", tags: [:status]),
+
       # VM Metrics
       summary("vm.memory.total", unit: {:byte, :kilobyte}),
       summary("vm.total_run_queue_lengths.total"),

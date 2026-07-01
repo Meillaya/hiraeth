@@ -35,8 +35,9 @@ def _ackermann_detail() -> str:
     """
 
 
-
-def test_parse_astra_house_detail_uses_current_format_and_escaped_jsonld_cover() -> None:
+def test_parse_astra_house_detail_uses_current_format_and_escaped_jsonld_cover() -> (
+    None
+):
     # Given: current Astra pages expose the cover in escaped JSON-LD and mark the selected format.
     html = r"""
     <html><head>
@@ -79,11 +80,20 @@ def test_parse_astra_house_detail_uses_current_format_and_escaped_jsonld_cover()
     )
 
     # Then: the fetched publisher page is the emitted record, with the real cover URL preserved.
-    assert detail.cover_url == "https://images.penguinrandomhouse.com/cover/700jpg/9781662603167"
-    assert detail.formats[0].source_uri == "https://astrapublishinghouse.com/product/another-bone-swapping-event-9781662603167/"
+    assert (
+        detail.cover_url
+        == "https://images.penguinrandomhouse.com/cover/700jpg/9781662603167"
+    )
+    assert (
+        detail.formats[0].source_uri
+        == "https://astrapublishinghouse.com/product/another-bone-swapping-event-9781662603167/"
+    )
     assert detail.formats[0].format == "hardcover"
     assert detail.formats[0].isbn_13 == "9781662603167"
-    assert detail.description == "A live-style publisher about headline. Full official product-page about copy."
+    assert (
+        detail.description
+        == "A live-style publisher about headline. Full official product-page about copy."
+    )
     assert detail.editorial_praise == [
         {
             "quote": "Precise official praise excerpt.",
@@ -131,7 +141,10 @@ def test_scrape_astra_house_imprint_dedupes_sibling_format_pages(monkeypatch) ->
         "/scrape/",
         json={
             "provider": "astra_house_official_store",
-            "config": {"start_urls": [ASTRA_IMPRINT_URL], "rate_limit": {"min_delay_ms": 0}},
+            "config": {
+                "start_urls": [ASTRA_IMPRINT_URL],
+                "rate_limit": {"min_delay_ms": 0},
+            },
         },
     )
 
@@ -144,19 +157,30 @@ def test_scrape_astra_house_imprint_dedupes_sibling_format_pages(monkeypatch) ->
     assert fetched_urls[0] == ASTRA_IMPRINT_URL
     assert "https://astrapublishinghouse.com/" not in fetched_urls
 
-    early_records = [record for record in records if record["work"]["title"] == "Early Sobrieties"]
-    assert [record["edition"]["isbn_13"] for record in early_records] == ["9781662602245"]
+    early_records = [
+        record for record in records if record["work"]["title"] == "Early Sobrieties"
+    ]
+    assert [record["edition"]["isbn_13"] for record in early_records] == [
+        "9781662602245"
+    ]
     assert [record["edition"]["format"] for record in early_records] == ["paperback"]
     assert {record["source_uri"] for record in early_records} == {
         "https://astrapublishinghouse.com/product/early-sobrieties-9781662602245/",
     }
     assert all("description" in record["displayed_fields"] for record in records)
-    assert all(record["cover"]["source_url"].startswith("https://images.penguinrandomhouse.com/") for record in records)
+    assert all(
+        record["cover"]["source_url"].startswith(
+            "https://images.penguinrandomhouse.com/"
+        )
+        for record in records
+    )
 
 
 def test_scrape_astra_house_rejects_global_astra_seed_before_fetch() -> None:
     # Given: a global Astra URL rather than the Astra House imprint page.
-    with patch.object(StealthyFetcher, "fetch_async", new_callable=AsyncMock) as fetch_async:
+    with patch.object(
+        StealthyFetcher, "fetch_async", new_callable=AsyncMock
+    ) as fetch_async:
         # When: the scrape endpoint validates the configured seed.
         response = client.post(
             "/scrape/",
@@ -168,7 +192,42 @@ def test_scrape_astra_house_rejects_global_astra_seed_before_fetch() -> None:
 
     # Then: it fails closed before fetching a global source.
     assert response.status_code == 422
-    assert "Astra House catalog URL is not allowlisted" in response.json()["detail"]
+    assert response.json()["detail"]["code"] == "invalid_host"
+    assert (
+        "Astra House catalog URL is not allowlisted"
+        in response.json()["detail"]["message"]
+    )
+    fetch_async.assert_not_awaited()
+
+
+def test_scrape_astra_house_rejects_canary_url_without_reflection() -> None:
+    # Given: a rejected provider-specific URL contains userinfo, query, and fragment canaries.
+    canary = "secret-canary"
+    unsafe_url = (
+        "https://secret-canary:password@astrapublishinghouse.com/imprints/astra-house/"
+        "?token=secret-canary#secret-canary"
+    )
+    with patch.object(
+        StealthyFetcher, "fetch_async", new_callable=AsyncMock
+    ) as fetch_async:
+        # When: the scrape endpoint validates the configured seed.
+        response = client.post(
+            "/scrape/",
+            json={
+                "provider": "astra_house_official_store",
+                "config": {"start_urls": [unsafe_url]},
+            },
+        )
+
+    # Then: it rejects before fetch and does not reflect sensitive URL pieces.
+    message = response.json()["detail"]["message"]
+    assert response.status_code == 422
+    assert response.json()["detail"]["code"] == "invalid_host"
+    assert message == "Astra House catalog URL is not allowlisted"
+    assert canary not in message
+    assert "password" not in message
+    assert "?" not in message
+    assert "#" not in message
     fetch_async.assert_not_awaited()
 
 
@@ -184,7 +243,11 @@ def test_scrape_astra_house_excludes_non_product_links(monkeypatch) -> None:
 
     async def fake_fetch_async(url: str, **_kwargs):
         fetched_urls.append(url)
-        text = listing if url == ASTRA_IMPRINT_URL else _load_fixture("astra_house_detail_early_sobrieties.html")
+        text = (
+            listing
+            if url == ASTRA_IMPRINT_URL
+            else _load_fixture("astra_house_detail_early_sobrieties.html")
+        )
         return type("FakeResponse", (), {"url": url, "text": text})()
 
     monkeypatch.setattr(StealthyFetcher, "fetch_async", fake_fetch_async)
@@ -192,7 +255,10 @@ def test_scrape_astra_house_excludes_non_product_links(monkeypatch) -> None:
     # When: Astra House scrape runs.
     response = client.post(
         "/scrape/",
-        json={"provider": "astra_house_official_store", "config": {"start_urls": [ASTRA_IMPRINT_URL]}},
+        json={
+            "provider": "astra_house_official_store",
+            "config": {"start_urls": [ASTRA_IMPRINT_URL]},
+        },
     )
 
     # Then: non-product links are not fetched or emitted.

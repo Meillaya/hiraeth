@@ -1,11 +1,16 @@
-import ipaddress
-from typing import Any
-from urllib.parse import urlparse
+from fastapi import APIRouter
 
-from fastapi import APIRouter, HTTPException
-
-from app.models import FetchRequest, FetchResponse
 from app.adapters import shopify, squarespace, woocommerce, wordpress
+from app.models import (
+    ERROR_RESPONSES,
+    FetchRequest,
+    FetchResponse,
+    JsonObject,
+    SidecarErrorCode,
+    sidecar_http_error,
+    sidecar_runtime_error,
+)
+from app.url_validation import validate_url_against_source_hosts
 
 router = APIRouter(prefix="/fetch", tags=["fetch"])
 
@@ -17,15 +22,23 @@ ADAPTERS = {
 }
 
 
-@router.post("/")
+@router.post("/", responses=ERROR_RESPONSES)
 async def fetch_catalog(request: FetchRequest) -> FetchResponse:
-    api_type = request.config.get("api", {}).get("type")
+    api_type = _api_type(request.config)
     if not api_type:
-        raise HTTPException(status_code=400, detail="Missing config.api.type")
+        raise sidecar_http_error(
+            400,
+            SidecarErrorCode.SCHEMA_CHANGED,
+            "Missing config.api.type",
+        )
 
     adapter = ADAPTERS.get(api_type)
     if not adapter:
-        raise HTTPException(status_code=400, detail=f"Unsupported api.type: {api_type}")
+        raise sidecar_http_error(
+            400,
+            SidecarErrorCode.SCHEMA_CHANGED,
+            f"Unsupported api.type: {api_type}",
+        )
 
     _validate_api_endpoint(request.config)
 
@@ -36,48 +49,46 @@ async def fetch_catalog(request: FetchRequest) -> FetchResponse:
             status="success",
             records=records,
         )
-    except Exception as e:
-        return FetchResponse(
-            provider=request.provider,
-            status=f"error: {str(e)}",
-            records=[],
-        )
+    except KeyError as error:
+        raise sidecar_http_error(
+            502,
+            SidecarErrorCode.SCHEMA_CHANGED,
+            "sidecar fetch response schema changed",
+        ) from error
+    except OSError as error:
+        raise sidecar_http_error(
+            502,
+            SidecarErrorCode.NETWORK,
+            "sidecar fetch network failure",
+        ) from error
+    except Exception as error:
+        raise sidecar_runtime_error("fetch", error) from error
 
 
-def _validate_api_endpoint(config: dict[str, Any]) -> None:
+def _validate_api_endpoint(config: JsonObject) -> None:
     api = config.get("api", {})
-    endpoint = api.get("endpoint")
+    endpoint = api.get("endpoint") if isinstance(api, dict) else None
     if not isinstance(endpoint, str) or endpoint.strip() == "":
-        raise HTTPException(status_code=400, detail="Missing config.api.endpoint")
-
-    parsed = urlparse(endpoint)
-    if parsed.scheme != "https":
-        raise HTTPException(status_code=400, detail="config.api.endpoint must be HTTPS")
-    if parsed.username or parsed.password:
-        raise HTTPException(status_code=400, detail="config.api.endpoint must not include userinfo")
-    if not parsed.hostname:
-        raise HTTPException(status_code=400, detail="config.api.endpoint must include a host")
-    if _private_host(parsed.hostname):
-        raise HTTPException(
-            status_code=400,
-            detail="config.api.endpoint host must not be private, loopback, or link-local",
+        raise sidecar_http_error(
+            422,
+            SidecarErrorCode.INVALID_HOST,
+            "Missing config.api.endpoint",
         )
 
-    source_hosts = config.get("source_hosts")
-    if not isinstance(source_hosts, list) or parsed.hostname not in {str(host) for host in source_hosts}:
-        raise HTTPException(
-            status_code=400,
-            detail="config.api.endpoint host must be listed in source_hosts",
-        )
+    validate_url_against_source_hosts(
+        endpoint,
+        field_name="config.api.endpoint",
+        config=config,
+    )
 
 
-def _private_host(host: str) -> bool:
-    if host.lower() in {"localhost", "localhost.localdomain"}:
-        return True
+def _api_type(config: JsonObject) -> str | None:
+    api = config.get("api")
+    if not isinstance(api, dict):
+        return None
 
-    try:
-        address = ipaddress.ip_address(host)
-    except ValueError:
-        return False
+    api_type = api.get("type")
+    if isinstance(api_type, str):
+        return api_type
 
-    return address.is_private or address.is_loopback or address.is_link_local or address.is_unspecified
+    return None

@@ -7,6 +7,7 @@ defmodule HiraethWeb.PublicCatalog do
   """
 
   alias Hiraeth.RealCatalog.SourcePolicy
+  alias Hiraeth.Catalog.PublicProjection
 
   @page_size 24
   @publisher_group_limit 8
@@ -1384,6 +1385,7 @@ defmodule HiraethWeb.PublicCatalog do
     |> Map.put(:sources, editions |> Enum.map(& &1.source) |> Enum.reject(&is_nil/1))
     |> Map.put(:published_on, latest_published_on)
     |> Map.put(:year, latest_published_on && latest_published_on.year)
+    |> PublicProjection.book!()
   end
 
   defp latest_published_on(editions) do
