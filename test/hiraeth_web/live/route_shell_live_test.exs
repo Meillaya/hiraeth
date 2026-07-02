@@ -47,14 +47,14 @@ defmodule HiraethWeb.RouteShellLiveTest do
     assert has_element?(
              view,
              "#search-results",
-             "#{PublicCatalog.book_page(nil, 1).total_count} matches"
+             "#{PublicCatalog.book_page(nil, 1).total_count} found"
            )
 
     view
     |> form("#catalog-search-form", search: %{query: "Archipelago"})
     |> render_change()
 
-    assert has_element?(view, "#search-results", "Archipelago Books")
+    assert has_element?(view, "#search-results", "Bob and Hilbert")
 
     view
     |> form("#catalog-search-form", search: %{query: "][\'<>☃"})

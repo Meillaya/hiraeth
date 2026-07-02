@@ -31,22 +31,10 @@ defmodule HiraethWeb.HomeLive do
       catalog_count={@catalog_count}
     >
       <main id="home-shell" class="archive-wash space-y-10 pb-8 md:space-y-12">
-        <section class="space-y-5 pt-0">
-          <p class="qi-kicker text-[var(--hiraeth-thread)]">A quiet editorial archive</p>
-          <div class="max-w-4xl space-y-4">
-            <h1 class="text-balance font-serif text-5xl font-light leading-[1.02] tracking-tight text-[var(--hiraeth-ink)] md:text-[4.125rem]">
-              Traceable metadata for independent presses.
-            </h1>
-            <p class="max-w-2xl font-serif text-xl font-light italic leading-relaxed text-[var(--hiraeth-muted)] md:text-2xl">
-              A curated pilot of independent publisher catalogs — showing only what is sourced, and naming where every record came from.
-            </p>
-          </div>
-        </section>
-
         <%= if @spotlight do %>
           <section
             id="home-spotlight"
-            class="grid grid-cols-1 items-start gap-10 border-t qi-divider pt-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-16"
+            class="grid grid-cols-1 items-start gap-10 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-16"
           >
             <div class="space-y-5">
               <div class="space-y-4">
@@ -137,7 +125,7 @@ defmodule HiraethWeb.HomeLive do
             <div>
               <p class="qi-kicker text-[var(--hiraeth-thread)]">Recently imported</p>
               <h2 class="mt-2 font-serif text-3xl font-normal tracking-tight text-[var(--hiraeth-ink)]">
-                Recent acquisitions
+                Upcoming
               </h2>
             </div>
             <.link

@@ -163,67 +163,7 @@ defmodule HiraethWeb.PublishersLive do
             </div>
           </header>
 
-          <section
-            id="publisher-context"
-            class="grid gap-0 overflow-hidden rounded-sm border border-[var(--hiraeth-line)] bg-[var(--hiraeth-wash)]/70 sm:grid-cols-3"
-          >
-            <.stat_block
-              label="Sourced shelf"
-              value={plural_count(@publisher.editions_count, "book")}
-            />
-            <.stat_block label="Formats" value={group_summary(@publisher.groupings.formats)} />
-            <.stat_block label="Languages" value={group_summary(@publisher.groupings.languages)} />
-          </section>
-
-          <section id="publisher-groups" class="grid gap-6 lg:grid-cols-2">
-            <.group_panel
-              id="publisher-formats"
-              title="Format shelf"
-              note="Formats present across this publisher's sourced books."
-              groups={@publisher.groupings.formats}
-              empty="No format metadata is sourced yet."
-            />
-            <.group_panel
-              id="publisher-languages"
-              title="Language register"
-              note="Edition and original-language values appear only when source records provide them."
-              groups={@publisher.groupings.languages}
-              secondary_groups={@publisher.groupings.original_languages}
-              secondary_title="Original languages"
-              empty="No language metadata is sourced yet."
-            />
-            <.group_panel
-              id="publisher-series"
-              title="Collections and series"
-              note="Series groupings are bounded to currently attached sourced books."
-              groups={@publisher.groupings.series}
-              empty="No series or collection memberships are sourced yet."
-            />
-            <.group_panel
-              id="publisher-translations"
-              title="Translation signals"
-              note="Translation groupings are inferred only from sourced languages and contributor roles."
-              groups={@publisher.groupings.translations}
-              secondary_groups={@publisher.groupings.contributor_roles}
-              secondary_title="Contributor roles"
-              empty="No translation metadata is sourced yet."
-            />
-          </section>
-
           <section id="publisher-editions" class="space-y-6">
-            <div class="flex flex-col gap-2 border-b border-[var(--hiraeth-line)] pb-4 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p class="font-sans text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--hiraeth-thread)]">
-                  Current books
-                </p>
-                <h2 class="mt-1 font-serif text-3xl font-light text-[var(--hiraeth-ink)]">
-                  Cataloged books
-                </h2>
-              </div>
-              <p class="font-mono text-[11px] text-[var(--hiraeth-muted)]">
-                Streamed from the public catalog projection
-              </p>
-            </div>
             <%= if @publisher.editions_count == 0 do %>
               <CatalogComponents.empty_state
                 id="publisher-no-editions"
@@ -261,20 +201,6 @@ defmodule HiraethWeb.PublishersLive do
     """
   end
 
-  attr :label, :string, required: true
-  attr :value, :string, required: true
-
-  defp stat_block(assigns) do
-    ~H"""
-    <div class="border-b border-[var(--hiraeth-line)] p-5 sm:border-b-0 sm:border-r last:border-r-0">
-      <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--hiraeth-label)]">
-        {@label}
-      </p>
-      <p class="mt-2 font-serif text-xl text-[var(--hiraeth-ink)]">{@value}</p>
-    </div>
-    """
-  end
-
   defp sample_cover_src(nil), do: nil
 
   defp sample_cover_src(edition) do
@@ -293,60 +219,6 @@ defmodule HiraethWeb.PublishersLive do
 
   defp local_cover_url(_url), do: nil
 
-  attr :id, :string, required: true
-  attr :title, :string, required: true
-  attr :note, :string, required: true
-  attr :groups, :list, required: true
-  attr :empty, :string, required: true
-  attr :secondary_groups, :list, default: []
-  attr :secondary_title, :string, default: nil
-
-  defp group_panel(assigns) do
-    ~H"""
-    <article
-      id={@id}
-      class="hiraeth-surface space-y-5 rounded-sm border border-[var(--hiraeth-line)] p-6"
-    >
-      <div>
-        <h3 class="font-serif text-2xl font-light text-[var(--hiraeth-ink)]">{@title}</h3>
-        <p class="mt-2 font-sans text-sm leading-6 text-[var(--hiraeth-muted)]">{@note}</p>
-      </div>
-
-      <%= if @groups == [] do %>
-        <p class="border border-dashed border-[var(--hiraeth-line)] bg-[var(--hiraeth-warm)] px-4 py-3 font-serif text-sm italic text-[var(--hiraeth-muted)]">
-          {@empty}
-        </p>
-      <% else %>
-        <ul class="space-y-2">
-          <li
-            :for={group <- @groups}
-            class="flex items-baseline justify-between gap-4 border-t border-[var(--hiraeth-line)] pt-2"
-          >
-            <span class="font-serif text-base text-[var(--hiraeth-ink)]">{group.label}</span>
-            <span class="font-mono text-[11px] text-[var(--hiraeth-label)]">
-              {plural_count(group.count, "record")}
-            </span>
-          </li>
-        </ul>
-      <% end %>
-
-      <div :if={@secondary_groups != []} class="space-y-2 border-t border-[var(--hiraeth-line)] pt-4">
-        <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--hiraeth-label)]">
-          {@secondary_title}
-        </p>
-        <div class="flex flex-wrap gap-2">
-          <span
-            :for={group <- @secondary_groups}
-            class="border border-[var(--hiraeth-line)] bg-[var(--hiraeth-warm)] px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--hiraeth-muted)]"
-          >
-            {group.label} · {group.count}
-          </span>
-        </div>
-      </div>
-    </article>
-    """
-  end
-
   defp assign_publisher(socket, nil) do
     socket
     |> assign(:publisher, nil)
@@ -358,16 +230,4 @@ defmodule HiraethWeb.PublishersLive do
     |> assign(:publisher, publisher)
     |> stream(:publisher_editions, publisher.editions, reset: true)
   end
-
-  defp group_summary([]), do: "Not sourced"
-
-  defp group_summary(groups) do
-    groups
-    |> Enum.take(3)
-    |> Enum.map(& &1.label)
-    |> Enum.join(" · ")
-  end
-
-  defp plural_count(1, singular), do: "1 #{singular}"
-  defp plural_count(count, singular), do: "#{count} #{singular}s"
 end

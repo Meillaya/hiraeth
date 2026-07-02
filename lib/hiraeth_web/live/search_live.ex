@@ -13,6 +13,8 @@ defmodule HiraethWeb.SearchLive do
      |> assign(:page_title, "Search Catalog")
      |> assign(:query, "")
      |> assign(:form, to_form(%{"query" => ""}, as: :search))
+     |> assign(:filters, blank_filter_params())
+     |> assign(:pagination, PublicCatalog.paginate([], 1))
      |> assign(:results_count, 0)
      |> stream(:results, [])}
   end
@@ -24,26 +26,23 @@ defmodule HiraethWeb.SearchLive do
 
   @impl true
   def handle_event("search", %{"search" => %{"query" => query}}, socket) do
-    filters = socket.assigns.filters |> Map.put("q", query)
-    {:noreply, push_patch(socket, to: filtered_path("/search", filters))}
-  end
-
-  def handle_event("filter", %{"filters" => filters}, socket) do
+    filters = socket.assigns.filters |> Map.put("q", query) |> Map.delete("page")
     {:noreply, push_patch(socket, to: filtered_path("/search", filters))}
   end
 
   defp assign_results(socket, params) do
     filters = Map.take(params, @filter_params)
     query = Map.get(filters, "q", "")
-    results = PublicCatalog.book_page(filters, 1)
+    page = Map.get(params, "page", "1")
+    results = PublicCatalog.book_page(filters, page)
 
-    filter_form_params = blank_filter_params() |> Map.merge(filters) |> Map.put("q", query)
+    pagination_params = blank_filter_params() |> Map.merge(filters) |> Map.put("q", query)
 
     socket
     |> assign(:query, query)
-    |> assign(:filters, filter_form_params)
+    |> assign(:filters, pagination_params)
     |> assign(:form, to_form(%{"query" => query}, as: :search))
-    |> assign(:filter_form, to_form(filter_form_params, as: :filters))
+    |> assign(:pagination, results)
     |> assign(:results_count, results.total_count)
     |> stream(:results, results.entries, reset: true)
   end
@@ -58,8 +57,9 @@ defmodule HiraethWeb.SearchLive do
     >
       <Components.search_shell
         form={@form}
-        filter_form={@filter_form}
         query={@query}
+        filters={@filters}
+        pagination={@pagination}
         results_count={@results_count}
         streams={@streams}
       />
