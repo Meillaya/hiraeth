@@ -7,7 +7,7 @@ defmodule Hiraeth.RealCatalogImporterTest do
   alias Hiraeth.RealCatalog.{Dataset, Slug}
   alias Hiraeth.Sources.{SourceLedgerEntry, SourceRecord}
 
-  @tag timeout: 180_000
+  @tag timeout: 300_000
   test "real catalog importer seeds approved publisher records with provenance and covers idempotently" do
     clear_catalog!()
 

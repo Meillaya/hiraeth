@@ -795,6 +795,84 @@ def test_fetch_wordpress_pagination():
     assert len(data["records"]) == 101
 
 
+def test_fetch_wordpress_filters_custom_taxonomy_field():
+    taxonomy = [{"id": 783, "slug": "books", "name": "Books"}]
+    posts = [
+        {
+            "id": 28503,
+            "link": "https://www.andotherstories.org/university-island/",
+            "date": "2026-06-17T09:10:11",
+            "title": {"rendered": "University Island"},
+            "content": {"rendered": "<p>An island campus novel.</p>"},
+            "excerpt": {"rendered": ""},
+            "meta": {"_acf_changed": False},
+            "product_cat": [783],
+            "tags": None,
+            "featured_media": 0,
+        }
+    ]
+
+    mock = _mock_httpx_client(
+        [
+            (200, taxonomy, {}),
+            (200, posts, {"X-WP-TotalPages": "1"}),
+            (
+                200,
+                """
+                <html><body>
+                  <section class="product-facts">
+                    <div><span>Author:</span>
+                      <a href="https://www.andotherstories.org/authors/istvan-voros/">István Vörös</a>
+                    </div>
+                    <div><span>Format:</span> B-format Paperback</div>
+                    <div><span>Publication date:</span> 9 March 2027</div>
+                    <div><span>ISBN:</span> 9781916751811</div>
+                    <div><span>Number of pages:</span> 160</div>
+                  </section>
+                  <section><h2>Reviews</h2></section>
+                </body></html>
+                """,
+                {},
+            ),
+        ]
+    )
+
+    with mock:
+        response = client.post(
+            "/fetch/",
+            json={
+                "provider": "and_other_stories_official_store",
+                "config": {
+                    "api": {
+                        "type": "wordpress",
+                        "endpoint": "https://www.andotherstories.org",
+                        "post_type": "product",
+                        "taxonomy": "product_cat",
+                        "include_imprints": ["books"],
+                        "fetch_detail_pages": True,
+                        "detail_path_prefixes": ["/"],
+                    },
+                    "source_hosts": ["www.andotherstories.org"],
+                    "publisher_name": "And Other Stories",
+                    "rate_limit": {"min_delay_ms": 0, "max_bytes": 10_000_000},
+                },
+            },
+        )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    assert len(data["records"]) == 1
+    record = data["records"][0]
+    assert record["work"]["title"] == "University Island"
+    assert record["imprint"] == "Books"
+    assert record["work"]["subjects"] == ["Books"]
+    assert record["contributors"] == [{"name": "István Vörös", "role": "author"}]
+    assert record["edition"]["isbn_13"] == "9781916751811"
+    assert record["edition"]["published_on"] == "2027-03-09"
+    assert record["edition"]["page_count"] == 160
+
+
 # ---------------------------------------------------------------------------
 # Router validation
 # ---------------------------------------------------------------------------

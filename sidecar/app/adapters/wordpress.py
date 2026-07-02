@@ -33,6 +33,13 @@ _MONTHS: Final = {
 _HEADERS: Final = {"user-agent": "Mozilla/5.0 HiraethSidecar/1.0"}
 _FORBIDDEN_DETAIL_SEGMENTS: Final = ("/cart", "/account", "/checkout", "/my-account")
 _DEFAULT_DETAIL_PATH_PREFIXES: Final = ("/book/",)
+_CONTRIBUTOR_FACT_ROLES: Final = (
+    ("Author", "author"),
+    ("Translator", "translator"),
+    ("Translated by", "translator"),
+    ("Illustrator", "illustrator"),
+    ("Editor", "editor"),
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -40,6 +47,12 @@ class ImprintTerm:
     id: int
     slug: str
     name: str
+
+
+@dataclass(frozen=True, slots=True)
+class TaxonomyContext:
+    field: str
+    terms: dict[int, ImprintTerm]
 
 
 @dataclass(frozen=True, slots=True)
@@ -147,10 +160,21 @@ def _isbn_from_text(text: str | None) -> str | None:
     return None
 
 
-def _isbn_from_meta(meta: list[dict[str, Any]]) -> str | None:
-    for item in meta:
-        key = str(item.get("key") or "").lower()
-        value = str(item.get("value") or "")
+def _isbn_from_meta(meta: Any) -> str | None:
+    if isinstance(meta, dict):
+        items = meta.items()
+    elif isinstance(meta, list):
+        items = (
+            (item.get("key"), item.get("value"))
+            for item in meta
+            if isinstance(item, dict)
+        )
+    else:
+        return None
+
+    for raw_key, raw_value in items:
+        key = str(raw_key or "").lower()
+        value = str(raw_value or "")
         if "isbn" not in key:
             continue
         isbn = _isbn_from_text(value)
@@ -171,7 +195,10 @@ def _format_from_text(text: str) -> str:
     return "paperback"
 
 
-def _format_from_tags(tags: list[dict[str, Any]]) -> str:
+def _format_from_tags(tags: Any) -> str:
+    if not isinstance(tags, list):
+        return "paperback"
+
     labels: list[str] = []
     for tag in tags:
         if isinstance(tag, dict):
@@ -261,12 +288,12 @@ def _imprint_terms(raw_terms: list[dict[str, Any]]) -> dict[int, ImprintTerm]:
 
 
 def _post_imprints(
-    post: dict[str, Any], terms: dict[int, ImprintTerm]
+    post: dict[str, Any], taxonomy: TaxonomyContext
 ) -> list[ImprintTerm]:
     return [
-        terms[term_id]
-        for term_id in post.get("imprint", [])
-        if isinstance(term_id, int) and term_id in terms
+        taxonomy.terms[term_id]
+        for term_id in post.get(taxonomy.field, [])
+        if isinstance(term_id, int) and term_id in taxonomy.terms
     ]
 
 
@@ -327,11 +354,11 @@ def _total_pages(headers: httpx.Headers | dict[str, str]) -> int:
 
 def _included_post(
     post: dict[str, Any],
-    terms: dict[int, ImprintTerm],
+    taxonomy: TaxonomyContext,
     include: set[str],
     exclude: set[str],
 ) -> bool:
-    imprints = _post_imprints(post, terms)
+    imprints = _post_imprints(post, taxonomy)
     slugs = {term.slug for term in imprints}
     if slugs & exclude:
         return False
@@ -400,18 +427,74 @@ def _contributors_from_possessive_title(
     return [{"name": match.group(1), "role": "author"}] if match else []
 
 
+def _product_fact_text(html: str, label: str) -> str | None:
+    pattern = rf"<div\b[^>]*>\s*<span>\s*{re.escape(label)}:\s*</span>\s*(.*?)</div>"
+    match = re.search(pattern, html, re.IGNORECASE | re.DOTALL)
+    if not match:
+        return None
+
+    return _html_to_text(match.group(1)) or None
+
+
+def _contributors_from_product_facts(html: str) -> list[dict[str, str]]:
+    contributors: list[dict[str, str]] = []
+    for label, role in _CONTRIBUTOR_FACT_ROLES:
+        value = _product_fact_text(html, label)
+        if not value:
+            continue
+        names = [
+            name.strip()
+            for name in re.split(r"\s+(?:and|&)\s+|,\s*", value)
+            if name.strip()
+        ]
+        contributors.extend({"name": name, "role": role} for name in names)
+    return contributors[:4]
+
+
+def _date_from_product_facts(html: str) -> str | None:
+    value = _product_fact_text(html, "Publication date")
+    if not value:
+        return None
+
+    match = re.search(r"(\d{1,2})\s+([A-Z][a-z]+)\s+(\d{4})", value)
+    if not match:
+        return None
+
+    month = _MONTHS.get(match.group(2).lower())
+    return f"{match.group(3)}-{month}-{int(match.group(1)):02d}" if month else None
+
+
+def _format_from_product_facts(html: str) -> str | None:
+    value = _product_fact_text(html, "Format")
+    return _format_from_text(value) if value else None
+
+
+def _page_count_from_product_facts(html: str) -> int | None:
+    value = _product_fact_text(html, "Number of pages") or _product_fact_text(
+        html, "Pages"
+    )
+    if not value:
+        return None
+
+    match = re.search(r"\d{1,5}", value)
+    return int(match.group(0)) if match else None
+
+
 def _detail_metadata(html: str, title: str | None = None) -> DetailMetadata:
     text = _html_to_text(html)
     page_match = re.search(r"Pages\s+(\d{1,5})\b", text)
-    contributors = _contributors_from_detail(
-        html, title
-    ) or _contributors_from_possessive_title(text, title)
+    contributors = (
+        _contributors_from_product_facts(html)
+        or _contributors_from_detail(html, title)
+        or _contributors_from_possessive_title(text, title)
+    )
     return DetailMetadata(
         contributors=contributors,
         isbn_13=_isbn_from_text(text),
-        published_on=_date_from_text(text),
-        fmt=_format_from_text(text),
-        page_count=int(page_match.group(1)) if page_match else None,
+        published_on=_date_from_product_facts(html) or _date_from_text(text),
+        fmt=_format_from_product_facts(html) or _format_from_text(text),
+        page_count=_page_count_from_product_facts(html)
+        or (int(page_match.group(1)) if page_match else None),
     )
 
 
@@ -420,7 +503,7 @@ def _post_to_record(
     provider: str,
     endpoint: str,
     publisher_name: str | None,
-    terms: dict[int, ImprintTerm] | None = None,
+    taxonomy: TaxonomyContext | None = None,
     detail: DetailMetadata | None = None,
     source_hosts: set[str] | None = None,
     detail_path_prefixes: tuple[str, ...] = _DEFAULT_DETAIL_PATH_PREFIXES,
@@ -454,14 +537,17 @@ def _post_to_record(
         or _isbn_from_text(content)
     )
     fmt = (detail.fmt if detail else None) or _format_from_tags(post.get("tags", []))
-    imprints = _post_imprints(post, terms or {})
+    imprints = _post_imprints(post, taxonomy) if taxonomy else []
     imprint = imprints[0].name if imprints else None
     contributors = detail.contributors if detail else []
     cover_url = _cover_url(post, endpoint)
     tags = [term.name for term in imprints]
     if not tags:
-        raw_tags = post.get("tags", [])
-        tags = [str(tag.get("name") or tag) for tag in raw_tags]
+        raw_tags = post.get("tags") or []
+        tags = [
+            str(tag.get("name") or tag) if isinstance(tag, dict) else str(tag)
+            for tag in raw_tags
+        ]
     displayed_fields = ["title", "publisher", "format", "storefront_url"]
     displayed_fields += [
         field
@@ -574,6 +660,9 @@ async def fetch(config: dict[str, Any]) -> list[dict[str, Any]]:
             if taxonomy
             else {}
         )
+        taxonomy_context = (
+            TaxonomyContext(field=taxonomy, terms=terms) if taxonomy else None
+        )
         while True:
             url = f"{endpoint}/wp-json/wp/v2/{post_type}?per_page=100&page={page}&_embed=1"
             response = await client.get(url, headers=_HEADERS)
@@ -584,7 +673,9 @@ async def fetch(config: dict[str, Any]) -> list[dict[str, Any]]:
             if not isinstance(posts, list) or not posts:
                 break
             for post in posts:
-                if terms and not _included_post(post, terms, include, exclude):
+                if taxonomy_context and not _included_post(
+                    post, taxonomy_context, include, exclude
+                ):
                     continue
                 raw_source_uri = str(post.get("link") or "")
                 detail_source_uri = (
@@ -607,7 +698,7 @@ async def fetch(config: dict[str, Any]) -> list[dict[str, Any]]:
                         provider,
                         endpoint,
                         publisher_name,
-                        terms,
+                        taxonomy_context,
                         detail,
                         source_hosts,
                         detail_path_prefixes,

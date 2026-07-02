@@ -41,6 +41,8 @@ defmodule Hiraeth.CatalogCleanup do
       truncate_tables!(@tables)
       Hiraeth.RealCatalogFixtures.seed!()
     end)
+
+    clear_public_catalog_cache!()
   end
 
   def ensure_committed_catalog_fixtures! do
@@ -57,6 +59,8 @@ defmodule Hiraeth.CatalogCleanup do
       [node()],
       :infinity
     )
+
+    clear_public_catalog_cache!()
   end
 
   def reset_committed_ingestion_control_plane! do
@@ -64,6 +68,12 @@ defmodule Hiraeth.CatalogCleanup do
   end
 
   def clear_catalog!, do: :ok
+
+  defp clear_public_catalog_cache! do
+    if Code.ensure_loaded?(HiraethWeb.PublicCatalog) do
+      HiraethWeb.PublicCatalog.clear_cache()
+    end
+  end
 
   defp committed_catalog_seeded? do
     Repo.query!(
