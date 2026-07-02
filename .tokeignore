@@ -1,0 +1,11 @@
+# Generated/runtime agent artifacts and evidence logs.
+.omo/
+.omx/
+artifacts/
+log/
+tmp/
+
+# Deterministic data corpora and generated manifests, not application source code.
+priv/catalog_sources/real_publishers/*.json
+priv/resource_snapshots/
+priv/source_snapshots/
