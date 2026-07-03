@@ -7,6 +7,8 @@ defmodule Hiraeth.RealCatalogImporterTest do
   alias Hiraeth.RealCatalog.{Dataset, Slug}
   alias Hiraeth.Sources.{SourceLedgerEntry, SourceRecord}
 
+  @tag :full_catalog
+  @tag :slow
   @tag timeout: 300_000
   test "real catalog importer seeds approved publisher records with provenance and covers idempotently" do
     clear_catalog!()
@@ -175,6 +177,41 @@ defmodule Hiraeth.RealCatalogImporterTest do
     assert length(Ash.read!(ImportRun, authorize?: false)) == length(datasets)
   end
 
+  test "real catalog importer keeps seed!/1 public contract on a tiny deterministic fixture dir" do
+    clear_catalog!()
+    tmp = tiny_dataset_dir!()
+    on_exit(fn -> File.rm_rf!(tmp) end)
+
+    assert {:ok, summary} = Hiraeth.RealCatalog.Importer.seed!(tmp)
+
+    assert summary.editions == 1
+    assert summary.publishers == 1
+    assert summary.identifiers == 1
+    assert summary.source_records == 1
+    assert summary.cover_assignments == 0
+
+    assert [%Publisher{name: "Archipelago Books"}] = Ash.read!(Publisher, authorize?: false)
+    assert [%Work{title: "Tiny Deterministic Contract"}] = Ash.read!(Work, authorize?: false)
+
+    assert [%Edition{title: "Tiny Deterministic Contract", format: "paperback"}] =
+             Ash.read!(Edition, authorize?: false)
+
+    assert [identifier] = Ash.read!(Identifier, authorize?: false)
+    assert identifier.identifier_type == "isbn_13"
+    assert identifier.value == "9781939810175"
+
+    assert [source_record] = Ash.read!(SourceRecord, authorize?: false)
+    assert source_record.provider == "archipelago_books_official_store"
+
+    assert source_record.source_uri ==
+             "https://archipelagobooks.org/book/tiny-contract/#isbn-9781939810175"
+
+    assert source_record.raw_payload["no_cover_reason"] ==
+             "Tiny fixture intentionally omits covers."
+  end
+
+  @tag :full_catalog
+  @tag :slow
   test "real catalog importer accepts validated no-cover records without creating cover assignments" do
     clear_catalog!()
     tmp = no_cover_dataset_dir!(:delete_cover)
@@ -198,6 +235,8 @@ defmodule Hiraeth.RealCatalogImporterTest do
              "Official public source exposes no cover image."
   end
 
+  @tag :full_catalog
+  @tag :slow
   test "real catalog importer adopts existing deterministic cover cache files when reseeding" do
     clear_catalog!()
 
@@ -270,6 +309,8 @@ defmodule Hiraeth.RealCatalogImporterTest do
     assert repaired_asset.thumbnail_file_path == thumbnail_path
   end
 
+  @tag :full_catalog
+  @tag :slow
   test "real catalog importer treats empty cover maps with no-cover reasons as no-cover records" do
     clear_catalog!()
     tmp = no_cover_dataset_dir!(:empty_cover)
@@ -294,6 +335,8 @@ defmodule Hiraeth.RealCatalogImporterTest do
              "Official public source exposes no cover image."
   end
 
+  @tag :full_catalog
+  @tag :slow
   test "real catalog importer accepts source-only no-ISBN editions with stable provenance" do
     clear_catalog!()
 
@@ -375,6 +418,8 @@ defmodule Hiraeth.RealCatalogImporterTest do
              "Approved source record has no ISBN for this edition."
   end
 
+  @tag :full_catalog
+  @tag :slow
   test "real catalog importer creates checksum-versioned source records and updates missing work prose" do
     clear_catalog!()
 
@@ -458,6 +503,8 @@ defmodule Hiraeth.RealCatalogImporterTest do
     assert preserved_work.description == "Curated nonblank synopsis."
   end
 
+  @tag :full_catalog
+  @tag :slow
   test "real catalog importer ingests enriched metadata and preserves field provenance payload" do
     clear_catalog!()
 
@@ -547,6 +594,8 @@ defmodule Hiraeth.RealCatalogImporterTest do
     assert source_record.raw_payload["edition"]["dimensions"]["height_mm"] == 250
   end
 
+  @tag :full_catalog
+  @tag :slow
   test "real catalog importer rejects rich metadata without field provenance" do
     clear_catalog!()
 
@@ -579,6 +628,8 @@ defmodule Hiraeth.RealCatalogImporterTest do
     assert [] = Ash.read!(Work, authorize?: false)
   end
 
+  @tag :full_catalog
+  @tag :slow
   test "real catalog importer persists sourced prose and storefront CTA for public display" do
     clear_catalog!()
     tmp = prose_dataset_dir!()
@@ -627,6 +678,93 @@ defmodule Hiraeth.RealCatalogImporterTest do
         ] do
       Hiraeth.Repo.delete_all(resource)
     end
+  end
+
+  defp tiny_dataset_dir! do
+    tmp =
+      Path.join(
+        System.tmp_dir!(),
+        "hiraeth-tiny-importer-contract-#{System.unique_integer([:positive])}"
+      )
+
+    File.mkdir_p!(tmp)
+
+    provider = "archipelago_books_official_store"
+
+    field_source = %{
+      provider: provider,
+      source_uri: "https://archipelagobooks.org/book/tiny-contract/",
+      source_type: "publisher_dataset",
+      rights_basis: "Deterministic importer contract fixture for test-only public metadata."
+    }
+
+    payload = %{
+      provider: provider,
+      retrieved_at: "2026-07-02T00:00:00Z",
+      license_note: "Deterministic importer contract fixture for test-only public metadata.",
+      provider_permissions: %{
+        provider: provider,
+        source_urls: ["https://archipelagobooks.org/book/tiny-contract/"],
+        source_hosts: ["archipelagobooks.org"],
+        cover_hosts: ["archipelagobooks.org", "covers.openlibrary.org"],
+        permission_basis:
+          "Deterministic importer contract fixture for test-only public metadata.",
+        cover_cache_policy: "cache_allowed",
+        excluded_content: ["cart_checkout_account", "inventory_state", "user_reviews"],
+        takedown_contact: "https://archipelagobooks.org/contact/",
+        not_legal_advice: "Test fixture metadata only; not legal advice."
+      },
+      records: [
+        %{
+          source_uri: "https://archipelagobooks.org/book/tiny-contract/",
+          source_product_id: "tiny-contract-9781939810175",
+          source_sku: "9781939810175",
+          publisher: "Archipelago Books",
+          imprint: nil,
+          work: %{
+            title: "Tiny Deterministic Contract",
+            subtitle: nil,
+            publication_state: "published"
+          },
+          edition: %{
+            title: "Tiny Deterministic Contract",
+            subtitle: nil,
+            format: "paperback",
+            published_on: "2026-07-02",
+            isbn_13: "9781939810175"
+          },
+          contributors: [%{name: "Ida Jessen", role: "author"}],
+          displayed_fields: [
+            "title",
+            "contributors",
+            "publisher",
+            "format",
+            "published_on",
+            "isbn_13"
+          ],
+          curation: %{
+            status: "approved",
+            notes: "Deterministic tiny importer smoke fixture."
+          },
+          no_cover_reason: "Tiny fixture intentionally omits covers.",
+          field_sources: %{
+            "title" => field_source,
+            "contributors" => field_source,
+            "publisher" => field_source,
+            "format" => field_source,
+            "published_on" => field_source,
+            "isbn_13" => field_source
+          }
+        }
+      ]
+    }
+
+    File.write!(
+      Path.join(tmp, "tiny_archipelago_contract.json"),
+      Jason.encode!(payload, pretty: true)
+    )
+
+    tmp
   end
 
   defp write_archipelago_payload!(dir, dataset, first_record, remaining_records) do

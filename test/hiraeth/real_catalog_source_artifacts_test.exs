@@ -1,6 +1,9 @@
 defmodule Hiraeth.RealCatalogSourceArtifactsTest do
   use ExUnit.Case, async: true
 
+  @moduletag :full_catalog
+  @moduletag :slow
+
   alias Hiraeth.RealCatalog.{SourceArtifacts, SourceFetcher}
   alias Hiraeth.RealCatalog.SourceFetcher.SourceError
 

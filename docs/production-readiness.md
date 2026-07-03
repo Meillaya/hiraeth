@@ -16,12 +16,14 @@ Scope guardrails preserved for Hiraeth v1:
 
 Required final gates still required before a production deploy claim:
 
-1. Re-run full local quality gates on the final integrated worktree: `mix precommit` and `cd sidecar && uv run --extra dev pytest -q`.
-2. Re-run the T24 contract/scope fidelity audit against the final routes, assets, sidecar CORS posture, and docs.
-3. Re-run the T25 replay/load/security drill using commands that preserve upstream failures with `set -o pipefail`.
-4. Complete the Global Review/Debugging Gate with independent review plus at least three runtime/debugging hypotheses ruled in or out against fresh artifacts.
-5. Confirm all new T26/T26-repair3 evidence logs exist, are non-empty, and contain no raw secrets or private payloads.
-6. Confirm deployment/network controls keep the Scrapling sidecar private and reachable only from trusted runtime infrastructure, and that the committed Compose path does not publish a sidecar host port.
+1. Re-run fast local preflight on the final integrated worktree: `mix precommit` or `mix precommit.fast` plus `mix test.fast` for the under-60s developer loop.
+2. Re-run full local/CI/release assurance separately: `mix test.full`, `mix ci`, and `cd sidecar && uv run --extra dev pytest -q`. Do not treat fast precommit as the full release gate.
+3. Keep browser QA and production drills as adjacent full-verification lanes: `STRICT_TIMING=1 make test-browser`, `bash scripts/qa/production_ingestion_drill.sh`, and `bash scripts/qa/production_ingestion_adversarial.sh`.
+4. Re-run the T24 contract/scope fidelity audit against the final routes, assets, sidecar CORS posture, and docs.
+5. Re-run the T25 replay/load/security drill using commands that preserve upstream failures with `set -o pipefail`.
+6. Complete the Global Review/Debugging Gate with independent review plus at least three runtime/debugging hypotheses ruled in or out against fresh artifacts.
+7. Confirm all new T26/T26-repair3 evidence logs exist, are non-empty, and contain no raw secrets or private payloads.
+8. Confirm deployment/network controls keep the Scrapling sidecar private and reachable only from trusted runtime infrastructure, and that the committed Compose path does not publish a sidecar host port.
 
 ## Source documents and runbooks
 
@@ -36,7 +38,7 @@ Required final gates still required before a production deploy claim:
 
 | Area | Current packet position | Runbook/contract path | Evidence trace |
 | --- | --- | --- | --- |
-| CI | GitHub workflow and local gate expectations exist for Phoenix, assets, and sidecar. | `.github/workflows/`, `docs/production-operations.md` | `.omo/evidence/production-grade-ingestion/T1-*`, `T23-*` |
+| CI | GitHub workflow runs full Phoenix assurance with `mix ci`; fast local `mix precommit`/`mix precommit.fast` is a separate developer preflight. Sidecar pytest remains an adjacent CI/release lane. | `.github/workflows/`, `docs/production-operations.md` | `.omo/evidence/production-grade-ingestion/T1-*`, `T23-*` |
 | release/deploy | Phoenix release build, migration, container start, pool sizing, and env setup are documented. | `docs/production-operations.md` | `.omo/evidence/production-grade-ingestion/T2-*`, `T23-*` |
 | env | Required runtime variables are documented; docs must never contain real values. | `docs/production-operations.md`, `.env.example` | `.omo/evidence/production-grade-ingestion/T2-*`, `T26-doc-hygiene.log`, `T26-repair3-evidence-hygiene.log` |
 | health/readiness | `/health` and `/ready` are narrow operator endpoints and not a public API. | `docs/contracts.md`, `docs/production-operations.md` | `.omo/evidence/production-grade-ingestion/T3-*`, `T24-*` |
@@ -123,7 +125,7 @@ Replay and quarantine recovery:
 - T25 evidence includes a pipefail watch: future replay/load/security commands must run under a parent shell with `set -o pipefail` so tee does not mask a failed drill.
 - T25 replay evidence demonstrates retained snapshot/payload state. Final public projection verification for replayed records belongs to the final wave.
 - Python sidecar probe warning suppression is cleanup-only; warning count alone is not release-blocking when tests pass and no runtime behavior changes.
-- T23 full local quality gates passed before later T24/T25 changes. Treat T23 as historical evidence, not a substitute for final integrated gates.
+- T23 full local quality gates passed before later T24/T25 changes. Treat T23 as historical evidence, not a substitute for final integrated `mix ci`/`mix test.full` gates. Fast `mix precommit` is only the local preflight lane.
 - Some evidence artifacts are screenshots, JSON, HTTP captures, or invite/admin QA logs. Reviewers must inspect paths without copying raw contents into release notes; any session-cookie, invite-token, authorization, CSRF, or credential material in retained evidence must stay redacted.
 
 ## Owner checklist
@@ -131,7 +133,7 @@ Replay and quarantine recovery:
 Release owner:
 
 - Confirm final branch and dirty worktree state are expected; no unrelated local changes are included.
-- Re-run integrated gates and store fresh evidence under `.omo/evidence/production-grade-ingestion/`.
+- Re-run integrated gates (`mix precommit` or `mix precommit.fast`, `mix test.fast`, `mix test.full`, `mix ci`, sidecar pytest, browser QA, and production drills as applicable) and store fresh evidence under `.omo/evidence/production-grade-ingestion/`.
 - Confirm migration order, backup, restore drill expectations, and rollback image are ready.
 - Confirm release notes state that readiness is conditional until Global Review/Debugging Gate passes.
 

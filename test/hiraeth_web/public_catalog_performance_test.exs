@@ -1,6 +1,9 @@
 defmodule HiraethWeb.PublicCatalogPerformanceTest do
   use HiraethWeb.ConnCase, async: false
 
+  @moduletag :performance
+  @moduletag :public_catalog_full
+
   alias Hiraeth.Catalog.{Edition, Identifier, Publisher, Series, SeriesMembership, Work}
   alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
   alias Hiraeth.QueryCounting

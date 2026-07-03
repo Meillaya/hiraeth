@@ -1,6 +1,9 @@
 defmodule HiraethWeb.PublicCatalogLiveTest do
   use HiraethWeb.ConnCase, async: false
 
+  @moduletag :public_catalog_full
+  @moduletag :slow
+
   import Phoenix.LiveViewTest
 
   alias Hiraeth.Catalog.{

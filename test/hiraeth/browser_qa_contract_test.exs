@@ -1,6 +1,8 @@
 defmodule Hiraeth.BrowserQaContractTest do
   use ExUnit.Case, async: true
 
+  @moduletag :browser
+
   @root Path.expand("../..", __DIR__)
 
   @public_quiet_index_routes [

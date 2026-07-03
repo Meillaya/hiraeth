@@ -1,6 +1,9 @@
 defmodule Hiraeth.RealCatalogCoverageReportTest do
   use ExUnit.Case, async: true
 
+  @moduletag :full_catalog
+  @moduletag :slow
+
   alias Hiraeth.RealCatalog.CoverageReport
 
   @dataset_dir Path.expand("../../priv/catalog_sources/real_publishers", __DIR__)

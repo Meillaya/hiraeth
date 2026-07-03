@@ -27,7 +27,13 @@ defmodule Hiraeth.MixProject do
 
   def cli do
     [
-      preferred_envs: [precommit: :test]
+      preferred_envs: [
+        precommit: :test,
+        "precommit.fast": :test,
+        "test.fast": :test,
+        "test.full": :test,
+        ci: :test
+      ]
     ]
   end
 
@@ -94,7 +100,25 @@ defmodule Hiraeth.MixProject do
         "esbuild hiraeth --minify",
         "phx.digest"
       ],
-      precommit: ["compile --warnings-as-errors", "deps.unlock --unused", "format", "test"]
+      precommit: ["precommit.fast"],
+      "precommit.fast": [
+        "compile --warnings-as-errors",
+        "deps.unlock --unused",
+        "format --check-formatted",
+        "test.fast"
+      ],
+      "test.fast": [
+        "test --exclude slow --exclude full_catalog --exclude integration --exclude performance --exclude browser --exclude public_catalog_full"
+      ],
+      "test.full": ["test"],
+      ci: [
+        "compile --warnings-as-errors",
+        "deps.unlock --unused",
+        "format --check-formatted",
+        "assets.setup",
+        "assets.build",
+        "test.full"
+      ]
     ]
   end
 end

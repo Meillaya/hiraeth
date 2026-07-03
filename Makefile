@@ -5,7 +5,7 @@ QA_DIR := artifacts/qa
 BOOTSTRAP_ARTIFACT := $(QA_DIR)/bootstrap/bootstrap-check.txt
 VERIFY_SUMMARY := $(QA_DIR)/verify/summary.json
 
-.PHONY: bootstrap-check verify test-elixir test-ui test-ingest test-normalize test-covers audit-provenance test-browser verify-summary qa-pack
+.PHONY: bootstrap-check verify precommit-fast test-fast test-full ci test-elixir test-ui test-ingest test-normalize test-covers audit-provenance test-browser verify-summary qa-pack
 
 bootstrap-check:
 	@mkdir -p $(dir $(BOOTSTRAP_ARTIFACT))
@@ -25,17 +25,25 @@ bootstrap-check:
 
 verify: bootstrap-check test-elixir test-ui test-ingest test-normalize test-covers audit-provenance test-browser verify-summary qa-pack
 
+precommit-fast:
+	mix precommit.fast
+
+test-fast:
+	mix test.fast
+
+test-full:
+	mix test.full
+
+ci:
+	mix ci
+
 test-elixir:
 	@mkdir -p $(QA_DIR)/elixir
 	@{ \
 		echo "docker compose up -d postgres"; \
 		docker compose up -d postgres; \
-		echo "mix format --check-formatted"; \
-		mix format --check-formatted; \
-		echo "mix compile --warnings-as-errors"; \
-		mix compile --warnings-as-errors; \
-		echo "mix test"; \
-		mix test; \
+		echo "mix ci"; \
+		mix ci; \
 		echo "test_elixir=pass"; \
 	} | tee $(QA_DIR)/elixir/test-elixir.txt
 

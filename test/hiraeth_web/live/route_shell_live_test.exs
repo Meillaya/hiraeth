@@ -1,6 +1,8 @@
 defmodule HiraethWeb.RouteShellLiveTest do
   use HiraethWeb.ConnCase, async: false
 
+  @moduletag :public_catalog_full
+
   import Phoenix.LiveViewTest
   alias HiraethWeb.PublicCatalog
 

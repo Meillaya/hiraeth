@@ -1,6 +1,9 @@
 defmodule Hiraeth.Ingestion.E2EIngestionStealthyTest do
   use Hiraeth.DataCase, async: false
 
+  @moduletag :integration
+  @moduletag :slow
+
   alias Hiraeth.Catalog.{
     Contribution,
     Contributor,

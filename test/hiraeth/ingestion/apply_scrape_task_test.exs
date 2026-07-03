@@ -26,6 +26,9 @@ defmodule Hiraeth.Ingestion.ApplyScrapeTaskTest do
   end
 
   describe "happy path" do
+    @describetag :integration
+    @describetag :slow
+
     @tag timeout: 60_000
     test "moves staged file to real_publishers and imports the provider" do
       provider = "apply_scrape_test_provider"
@@ -102,6 +105,9 @@ defmodule Hiraeth.Ingestion.ApplyScrapeTaskTest do
   end
 
   describe "stale record pruning" do
+    @describetag :integration
+    @describetag :slow
+
     @tag timeout: 60_000
     test "re-applying a provider with a different checksum prunes stale source records" do
       provider = "apply_scrape_prune_provider"

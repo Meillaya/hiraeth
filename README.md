@@ -48,17 +48,32 @@ mix hiraeth.admin.invite --email operator@example.com --role owner --expires-in 
 
 ## Verify/build
 
+Fast local preflight targets the under-60s developer loop:
+
 ```sh
-mix compile --warnings-as-errors
-mix precommit
+mix precommit        # delegates to the fast local gate
+mix precommit.fast   # explicit fast gate
+mix test.fast        # fast ExUnit lane, excluding explicit cost tags
+```
+
+Full local, CI, and release assurance stays separate and should not be expected to fit the fast-loop budget:
+
+```sh
+mix test.full        # complete ExUnit suite
+mix ci               # full Phoenix CI/release assurance
+make verify          # broader local QA bundle
+```
+
+Adjacent release/full-verification lanes remain outside fast precommit:
+
+```sh
 cd sidecar && uv run --extra dev pytest -q
 STRICT_TIMING=1 make test-browser
-make verify
 bash scripts/qa/production_ingestion_drill.sh
 bash scripts/qa/production_ingestion_adversarial.sh
 ```
 
-The production-grade ingestion completion gate last passed with `mix precommit`, `mix compile --warnings-as-errors`, sidecar pytest, manual QA drills, five-lane review, and a debugging runtime audit. See `.omo/evidence/production-grade-ingestion/ORCHESTRATION-COMPLETE.md` for the full evidence packet.
+The production-grade ingestion completion gate used full local gates, sidecar pytest, manual QA drills, five-lane review, and a debugging runtime audit. See `.omo/evidence/production-grade-ingestion/ORCHESTRATION-COMPLETE.md` for the full evidence packet.
 
 ## Production notes
 

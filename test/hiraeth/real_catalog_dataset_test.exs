@@ -1,6 +1,9 @@
 defmodule Hiraeth.RealCatalogDatasetTest do
   use ExUnit.Case, async: true
 
+  @moduletag :full_catalog
+  @moduletag :slow
+
   alias Hiraeth.RealCatalog.{Dataset, Validator}
 
   @dataset_dir Path.expand("../../priv/catalog_sources/real_publishers", __DIR__)

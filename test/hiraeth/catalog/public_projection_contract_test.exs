@@ -1,6 +1,8 @@
 defmodule Hiraeth.Catalog.PublicProjectionContractTest do
   use HiraethWeb.ConnCase, async: false
 
+  @moduletag :public_catalog_full
+
   alias Hiraeth.Catalog.PublicProjection
   alias HiraethWeb.PublicCatalog
 

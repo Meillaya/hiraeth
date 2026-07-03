@@ -201,6 +201,8 @@ defmodule Hiraeth.RealCatalogImporterProviderTest do
     assert Enum.sort(Enum.map(editions, & &1.format)) == ["ebook", "paperback"]
   end
 
+  @tag :full_catalog
+  @tag :slow
   @tag timeout: 300_000
   test "existing seed!/1 still works after adding seed_provider!/2" do
     clear_catalog!()

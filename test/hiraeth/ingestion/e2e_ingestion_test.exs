@@ -2,6 +2,8 @@ defmodule Hiraeth.Ingestion.E2EIngestionTest do
   use Hiraeth.DataCase, async: false
 
   @moduletag :reset_committed_catalog
+  @moduletag :integration
+  @moduletag :slow
 
   import Ecto.Query
 
