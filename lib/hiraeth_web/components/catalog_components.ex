@@ -44,7 +44,7 @@ defmodule HiraethWeb.CatalogComponents do
         {@book.publisher || "Publisher unknown"}
       </div>
       <div class="relative flex flex-col items-center justify-center text-center flex-grow py-4 px-2">
-        <span class="font-serif text-3xl text-current/20 mb-2">❧</span>
+        <span class="mb-3 h-px w-10 bg-current/20"></span>
         <h3 class="font-serif text-lg md:text-xl font-medium leading-tight tracking-tight">
           {@book.title}
         </h3>
@@ -54,7 +54,7 @@ defmodule HiraethWeb.CatalogComponents do
       </div>
       <div class="relative flex items-center justify-between text-[8px] font-mono uppercase tracking-wider opacity-70 border-t border-current/25 pt-2 gap-2">
         <span class="truncate">{List.first(@book[:series_titles] || []) || @book[:series] || "Edition"}</span>
-        <span>{@book[:year] || "No date"}</span>
+        <span :if={@book[:year]}>{@book.year}</span>
       </div>
       <p class="sr-only">Typographic cover fallback; no cover asset is available.</p>
     </div>
@@ -96,6 +96,7 @@ defmodule HiraethWeb.CatalogComponents do
       <.link
         navigate={~p"/books/#{@edition.slug}"}
         class="qi-focus block rounded-sm"
+        aria-label={"Open #{@edition.title}"}
       >
         <.book_cover book={@edition} />
       </.link>
@@ -120,7 +121,7 @@ defmodule HiraethWeb.CatalogComponents do
           </p>
         </div>
         <p :if={format_summary(@edition[:formats])} class="qi-muted text-xs">
-          Formats: {format_summary(@edition[:formats])}
+          {format_summary(@edition[:formats])}
         </p>
         <p class="qi-label truncate text-[10px]">
           {@edition.publisher || "Publisher unknown"}
@@ -163,7 +164,7 @@ defmodule HiraethWeb.CatalogComponents do
     ~H"""
     <div class="space-y-4">
       <h3 class="border-b qi-divider pb-2 font-serif text-lg font-medium text-[var(--hiraeth-ink)]">
-        Bibliographic Data
+        Details
       </h3>
       <dl class="divide-y divide-[var(--hiraeth-line)]/60 text-sm">
         <.metadata_row label="Title" value={@book.title} serif />
@@ -257,88 +258,6 @@ defmodule HiraethWeb.CatalogComponents do
 
   defp subject_text(_subjects), do: nil
 
-  defp field_source_notes(nil), do: []
-  defp field_source_notes(field_sources) when field_sources == %{}, do: []
-
-  defp field_source_notes(field_sources) when is_map(field_sources) do
-    field_sources
-    |> Enum.flat_map(fn {field, source} ->
-      rights_basis = source["rights_basis"] || source[:rights_basis]
-      provider = source["provider"] || source[:provider]
-
-      cond do
-        present?(rights_basis) and present?(provider) ->
-          ["#{humanize_field(field)} — #{rights_basis} via #{provider}"]
-
-        present?(rights_basis) ->
-          ["#{humanize_field(field)} — #{rights_basis}"]
-
-        true ->
-          []
-      end
-    end)
-    |> Enum.uniq()
-    |> Enum.sort()
-  end
-
-  defp field_source_notes(_field_sources), do: []
-
-  defp humanize_field(field) do
-    field
-    |> to_string()
-    |> String.replace("_", " ")
-  end
-
-  attr :source, :map, default: nil
-
-  def provenance_badge(assigns) do
-    ~H"""
-    <div
-      id="edition-provenance"
-      data-provenance-motif="source-thread"
-      class="provenance-thread qi-panel-soft space-y-1 break-words py-4 pl-6 pr-4 text-xs text-[var(--hiraeth-ink)] shadow-[inset_0_1px_0_var(--hiraeth-sheen)]"
-    >
-      <p class="qi-label">
-        Source provenance
-      </p>
-      <%= if @source do %>
-        <p>
-          Provider: <span class="font-semibold text-[var(--hiraeth-ink)]">{@source.provider}</span>
-        </p>
-        <p :if={@source[:source_type]}>
-          Source type: <span class="font-mono text-[var(--hiraeth-ink)]">{@source.source_type}</span>
-        </p>
-        <p :if={@source[:source_uri]}>
-          Source record:
-          <span class="break-all font-mono text-[var(--hiraeth-ink)]">{@source.source_uri}</span>
-        </p>
-        <p :if={@source[:imported_at]}>
-          Imported:
-          <span class="font-mono text-[var(--hiraeth-ink)]">{Calendar.strftime(
-            @source.imported_at,
-            "%Y-%m-%d %H:%M:%S UTC"
-          )}</span>
-        </p>
-        <div
-          :if={field_source_notes(@source[:field_sources]) != []}
-          id="edition-field-provenance"
-          class="pt-2"
-        >
-          <p class="qi-label text-[10px]">
-            Field-level provenance
-          </p>
-          <p class="qi-muted mt-1">
-            {Enum.join(field_source_notes(@source.field_sources), "; ")}
-          </p>
-        </div>
-        <p :if={@source[:license_note]}>{@source.license_note}</p>
-      <% else %>
-        <p>No source record has been attached to this edition yet.</p>
-      <% end %>
-    </div>
-    """
-  end
-
   attr :page, :integer, required: true
   attr :total_pages, :integer, required: true
   attr :base_path, :string, required: true
@@ -410,7 +329,7 @@ defmodule HiraethWeb.CatalogComponents do
       class="qi-empty mx-auto my-8 max-w-lg space-y-4 p-10 text-center shadow-[inset_0_0_0_1px_var(--hiraeth-sheen-soft)]"
     >
       <div class="flex justify-center">
-        <span class="font-serif text-3xl text-stone-300 dark:text-stone-700">❧</span>
+        <span class="h-px w-12 bg-[var(--hiraeth-line-strong)]"></span>
       </div>
       <p class="qi-label text-[10px]">{@eyebrow}</p>
       <h2 class="font-serif text-2xl font-medium text-[var(--hiraeth-ink)]">

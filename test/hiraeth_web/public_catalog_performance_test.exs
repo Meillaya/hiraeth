@@ -252,6 +252,9 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     publisher_detail = warm_measure(fn -> PublicCatalog.publisher("deep-vellum") end)
     series_index = warm_measure(fn -> PublicCatalog.series() end)
 
+    series_index_with_previews =
+      warm_measure(fn -> PublicCatalog.series_with_preview_editions() end)
+
     series_detail =
       case List.first(series_index.result) do
         nil -> nil
@@ -263,9 +266,21 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     assert Enum.all?(Map.values(publisher_groupings), &(length(&1) <= 8))
     assert Enum.any?(publisher_groupings.formats, &(&1.label == "Paperback"))
     assert is_list(series_index.result)
+
+    assert Enum.all?(
+             series_index_with_previews.result,
+             &(is_list(&1.preview_editions) and length(&1.preview_editions) <= 4)
+           )
+
     refute broad_edition_projection_query?(publisher_index)
     refute broad_edition_projection_query?(series_index)
+    refute broad_edition_projection_query?(series_index_with_previews)
     assert scoped_edition_projection_query?(publisher_detail, "where e.publisher_id = $1::uuid")
+
+    assert scoped_edition_projection_query?(
+             series_index_with_previews,
+             "where e.work_id = any($1::uuid[])"
+           )
 
     if series_detail do
       assert scoped_edition_projection_query?(
@@ -274,7 +289,13 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
              )
     end
 
-    for measurement <- [publisher_index, publisher_detail, series_index, series_detail],
+    for measurement <- [
+          publisher_index,
+          publisher_detail,
+          series_index,
+          series_index_with_previews,
+          series_detail
+        ],
         not is_nil(measurement) do
       assert measurement.query_count <= @directory_query_budget
       assert measurement.elapsed_microseconds <= @directory_elapsed_budget_microseconds

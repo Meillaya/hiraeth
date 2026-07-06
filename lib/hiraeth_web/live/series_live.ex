@@ -18,7 +18,7 @@ defmodule HiraethWeb.SeriesLive do
   end
 
   def handle_params(_params, _uri, socket) do
-    series = PublicCatalog.series()
+    series = PublicCatalog.series_with_preview_editions()
 
     {:noreply,
      socket

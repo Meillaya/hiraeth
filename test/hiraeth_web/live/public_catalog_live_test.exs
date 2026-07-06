@@ -48,11 +48,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
 
     assert has_element?(browse, "#browse-shell")
 
-    assert has_element?(
-             browse,
-             "#catalog-index",
-             "#{PublicCatalog.book_page(nil, 1).total_count} books"
-           )
+    assert has_element?(browse, "#catalog-index", "Shelf")
 
     assert has_element?(
              browse,
@@ -60,7 +56,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
              "Page 1 of #{ceil_div(PublicCatalog.book_page(nil, 1).total_count, PublicCatalog.page_size())}"
            )
 
-    assert has_element?(browse, "#book-reader", "Volume Reader")
+    assert has_element?(browse, "#book-reader", "Selected book")
 
     for {isbn, title} <- [
           {"9781628976830", "My Paris"},
@@ -224,7 +220,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
 
     {:ok, browse, _html} = live(conn, filtered_path)
 
-    assert has_element?(browse, "#catalog-index", "1 books")
+    assert has_element?(browse, "#catalog-index", "Shelf")
     assert has_element?(browse, "#catalog-grid", "Filter UI Novel")
     assert has_element?(browse, "#catalog-page-count", "Page 1 of 1")
 
@@ -438,7 +434,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert has_element?(contributor, "#contributor-books", "Immigrant")
   end
 
-  test "edition route redirects to canonical book detail with source provenance and formats", %{
+  test "edition route redirects to canonical book detail without public provenance panels", %{
     conn: conn
   } do
     cache_cover_for_edition_slug!(
@@ -459,8 +455,9 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert has_element?(view, "#book-authors", "by Joaquín Zihuatanejo")
     assert has_element?(view, "#book-translators", "translated by David Bowles")
     assert has_element?(view, "#book-identifiers", "9781646054541")
-    assert has_element?(view, "#edition-provenance[data-provenance-motif=\"source-thread\"]")
-    assert has_element?(view, "#edition-provenance", "Source provenance")
+    refute has_element?(view, "#edition-provenance[data-provenance-motif=\"source-thread\"]")
+    refute render(view) =~ "Source provenance"
+    refute render(view) =~ "Field-level provenance"
 
     assert HiraethWeb.PublicCatalog.book("deep-vellum-immigrant").source.provider ==
              "deep_vellum_official_store"
@@ -469,7 +466,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
 
     assert has_element?(view, "#publication-date", "2027-02-16")
     assert has_element?(view, "#book-description", "trilingual collection")
-    assert has_element?(view, "#book-format-summary", "Formats: Paperback, Ebook")
+    assert has_element?(view, "#book-format-summary", "Paperback, Ebook")
 
     assert has_element?(
              view,
@@ -514,8 +511,9 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     refute has_element?(view, "#book-review-links", "Review provenance")
     assert has_element?(view, "#book-review-links", "Reviews")
     assert has_element?(view, "#book-review-links", "A sourced review excerpt")
-    assert has_element?(view, "#edition-provenance[data-provenance-motif=\"source-thread\"]")
-    assert has_element?(view, "#edition-provenance", "Source provenance")
+    refute has_element?(view, "#edition-provenance[data-provenance-motif=\"source-thread\"]")
+    refute render(view) =~ "Source provenance"
+    refute render(view) =~ "Field-level provenance"
     refute render(view) =~ "approved rights basis"
     refute render(view) =~ "test source fixture"
     refute has_element?(view, "#book-review-gap")
@@ -537,10 +535,10 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     slug = "archipelago-books-bob-and-hilbert-hardcover-source-57168-9781962770651"
     {:ok, view, _html} = live(conn, ~p"/books/#{slug}")
 
-    assert has_element?(view, "#book-format-#{slug}", "No ISBN recorded")
-    assert has_element?(view, "#book-review-gap", "No review links")
-    assert has_element?(view, "#edition-provenance[data-provenance-motif=\"source-thread\"]")
-    assert has_element?(view, "#edition-provenance", "Source provenance")
+    assert has_element?(view, "#book-format-#{slug}", "ISBN not listed")
+    refute has_element?(view, "#book-review-gap")
+    refute has_element?(view, "#edition-provenance[data-provenance-motif=\"source-thread\"]")
+    refute render(view) =~ "Source provenance"
 
     assert HiraethWeb.PublicCatalog.book(slug).source.provider ==
              "archipelago_books_official_store"
@@ -571,8 +569,8 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert has_element?(book, "#book-format-#{fixture.edition_slug}", "321 pages")
     assert has_element?(book, "#book-format-#{fixture.edition_slug}", "eng")
     assert has_element?(book, "#book-format-#{fixture.edition_slug}", "203 × 127 × 24 mm")
-    assert has_element?(book, "#edition-provenance[data-provenance-motif=\"source-thread\"]")
-    assert has_element?(book, "#edition-provenance", "Source provenance")
+    refute has_element?(book, "#edition-provenance[data-provenance-motif=\"source-thread\"]")
+    refute render(book) =~ "Source provenance"
     assert HiraethWeb.PublicCatalog.book(fixture.book_slug).source.field_sources != %{}
 
     {:ok, publisher, _html} = live(conn, ~p"/publishers/#{fixture.publisher_slug}")
@@ -580,7 +578,6 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert has_element?(publisher, "#publisher-editions", "Rich Metadata Novel")
 
     {:ok, series, _html} = live(conn, ~p"/series/#{fixture.series_slug}")
-    assert has_element?(series, "#series-context", "1 sourced books")
     assert has_element?(series, "#series-context", "Metadata Series")
     assert has_element?(series, "#series-editions", "Rich Metadata Novel")
   end
@@ -629,8 +626,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     html = render(series)
     document = LazyHTML.from_fragment(html)
 
-    assert has_element?(series, "#series-context", "1 sourced books")
-    assert has_element?(series, "#series-editions", "Formats: Paperback, Ebook")
+    assert has_element?(series, "#series-editions", "Paperback, Ebook")
 
     assert document
            |> LazyHTML.query("#series-editions h4")

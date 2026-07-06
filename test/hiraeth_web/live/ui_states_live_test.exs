@@ -24,7 +24,7 @@ defmodule HiraethWeb.UiStatesLiveTest do
     {:ok, browse, _html} = live(conn, ~p"/browse?q=zzzz-no-catalog-match-🚫&page=99")
     assert has_element?(browse, "#browse-empty", "No catalog entries match")
     assert has_element?(browse, "#browse-empty", "zzzz-no-catalog-match-🚫")
-    assert has_element?(browse, "#book-reader-empty", "Adjust or clear the current search")
+    assert has_element?(browse, "#book-reader-empty", "Choose a cover from the shelf")
   end
 
   test "not-found and missing-cover states are explicit", %{conn: conn} do
@@ -38,7 +38,7 @@ defmodule HiraethWeb.UiStatesLiveTest do
              live(conn, ~p"/editions/the-orchard-of-minor-moons-paperback")
 
     {:ok, book, _html} = live(conn, ~p"/books/the-orchard-of-minor-moons-paperback")
-    assert has_element?(book, "#missing-cover-note", "No sourced cover asset")
+    assert has_element?(book, "#missing-cover-note", "Cover unavailable")
     assert has_element?(book, "#missing-cover-the-orchard-of-minor-moons-paperback")
 
     {:ok, missing, _html} = live(conn, ~p"/editions/not-an-edition")
@@ -97,7 +97,7 @@ defmodule HiraethWeb.UiStatesLiveTest do
     )
 
     {:ok, series_view, _html} = live(conn, ~p"/series/#{series.slug}")
-    assert has_element?(series_view, "#series-unknown-order", "Sequence order is not sourced")
+    refute has_element?(series_view, "#series-unknown-order")
     assert has_element?(series_view, "#series-editions", "Loose Leaf Noon")
   end
 

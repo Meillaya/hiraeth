@@ -13,7 +13,7 @@ The strict browser contract covers:
 - filter/sort URLs, including `/browse?publisher=deep-vellum&role=translator&format=paperback&sort=newest`;
 - malformed query safety via `/browse?q=%25&format=ebook&page=999`;
 - New Directions publisher/browse pages with typographic cover fallbacks and no remote image dependency;
-- enriched metadata and `data-provenance-motif="source-thread"` on book detail provenance;
+- enriched public metadata and storefront CTAs on book detail pages, while public pages keep audit/source provenance panels hidden;
 - cached cover paths, image decode, route-specific mobile/tablet overflow for public Quiet Index shells, keyboard focus, no remote rendered images/CSS image URLs/fonts/scripts/styles, and network/resource failures.
 
 The browser-only QA seed adds a deterministic `Browser QA Series` membership for the existing local `Immigrant` fixture so the public series detail route can be exercised without adding production catalog data or remote cover dependencies.

@@ -654,6 +654,30 @@ defmodule HiraethWeb.PublicCatalog do
     |> Enum.sort_by(&String.downcase(&1.title))
   end
 
+  def series_with_preview_editions(limit \\ 4) do
+    series = series()
+    preview_work_ids_by_slug = series_preview_work_ids_by_slug(limit)
+
+    preview_books_by_work_id =
+      preview_work_ids_by_slug
+      |> Map.values()
+      |> List.flatten()
+      |> Enum.uniq()
+      |> Enum.map(&uuid_param/1)
+      |> books_for_work_ids()
+      |> Map.new(&{&1.work_id, &1})
+
+    Enum.map(series, fn series_summary ->
+      preview_editions =
+        preview_work_ids_by_slug
+        |> Map.get(series_summary.slug, [])
+        |> Enum.map(&Map.get(preview_books_by_work_id, &1))
+        |> Enum.reject(&is_nil/1)
+
+      Map.put(series_summary, :preview_editions, preview_editions)
+    end)
+  end
+
   def series_by_slug(slug) do
     case series_summary_by_slug(slug) do
       nil ->
@@ -1075,6 +1099,53 @@ defmodule HiraethWeb.PublicCatalog do
 
     rows
   end
+
+  defp series_preview_work_ids_by_slug(limit) when is_integer(limit) and limit > 0 do
+    {:ok, %{rows: rows}} =
+      Hiraeth.Repo.query(
+        """
+        with series_books as (
+          select
+            s.slug as series_slug,
+            e.work_id,
+            lower(w.title) as title_sort,
+            min(e.slug) as slug_sort,
+            max(e.published_on) as newest_sort
+          from series s
+          join series_memberships sm on sm.series_id = s.id
+          join works w on w.id = sm.work_id
+          join editions e on e.work_id = sm.work_id
+          where exists (
+            select 1
+            from source_records sr
+            where sr.edition_id = e.id
+          )
+          group by s.id, s.slug, e.work_id, w.title
+        ), ranked as (
+          select
+            series_slug,
+            work_id,
+            row_number() over (
+              partition by series_slug
+              order by newest_sort desc nulls last, title_sort, slug_sort
+            ) as row_number
+          from series_books
+        )
+        select series_slug, work_id
+        from ranked
+        where row_number <= $1
+        order by series_slug, row_number
+        """,
+        [limit]
+      )
+
+    rows
+    |> Enum.group_by(fn [series_slug, _work_id] -> series_slug end, fn [_series_slug, work_id] ->
+      uuid_text(work_id)
+    end)
+  end
+
+  defp series_preview_work_ids_by_slug(_limit), do: %{}
 
   defp series_summary_by_slug(slug) do
     {:ok, %{rows: rows}} =

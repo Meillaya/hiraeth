@@ -24,11 +24,7 @@ defmodule HiraethWeb.RouteShellLiveTest do
 
     assert has_element?(view, "#browse-shell")
 
-    assert has_element?(
-             view,
-             "#catalog-index",
-             "#{PublicCatalog.book_page(nil, 1).total_count} books"
-           )
+    assert has_element?(view, "#catalog-index", "Shelf")
 
     assert has_element?(
              view,
@@ -38,7 +34,7 @@ defmodule HiraethWeb.RouteShellLiveTest do
 
     {:ok, filtered, _html} = live(conn, ~p"/browse?q=Tunnel")
     assert has_element?(filtered, "#catalog-index h4", "The Tunnel")
-    assert has_element?(filtered, "#book-reader dd", "William H. Gass")
+    assert has_element?(filtered, "#book-reader", "William H. Gass")
   end
 
   test "GET /search filters items dynamically", %{conn: conn} do

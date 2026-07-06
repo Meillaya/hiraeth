@@ -4,7 +4,7 @@ Source of truth: `Hiraeth - Quiet Index.dc.html` (`sha256: 730525162576d65c866a7
 
 ## 1. Atmosphere
 
-Hiraeth is a quiet editorial archive: restrained, source-forward, bookish, and precise. Interfaces should feel like a curated print index rather than a commercial storefront. Every screen should foreground traceability, provenance, and the distinction between known metadata and absent source data.
+Hiraeth is a quiet editorial archive: restrained, source-forward, bookish, and precise. Interfaces should feel like a curated print index rather than a commercial storefront. Every screen should foreground trusted editorial discovery and the distinction between known metadata and absent source data. Audit-level provenance remains available in the data model and admin/QA surfaces, but public catalog pages must not print raw provider IDs, source-record URLs, field-level provenance, import timestamps, or defensive "not fabricated" copy in the primary reading path.
 
 ## 2. Palette
 
@@ -49,17 +49,18 @@ Exact font metrics are a known visual risk without self-hosted font files; layou
 - Sticky masthead height: `68px`.
 - Public container: max width `1180px` (`73.75rem`), desktop gutters about `40px`, smaller responsive gutters on tablet/mobile.
 - Home: editorial kicker, large serif headline, italic serif deck, spotlight plus recent acquisitions.
-- Browse: desktop three-column grid (`230px / flexible index / 340px`) with sticky filter rail and reader rail; collapse to one column on smaller screens.
-- Detail pages: cover and bibliographic/provenance panels with visible source thread.
+- Browse: editorial shelf header with search, quiet press filters, cover-forward book grid, and an optional reader preview. Avoid persistent accounting chrome; counts may support pagination or screen-reader context but should not dominate the visual hierarchy.
+- Detail pages: cover, bibliographic panels, description/praise, review links, formats, and publisher links. Do not render admin/audit provenance panels on public book pages.
 - Publisher rows: list-first editorial index with small cover thumbnails where sourced cached covers exist.
-- Masthead structure mirrors the reference: serif wordmark in ink, accent `Archive` label, primary nav, sourced-volume count, and one compact theme toggle.
+- Series rows: shelf-style editorial sections pairing a collection title with a short run of representative covers.
+- Masthead structure mirrors the reference: serif wordmark in ink, accent `Archive` label, primary nav, optional compact archive context only when it helps orientation, and one compact theme toggle.
 
 ## 5. Components
 
 - `qi-header`, `qi-container`, `qi-panel`, `qi-card`, `qi-label`, `qi-kicker`, `qi-button`, `qi-fallback-glow`, and `qi-cover-frame` are canonical public UI primitives.
 - Cover images render only from local static cache URLs beginning `/covers/cache/`. Remote `source_url` values are provenance/outbound-link data, never rendered images.
 - Missing, uncached, hidden, or ineligible covers render the typographic fallback. Fallbacks are intentional source-state UI, not error states.
-- Provenance labels use mono uppercase text, fine borders, and the warm line color.
+- Provenance labels use mono uppercase text, fine borders, and the warm line color in admin/audit contexts. Public publisher, series, browse, and book pages should read like discovery shelves, not import ledgers; avoid visible phrases such as "local catalog metadata", "source record", "field-level provenance", "imported at", or "not fabricated".
 
 ## 6. Motion and interaction
 

@@ -339,10 +339,10 @@ CHROME_BIN="${CHROME_BIN}" node "${BROWSER_QA_HELPER_DIR}/public_resource_depend
 grep -q '"passed": true' "${QA_DIR}/public-resource-dependencies.json"
 log "public_resource_dependencies=pass report=${QA_DIR}/public-resource-dependencies.json no_remote_images_css_fonts_scripts_styles=pass"
 
-if grep -q '1488 vols' "${NEW_DIRECTIONS_BROWSE_DOM}" && grep -q '1488 books' "${NEW_DIRECTIONS_BROWSE_DOM}" && grep -q 'Unsourced covers fall back to type.' "${NEW_DIRECTIONS_BROWSE_DOM}"; then
-  log "new_directions_cover_fallback=pass publisher_count=1488_vols browse_count=1488_books remote_dependency=none"
+if grep -q 'New Directions' "${NEW_DIRECTIONS_BROWSE_DOM}" && grep -q 'Shelf' "${NEW_DIRECTIONS_BROWSE_DOM}" && ! grep -q 'Unsourced covers fall back to type.' "${NEW_DIRECTIONS_BROWSE_DOM}"; then
+  log "new_directions_cover_fallback=pass publisher_shelf=present admin_copy=hidden remote_dependency=none"
 else
-  log "new_directions_cover_fallback=fail expected=1488_vols_1488_books_type_fallback"
+  log "new_directions_cover_fallback=fail expected=new_directions_shelf_without_admin_copy"
   exit 1
 fi
 
@@ -381,7 +381,7 @@ else
   exit 1
 fi
 
-if grep -q 'Catalog Index' "${FILTER_SORT_DOM}" && grep -q 'Deep Vellum' "${FILTER_SORT_DOM}" && grep -q 'translated by' "${FILTER_SORT_DOM}"; then
+if grep -q 'Shelf' "${FILTER_SORT_DOM}" && grep -q 'Deep Vellum' "${FILTER_SORT_DOM}" && grep -q 'translated by' "${FILTER_SORT_DOM}"; then
   log "filter_sort_url=pass route=/browse?publisher=deep-vellum&role=translator&format=paperback&sort=newest"
 else
   log "filter_sort_url=fail expected=deep_vellum_translator_paperback_results"
@@ -402,17 +402,23 @@ const required = [
   ['description_id', 'id="book-description"'],
   ['description_prose', 'trilingual collection'],
   ['storefront_cta_id', 'id="book-storefront-cta"'],
-  ['storefront_cta_href', 'href="https://store.deepvellum.org/products/immigrant"'],
+  ['storefront_cta_href', 'href="https://store.deepvellum.org/products/immigrant"']
+];
+const forbidden = [
   ['source_provenance', 'Source provenance'],
-  ['source_thread_motif', 'data-provenance-motif="source-thread"']
+  ['field_provenance', 'Field-level provenance'],
+  ['source_thread_motif', 'data-provenance-motif="source-thread"'],
+  ['source_record', 'Source record:'],
+  ['imported_at', 'Imported:']
 ];
 const missing = required.filter(([, marker]) => !html.includes(marker)).map(([name]) => name);
-if (missing.length === 0) {
-  console.log('prose_cta_presence=pass ids=book-description,book-storefront-cta source_provenance=pass');
+const presentForbidden = forbidden.filter(([, marker]) => html.includes(marker)).map(([name]) => name);
+if (missing.length === 0 && presentForbidden.length === 0) {
+  console.log('prose_cta_presence=pass ids=book-description,book-storefront-cta');
   console.log('enriched_metadata_presence=pass description=pass storefront=pass');
-  console.log('provenance_thread=pass data-provenance-motif=source-thread');
+  console.log('public_provenance_hidden=pass');
 } else {
-  console.log(`prose_cta_presence=fail missing=${JSON.stringify(missing)}`);
+  console.log(`prose_cta_presence=fail missing=${JSON.stringify(missing)} forbidden=${JSON.stringify(presentForbidden)}`);
   process.exit(1);
 }
 NODE

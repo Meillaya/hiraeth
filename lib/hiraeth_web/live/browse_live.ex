@@ -65,11 +65,7 @@ defmodule HiraethWeb.BrowseLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app
-      flash={@flash}
-      current_scope={%{}}
-      catalog_count={@all_count}
-    >
+    <Layouts.app flash={@flash} current_scope={%{}}>
       <Components.browse_shell
         form={@form}
         filter_form={@filter_form}

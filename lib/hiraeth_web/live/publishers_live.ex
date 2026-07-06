@@ -18,18 +18,12 @@ defmodule HiraethWeb.PublishersLive do
   end
 
   def handle_params(_params, _uri, socket) do
-    publishers =
-      PublicCatalog.publishers()
-      |> Enum.with_index(1)
-      |> Enum.map(fn {publisher, index} ->
-        Map.put(publisher, :row_number, index)
-      end)
+    publishers = PublicCatalog.publishers()
 
     {:noreply,
      socket
      |> assign(:page_title, "Curated Publishers")
      |> assign(:publisher_count, length(publishers))
-     |> assign(:publisher_editions_count, Enum.sum(Enum.map(publishers, & &1.editions_count)))
      |> stream(:publishers, publishers,
        reset: true,
        dom_id: &"publisher-#{&1.slug}"
@@ -42,35 +36,33 @@ defmodule HiraethWeb.PublishersLive do
 
   defp render_index(assigns) do
     ~H"""
-    <Layouts.app
-      flash={@flash}
-      current_scope={%{}}
-      catalog_count={@publisher_editions_count}
-    >
+    <Layouts.app flash={@flash} current_scope={%{}}>
       <div id="publishers-shell" class="archive-wash space-y-10">
-        <header class="flex flex-col gap-5 border-b border-[var(--hiraeth-line)] pb-5 sm:flex-row sm:items-end sm:justify-between">
-          <div>
+        <header class="grid gap-7 border-b border-[var(--hiraeth-line)] pb-7 md:grid-cols-[minmax(0,1fr)_18rem] md:items-end">
+          <div class="max-w-3xl">
             <p class="font-sans text-[11px] font-semibold uppercase tracking-[0.26em] text-[var(--hiraeth-thread)]">
               Independent presses
             </p>
             <h1 class="mt-2 font-serif text-4xl font-light tracking-tight text-[var(--hiraeth-ink)] sm:text-5xl">
               Publishers
             </h1>
+            <p class="qi-muted mt-4 font-serif text-lg italic leading-relaxed">
+              A reading-room index of the presses represented in Hiraeth.
+            </p>
           </div>
-          <p class="font-mono text-[11px] text-[var(--hiraeth-muted)]">
-            {@publisher_count} houses · {@publisher_editions_count} sourced books
-          </p>
+          <p class="sr-only">{@publisher_count} publishers represented.</p>
         </header>
 
-        <div id="publishers-grid" phx-update="stream" class="divide-y divide-[var(--hiraeth-line)]">
+        <div
+          id="publishers-grid"
+          phx-update="stream"
+          class="grid gap-x-10 gap-y-0 lg:grid-cols-2"
+        >
           <article
             :for={{dom_id, pub} <- @streams.publishers}
             id={dom_id}
-            class="group grid gap-6 py-8 transition-colors duration-200 hover:bg-[var(--hiraeth-warm)]/70 sm:grid-cols-[3.75rem_minmax(0,1fr)_6.875rem]"
+            class="group grid gap-6 border-b border-[var(--hiraeth-line)] py-8 transition-colors duration-200 sm:grid-cols-[minmax(0,1fr)_6.875rem]"
           >
-            <div class="font-mono text-[13px] text-[var(--hiraeth-label)]">
-              {pub.row_number |> Integer.to_string() |> String.pad_leading(2, "0")}
-            </div>
             <div class="min-w-0 space-y-3">
               <h2 class="font-serif text-3xl font-light leading-none text-[var(--hiraeth-ink)] sm:text-[34px]">
                 <.link
@@ -86,9 +78,13 @@ defmodule HiraethWeb.PublishersLive do
               >
                 {pub.description}
               </p>
-              <p class="font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--hiraeth-label)]">
-                {pub.editions_count} sourced books · local catalog metadata
-              </p>
+              <p class="sr-only">{pub.editions_count} books currently represented.</p>
+              <.link
+                navigate={~p"/publishers/#{pub.slug}"}
+                class="qi-action-link inline-flex font-mono text-xs uppercase tracking-wider"
+              >
+                Open shelf
+              </.link>
             </div>
             <div class="flex items-center justify-start sm:justify-end">
               <.link
@@ -108,10 +104,10 @@ defmodule HiraethWeb.PublishersLive do
                 />
                 <div
                   :if={!sample_cover_src(pub.cover_sample)}
-                  class="fallback-cover-grain relative flex aspect-[2/3] w-full items-center justify-center overflow-hidden border border-[var(--hiraeth-line)] p-2 text-center font-serif text-[11px] leading-tight text-[var(--hiraeth-muted)]"
+                  class="fallback-cover-grain relative flex aspect-[2/3] w-full items-center justify-center overflow-hidden border border-[var(--hiraeth-line)] p-2 text-center font-serif text-[40px] italic leading-tight text-[var(--hiraeth-label)]"
                   aria-label="Typographic cover fallback; no cover asset is available."
                 >
-                  {pub.name}
+                  {pub.name |> String.first()}
                 </div>
               </.link>
             </div>
@@ -149,9 +145,6 @@ defmodule HiraethWeb.PublishersLive do
                 >
                   {@publisher.description}
                 </p>
-                <p class="max-w-2xl font-sans text-sm leading-6 text-[var(--hiraeth-muted)]">
-                  This page summarizes only sourced local catalog metadata currently attached to the press.
-                </p>
               </div>
               <.link
                 id="publisher-browse-cta"
@@ -168,7 +161,7 @@ defmodule HiraethWeb.PublishersLive do
               <CatalogComponents.empty_state
                 id="publisher-no-editions"
                 title="No books are attached"
-                message="No books are attached to this publisher yet. The publisher record is public, but the shelf stays empty until sourced books are imported or curated."
+                message="This publisher shelf is empty for now."
                 action_label="Back to publishers"
                 action_path="/publishers"
               />

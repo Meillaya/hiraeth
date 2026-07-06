@@ -28,9 +28,9 @@ defmodule HiraethWeb.BookLive.Components do
             <p
               :if={!@book[:cover]}
               id="missing-cover-note"
-              class="qi-panel-soft p-3 text-center text-[10px] font-mono uppercase tracking-wider text-[var(--hiraeth-muted)]"
+              class="sr-only"
             >
-              No sourced cover asset is attached; typographic cover fallback is shown.
+              Cover unavailable; typographic fallback shown.
             </p>
           </aside>
 
@@ -56,7 +56,7 @@ defmodule HiraethWeb.BookLive.Components do
                   translated by {role_names(@book.translators)}
                 </p>
                 <p :if={format_summary(@book[:formats])} id="book-format-summary" class="qi-muted">
-                  Formats: {format_summary(@book.formats)}
+                  {format_summary(@book.formats)}
                 </p>
               </div>
             </header>
@@ -118,20 +118,12 @@ defmodule HiraethWeb.BookLive.Components do
               </article>
             </section>
 
-            <div
-              :if={Enum.empty?(@book[:review_links] || [])}
-              id="book-review-gap"
-              class="qi-panel-soft max-w-2xl p-4 font-mono text-[10px] uppercase tracking-wider text-[var(--hiraeth-muted)]"
-            >
-              No review links are recorded for this title.
-            </div>
-
             <section id="book-formats" class="space-y-4">
               <div class="flex items-baseline justify-between border-b qi-divider pb-3">
                 <h2 class="font-serif text-xl font-normal text-[var(--hiraeth-ink)]">
-                  Formats / editions
+                  Editions
                 </h2>
-                <span class="font-mono text-xs text-[var(--hiraeth-muted)]">{length(@book.formats)} records</span>
+                <span class="sr-only">{length(@book.formats)} editions</span>
               </div>
               <div class="divide-y divide-[var(--hiraeth-line)] border-y qi-divider">
                 <div
@@ -153,7 +145,7 @@ defmodule HiraethWeb.BookLive.Components do
                       :if={format.identifiers == []}
                       class="font-mono text-xs text-[var(--hiraeth-muted)]"
                     >
-                      No ISBN recorded · source identity route retained
+                      ISBN not listed
                     </p>
                     <p
                       :if={format_detail_text(format)}
@@ -180,19 +172,6 @@ defmodule HiraethWeb.BookLive.Components do
               Publisher page
             </.link>
 
-            <CatalogComponents.provenance_badge
-              :if={@book[:source]}
-              source={@book.source}
-            />
-
-            <p
-              :if={!@book[:storefront_url]}
-              id="book-purchase-link-gap"
-              class="qi-panel-soft inline-flex max-w-2xl p-3 font-mono text-[10px] uppercase tracking-wider text-[var(--hiraeth-muted)]"
-            >
-              No provider purchase link is recorded for this title.
-            </p>
-
             <CatalogComponents.metadata_table book={@book} />
           </section>
         </article>
@@ -200,7 +179,7 @@ defmodule HiraethWeb.BookLive.Components do
         <CatalogComponents.empty_state
           id="book-not-found"
           title="No book matches"
-          message="No book matches that slug. The archive did not fabricate a placeholder record."
+          message="Choose another title from the catalog."
           action_label="Back to browse"
           action_path="/browse"
         />
