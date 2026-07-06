@@ -69,17 +69,26 @@ Adjacent release/full-verification lanes remain outside fast precommit:
 ```sh
 cd sidecar && uv run --extra dev pytest -q
 STRICT_TIMING=1 make test-browser
-bash scripts/qa/production_ingestion_drill.sh
-bash scripts/qa/production_ingestion_adversarial.sh
+bash scripts/qa/ingestion/production_ingestion_drill.sh
+bash scripts/qa/ingestion/production_ingestion_adversarial.sh
 ```
 
-The production-grade ingestion completion gate used full local gates, sidecar pytest, manual QA drills, five-lane review, and a debugging runtime audit. See `.omo/evidence/production-grade-ingestion/ORCHESTRATION-COMPLETE.md` for the full evidence packet.
+Stable operator entrypoints stay at the root or top-level task names (`make test-browser`, `make verify`, Mix tasks, and `scripts/browser_qa.sh`). Implementation helpers are grouped by purpose: catalog maintenance scripts live in `scripts/catalog/`, browser QA helpers in `scripts/qa/browser/`, and production-ingestion drills in `scripts/qa/ingestion/`.
+
+## Cleanup safety
+
+Repository cleanup is allowlist-only and must never delete, clean, modify, or
+regenerate the root `priv/static/covers/cache/*` cover cache. See
+`docs/cleanup-policy.md`; run cache-writing verification through
+`scripts/qa/cover_cache_sandbox.sh` so the root cover cache is hashed before and
+after the sandboxed command.
 
 ## Production notes
 
 Start with:
 
 - `docs/contracts.md`
+- `docs/cleanup-policy.md`
 - `docs/production-operations.md`
 - `docs/production-readiness.md`
 - `docs/provenance-cover-policy.md`

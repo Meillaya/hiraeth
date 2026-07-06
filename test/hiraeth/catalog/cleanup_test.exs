@@ -3,6 +3,7 @@ defmodule Hiraeth.CatalogCleanupTest do
 
   alias Ecto.Adapters.SQL.Sandbox
   alias Hiraeth.CatalogCleanup
+  alias Hiraeth.Catalog.TinyCommittedFixture
   alias Hiraeth.RealCatalog.{Dataset, SourceArtifacts}
   alias Hiraeth.Repo
 
@@ -45,6 +46,38 @@ defmodule Hiraeth.CatalogCleanupTest do
     assert committed_catalog_summary() == expected_catalog_summary()
     assert import_run_ids() == seeded_import_run_ids
     assert source_record_count() == seeded_source_record_count
+  end
+
+  test "reset_committed_catalog! waits for the committed fixture lock" do
+    caller = self()
+    lock_key = {CatalogCleanup, :committed_catalog_fixtures}
+
+    holder =
+      Task.async(fn ->
+        :global.trans(
+          lock_key,
+          fn ->
+            send(caller, :fixture_lock_acquired)
+
+            receive do
+              :release_fixture_lock -> :ok
+            end
+          end,
+          [node()],
+          :infinity
+        )
+      end)
+
+    assert_receive :fixture_lock_acquired
+
+    resetter = Task.async(fn -> CatalogCleanup.reset_committed_catalog!() end)
+
+    assert Task.yield(resetter, 100) == nil
+
+    send(holder.pid, :release_fixture_lock)
+
+    assert :ok = Task.await(holder, 5_000)
+    assert :ok = Task.await(resetter, 5_000)
   end
 
   defp insert_legacy_sentinel_only! do
@@ -141,7 +174,7 @@ defmodule Hiraeth.CatalogCleanupTest do
   end
 
   defp use_tiny_committed_catalog_fixture! do
-    tmp = tiny_committed_catalog_dir!()
+    tmp = TinyCommittedFixture.create!()
     previous = Application.get_env(:hiraeth, :committed_catalog_fixture_dir)
     Application.put_env(:hiraeth, :committed_catalog_fixture_dir, tmp)
 
@@ -158,112 +191,6 @@ defmodule Hiraeth.CatalogCleanupTest do
 
   defp committed_catalog_fixture_dir do
     Application.get_env(:hiraeth, :committed_catalog_fixture_dir, Dataset.default_dir())
-  end
-
-  defp tiny_committed_catalog_dir! do
-    tmp =
-      Path.join(
-        System.tmp_dir!(),
-        "hiraeth-tiny-committed-catalog-#{System.unique_integer([:positive])}"
-      )
-
-    File.mkdir_p!(tmp)
-
-    provider = "archipelago_books_official_store"
-    source_uri = "https://archipelagobooks.org/book/tiny-committed-catalog/"
-
-    field_source = %{
-      provider: provider,
-      source_uri: source_uri,
-      source_type: "publisher_dataset",
-      rights_basis: "Deterministic committed catalog fixture equivalent for test-only metadata."
-    }
-
-    payload = %{
-      provider: provider,
-      retrieved_at: "2026-07-02T00:00:00Z",
-      license_note: "Deterministic committed catalog fixture equivalent for test-only metadata.",
-      provider_permissions: %{
-        provider: provider,
-        source_urls: [source_uri],
-        source_hosts: ["archipelagobooks.org"],
-        cover_hosts: ["archipelagobooks.org", "covers.openlibrary.org"],
-        permission_basis:
-          "Deterministic committed catalog fixture equivalent for test-only metadata.",
-        cover_cache_policy: "cache_allowed",
-        excluded_content: ["cart_checkout_account", "inventory_state", "user_reviews"],
-        takedown_contact: "https://archipelagobooks.org/contact/",
-        not_legal_advice: "Test fixture metadata only; not legal advice."
-      },
-      records: [
-        %{
-          source_uri: source_uri,
-          source_product_id: "tiny-committed-catalog-9781939810175",
-          source_sku: "9781939810175",
-          publisher: "Archipelago Books",
-          imprint: nil,
-          work: %{
-            title: "Tiny Committed Catalog",
-            subtitle: nil,
-            publication_state: "published"
-          },
-          edition: %{
-            title: "Tiny Committed Catalog",
-            subtitle: nil,
-            format: "paperback",
-            published_on: "2026-07-02",
-            isbn_13: "9781939810175"
-          },
-          contributors: [%{name: "Fixture Author", role: "author"}],
-          displayed_fields: [
-            "title",
-            "contributors",
-            "publisher",
-            "format",
-            "published_on",
-            "isbn_13"
-          ],
-          curation: %{
-            status: "approved",
-            notes: "Deterministic tiny committed catalog fixture equivalent."
-          },
-          no_cover_reason: "Tiny committed fixture intentionally omits covers.",
-          field_sources: %{
-            "title" => field_source,
-            "contributors" => field_source,
-            "publisher" => field_source,
-            "format" => field_source,
-            "published_on" => field_source,
-            "isbn_13" => field_source
-          }
-        }
-      ]
-    }
-
-    authority_manifest = %{
-      providers: [
-        %{
-          provider: provider,
-          coverage: %{expected_record_count: 1},
-          allowed_source_urls: [source_uri],
-          allowed_source_types: ["publisher_dataset"],
-          max_bytes: %{response: 100_000}
-        }
-      ],
-      completeness_boundary: "deterministic test-only committed catalog equivalent"
-    }
-
-    File.write!(
-      Path.join(tmp, "tiny_committed_catalog.json"),
-      Jason.encode!(payload, pretty: true)
-    )
-
-    File.write!(
-      Path.join(tmp, Dataset.source_authority_manifest_file()),
-      Jason.encode!(authority_manifest, pretty: true)
-    )
-
-    tmp
   end
 
   defp expected_entries do

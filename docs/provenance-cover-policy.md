@@ -19,6 +19,7 @@ Release-facing completeness must be worded precisely: Hiraeth has loaded every r
 
 ## Cover lifecycle
 
+- Repository cleanup must never delete, clean, modify, or regenerate the root `priv/static/covers/cache/*` cache. Cleanup policy may add sandbox checks around cache-writing verification, but must not weaken provenance, attribution, takedown, or local-cache-only display requirements.
 - Public HTML must never render remote cover URLs. A visible cover must resolve to a local static URL under `/covers/cache/...`.
 - A public cover asset requires a source URL, provider, rights basis, allowlisted HTTPS cover host, attribution text/link when required, visible takedown state, `cache_policy: "cache_allowed"`, `rights_basis: "local_cache_permitted"`, and a validated cached file under `priv/static/covers/cache`.
 - Permission-request or draft-request metadata is not a display blocker by itself. Provenance, official-source allowlists, local cache safety, attribution, takedown/removal handling, and auditability remain mandatory.

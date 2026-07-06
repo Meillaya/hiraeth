@@ -1,10 +1,9 @@
 defmodule HiraethWeb.SearchLive do
   use HiraethWeb, :live_view
 
+  alias HiraethWeb.CatalogFilterParams
   alias HiraethWeb.PublicCatalog
   alias HiraethWeb.SearchLive.Components
-
-  @filter_params ~w(q publisher role contributor format language subject series year sort)
 
   @impl true
   def mount(_params, _session, socket) do
@@ -13,7 +12,7 @@ defmodule HiraethWeb.SearchLive do
      |> assign(:page_title, "Search Catalog")
      |> assign(:query, "")
      |> assign(:form, to_form(%{"query" => ""}, as: :search))
-     |> assign(:filters, blank_filter_params())
+     |> assign(:filters, CatalogFilterParams.blank())
      |> assign(:pagination, PublicCatalog.paginate([], 1))
      |> assign(:results_count, 0)
      |> stream(:results, [])}
@@ -27,21 +26,17 @@ defmodule HiraethWeb.SearchLive do
   @impl true
   def handle_event("search", %{"search" => %{"query" => query}}, socket) do
     filters = socket.assigns.filters |> Map.put("q", query) |> Map.delete("page")
-    {:noreply, push_patch(socket, to: filtered_path("/search", filters))}
+    {:noreply, push_patch(socket, to: CatalogFilterParams.filtered_path("/search", filters))}
   end
 
   defp assign_results(socket, params) do
-    filters = Map.take(params, @filter_params)
-    query = Map.get(filters, "q", "")
-    page = Map.get(params, "page", "1")
-    results = PublicCatalog.book_page(filters, page)
-
-    pagination_params = blank_filter_params() |> Map.merge(filters) |> Map.put("q", query)
+    filter_params = CatalogFilterParams.from_request(params)
+    results = PublicCatalog.book_page(filter_params.filters, filter_params.page)
 
     socket
-    |> assign(:query, query)
-    |> assign(:filters, pagination_params)
-    |> assign(:form, to_form(%{"query" => query}, as: :search))
+    |> assign(:query, filter_params.query)
+    |> assign(:filters, filter_params.form_params)
+    |> assign(:form, to_form(%{"query" => filter_params.query}, as: :search))
     |> assign(:pagination, results)
     |> assign(:results_count, results.total_count)
     |> stream(:results, results.entries, reset: true)
@@ -65,22 +60,5 @@ defmodule HiraethWeb.SearchLive do
       />
     </Layouts.app>
     """
-  end
-
-  defp blank_filter_params do
-    Map.new(@filter_params, &{&1, ""})
-  end
-
-  defp filtered_path(base_path, params) do
-    params =
-      params
-      |> Map.take(@filter_params)
-      |> Enum.reject(fn {_key, value} -> value in [nil, ""] end)
-      |> Map.new()
-
-    case params do
-      map when map == %{} -> base_path
-      map -> base_path <> "?" <> URI.encode_query(map)
-    end
   end
 end

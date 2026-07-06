@@ -58,6 +58,13 @@ Stability promise:
 - The current narrow operations endpoints are `GET /health` and `GET /ready`; they are not mounted under `/api` and do not expose catalog data.
 - Admin ingestion controls must be authenticated before mutating provider runs, quarantine decisions, replay, or scheduling.
 
+Stable entrypoints after repository consolidation:
+- Browser QA operators should use `make test-browser` or `scripts/browser_qa.sh`; direct Node diagnostics live under `scripts/qa/browser/`.
+- Production ingestion drills live under `scripts/qa/ingestion/` and should be invoked by their shell scripts, not by reaching into moved test helpers.
+- Catalog source maintenance scripts live under `scripts/catalog/`; they are explicit maintenance tools for checked-in source corpus refreshes, not background app runtime dependencies.
+- Cleanup-policy smoke checks use `make cleanup-policy`, backed by `docs/cleanup-policy.md` and `scripts/qa/cover_cache_sandbox.sh`.
+- Commands that can write cover files must preserve the root `priv/static/covers/cache/*` cache by running in the cover-cache sandbox or an equivalent temporary copy.
+
 Deprecation and version rules:
 - Operator command flags require a compatibility note before removal.
 - Machine-readable operator output such as `--json` must be explicitly versioned once added.

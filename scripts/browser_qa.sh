@@ -7,6 +7,7 @@ BASE_URL="${BASE_URL:-http://127.0.0.1:${PORT}}"
 CHROME_BIN="${CHROME_BIN:-}"
 SERVER_PID=""
 STRICT_TIMING="${STRICT_TIMING:-0}"
+BROWSER_QA_HELPER_DIR="${BROWSER_QA_HELPER_DIR:-scripts/qa/browser}"
 
 if [[ -z "${CHROME_BIN}" ]]; then
   CHROME_BIN="$(command -v chromium || command -v google-chrome || command -v chromium-browser || true)"
@@ -57,7 +58,7 @@ mix ecto.drop --force >> "${TRANSCRIPT}" 2>&1 || true
 mix ecto.create >> "${TRANSCRIPT}" 2>&1
 mix ecto.migrate >> "${TRANSCRIPT}" 2>&1
 mix run priv/repo/seeds.exs >> "${TRANSCRIPT}" 2>&1
-mix run scripts/seed_browser_qa.exs >> "${TRANSCRIPT}" 2>&1
+mix run "${BROWSER_QA_HELPER_DIR}/seed_browser_qa.exs" >> "${TRANSCRIPT}" 2>&1
 log "warming local cover cache"
 cover_cache_report="${QA_DIR}/cover-cache-warmup.txt"
 : > "${cover_cache_report}"
@@ -157,7 +158,7 @@ done
 log "curl_timing_artifact=${TIMING_REPORT}"
 
 log "running real keyboard focus audit"
-node scripts/keyboard_focus_check.mjs "${BASE_URL}/browse" "${QA_DIR}/keyboard-focus.json" | tee -a "${TRANSCRIPT}"
+node "${BROWSER_QA_HELPER_DIR}/keyboard_focus_check.mjs" "${BASE_URL}/browse" "${QA_DIR}/keyboard-focus.json" | tee -a "${TRANSCRIPT}"
 grep -q '"passed": true' "${QA_DIR}/keyboard-focus.json"
 log "keyboard_focus_artifact=${QA_DIR}/keyboard-focus.json"
 
@@ -255,7 +256,7 @@ for page in "${pages[@]}"; do
     dom="${QA_DIR}/${label}-${safe_name}.html"
     render_report="${QA_DIR}/${label}-${safe_name}-render.json"
 
-    CHROME_BIN="${CHROME_BIN}" node scripts/responsive_overflow_check.mjs \
+    CHROME_BIN="${CHROME_BIN}" node "${BROWSER_QA_HELPER_DIR}/responsive_overflow_check.mjs" \
       "${BASE_URL}${page}" \
       "${render_report}" \
       "${width}" \
@@ -331,17 +332,17 @@ else
   log "remote_image_dependencies=pass scope=all_captured_pages"
 fi
 
-CHROME_BIN="${CHROME_BIN}" node scripts/public_resource_dependency_check.mjs \
+CHROME_BIN="${CHROME_BIN}" node "${BROWSER_QA_HELPER_DIR}/public_resource_dependency_check.mjs" \
   "${BASE_URL}" \
   "${QA_DIR}/public-resource-dependencies.json" \
   "${pages[@]}" | tee -a "${TRANSCRIPT}"
 grep -q '"passed": true' "${QA_DIR}/public-resource-dependencies.json"
 log "public_resource_dependencies=pass report=${QA_DIR}/public-resource-dependencies.json no_remote_images_css_fonts_scripts_styles=pass"
 
-if grep -q '50 editions' "${NEW_DIRECTIONS_PUBLISHER_DOM}" && grep -q '50 books' "${NEW_DIRECTIONS_BROWSE_DOM}" && grep -q 'Typographic cover fallback; no cover asset is available.' "${NEW_DIRECTIONS_BROWSE_DOM}"; then
-  log "new_directions_cover_fallback=pass publisher_count=50_editions browse_count=50_books remote_dependency=none"
+if grep -q '1488 vols' "${NEW_DIRECTIONS_BROWSE_DOM}" && grep -q '1488 books' "${NEW_DIRECTIONS_BROWSE_DOM}" && grep -q 'Unsourced covers fall back to type.' "${NEW_DIRECTIONS_BROWSE_DOM}"; then
+  log "new_directions_cover_fallback=pass publisher_count=1488_vols browse_count=1488_books remote_dependency=none"
 else
-  log "new_directions_cover_fallback=fail expected=50_editions_50_books_typographic_fallback"
+  log "new_directions_cover_fallback=fail expected=1488_vols_1488_books_type_fallback"
   exit 1
 fi
 
@@ -417,7 +418,7 @@ if (missing.length === 0) {
 NODE
 
 log "running cached cover image decode audit"
-node scripts/image_decode_check.mjs \
+node "${BROWSER_QA_HELPER_DIR}/image_decode_check.mjs" \
   "${BASE_URL}/books/deep-vellum-immigrant" \
   "#public-cover-deep-vellum-immigrant img" \
   "/covers/cache/browser-qa-immigrant.png" \
@@ -426,7 +427,7 @@ grep -q '"passed": true' "${QA_DIR}/image-decode.json"
 log "image_decode=pass artifact=${QA_DIR}/image-decode.json natural_dimensions_minimum=64x64"
 
 log "running card thumbnail image decode audit"
-node scripts/image_decode_check.mjs \
+node "${BROWSER_QA_HELPER_DIR}/image_decode_check.mjs" \
   "${BASE_URL}/browse?q=Immigrant" \
   "#public-cover-deep-vellum-immigrant img" \
   "/covers/cache/browser-qa-immigrant-thumb.png" \
@@ -454,7 +455,7 @@ for route_spec in "${responsive_routes[@]}"; do
   for viewport_spec in "mobile|390|844" "tablet|768|1024"; do
     IFS='|' read -r viewport_label viewport_width viewport_height <<< "${viewport_spec}"
     overflow_artifact="${QA_DIR}/${viewport_label}-${route_label}-overflow.json"
-    CHROME_BIN="${CHROME_BIN}" node scripts/responsive_overflow_check.mjs \
+    CHROME_BIN="${CHROME_BIN}" node "${BROWSER_QA_HELPER_DIR}/responsive_overflow_check.mjs" \
       "${BASE_URL}${route_path}" \
       "${overflow_artifact}" \
       "${viewport_width}" \

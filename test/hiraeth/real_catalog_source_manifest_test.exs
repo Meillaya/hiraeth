@@ -9,6 +9,12 @@ defmodule Hiraeth.RealCatalogSourceManifestTest do
                  )
 
   @dataset_dir Path.expand("../../priv/catalog_sources/real_publishers", __DIR__)
+  @provider_manifest_dir Path.expand("../../priv/catalog_sources/provider_manifests", __DIR__)
+
+  @source_snapshots_dir Path.expand(
+                          "../../priv/source_snapshots/source-snapshots",
+                          __DIR__
+                        )
 
   manifest = @manifest_path |> File.read!() |> Jason.decode!()
   @expected_providers Map.new(manifest["providers"], &{&1["provider"], &1["dataset_file"]})
@@ -23,6 +29,48 @@ defmodule Hiraeth.RealCatalogSourceManifestTest do
 
       for {_provider, dataset_file} <- providers do
         assert File.exists?(Path.join(@dataset_dir, dataset_file))
+      end
+    end
+
+    test "retains every non-empty ingested source snapshot with a provider manifest" do
+      manifest = load_manifest!()
+      providers = Map.new(manifest["providers"], &{&1["provider"], &1["dataset_file"]})
+
+      retained_snapshot_providers =
+        @source_snapshots_dir
+        |> Path.join("*/*/*.json")
+        |> Path.wildcard()
+        |> Enum.flat_map(&snapshot_provider_with_manifest/1)
+        |> Enum.uniq()
+        |> Enum.sort()
+
+      assert retained_snapshot_providers != []
+
+      assert MapSet.subset?(
+               MapSet.new(~w(
+                 and_other_stories_official_store
+                 astra_house_official_store
+                 coffee_house_press_official_store
+                 seagull_books_official_store
+                 wakefield_press_official_store
+               )),
+               MapSet.new(retained_snapshot_providers)
+             )
+
+      for provider <- retained_snapshot_providers do
+        assert dataset_file = providers[provider],
+               "#{provider} has a non-empty checked-in source snapshot and provider manifest but is missing from source_authority_manifest.json"
+
+        dataset_path = Path.join(@dataset_dir, dataset_file)
+        assert File.exists?(dataset_path), "#{provider} dataset file #{dataset_file} is missing"
+
+        dataset =
+          dataset_path
+          |> File.read!()
+          |> Jason.decode!()
+
+        assert dataset["provider"] == provider
+        assert length(dataset["records"] || []) > 0
       end
     end
 
@@ -122,5 +170,26 @@ defmodule Hiraeth.RealCatalogSourceManifestTest do
   defp provider!(manifest, provider) do
     Enum.find(manifest["providers"], &(&1["provider"] == provider)) ||
       flunk("missing provider #{provider}")
+  end
+
+  defp snapshot_provider_with_manifest(snapshot_path) do
+    snapshot =
+      snapshot_path
+      |> File.read!()
+      |> Jason.decode!()
+
+    provider = snapshot["provider"]
+    records = snapshot["records"] || []
+
+    manifest_path =
+      if is_binary(provider) do
+        Path.join(@provider_manifest_dir, "#{provider}.json")
+      end
+
+    if is_binary(provider) and records != [] and File.exists?(manifest_path) do
+      [provider]
+    else
+      []
+    end
   end
 end

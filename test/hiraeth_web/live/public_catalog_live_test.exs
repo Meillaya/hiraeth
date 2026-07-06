@@ -438,7 +438,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert has_element?(contributor, "#contributor-books", "Immigrant")
   end
 
-  test "edition route redirects to canonical book detail with hidden provenance and formats", %{
+  test "edition route redirects to canonical book detail with source provenance and formats", %{
     conn: conn
   } do
     cache_cover_for_edition_slug!(
@@ -459,7 +459,8 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert has_element?(view, "#book-authors", "by Joaquín Zihuatanejo")
     assert has_element?(view, "#book-translators", "translated by David Bowles")
     assert has_element?(view, "#book-identifiers", "9781646054541")
-    refute has_element?(view, "#edition-provenance")
+    assert has_element?(view, "#edition-provenance[data-provenance-motif=\"source-thread\"]")
+    assert has_element?(view, "#edition-provenance", "Source provenance")
 
     assert HiraethWeb.PublicCatalog.book("deep-vellum-immigrant").source.provider ==
              "deep_vellum_official_store"
@@ -513,6 +514,8 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     refute has_element?(view, "#book-review-links", "Review provenance")
     assert has_element?(view, "#book-review-links", "Reviews")
     assert has_element?(view, "#book-review-links", "A sourced review excerpt")
+    assert has_element?(view, "#edition-provenance[data-provenance-motif=\"source-thread\"]")
+    assert has_element?(view, "#edition-provenance", "Source provenance")
     refute render(view) =~ "approved rights basis"
     refute render(view) =~ "test source fixture"
     refute has_element?(view, "#book-review-gap")
@@ -536,7 +539,8 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
 
     assert has_element?(view, "#book-format-#{slug}", "No ISBN recorded")
     assert has_element?(view, "#book-review-gap", "No review links")
-    refute has_element?(view, "#edition-provenance")
+    assert has_element?(view, "#edition-provenance[data-provenance-motif=\"source-thread\"]")
+    assert has_element?(view, "#edition-provenance", "Source provenance")
 
     assert HiraethWeb.PublicCatalog.book(slug).source.provider ==
              "archipelago_books_official_store"
@@ -567,7 +571,8 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert has_element?(book, "#book-format-#{fixture.edition_slug}", "321 pages")
     assert has_element?(book, "#book-format-#{fixture.edition_slug}", "eng")
     assert has_element?(book, "#book-format-#{fixture.edition_slug}", "203 × 127 × 24 mm")
-    refute has_element?(book, "#edition-provenance")
+    assert has_element?(book, "#edition-provenance[data-provenance-motif=\"source-thread\"]")
+    assert has_element?(book, "#edition-provenance", "Source provenance")
     assert HiraethWeb.PublicCatalog.book(fixture.book_slug).source.field_sources != %{}
 
     {:ok, publisher, _html} = live(conn, ~p"/publishers/#{fixture.publisher_slug}")

@@ -21,8 +21,8 @@ defmodule Hiraeth.RealCatalogSourceArtifactsTest do
     assert checked_in == built
     assert built["generated_from"] == "checked_in_real_publisher_fixtures"
     assert built["completeness_boundary"] == "approved_source_corpus"
-    assert built["total_records"] == 7406
-    assert length(built["artifacts"]) == 18
+    assert built["total_records"] == 8776
+    assert length(built["artifacts"]) == 23
 
     for artifact <- built["artifacts"] do
       assert artifact["record_count"] == artifact["expected_record_count"]

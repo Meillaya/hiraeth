@@ -514,6 +514,11 @@ defmodule Hiraeth.Ingestion.ManifestValidatorTest do
   describe "real publisher ingestion manifests" do
     @real_manifest_dir Path.expand("../../../priv/catalog_sources/provider_manifests", __DIR__)
     @new_provider_expectations %{
+      "and_other_stories_official_store" => %{
+        mode: "api",
+        cover_host: "www.andotherstories.org",
+        count: 190
+      },
       "two_lines_press_official_store" => %{
         mode: "api",
         cover_host: "www.twolinespress.com",
@@ -534,10 +539,15 @@ defmodule Hiraeth.Ingestion.ManifestValidatorTest do
         cover_host: "sandorfpassage.org",
         count: 32
       },
+      "coffee_house_press_official_store" => %{
+        mode: "api",
+        cover_host: "cdn.shopify.com",
+        count: 181
+      },
       "seagull_books_official_store" => %{
         mode: "api",
         cover_host: "cdn.shopify.com",
-        count: 822
+        count: 842
       },
       "pushkin_press_us_official_store" => %{
         mode: "api",

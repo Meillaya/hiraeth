@@ -28,6 +28,31 @@
       "source_status": "approved_machine_readable_source_available"
     },
     {
+      "approved_source_records": 190,
+      "attempted_records": 190,
+      "checksums": {
+        "dataset_sha256": "b61e64e3515336aa3e3c7b1cbbd81662a72b82e069bb944162d087c9024096e3"
+      },
+      "coverage_state": "operator_authorized_full_public_catalog_refresh",
+      "dataset_file": "and_other_stories.json",
+      "expansion_state": "complete_checked_in_source_corpus",
+      "expected_record_count": 190,
+      "gap_counts": {
+        "missing_cover": 1,
+        "missing_isbn": 0,
+        "missing_purchase_link": 0,
+        "missing_review_links": 190,
+        "structured_missing_fields": 0
+      },
+      "gap_policy": "import_with_gaps",
+      "provider": "and_other_stories_official_store",
+      "skipped_source_records": 0,
+      "source_blocked": false,
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "source_expansion_blocked": false,
+      "source_status": "approved_machine_readable_source_available"
+    },
+    {
       "approved_source_records": 497,
       "attempted_records": 497,
       "checksums": {
@@ -46,6 +71,56 @@
       },
       "gap_policy": "import_with_gaps",
       "provider": "archipelago_books_official_store",
+      "skipped_source_records": 0,
+      "source_blocked": false,
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "source_expansion_blocked": false,
+      "source_status": "approved_machine_readable_source_available"
+    },
+    {
+      "approved_source_records": 53,
+      "attempted_records": 53,
+      "checksums": {
+        "dataset_sha256": "d320e7b4a01d0473e168caf54d698d8cf79deb5682d7db9d2a88ef7595f68671"
+      },
+      "coverage_state": "operator_authorized_full_public_catalog_refresh",
+      "dataset_file": "astra_house.json",
+      "expansion_state": "complete_checked_in_source_corpus",
+      "expected_record_count": 53,
+      "gap_counts": {
+        "missing_cover": 0,
+        "missing_isbn": 0,
+        "missing_purchase_link": 0,
+        "missing_review_links": 53,
+        "structured_missing_fields": 0
+      },
+      "gap_policy": "import_with_gaps",
+      "provider": "astra_house_official_store",
+      "skipped_source_records": 0,
+      "source_blocked": false,
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "source_expansion_blocked": false,
+      "source_status": "approved_official_html_source_available"
+    },
+    {
+      "approved_source_records": 181,
+      "attempted_records": 181,
+      "checksums": {
+        "dataset_sha256": "9e2fa29c85bfaedec3dc7404d6dad31eec2103575395760f52a8f59b72164eeb"
+      },
+      "coverage_state": "operator_authorized_full_public_catalog_refresh",
+      "dataset_file": "coffee_house_press.json",
+      "expansion_state": "complete_checked_in_source_corpus",
+      "expected_record_count": 181,
+      "gap_counts": {
+        "missing_cover": 0,
+        "missing_isbn": 0,
+        "missing_purchase_link": 0,
+        "missing_review_links": 181,
+        "structured_missing_fields": 0
+      },
+      "gap_policy": "import_with_gaps",
+      "provider": "coffee_house_press_official_store",
       "skipped_source_records": 0,
       "source_blocked": false,
       "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
@@ -328,6 +403,31 @@
       "source_status": "available_checked_in_source_corpus"
     },
     {
+      "approved_source_records": 842,
+      "attempted_records": 842,
+      "checksums": {
+        "dataset_sha256": "daf21425aa987506a50da001a32ca0831c43e710d7ad17f9b403773faf326587"
+      },
+      "coverage_state": "operator_authorized_full_public_catalog_refresh",
+      "dataset_file": "seagull_books.json",
+      "expansion_state": "complete_checked_in_source_corpus",
+      "expected_record_count": 842,
+      "gap_counts": {
+        "missing_cover": 0,
+        "missing_isbn": 2,
+        "missing_purchase_link": 0,
+        "missing_review_links": 842,
+        "structured_missing_fields": 2
+      },
+      "gap_policy": "import_with_gaps",
+      "provider": "seagull_books_official_store",
+      "skipped_source_records": 0,
+      "source_blocked": false,
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "source_expansion_blocked": false,
+      "source_status": "approved_machine_readable_source_available"
+    },
+    {
       "approved_source_records": 265,
       "attempted_records": 265,
       "checksums": {
@@ -451,12 +551,37 @@
       "source_corpus_boundary": "official source: Official Unnamed Press Squarespace All Books collection JSON.",
       "source_expansion_blocked": false,
       "source_status": "available_checked_in_source_corpus"
+    },
+    {
+      "approved_source_records": 104,
+      "attempted_records": 104,
+      "checksums": {
+        "dataset_sha256": "07d35b4af32cfabf2e39fc17c9db915de02e92c8b9beddece27f883a41b7ea32"
+      },
+      "coverage_state": "operator_authorized_full_public_catalog_refresh",
+      "dataset_file": "wakefield_press.json",
+      "expansion_state": "complete_checked_in_source_corpus",
+      "expected_record_count": 104,
+      "gap_counts": {
+        "missing_cover": 0,
+        "missing_isbn": 6,
+        "missing_purchase_link": 0,
+        "missing_review_links": 104,
+        "structured_missing_fields": 6
+      },
+      "gap_policy": "import_with_gaps",
+      "provider": "wakefield_press_official_store",
+      "skipped_source_records": 0,
+      "source_blocked": false,
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "source_expansion_blocked": false,
+      "source_status": "approved_machine_readable_source_available"
     }
   ],
   "totals": {
-    "approved_source_records": 7406,
-    "attempted_records": 7406,
-    "providers": 18,
+    "approved_source_records": 8776,
+    "attempted_records": 8776,
+    "providers": 23,
     "skipped_source_records": 0
   },
   "version": 1

@@ -225,11 +225,17 @@ try {
         await writeFile(screenshotPath, Buffer.from(screenshot.data, "base64"));
       }
       if (domPath) {
-        const dom = await client.send("Runtime.evaluate", {
-          expression: "document.documentElement.outerHTML",
-          returnByValue: true
-        });
-        await writeFile(domPath, dom.result.value);
+        try {
+          const dom = await client.send("Runtime.evaluate", {
+            expression: "document.documentElement.outerHTML",
+            returnByValue: true
+          });
+          await writeFile(domPath, dom.result.value);
+        } catch (domError) {
+          const fallbackDom = await (await fetch(targetUrl)).text();
+          await writeFile(domPath, fallbackDom);
+          console.warn(`responsive overflow DOM fallback used for ${targetUrl}: ${domError.message}`);
+        }
       }
       await writeFile(outputPath, JSON.stringify({
         passed: Boolean(probe.passed),

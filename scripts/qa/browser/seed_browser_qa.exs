@@ -6,7 +6,7 @@ alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
 alias Hiraeth.Imports.{ImportRun, ReviewItem, StagedImportRow}
 
 if Mix.env() not in [:dev, :test] do
-  raise "scripts/seed_browser_qa.exs may only run in dev/test environments"
+  raise "scripts/qa/browser/seed_browser_qa.exs may only run in dev/test environments"
 end
 
 catalog_writer = %{id: Ash.UUID.generate(), catalog_write?: true}
@@ -94,7 +94,12 @@ cover_svg = """
 cover_svg_path = Path.join(Path.dirname(cache_path), "browser-qa-immigrant.svg")
 File.write!(cover_svg_path, cover_svg)
 {_, 0} = System.cmd(magick, [cover_svg_path, cache_path], stderr_to_stdout: true)
-{_, 0} = System.cmd(magick, [cache_path, "-thumbnail", "400x600>", thumbnail_path], stderr_to_stdout: true)
+
+{_, 0} =
+  System.cmd(magick, [cache_path, "-thumbnail", "400x600>", thumbnail_path],
+    stderr_to_stdout: true
+  )
+
 File.rm(cover_svg_path)
 
 cached_cover =

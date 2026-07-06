@@ -5,7 +5,7 @@ QA_DIR := artifacts/qa
 BOOTSTRAP_ARTIFACT := $(QA_DIR)/bootstrap/bootstrap-check.txt
 VERIFY_SUMMARY := $(QA_DIR)/verify/summary.json
 
-.PHONY: bootstrap-check verify precommit-fast test-fast test-full ci test-elixir test-ui test-ingest test-normalize test-covers audit-provenance test-browser verify-summary qa-pack
+.PHONY: bootstrap-check verify precommit-fast test-fast test-full ci test-elixir test-ui test-ingest test-normalize test-covers audit-provenance test-browser verify-summary qa-pack cleanup-policy
 
 bootstrap-check:
 	@mkdir -p $(dir $(BOOTSTRAP_ARTIFACT))
@@ -27,6 +27,11 @@ verify: bootstrap-check test-elixir test-ui test-ingest test-normalize test-cove
 
 precommit-fast:
 	mix precommit.fast
+
+cleanup-policy:
+	@echo "Cleanup policy: never delete, clean, modify, or regenerate priv/static/covers/cache/*"
+	@test -f docs/cleanup-policy.md
+	@bash -n scripts/qa/cover_cache_sandbox.sh
 
 test-fast:
 	mix test.fast

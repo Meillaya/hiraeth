@@ -34,32 +34,32 @@ defmodule Hiraeth.CatalogCleanup do
   )
 
   def reset_committed_catalog! do
-    reset_committed_tables!(@tables)
+    with_committed_catalog_fixture_lock(fn ->
+      reset_committed_tables!(@tables)
+      :ok
+    end)
   end
 
   def reset_committed_catalog_with_fixtures! do
-    Sandbox.unboxed_run(Repo, fn ->
-      truncate_tables!(@tables)
-      seed_committed_catalog_fixtures!()
+    with_committed_catalog_fixture_lock(fn ->
+      Sandbox.unboxed_run(Repo, fn ->
+        truncate_tables!(@tables)
+        seed_committed_catalog_fixtures!()
+      end)
     end)
 
     clear_public_catalog_cache!()
   end
 
   def ensure_committed_catalog_fixtures! do
-    :global.trans(
-      {__MODULE__, :committed_catalog_fixtures},
-      fn ->
-        Sandbox.unboxed_run(Repo, fn ->
-          unless committed_catalog_seeded?() do
-            truncate_tables!(@tables)
-            seed_committed_catalog_fixtures!()
-          end
-        end)
-      end,
-      [node()],
-      :infinity
-    )
+    with_committed_catalog_fixture_lock(fn ->
+      Sandbox.unboxed_run(Repo, fn ->
+        unless committed_catalog_seeded?() do
+          truncate_tables!(@tables)
+          seed_committed_catalog_fixtures!()
+        end
+      end)
+    end)
 
     clear_public_catalog_cache!()
   end
@@ -73,6 +73,10 @@ defmodule Hiraeth.CatalogCleanup do
   end
 
   def clear_catalog!, do: :ok
+
+  defp with_committed_catalog_fixture_lock(fun) when is_function(fun, 0) do
+    :global.trans({__MODULE__, :committed_catalog_fixtures}, fun, [node()], :infinity)
+  end
 
   defp clear_public_catalog_cache! do
     if Code.ensure_loaded?(HiraethWeb.PublicCatalog) do

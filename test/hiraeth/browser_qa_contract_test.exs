@@ -52,6 +52,7 @@ defmodule Hiraeth.BrowserQaContractTest do
   setup_all do
     {:ok,
      script: File.read!(Path.join(@root, "scripts/browser_qa.sh")),
+     helper: File.read!(Path.join(@root, "scripts/qa/browser/responsive_overflow_check.mjs")),
      docs: File.read!(Path.join(@root, "docs/browser-qa.md")),
      makefile: File.read!(Path.join(@root, "Makefile"))}
   end
@@ -66,6 +67,7 @@ defmodule Hiraeth.BrowserQaContractTest do
     assert executable?(script_path)
     assert makefile =~ "scripts/browser_qa.sh"
     assert script =~ "chromium"
+    assert script =~ "scripts/qa/browser"
     assert script =~ "seed_browser_qa.exs"
     assert script =~ "keyboard_focus_check.mjs"
     refute script =~ "admin_browser_check.mjs"
@@ -104,6 +106,14 @@ defmodule Hiraeth.BrowserQaContractTest do
     assert script =~ "-render.json"
     assert script =~ "\"passed\": true"
     assert script =~ "screenshots_count="
+  end
+
+  test "responsive overflow capture falls back to HTTP HTML when CDP DOM serialization fails", %{
+    helper: helper
+  } do
+    assert helper =~ "responsive overflow DOM fallback used"
+    assert helper =~ "fallbackDom"
+    assert helper =~ "fetch(targetUrl)"
   end
 
   test "strict timing and network/resource dependency checks remain part of the contract", %{

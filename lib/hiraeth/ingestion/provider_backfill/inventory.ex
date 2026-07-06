@@ -5,9 +5,9 @@ defmodule Hiraeth.Ingestion.ProviderBackfill.Inventory do
   alias Hiraeth.RealCatalog.{Dataset, SourcePolicy}
 
   @script_paths [
-    "scripts/generate_full_catalog.py",
-    "scripts/generate_full_catalog_deep_vellum.py",
-    "scripts/extract_fitzcarraldo_catalog.py"
+    "scripts/catalog/generate_full_catalog.py",
+    "scripts/catalog/generate_full_catalog_deep_vellum.py",
+    "scripts/catalog/extract_fitzcarraldo_catalog.py"
   ]
 
   def build(opts \\ []) do

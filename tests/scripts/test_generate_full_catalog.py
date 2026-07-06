@@ -9,7 +9,7 @@ import pytest
 
 
 ROOT = Path(__file__).resolve().parents[2]
-SCRIPT = ROOT / "scripts" / "generate_full_catalog.py"
+SCRIPT = ROOT / "scripts" / "catalog" / "generate_full_catalog.py"
 
 
 def load_script_module():

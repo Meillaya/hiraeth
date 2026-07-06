@@ -2,7 +2,7 @@
   "version": 1,
   "created_for": "hiraeth-full-catalog-ingestion",
   "completeness_boundary": "approved_source_corpus",
-  "completeness_note": "Current checked-in corpus includes the original eleven providers plus NYRB series collections, Tilted Axis Press, McNally Editions, Seven Stories Press, Unnamed Press, and Pushkin Press Classics; it is not fabricated universal publisher history.",
+  "completeness_note": "Current checked-in corpus includes the original eleven providers, restored ingested source-snapshot providers, NYRB series collections, Tilted Axis Press, McNally Editions, Seven Stories Press, Unnamed Press, and Pushkin Press Classics; it is not fabricated universal publisher history.",
   "network_policy": {
     "allowed": true,
     "normal_tests_live_network_allowed": false,
@@ -109,6 +109,72 @@
       "takedown_contact": "https://store.deepvellum.org/pages/contact-us"
     },
     {
+      "provider": "and_other_stories_official_store",
+      "dataset_file": "and_other_stories.json",
+      "publisher_name": "And Other Stories",
+      "status": "approved_machine_readable_source_available",
+      "allowed_source_types": [
+        "official_wordpress_rest_json"
+      ],
+      "allowed_source_urls": [
+        "https://www.andotherstories.org/books/",
+        "https://www.andotherstories.org/wp-json/wp/v2/product",
+        "https://www.andotherstories.org"
+      ],
+      "allowed_source_hosts": [
+        "www.andotherstories.org"
+      ],
+      "allowed_cover_hosts": [
+        "www.andotherstories.org"
+      ],
+      "allowed_purchase_link_hosts": [
+        "www.andotherstories.org"
+      ],
+      "blocked_modes": [
+        "cart_checkout_account",
+        "inventory_state",
+        "prices",
+        "user_reviews",
+        "raw_html_without_sanitization"
+      ],
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "required_evidence": [
+        "source_url_or_file",
+        "retrieved_at",
+        "checksum",
+        "license_note",
+        "provider_permissions",
+        "field_sources",
+        "checked_in_dataset",
+        "field_level_provenance",
+        "source_uri_allowlist",
+        "cover_host_allowlist"
+      ],
+      "rate_limit": {
+        "max_concurrency": 2,
+        "min_delay_ms": 250
+      },
+      "max_bytes": {
+        "response": 52428800,
+        "cover_asset": 10485760
+      },
+      "coverage": {
+        "expected_record_count": 190,
+        "coverage_state": "operator_authorized_full_public_catalog_refresh",
+        "gap_policy": "import_with_gaps",
+        "count_source": "generated_public_source_corpus",
+        "generated_at": "2026-07-06T00:00:00Z"
+      },
+      "allowed_source_path_prefixes": [
+        "/",
+        "/wp-json"
+      ],
+      "allowed_pdf_path_prefixes": [],
+      "approved_source_records": 190,
+      "expansion_state": "complete_checked_in_source_corpus",
+      "takedown_contact": "https://www.andotherstories.org/contact/"
+    },
+    {
       "provider": "archipelago_books_official_store",
       "dataset_file": "archipelago_books.json",
       "publisher_name": "Archipelago Books",
@@ -167,6 +233,138 @@
       "allowed_pdf_path_prefixes": [],
       "approved_source_records": 497,
       "expansion_state": null
+    },
+    {
+      "provider": "astra_house_official_store",
+      "dataset_file": "astra_house.json",
+      "publisher_name": "Astra House",
+      "status": "approved_official_html_source_available",
+      "allowed_source_types": [
+        "publisher_official_page"
+      ],
+      "allowed_source_urls": [
+        "https://astrapublishinghouse.com/imprints/astra-house/"
+      ],
+      "allowed_source_hosts": [
+        "astrapublishinghouse.com"
+      ],
+      "allowed_cover_hosts": [
+        "images.penguinrandomhouse.com"
+      ],
+      "allowed_purchase_link_hosts": [
+        "astrapublishinghouse.com"
+      ],
+      "blocked_modes": [
+        "global_astra_catalog",
+        "non_astra_house_imprints",
+        "cart_checkout_account",
+        "inventory_state",
+        "prices",
+        "user_reviews",
+        "raw_html_without_sanitization"
+      ],
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "required_evidence": [
+        "source_url_or_file",
+        "retrieved_at",
+        "checksum",
+        "license_note",
+        "provider_permissions",
+        "field_sources",
+        "checked_in_dataset",
+        "field_level_provenance",
+        "source_uri_allowlist",
+        "cover_host_allowlist"
+      ],
+      "rate_limit": {
+        "max_concurrency": 2,
+        "min_delay_ms": 250
+      },
+      "max_bytes": {
+        "response": 15728640,
+        "cover_asset": 10485760
+      },
+      "coverage": {
+        "expected_record_count": 53,
+        "coverage_state": "operator_authorized_full_public_catalog_refresh",
+        "gap_policy": "import_with_gaps",
+        "count_source": "generated_public_source_corpus",
+        "generated_at": "2026-07-06T00:00:00Z"
+      },
+      "allowed_source_path_prefixes": [
+        "/imprints/astra-house",
+        "/product"
+      ],
+      "allowed_pdf_path_prefixes": [],
+      "approved_source_records": 53,
+      "expansion_state": "complete_checked_in_source_corpus",
+      "takedown_contact": "https://astrapublishinghouse.com/contact/"
+    },
+    {
+      "provider": "coffee_house_press_official_store",
+      "dataset_file": "coffee_house_press.json",
+      "publisher_name": "Coffee House Press",
+      "status": "approved_machine_readable_source_available",
+      "allowed_source_types": [
+        "official_shopify_products_json"
+      ],
+      "allowed_source_urls": [
+        "https://coffeehousepress.org/collections/shop",
+        "https://coffeehousepress.org/products",
+        "https://coffeehousepress.org"
+      ],
+      "allowed_source_hosts": [
+        "coffeehousepress.org"
+      ],
+      "allowed_cover_hosts": [
+        "cdn.shopify.com"
+      ],
+      "allowed_purchase_link_hosts": [
+        "coffeehousepress.org"
+      ],
+      "blocked_modes": [
+        "cart_checkout_account",
+        "inventory_state",
+        "user_reviews",
+        "raw_html_without_sanitization"
+      ],
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "required_evidence": [
+        "source_url_or_file",
+        "retrieved_at",
+        "checksum",
+        "license_note",
+        "provider_permissions",
+        "field_sources",
+        "checked_in_dataset",
+        "field_level_provenance",
+        "source_uri_allowlist",
+        "cover_host_allowlist"
+      ],
+      "rate_limit": {
+        "max_concurrency": 2,
+        "min_delay_ms": 250
+      },
+      "max_bytes": {
+        "response": 52428800,
+        "cover_asset": 10485760
+      },
+      "coverage": {
+        "expected_record_count": 181,
+        "coverage_state": "operator_authorized_full_public_catalog_refresh",
+        "gap_policy": "import_with_gaps",
+        "count_source": "generated_public_source_corpus",
+        "generated_at": "2026-07-06T00:00:00Z"
+      },
+      "allowed_source_path_prefixes": [
+        "/collections",
+        "/products",
+        "/pages"
+      ],
+      "allowed_pdf_path_prefixes": [],
+      "approved_source_records": 181,
+      "expansion_state": "complete_checked_in_source_corpus",
+      "takedown_contact": "https://coffeehousepress.org/pages/contact"
     },
     {
       "provider": "dalkey_archive_official_store",
@@ -863,6 +1061,73 @@
       "expansion_state": "complete_checked_in_source_corpus"
     },
     {
+      "provider": "seagull_books_official_store",
+      "dataset_file": "seagull_books.json",
+      "publisher_name": "Seagull Books",
+      "status": "approved_machine_readable_source_available",
+      "allowed_source_types": [
+        "official_shopify_products_json"
+      ],
+      "allowed_source_urls": [
+        "https://seagullbooks.org/collections/all-books-in-print",
+        "https://seagullbooks.org/products",
+        "https://seagullbooks.org"
+      ],
+      "allowed_source_hosts": [
+        "seagullbooks.org"
+      ],
+      "allowed_cover_hosts": [
+        "cdn.shopify.com"
+      ],
+      "allowed_purchase_link_hosts": [
+        "seagullbooks.org"
+      ],
+      "blocked_modes": [
+        "cart_checkout_account",
+        "inventory_state",
+        "prices",
+        "user_reviews",
+        "raw_html_without_sanitization"
+      ],
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "required_evidence": [
+        "source_url_or_file",
+        "retrieved_at",
+        "checksum",
+        "license_note",
+        "provider_permissions",
+        "field_sources",
+        "checked_in_dataset",
+        "field_level_provenance",
+        "source_uri_allowlist",
+        "cover_host_allowlist"
+      ],
+      "rate_limit": {
+        "max_concurrency": 2,
+        "min_delay_ms": 250
+      },
+      "max_bytes": {
+        "response": 104857600,
+        "cover_asset": 10485760
+      },
+      "coverage": {
+        "expected_record_count": 842,
+        "coverage_state": "operator_authorized_full_public_catalog_refresh",
+        "gap_policy": "import_with_gaps",
+        "count_source": "generated_public_source_corpus",
+        "generated_at": "2026-07-06T00:00:00Z"
+      },
+      "allowed_source_path_prefixes": [
+        "/collections",
+        "/products",
+        "/pages"
+      ],
+      "allowed_pdf_path_prefixes": [],
+      "approved_source_records": 842,
+      "expansion_state": "complete_checked_in_source_corpus",
+      "takedown_contact": "https://seagullbooks.org/pages/contact-us"
+    },
+    {
       "provider": "semiotexte_official_site",
       "dataset_file": "semiotexte.json",
       "publisher_name": "Semiotext(e)",
@@ -1175,6 +1440,75 @@
       "allowed_pdf_path_prefixes": [],
       "approved_source_records": 159,
       "expansion_state": "complete_checked_in_source_corpus"
+    },
+    {
+      "provider": "wakefield_press_official_store",
+      "dataset_file": "wakefield_press.json",
+      "publisher_name": "Wakefield Press",
+      "status": "approved_machine_readable_source_available",
+      "allowed_source_types": [
+        "official_shopify_products_json"
+      ],
+      "allowed_source_urls": [
+        "https://wakefieldpress.com/",
+        "https://wakefieldpress.com/products",
+        "https://wakefieldpress.com/collections/all",
+        "https://wakefieldpress.com"
+      ],
+      "allowed_source_hosts": [
+        "wakefieldpress.com"
+      ],
+      "allowed_cover_hosts": [
+        "cdn.shopify.com"
+      ],
+      "allowed_purchase_link_hosts": [
+        "wakefieldpress.com"
+      ],
+      "blocked_modes": [
+        "cart_checkout_account",
+        "inventory_state",
+        "prices",
+        "user_reviews",
+        "raw_html_without_sanitization",
+        "non_book_merchandise"
+      ],
+      "source_corpus_boundary": "official public APIs, official sitemaps, official publisher pages, and checked-in generated fixtures; no fabricated metadata",
+      "required_evidence": [
+        "source_url_or_file",
+        "retrieved_at",
+        "checksum",
+        "license_note",
+        "provider_permissions",
+        "field_sources",
+        "checked_in_dataset",
+        "field_level_provenance",
+        "source_uri_allowlist",
+        "cover_host_allowlist"
+      ],
+      "rate_limit": {
+        "max_concurrency": 2,
+        "min_delay_ms": 250
+      },
+      "max_bytes": {
+        "response": 52428800,
+        "cover_asset": 10485760
+      },
+      "coverage": {
+        "expected_record_count": 104,
+        "coverage_state": "operator_authorized_full_public_catalog_refresh",
+        "gap_policy": "import_with_gaps",
+        "count_source": "generated_public_source_corpus",
+        "generated_at": "2026-07-06T00:00:00Z"
+      },
+      "allowed_source_path_prefixes": [
+        "/collections",
+        "/products",
+        "/pages"
+      ],
+      "allowed_pdf_path_prefixes": [],
+      "approved_source_records": 104,
+      "expansion_state": "complete_checked_in_source_corpus",
+      "takedown_contact": "https://wakefieldpress.com/pages/contact"
     }
   ]
 }

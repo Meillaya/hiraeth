@@ -103,7 +103,12 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
     "seven_stories_press_official_site" => ~w(/imprints/seven-stories-press /books /pg),
     "unnamed_press_official_site" => ~w(/all-books /about /contact),
     "pushkin_press_official_site" => ~w(/imprint/pushkin-press-classics /book /wp-json),
-    "fitzcarraldo_editions_official_site" => ~w(/shop /books /contact)
+    "fitzcarraldo_editions_official_site" => ~w(/shop /books /contact),
+    "and_other_stories_official_store" => ~w(/ /wp-json),
+    "astra_house_official_store" => ~w(/imprints/astra-house /product),
+    "coffee_house_press_official_store" => ~w(/collections /products /pages),
+    "seagull_books_official_store" => ~w(/collections /products /pages),
+    "wakefield_press_official_store" => ~w(/collections /products /pages)
   }
 
   @source_pdf_path_prefixes %{

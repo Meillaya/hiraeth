@@ -21,9 +21,9 @@ defmodule Hiraeth.RealCatalogCoverageReportTest do
     assert built["completeness_boundary"] == "approved_source_corpus"
 
     assert built["totals"] == %{
-             "providers" => 18,
-             "attempted_records" => 7406,
-             "approved_source_records" => 7406,
+             "providers" => 23,
+             "attempted_records" => 8776,
+             "approved_source_records" => 8776,
              "skipped_source_records" => 0
            }
 
@@ -80,6 +80,21 @@ defmodule Hiraeth.RealCatalogCoverageReportTest do
     fitzcarraldo = provider!(report, "fitzcarraldo_editions_official_site")
     assert fitzcarraldo["approved_source_records"] == 392
     assert fitzcarraldo["gap_counts"]["missing_cover"] == 0
+
+    and_other_stories = provider!(report, "and_other_stories_official_store")
+    assert and_other_stories["approved_source_records"] == 190
+
+    astra_house = provider!(report, "astra_house_official_store")
+    assert astra_house["approved_source_records"] == 53
+
+    coffee_house_press = provider!(report, "coffee_house_press_official_store")
+    assert coffee_house_press["approved_source_records"] == 181
+
+    seagull_books = provider!(report, "seagull_books_official_store")
+    assert seagull_books["approved_source_records"] == 842
+
+    wakefield_press = provider!(report, "wakefield_press_official_store")
+    assert wakefield_press["approved_source_records"] == 104
   end
 
   test "repeat coverage report writes are stable" do

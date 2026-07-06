@@ -11,6 +11,7 @@ from types import ModuleType
 from typing import Any, TextIO, TypeAlias
 
 JsonMap: TypeAlias = dict[str, Any]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 MakeRecord: TypeAlias = Callable[
     [
         str,
@@ -58,7 +59,7 @@ def parse_catalog_args(providers: Mapping[str, Mapping[str, Any]], argv: list[st
 
 
 def load_deep_vellum_stealthy_spider() -> type[Any] | None:
-    sidecar_path = Path(__file__).resolve().parents[1] / "sidecar"
+    sidecar_path = REPO_ROOT / "sidecar"
     if sidecar_path.exists():
         sidecar = str(sidecar_path)
         if sidecar not in sys.path:
@@ -78,7 +79,7 @@ def load_deep_vellum_stealthy_spider() -> type[Any] | None:
 
 def _sidecar_site_packages() -> Path:
     version = f"python{sys.version_info.major}.{sys.version_info.minor}"
-    return Path(__file__).resolve().parents[1] / "sidecar" / ".venv" / "lib" / version / "site-packages"
+    return REPO_ROOT / "sidecar" / ".venv" / "lib" / version / "site-packages"
 
 
 def import_anyio() -> ModuleType:

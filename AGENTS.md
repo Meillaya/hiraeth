@@ -14,6 +14,7 @@ This is a web application written using the Phoenix web framework.
 - Scraping is allowed exclusively via Scrapling (`https://github.com/D4Vinci/Scrapling`). Import from explicit fixtures, user-provided files, documented public APIs, sites scraped through Scrapling, or sources with clear permission. Keep the existing source-allowlist, rate-limit, max-byte, checksum, deterministic-fixture, provenance, and no-cart/account/checkout constraints in force. Do not add custom crawlers or scraping frameworks beyond Scrapling.
 - Project stance: separate publisher permission is not required for displaying sourced book metadata or cover images when Hiraeth is acting as a non-commerce discovery catalog and every book entry links to the official publisher purchase page; this does not relax the official-source, deterministic-fixture, or provenance requirements.
 - Preserve source provenance for imported metadata and cover assets so every value can be traced to a provider, source record, and import run.
+- Once a publisher/provider has been added and ingested into the checked-in catalog corpus or source snapshots, do not remove its provider manifest, source snapshot, real-publisher dataset, or source-authority entry unless the user explicitly authorizes that specific publisher removal. Preserve the publisher with an explicit blocked/gap state instead of deleting it when a refresh is empty or partial.
 - Public social features are out of scope for v1; keep the product focused on browsing curated indie publisher and bookstore catalogs.
 
 ## Project guidelines

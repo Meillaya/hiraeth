@@ -1,12 +1,12 @@
 # Real publisher catalog sources
 
-This directory contains Hiraeth's production real-book corpus for eighteen approved providers: Deep Vellum (352 records), Dalkey Archive (944), Archipelago Books (497), New Directions (2,389), Transit Books (66), Historical Materialism (384), Semiotext(e) (265), Phoneme Media (78), A Strange Object (35), La Reunion (32), Fum d'Estampa (2), NYRB (859), Tilted Axis Press (109), McNally Editions (66), Seven Stories Press (703), Unnamed Press (159), Pushkin Press (74), and Fitzcarraldo Editions (392), for 7,406 checked-in records total. Public covers render only from local cached `/covers/cache/...` URLs; missing, uncached, hidden, or unsafe covers render typographic fallbacks.
+This directory contains Hiraeth's production real-book corpus for twenty-three approved providers: Deep Vellum (352 records), Dalkey Archive (944), Archipelago Books (497), New Directions (2,389), Transit Books (66), Historical Materialism (384), Semiotext(e) (265), Phoneme Media (78), A Strange Object (35), La Reunion (32), Fum d'Estampa (2), NYRB (859), Tilted Axis Press (109), McNally Editions (66), Seven Stories Press (703), Unnamed Press (159), Pushkin Press (74), Fitzcarraldo Editions (392), And Other Stories (190), Astra House (53), Coffee House Press (181), Seagull Books (842), and Wakefield Press (104), for 8,776 checked-in records total. Public covers render only from local cached `/covers/cache/...` URLs; missing, uncached, hidden, or unsafe covers render typographic fallbacks.
 
-Exact completeness statement: the imported production-grade corpus is the full approved checked-in source corpus for the current eighteen providers. It is not a claim that Hiraeth has every historically published title from those publishers. Missing cover URLs, uncached cover assets, missing purchase links, missing reviews, and missing/pre-ISBN identifiers are represented as explicit gap states instead of being fabricated or silently treated as complete.
+Exact completeness statement: the imported production-grade corpus is the full approved checked-in source corpus for the current twenty-three providers. It is not a claim that Hiraeth has every historically published title from those publishers. Missing cover URLs, uncached cover assets, missing purchase links, missing reviews, and missing/pre-ISBN identifiers are represented as explicit gap states instead of being fabricated or silently treated as complete.
 
 ## Provider gates and fixtures
 
-New Directions and Transit Books retain explicit runtime provider gates in `Hiraeth.RealCatalog.SourcePolicy` because they were the first official-page expansion providers. All eighteen providers are now governed by `source_authority_manifest.json`, provider-specific source/cover host allowlists, deterministic checked-in datasets, and the same validator contract.
+New Directions and Transit Books retain explicit runtime provider gates in `Hiraeth.RealCatalog.SourcePolicy` because they were the first official-page expansion providers. All twenty-three providers are now governed by `source_authority_manifest.json`, provider-specific source/cover host allowlists, deterministic checked-in datasets, and the same validator contract.
 
 ### New Directions
 
@@ -44,10 +44,15 @@ Transit Books is a curated provider. The checked-in corpus is a deterministic 66
 - Unnamed Press: official Squarespace All Books collection JSON; 159 source-backed records.
 - Pushkin Press: official WordPress book API for Pushkin Press Classics; 74 source-backed records with `Pushkin Press Classics` series memberships.
 - Fitzcarraldo Editions: official shop category and book pages for Fiction, Essays, and Poetry; 392 source-backed edition records with `Fitzcarraldo Editions Fiction`, `Fitzcarraldo Editions Essays`, and `Fitzcarraldo Editions Poetry` series memberships.
+- And Other Stories: official WordPress catalog/product API and book pages; 190 source-backed records restored from checked-in source snapshots.
+- Astra House: official Astra House imprint and product pages; 53 source-backed records restored from checked-in source snapshots.
+- Coffee House Press: official Shopify collection/product feed and product pages; 181 source-backed records restored from checked-in source snapshots.
+- Seagull Books: official Shopify all-books collection/product feed and product pages; 842 source-backed records restored from checked-in source snapshots.
+- Wakefield Press: official Shopify collection/product feed and product pages; 104 source-backed records restored from checked-in source snapshots.
 
 ## Source authority manifest
 
-`source_authority_manifest.json` is the execution checklist for regenerating or expanding the production corpus. It defines the eighteen-provider scope, the approved-source-corpus completeness boundary, source/API/page allowlists, blocked unsafe modes, review excerpt rules, ISBN enrichment precedence, and bounded network requirements. Full catalog work must update that manifest before adding or replacing records, and tests treat it as the source of truth for whether a provider is available, partial, or expansion-blocked.
+`source_authority_manifest.json` is the execution checklist for regenerating or expanding the production corpus. It defines the twenty-three-provider scope, the approved-source-corpus completeness boundary, source/API/page allowlists, blocked unsafe modes, review excerpt rules, ISBN enrichment precedence, and bounded network requirements. Full catalog work must update that manifest before adding or replacing records, and tests treat it as the source of truth for whether a provider is available, partial, or expansion-blocked.
 
 `source_artifacts_manifest.json` records the deterministic checked-in source artifacts used for this corpus. `source_coverage_report.json` records the generated provider-level coverage/gap report consumed by coverage checks and final release checks.
 
@@ -55,7 +60,7 @@ Important current states:
 
 - Deep Vellum, Dalkey Archive, Archipelago Books, Phoneme Media, A Strange Object, La Reunion, and Fum d'Estampa have approved machine-readable commerce/catalog feeds that may be used as official source artifacts under bounded retrieval.
 - New Directions, Transit Books, Historical Materialism, Semiotext(e), Seven Stories Press, and Pushkin Press are approved for deterministic official page/API/catalog extraction and source-backed cover URLs from allowlisted hosts.
-- NYRB, Tilted Axis Press, McNally Editions, Unnamed Press, and Fitzcarraldo Editions have approved official Shopify/Squarespace collection feeds or JSON collection exports for bounded refreshes.
+- NYRB, Tilted Axis Press, McNally Editions, Unnamed Press, Fitzcarraldo Editions, And Other Stories, Astra House, Coffee House Press, Seagull Books, and Wakefield Press have approved official Shopify/WordPress/Squarespace/catalog feeds or official page exports for bounded refreshes.
 
 ## Source URLs
 
@@ -71,6 +76,11 @@ Important current states:
 - Tilted Axis Press, McNally Editions, and Unnamed Press: official Squarespace JSON collection exports plus source pages under their `/shop`, `/books`, and `/all-books` paths; Squarespace image hosts are allowlisted.
 - Seven Stories Press: official imprint listing pages and book pages under `https://www.sevenstories.com/imprints/seven-stories-press` and `/books/...`; `sevenstories-prod.s3.amazonaws.com` cover URLs are allowlisted.
 - Pushkin Press: official WordPress REST book API for the Pushkin Press Classics imprint and book pages under `https://us.pushkinpress.com/book/...`; `us.pushkinpress.com` cover URLs are allowlisted.
+- And Other Stories: official WordPress product API under `https://www.andotherstories.org/wp-json/wp/v2/product` and book pages under `https://www.andotherstories.org/...`; `www.andotherstories.org` cover URLs are allowlisted.
+- Astra House: official imprint and product pages under `https://astrapublishinghouse.com/imprints/astra-house/` and `https://astrapublishinghouse.com/product/...`; `images.penguinrandomhouse.com` cover URLs are allowlisted.
+- Coffee House Press: official Shopify collection/product feed and product pages under `https://coffeehousepress.org/collections/...` and `/products/...`; `cdn.shopify.com` cover URLs are allowlisted.
+- Seagull Books: official Shopify all-books collection/product feed and product pages under `https://seagullbooks.org/collections/...` and `/products/...`; `cdn.shopify.com` cover URLs are allowlisted.
+- Wakefield Press: official Shopify collection/product feed and product pages under `https://wakefieldpress.com/collections/...` and `/products/...`; `cdn.shopify.com` cover URLs are allowlisted.
 
 ## Included metadata
 
@@ -98,7 +108,7 @@ Run:
 MIX_ENV=test mix test test/hiraeth/real_catalog_dataset_test.exs --trace
 ```
 
-The validator uses `source_authority_manifest.json` for expected provider counts. Current fixtures require 7,406 approved records across eighteen providers, valid ISBN-13 values when present, explicit `missing_fields.isbn_13` for source-only/pre-ISBN records, approved formats, HTTPS allowlisted source/cover hosts or explicit no-cover reasons, no duplicate ISBNs among ISBN-bearing records, no non-book formats/SKUs, no commerce state, no raw HTML/content dumps, and provenance for every approved public prose or review-excerpt field.
+The validator uses `source_authority_manifest.json` for expected provider counts. Current fixtures require 8,776 approved records across twenty-three providers, valid ISBN-13 values when present, explicit `missing_fields.isbn_13` for source-only/pre-ISBN records, approved formats, HTTPS allowlisted source/cover hosts or explicit no-cover reasons, no duplicate ISBNs among ISBN-bearing records, no non-book formats/SKUs, no commerce state, no raw HTML/content dumps, and provenance for every approved public prose or review-excerpt field.
 
 Additional deterministic corpus checks:
 

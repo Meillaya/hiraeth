@@ -180,6 +180,11 @@ defmodule HiraethWeb.BookLive.Components do
               Publisher page
             </.link>
 
+            <CatalogComponents.provenance_badge
+              :if={@book[:source]}
+              source={@book.source}
+            />
+
             <p
               :if={!@book[:storefront_url]}
               id="book-purchase-link-gap"

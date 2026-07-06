@@ -35,5 +35,5 @@
     "min_delay_ms": 250,
     "max_bytes": 104857600
   },
-  "expected_record_count": 822
+  "expected_record_count": 842
 }

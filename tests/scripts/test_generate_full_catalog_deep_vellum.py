@@ -6,8 +6,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-SCRIPT = ROOT / "scripts" / "generate_full_catalog.py"
-HELPER = ROOT / "scripts" / "generate_full_catalog_deep_vellum.py"
+SCRIPT = ROOT / "scripts" / "catalog" / "generate_full_catalog.py"
+HELPER = ROOT / "scripts" / "catalog" / "generate_full_catalog_deep_vellum.py"
 
 
 def load_module(path: Path, name: str):

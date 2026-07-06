@@ -29,6 +29,18 @@ Hiraeth is an Elixir-first Phoenix application for browsing carefully curated in
 - Every imported metadata value and cover asset should be traceable to a source provider, source record, and import run.
 
 
+## Repository organization
+
+The app keeps product behavior in Phoenix/Ash boundaries and groups local tooling by operator intent:
+
+- `scripts/catalog/` contains explicit catalog-source maintenance scripts for checked-in corpus refreshes. These scripts are not runtime product dependencies.
+- `scripts/qa/browser/` contains implementation helpers used by the stable `scripts/browser_qa.sh` and `make test-browser` entrypoints.
+- `scripts/qa/ingestion/` contains production-ingestion drill scripts, their ExUnit drill tests, and private sidecar host probes.
+- `test/support/catalog/` and `test/support/ingestion/` keep test helpers close to their domain instead of using broad root-level support modules.
+- Shared public catalog filter parsing belongs in the focused Phoenix helper boundary, while Ash resources/actions continue to own domain rules.
+
+Repository cleanup follows `docs/cleanup-policy.md`: delete only named reproducible local artifacts, never use blanket clean commands, and never clean or regenerate the root `priv/static/covers/cache/*` cover cache.
+
 ## Public discovery surfaces
 
 The public LiveView catalog currently exposes home, browse, search, publisher, series, contributor, and book detail routes. Contributor discovery is role-aware through query filters such as `/contributors?role=translator`; author and translator pages remain one contributor surface instead of separate social/profile systems. Browse and search filters are URL-backed so publisher, contributor role, format, language, year, subject, series, and sort state can be shared without client-side in-memory filtering.
