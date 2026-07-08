@@ -4,6 +4,8 @@ This packet is the current production-readiness checklist for Hiraeth. It is a r
 
 Scope guardrails preserved for Hiraeth v1:
 
+- The Docker-to-devenv work is a bounded partial migration: devenv is the preferred local/dev/test and CI-build path, while Docker remains the current production runtime and service-network boundary reference plus a legacy local fallback. Do not claim production is Nix/devenv-only.
+- Production runtime decisions remain unresolved: orchestration target, sidecar private network, backup/restore tooling, memory limits, logs/observability, and rollout/rollback require a future production-runtime handoff before replacing Docker/Compose or declaring production Docker-free.
 - LiveView browser-first public product; no React, no Vite SPA, and no separate frontend application.
 - No broad public JSON API in v1. Narrow `/health` and `/ready` operations endpoints are operator contracts, not catalog APIs.
 - Scraping remains Scrapling-only through the private sidecar; no custom crawler framework is introduced.
@@ -15,7 +17,7 @@ Scope guardrails preserved for Hiraeth v1:
 
 Run the gates below on the final integrated worktree before making any production-ready claim:
 
-1. Fast local preflight for the developer loop: `mix precommit` or `mix precommit.fast`, plus `mix test.fast` when the release owner wants the explicit fast ExUnit lane.
+1. Fast local preflight for the developer loop: enter a `devenv shell`, then run `mix precommit` or `mix precommit.fast`, plus `mix test.fast` when the release owner wants the explicit fast ExUnit lane. Use the devenv process runner/readiness tasks for local PostgreSQL/Phoenix/sidecar checks.
 2. Full local and CI/release assurance: `mix test.full`, `mix ci`, and the GitHub Actions workflow in `.github/workflows/ci.yml`.
 3. Sidecar assurance: `cd sidecar && uv run --extra dev pytest -q`.
 4. Browser QA: `STRICT_TIMING=1 make test-browser`, which delegates to the stable `scripts/browser_qa.sh` entrypoint and grouped helpers under `scripts/qa/browser/`.

@@ -37,6 +37,7 @@ defmodule Hiraeth.AshPostgresMigrationTest do
     source_records_public_catalog_imported_at_index
     source_records_public_catalog_edition_id_index
     source_records_public_catalog_source_identity_index
+    curation_overrides_source_record_id_index
   )
 
   @expected_tables ~w(

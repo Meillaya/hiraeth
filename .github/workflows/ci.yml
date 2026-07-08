@@ -10,10 +10,47 @@ permissions:
   contents: read
 
 jobs:
-  phoenix:
-    name: Phoenix full assurance and assets
+  devenv:
+    name: Nix/devenv migrated local gates
     runs-on: ubuntu-latest
 
+    env:
+      MIX_ENV: test
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Bootstrap Mix dependencies in devenv shell
+        run: |
+          set -euo pipefail
+          nix run nixpkgs#devenv -- shell -- bash -lc 'mix local.hex --force && mix local.rebar --force && mix deps.get'
+
+      - name: Run devenv process/readiness test graph
+        run: nix run nixpkgs#devenv -- test
+
+      - name: Run migrated CI gates in devenv shell
+        run: |
+          set -euo pipefail
+          cleanup() {
+            nix run nixpkgs#devenv -- processes down || true
+          }
+          trap cleanup EXIT
+
+          nix run nixpkgs#devenv -- up -d hiraeth-postgres
+          nix run nixpkgs#devenv -- shell -- bash -lc 'timeout 120 bash -c "until pg_isready -h 127.0.0.1 -p 54320 -U postgres; do sleep 2; done"'
+          nix run nixpkgs#devenv -- shell -- mix ci
+          nix run nixpkgs#devenv -- shell -- bash -lc 'cd sidecar && uv run --extra dev pytest -q'
+
+  legacy-compose-postgres:
+    name: Temporary legacy-compose-postgres comparison gate
+    runs-on: ubuntu-latest
+
+    # Temporary fallback/comparison lane while CI moves to the devenv job above.
+    # Keep service-container failures visible by isolating them from the devenv lane.
     services:
       postgres:
         image: postgres:16
@@ -64,7 +101,7 @@ jobs:
       - name: Check assets build
         run: mix assets.build
 
-      - name: Run Phoenix full assurance gate
+      - name: Run Phoenix legacy comparison gate
         run: mix ci
 
   sidecar:

@@ -3,9 +3,9 @@ defmodule Hiraeth.Ingestion.ProductionIngestionScriptContractTest do
 
   @root Path.expand("../../..", __DIR__)
 
-  test "ingestion drills start postgres and wait for readiness before test execution" do
+  test "ingestion drills start devenv postgres and wait for readiness before test execution" do
     with_fake_commands(fn bin, log ->
-      env = [{"PATH", "#{bin}:#{System.get_env("PATH")}"}, {"ARTIFACT_DIR", temp_dir()}]
+      env = fake_env(bin, ARTIFACT_DIR: temp_dir())
 
       assert {_, 0} =
                System.cmd("bash", [script("production_ingestion_drill.sh")],
@@ -23,46 +23,74 @@ defmodule Hiraeth.Ingestion.ProductionIngestionScriptContractTest do
 
       assert ordered?(
                commands,
-               "docker compose up -d postgres",
+               "nix run nixpkgs#devenv -- up -d hiraeth-postgres",
                "mix test scripts/qa/ingestion/production_ingestion_drill_test.exs --only provider_replay --seed 0 --trace"
              )
 
       assert ordered?(
                commands,
-               "docker compose exec -T postgres pg_isready -U postgres",
+               "pg_isready -h localhost -p 54320 -U postgres",
                "mix test scripts/qa/ingestion/production_ingestion_drill_test.exs --only provider_replay --seed 0 --trace"
              )
 
       assert ordered?(
                commands,
-               "docker compose up -d postgres",
+               "nix run nixpkgs#devenv -- up -d hiraeth-postgres",
                "mix test scripts/qa/ingestion/production_ingestion_adversarial_test.exs --only destructive_diff --seed 0 --trace"
              )
 
       assert ordered?(
                commands,
-               "docker compose exec -T postgres pg_isready -U postgres",
+               "pg_isready -h localhost -p 54320 -U postgres",
                "mix test scripts/qa/ingestion/production_ingestion_adversarial_test.exs --only destructive_diff --seed 0 --trace"
+             )
+
+      refute Enum.any?(commands, &String.contains?(&1, "docker compose up -d postgres"))
+
+      refute Enum.any?(
+               commands,
+               &String.contains?(&1, "docker compose exec -T postgres pg_isready")
              )
     end)
   end
 
-  test "browser QA tears down compose services on early exit" do
+  @tag :readiness_failure
+  test "browser QA stops devenv postgres and skips downstream work when readiness fails" do
     with_fake_commands(fn bin, log ->
-      env = [
-        {"PATH", "#{bin}:#{System.get_env("PATH")}"},
-        {"CHROME_BIN", "/bin/true"},
-        {"QA_DIR", temp_dir()}
-      ]
+      env =
+        fake_env(bin,
+          CHROME_BIN: "/bin/true",
+          QA_DIR: temp_dir(),
+          HIRAETH_FAKE_PG_ISREADY_FAIL: "1",
+          HIRAETH_POSTGRES_READY_ATTEMPTS: "1",
+          HIRAETH_POSTGRES_READY_SLEEP: "0"
+        )
 
-      assert {_, 1} =
+      assert {output, status} =
                System.cmd("bash", [Path.join(@root, "scripts/browser_qa.sh")],
                  env: env,
                  stderr_to_stdout: true
                )
 
-      assert "docker compose down" in read_commands(log)
+      assert status != 0
+      assert output =~ "FAIL postgres did not become ready"
+
+      commands = read_commands(log)
+
+      assert "nix run nixpkgs#devenv -- up -d hiraeth-postgres" in commands
+      assert "pg_isready -h localhost -p 54320 -U postgres" in commands
+      assert "nix run nixpkgs#devenv -- processes stop hiraeth-postgres" in commands
+
+      refute Enum.any?(commands, &String.starts_with?(&1, "mix "))
+      refute Enum.any?(commands, &String.contains?(&1, "docker compose down"))
     end)
+  end
+
+  test "make verify migrated local targets use shared devenv postgres readiness helper" do
+    makefile = File.read!(Path.join(@root, "Makefile"))
+
+    refute makefile =~ "docker compose up -d postgres"
+    assert makefile =~ "scripts/dev/ensure_postgres.sh start"
   end
 
   defp with_fake_commands(fun) do
@@ -70,12 +98,25 @@ defmodule Hiraeth.Ingestion.ProductionIngestionScriptContractTest do
     bin = Path.join(root, "bin")
     log = Path.join(root, "commands.log")
     File.mkdir_p!(bin)
-    File.touch!(log)
+    File.write!(log, "")
     write_fake_docker!(bin, log)
+    write_fake_nix!(bin, log)
+    write_fake_pg_isready!(bin, log)
     write_fake_mix!(bin, log)
     write_fake_lsof!(bin, log)
     write_fake_uv!(bin, log)
     fun.(bin, log)
+  end
+
+  defp fake_env(bin, overrides) do
+    base = [
+      {"PATH", "#{bin}:#{System.get_env("PATH")}"},
+      {"DATABASE_HOST", "localhost"},
+      {"HIRAETH_POSTGRES_READY_ATTEMPTS", "1"},
+      {"HIRAETH_POSTGRES_READY_SLEEP", "0"}
+    ]
+
+    base ++ Enum.map(overrides, fn {key, value} -> {Atom.to_string(key), value} end)
   end
 
   defp write_fake_docker!(bin, log) do
@@ -84,6 +125,25 @@ defmodule Hiraeth.Ingestion.ProductionIngestionScriptContractTest do
     echo "docker $*" >> #{sh(log)}
     if [[ "$*" == "compose exec -T postgres pg_isready -U postgres" ]]; then
       exit 0
+    fi
+    exit 0
+    """)
+  end
+
+  defp write_fake_nix!(bin, log) do
+    write_executable!(Path.join(bin, "nix"), """
+    #!/usr/bin/env bash
+    echo "nix $*" >> #{sh(log)}
+    exit 0
+    """)
+  end
+
+  defp write_fake_pg_isready!(bin, log) do
+    write_executable!(Path.join(bin, "pg_isready"), """
+    #!/usr/bin/env bash
+    echo "pg_isready $*" >> #{sh(log)}
+    if [[ "${HIRAETH_FAKE_PG_ISREADY_FAIL:-}" == "1" ]]; then
+      exit 1
     fi
     exit 0
     """)
@@ -109,8 +169,7 @@ defmodule Hiraeth.Ingestion.ProductionIngestionScriptContractTest do
     write_executable!(Path.join(bin, "lsof"), """
     #!/usr/bin/env bash
     echo "lsof $*" >> #{sh(log)}
-    echo "COMMAND PID USER FD TYPE DEVICE SIZE/OFF NODE NAME"
-    exit 0
+    exit 1
     """)
   end
 

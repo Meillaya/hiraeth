@@ -10,9 +10,14 @@ defmodule Hiraeth.DocsQaPackTest do
     assert readme =~ "Phoenix LiveView and Ash catalog"
     assert readme =~ "provenance-aware imports"
     assert readme =~ "## Run locally"
-    assert readme =~ "docker compose up -d postgres"
-    assert readme =~ "mix ash.migrate"
+    assert readme =~ "devenv is the preferred local/dev/test path"
+    assert readme =~ "devenv shell"
+    assert readme =~ "devenv process runner"
+    assert readme =~ "MIX_ENV=test mix ash.migrate"
     assert readme =~ "mix phx.server"
+    assert readme =~ "Docker remains"
+    assert readme =~ "production runtime"
+    refute readme =~ ~r/^\s*docker compose up -d postgres$/m
     assert readme =~ "## Verify/build"
     assert readme =~ "Fast local preflight"
     assert readme =~ "mix precommit"
@@ -24,6 +29,52 @@ defmodule Hiraeth.DocsQaPackTest do
     assert readme =~ "mix hiraeth.cache_covers"
     assert readme =~ "mix hiraeth.audit_provenance"
     assert readme =~ "New Directions"
+  end
+
+  test "docs describe devenv-local boundary without claiming production-only Nix" do
+    contracts = read!("docs/contracts.md")
+    operations = read!("docs/production-operations.md")
+    readiness = read!("docs/production-readiness.md")
+    sidecar = read!("sidecar/README.md")
+
+    for document <- [contracts, operations, readiness, sidecar] do
+      assert document =~ "Docker remains"
+      assert document =~ "production runtime"
+      refute document =~ ~r/cleanly migrated\s+(?:in|for|across)?\s*(?:all|every)?\s*capacity/i
+      refute_docker_free_production_claim!(document)
+    end
+
+    assert contracts =~ "Local devenv uses loopback-only sidecar transport"
+    assert sidecar =~ "Run locally from a devenv shell"
+    assert operations =~ "devenv is the preferred local/dev/test path"
+    assert readiness =~ "bounded partial migration"
+  end
+
+  test "production runtime boundary is explicit and rejects Docker-free overclaims" do
+    operations = read!("docs/production-operations.md")
+    readiness = read!("docs/production-readiness.md")
+    assert operations =~ "## Production Runtime Boundary"
+    assert operations =~ "local/dev/CI-build"
+
+    assert operations =~
+             "production orchestration remains Docker/Compose or future-runtime scoped"
+
+    assert readiness =~ "Production runtime decisions remain unresolved"
+
+    for decision <- [
+          "orchestration target",
+          "sidecar private network",
+          "backup/restore tooling",
+          "memory limits",
+          "logs/observability",
+          "rollout/rollback"
+        ] do
+      assert operations =~ decision
+      assert readiness =~ decision
+    end
+
+    refute_docker_free_production_claim!(operations)
+    refute_docker_free_production_claim!(readiness)
   end
 
   test "architecture docs explain Oban deferral and cover legal review boundary" do
@@ -48,4 +99,16 @@ defmodule Hiraeth.DocsQaPackTest do
   end
 
   defp read!(relative), do: File.read!(Path.join(@root, relative))
+
+  defp refute_docker_free_production_claim!(document) do
+    refute document =~ ~r/production\s+is\s+Docker-free/i
+    refute document =~ ~r/Hiraeth\s+production\s+is\s+Docker-free/i
+    refute document =~ ~r/Docker-free\s+production/i
+
+    refute document =~
+             ~r/(?:is|are|was|were|becomes|became|now)\s+(?:cleanly\s+)?migrated\s+(?:in|for|across)?\s*(?:all|every)\s+(?:capacity|runtime|environment)/i
+
+    refute document =~
+             ~r/(?:all|every)\s+(?:capacity|runtime|environment)\s+(?:is|are|was|were|becomes|became)\s+(?:cleanly\s+)?migrated/i
+  end
 end

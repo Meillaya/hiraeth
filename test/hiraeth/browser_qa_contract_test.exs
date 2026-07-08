@@ -179,6 +179,16 @@ defmodule Hiraeth.BrowserQaContractTest do
     exit 0
     """)
 
+    write_executable!(Path.join(stub_dir, "nix"), """
+    #!/usr/bin/env bash
+    exit 0
+    """)
+
+    write_executable!(Path.join(stub_dir, "pg_isready"), """
+    #!/usr/bin/env bash
+    exit 0
+    """)
+
     write_executable!(Path.join(stub_dir, "lsof"), """
     #!/usr/bin/env bash
     exit 1

@@ -7,6 +7,10 @@ defmodule Hiraeth.Sources.CurationOverride do
   postgres do
     table "curation_overrides"
     repo Hiraeth.Repo
+
+    custom_indexes do
+      index :source_record_id, name: "curation_overrides_source_record_id_index"
+    end
   end
 
   attributes do

@@ -4,6 +4,7 @@ SHELL := /usr/bin/env bash
 QA_DIR := artifacts/qa
 BOOTSTRAP_ARTIFACT := $(QA_DIR)/bootstrap/bootstrap-check.txt
 VERIFY_SUMMARY := $(QA_DIR)/verify/summary.json
+POSTGRES_READY := scripts/dev/ensure_postgres.sh start
 
 .PHONY: bootstrap-check verify precommit-fast test-fast test-full ci test-elixir test-ui test-ingest test-normalize test-covers audit-provenance test-browser verify-summary qa-pack cleanup-policy
 
@@ -45,8 +46,7 @@ ci:
 test-elixir:
 	@mkdir -p $(QA_DIR)/elixir
 	@{ \
-		echo "docker compose up -d postgres"; \
-		docker compose up -d postgres; \
+		$(POSTGRES_READY); \
 		echo "mix ci"; \
 		mix ci; \
 		echo "test_elixir=pass"; \
@@ -56,7 +56,7 @@ test-ui:
 	@mkdir -p $(QA_DIR)/ui
 	@{ \
 		echo "Phoenix LiveView and HEEx UI checks"; \
-		docker compose up -d postgres; \
+		$(POSTGRES_READY); \
 		MIX_ENV=test mix ash.setup; \
 		MIX_ENV=test mix test test/hiraeth_web; \
 		echo "test_ui=pass"; \
@@ -66,7 +66,7 @@ test-ingest:
 	@mkdir -p $(QA_DIR)/ingest
 	@{ \
 		echo "CSV/manual import checks"; \
-		docker compose up -d postgres; \
+		$(POSTGRES_READY); \
 		mix ash.migrate; \
 		MIX_ENV=test mix test test/hiraeth/imports_resource_test.exs --trace; \
 		printf '%s\n' '<testsuite name="imports" tests="8" failures="0"></testsuite>' > $(QA_DIR)/ingest/report.xml; \
@@ -77,7 +77,7 @@ test-normalize:
 	@mkdir -p $(QA_DIR)/normalize
 	@{ \
 		echo "metadata normalization and search checks"; \
-		docker compose up -d postgres; \
+		$(POSTGRES_READY); \
 		mix ash.migrate; \
 		MIX_ENV=test mix test test/hiraeth/search_resource_test.exs --trace; \
 		echo "test_normalize=pass"; \
@@ -87,7 +87,7 @@ test-covers:
 	@mkdir -p $(QA_DIR)/covers
 	@{ \
 		echo "cover asset provenance checks"; \
-		docker compose up -d postgres; \
+		$(POSTGRES_READY); \
 		mix ash.migrate; \
 		MIX_ENV=test mix test test/hiraeth/covers_resource_test.exs --trace; \
 		test -f $(QA_DIR)/covers/provenance-audit.json; \
@@ -99,7 +99,7 @@ audit-provenance:
 	@mkdir -p $(QA_DIR)/provenance
 	@{ \
 		echo "metadata provenance audit"; \
-		docker compose up -d postgres; \
+		$(POSTGRES_READY); \
 		mix ecto.drop --force || true; \
 		mix ecto.create; \
 		mix ash.migrate; \

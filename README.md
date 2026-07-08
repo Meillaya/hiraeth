@@ -16,17 +16,22 @@ It is still browser-first: the stable v1 surface is the LiveView catalog, not a 
 
 ## Run locally
 
-Requirements: Elixir/OTP, Docker, Mix, and `uv` for sidecar tests.
+devenv is the preferred local/dev/test path. It provides the pinned Elixir/OTP toolchain, PostgreSQL 16 on `127.0.0.1:54320`, Node, Python/`uv`, and browser dependencies used by Phoenix and the Scrapling sidecar. Docker remains a legacy fallback and the current production runtime boundary reference; do not treat this partial migration as a claim that production is Nix/devenv-only.
+
+Use a `devenv shell` for ad hoc Mix commands and the devenv process runner for managed local PostgreSQL, Phoenix, and sidecar processes:
 
 ```sh
-docker compose up -d postgres
+devenv shell
 mix deps.get
 mix ash.migrate
+MIX_ENV=test mix ash.migrate
 mix run priv/repo/seeds.exs
 mix phx.server
 ```
 
-Open <http://localhost:4000>.
+Open <http://localhost:4000>. For managed readiness checks, run the configured devenv tasks from the repository root; they start the declared local processes and probe Phoenix/sidecar readiness without requiring Compose.
+
+If devenv is unavailable, Docker/Compose may still be used as a legacy fallback for local PostgreSQL or as the production-runtime reference documented below. Keep any Docker instructions scoped to that fallback/boundary role rather than making Compose the default local setup.
 
 ## Operate ingestion
 

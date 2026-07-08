@@ -8,6 +8,9 @@ CHROME_BIN="${CHROME_BIN:-}"
 SERVER_PID=""
 STRICT_TIMING="${STRICT_TIMING:-0}"
 BROWSER_QA_HELPER_DIR="${BROWSER_QA_HELPER_DIR:-scripts/qa/browser}"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "${ROOT}"
+POSTGRES_HELPER="${POSTGRES_HELPER:-scripts/dev/ensure_postgres.sh}"
 
 if [[ -z "${CHROME_BIN}" ]]; then
   CHROME_BIN="$(command -v chromium || command -v google-chrome || command -v chromium-browser || true)"
@@ -35,7 +38,11 @@ cleanup() {
     kill "${SERVER_PID}" 2>/dev/null || true
     wait "${SERVER_PID}" 2>/dev/null || true
   fi
-  docker compose down >/dev/null 2>&1 || true
+  if [[ -n "${TRANSCRIPT:-}" ]]; then
+    "${POSTGRES_HELPER}" stop >> "${TRANSCRIPT}" 2>&1 || true
+  else
+    "${POSTGRES_HELPER}" stop >/dev/null 2>&1 || true
+  fi
 }
 trap cleanup EXIT
 
@@ -52,8 +59,8 @@ if lsof -iTCP:"${PORT}" -sTCP:LISTEN -nP > "${PREEXISTING_PORT_REPORT}" 2>&1; th
 fi
 rm -f "${PREEXISTING_PORT_REPORT}"
 
-log "starting postgres and deterministic dev seed"
-docker compose up -d postgres | tee -a "${TRANSCRIPT}"
+log "starting devenv postgres and deterministic dev seed"
+"${POSTGRES_HELPER}" start | tee -a "${TRANSCRIPT}"
 mix ecto.drop --force >> "${TRANSCRIPT}" 2>&1 || true
 mix ecto.create >> "${TRANSCRIPT}" 2>&1
 mix ecto.migrate >> "${TRANSCRIPT}" 2>&1

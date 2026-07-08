@@ -28,6 +28,7 @@ artifacts/
 .env
 .env.*
 !.env.example
+/.devenv/
 .DS_Store
 
 # Logs, crash dumps, and temp files

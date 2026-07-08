@@ -260,7 +260,7 @@ defmodule Hiraeth.Ingestion.OperatorDryRun do
 
       _error ->
         {:error,
-         "Scrapling sidecar is not running. Start it with: docker compose up -d scrapling-sidecar"}
+         "Scrapling sidecar is not running. For local devenv use, start the devenv-managed scrapling-sidecar process declared in devenv.nix on loopback, or debug it from a devenv shell with: cd sidecar && uv run --extra dev uvicorn app.main:app --host 127.0.0.1 --port 8000. Set SCRAPLING_SIDECAR_URL=http://127.0.0.1:8000 for Phoenix/operator tasks. Docker Compose remains fallback/Compose-runtime only: docker compose up -d scrapling-sidecar"}
     end
   end
 

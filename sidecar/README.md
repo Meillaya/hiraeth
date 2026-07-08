@@ -2,7 +2,32 @@
 
 FastAPI microservice that runs Scrapling spiders and fetch adapters alongside the Hiraeth Phoenix application.
 
-## Run locally (without Docker)
+## Run locally from a devenv shell (preferred today)
+
+The current local Hiraeth sidecar transport is loopback. `devenv.nix`
+declares a managed `scrapling-sidecar` process that binds `127.0.0.1:8000`;
+use the devenv process runner or the configured `test:sidecar-ready` task for
+managed local checks. For direct debugging, run the same app from a `devenv
+shell` and point Phoenix at loopback, not the Compose service name:
+
+```bash
+# terminal 1 (direct debugging path)
+devenv shell
+cd sidecar
+uv run --extra dev uvicorn app.main:app --host 127.0.0.1 --port 8000
+
+# terminal 2
+devenv shell
+SCRAPLING_SIDECAR_URL=http://127.0.0.1:8000 mix phx.server
+```
+
+The sidecar process must bind to `127.0.0.1:8000` for local host access only.
+Do not publish it on `0.0.0.0` or expose it directly to the public internet.
+Local devenv process management does not make the Phoenix/sidecar production
+runtime Nix/devenv-only. Docker remains the production runtime and committed
+Compose service-network boundary reference.
+
+## Run locally without devenv
 
 Requires Python 3.11+.
 
@@ -12,18 +37,19 @@ uv pip install -e ".[dev]"
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-## Run with Docker
+## Run with Docker fallback
 
 ```bash
 docker build -t hiraeth-sidecar sidecar/
 docker run -p 127.0.0.1:8000:8000 hiraeth-sidecar
 ```
 
-The direct `docker run` command is for local debugging and binds only to
-loopback. In the committed Compose path, the sidecar is private-by-default:
-`compose.yaml` uses `expose: ["8000"]` and does not publish a host `ports`
-entry for `scrapling-sidecar`, so Phoenix reaches it over the service network
-with `SCRAPLING_SIDECAR_URL=http://scrapling-sidecar:8000`.
+The direct `docker run` command is a fallback for local debugging and binds
+only to loopback. In the committed Compose runtime path, the sidecar is
+private-by-default: `compose.yaml` uses `expose: ["8000"]` and does not publish
+a host `ports` entry for `scrapling-sidecar`, so Phoenix reaches it over the
+service network with
+`SCRAPLING_SIDECAR_URL=http://scrapling-sidecar:8000`.
 
 If a developer needs host access while using Compose, create an uncommitted local override instead of changing the default file:
 

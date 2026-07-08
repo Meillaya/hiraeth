@@ -96,7 +96,109 @@ defmodule Hiraeth.NoScopeCreepTest do
     assert compose_text =~ "SCRAPLING_SIDECAR_URL: http://scrapling-sidecar:8000"
   end
 
+  test "local sidecar guidance is truthful about current devenv loopback transport" do
+    devenv_process_manages_sidecar? =
+      "devenv.nix"
+      |> read!()
+      |> devenv_sidecar_process?()
+
+    docs = %{
+      "docs/contracts.md" => read!("docs/contracts.md"),
+      "sidecar/README.md" => read!("sidecar/README.md")
+    }
+
+    for {path, text} <- docs do
+      assert text =~ ~r/127\.0\.0\.1:8000/,
+             "#{path} must document loopback-only local sidecar transport"
+
+      assert text =~ ~r/devenv shell/i,
+             "#{path} must keep direct-debugging sidecar commands inside a devenv shell"
+
+      if devenv_process_manages_sidecar? do
+        assert text =~ ~r/devenv-managed|managed `scrapling-sidecar`|devenv process runner/i,
+               "#{path} must acknowledge the declared local devenv sidecar process"
+      else
+        assert text =~
+                 ~r/(manual|manually).*(sidecar|uvicorn)|(?:sidecar|uvicorn).*(manual|manually)/is,
+               "#{path} must be explicit that local sidecar startup is manual when no sidecar process is declared"
+
+        refute text =~ ~r/devenv up|devenv-managed|devenv process runner/i,
+               "#{path} must not claim process-managed sidecar startup before it is declared"
+      end
+
+      assert text =~ ~r/SCRAPLING_SIDECAR_URL=http:\/\/scrapling-sidecar:8000/,
+             "#{path} must preserve the internal Compose sidecar URL as a separate runtime concern"
+
+      assert text =~ ~r/(Docker|Compose).*(fallback|production|runtime|service network)/is,
+             "#{path} must label Docker/Compose sidecar usage as fallback or runtime-only guidance"
+
+      assert text =~
+               ~r/separate from production|production\/internal Compose|Compose runtime|service network/is,
+             "#{path} must explicitly separate local loopback transport from production/internal Compose runtime"
+
+      refute text =~ ~r/(all|every)\s+(environment|capacity|runtime)/is,
+             "#{path} must not imply loopback sidecar transport applies to all deployment modes or production"
+
+      refute text =~ ~r/production\s+Nix\/devenv-only|production\s+is\s+Nix-only/is,
+             "#{path} must not claim Phoenix/sidecar production is Nix/devenv-only"
+    end
+  end
+
+  test "operator sidecar-down messages prefer current devenv loopback and Docker only as fallback" do
+    devenv_process_manages_sidecar? =
+      "devenv.nix"
+      |> read!()
+      |> devenv_sidecar_process?()
+
+    operator_paths = [
+      "lib/hiraeth/ingestion/operator_cli.ex",
+      "lib/hiraeth/ingestion/operator_dry_run.ex",
+      "lib/mix/tasks/hiraeth.scrape.ex"
+    ]
+
+    for path <- operator_paths do
+      text = read!(path)
+
+      assert text =~ ~r/devenv shell/i,
+             "#{path} must keep direct-debugging sidecar commands inside a devenv shell"
+
+      assert text =~ ~r/127\.0\.0\.1:8000/,
+             "#{path} must keep local sidecar transport loopback-only"
+
+      if devenv_process_manages_sidecar? do
+        assert text =~ ~r/devenv-managed scrapling-sidecar process|devenv\.nix/i,
+               "#{path} must guide local operators to the declared devenv sidecar process"
+      else
+        assert text =~
+                 ~r/(manual|manually).*(sidecar|uvicorn)|(?:sidecar|uvicorn).*(manual|manually)/is,
+               "#{path} must not imply process-managed sidecar startup exists before it is declared"
+
+        refute text =~ ~r/devenv up|devenv-managed/i,
+               "#{path} must not claim `devenv up` starts the sidecar before the sidecar process is declared"
+      end
+
+      assert text =~
+               ~r/(docker compose up -d scrapling-sidecar|Docker Compose).*(fallback|runtime|Compose-only)/is,
+             "#{path} may mention Docker only as fallback or Compose runtime guidance"
+
+      refute text =~ ~r/(all|every)\s+(environment|capacity|runtime)/is,
+             "#{path} must not imply loopback sidecar transport applies to all deployment modes or production"
+
+      refute text =~ ~r/production\s+Nix\/devenv-only|production\s+is\s+Nix-only/is,
+             "#{path} must not claim Phoenix/sidecar production is Nix/devenv-only"
+
+      refute text =~ "Start it with: docker compose up -d scrapling-sidecar",
+             "#{path} must not keep stale Docker-only local sidecar startup guidance"
+    end
+  end
+
   defp read!(relative), do: File.read!(Path.join(@root, relative))
+
+  defp devenv_sidecar_process?(devenv_nix) do
+    devenv_nix =~ ~r/processes\.[\w.-]*(?:sidecar|scrapling)[\w.-]*\s*=/ or
+      devenv_nix =~ ~r/processes\."[^"]*(?:sidecar|scrapling)[^"]*"\s*=/ or
+      devenv_nix =~ ~r/(?:sidecar|scrapling)[\w.-]*\s*=\s*\{\s*exec\s*=/s
+  end
 
   defp compose_service_block(compose_text, service_name) do
     marker = "  #{service_name}:"

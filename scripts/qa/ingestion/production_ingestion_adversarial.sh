@@ -8,23 +8,10 @@ ARTIFACT_DIR="${ARTIFACT_DIR:-.omo/evidence/production-grade-ingestion}"
 mkdir -p "$ARTIFACT_DIR"
 CLEANUP_RECEIPT="$ARTIFACT_DIR/T25-adversarial-cleanup.txt"
 : > "$CLEANUP_RECEIPT"
+POSTGRES_HELPER="${POSTGRES_HELPER:-scripts/dev/ensure_postgres.sh}"
 
 ensure_postgres() {
-  echo "ENSURE postgres :: docker compose up -d postgres"
-  docker compose up -d postgres
-
-  for _ in {1..60}; do
-    if docker compose exec -T postgres pg_isready -U postgres >/dev/null 2>&1; then
-      echo "PASS postgres ready"
-      return 0
-    fi
-
-    sleep 1
-  done
-
-  echo "FAIL postgres did not become ready"
-  docker compose logs --tail 50 postgres
-  exit 1
+  "${POSTGRES_HELPER}" start
 }
 
 run_mix_tag() {

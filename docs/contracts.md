@@ -30,6 +30,12 @@ Deprecation and version rules:
 - Internal breaking changes are allowed before a production release when covered by migration notes and contract tests.
 - Database migrations must preserve provenance and replay needs unless a future plan explicitly retires a field.
 
+## Local development environment contract
+
+`devenv` is the preferred local/dev/test path for Hiraeth. It owns the pinned developer toolchain, PostgreSQL loopback service on `127.0.0.1:54320`, the Phoenix process, and the loopback Scrapling sidecar process used by local checks. Operators should run ordinary Mix work from a `devenv shell` and use the devenv process runner/readiness tasks for managed local services.
+
+Docker remains a legacy fallback and the current production runtime boundary reference. Docker/Compose documentation should describe fallback debugging, production runtime networking, or production-boundary constraints; it must not replace devenv as the preferred local/dev/test setup, and it must not imply that production is Nix/devenv-only.
+
 ## Private sidecar contract
 
 The Scrapling sidecar is private infrastructure for ingestion. It is not a public browser or public JSON API contract.
@@ -37,6 +43,7 @@ The Scrapling sidecar is private infrastructure for ingestion. It is not a publi
 Stability promise:
 - Sidecar request, response, and error shapes are private but reviewed because ingestion workers depend on them.
 - The sidecar must stay private-by-default and reachable only by trusted runtime infrastructure.
+- Local devenv uses loopback-only sidecar transport: `devenv.nix` declares a managed `scrapling-sidecar` process that binds `127.0.0.1:8000`, and direct debugging may run the same uvicorn command from a `devenv shell`. Point Phoenix/operator tasks at `SCRAPLING_SIDECAR_URL=http://127.0.0.1:8000`. This local host transport is separate from production/internal Compose networking and does not make Phoenix/sidecar production exclusive to Nix/devenv. Docker remains the production runtime and service-network reference for this boundary.
 - The default Compose service must not publish a host port for the sidecar; Phoenix reaches it on the service network via `SCRAPLING_SIDECAR_URL=http://scrapling-sidecar:8000`. Any host access for local debugging must be an explicit developer override, not the committed default or production path.
 - The sidecar currently exposes only internal `/health/`, `/fetch/`, `/scrape/`, and `/scrape/detail` routes. FastAPI OpenAPI, Swagger UI, OAuth redirect, and ReDoc routes are disabled by default. Browser CORS is disabled when `HIRAETH_SIDECAR_CORS_ORIGINS` is unset, configured origins must be exact HTTP(S) origins without userinfo, and wildcard origins are forbidden.
 - `/fetch/` and generic `/scrape/` outbound URLs must be HTTPS, omit userinfo, resolve to public/non-local hosts, and match explicit manifest `source_hosts`; unknown-provider generic scraping is rejected without that allowlist.

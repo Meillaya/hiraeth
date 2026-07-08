@@ -2,6 +2,21 @@
 
 This runbook covers the Phoenix release/container path for Hiraeth production deployments. It assumes PostgreSQL 16, the Scrapling sidecar service, and Phoenix releases built from this repository.
 
+Local development has a bounded partial migration to devenv: devenv is the preferred local/dev/test path for shell work, managed loopback PostgreSQL/Phoenix/sidecar processes, and readiness tasks. Docker remains the current production runtime and service-network boundary reference, plus a legacy local fallback when devenv is unavailable. Do not use this runbook to claim that production is Nix/devenv-only.
+
+## Production Runtime Boundary
+
+The Docker-to-devenv migration is a bounded local/dev/CI-build migration, not in every capacity, and it is not a production migration. devenv is the preferred path for local shell work, local managed PostgreSQL/Phoenix/sidecar processes, and CI-build verification covered by the migration plan. For this boundary, production orchestration remains Docker/Compose or future-runtime scoped until a separate production-runtime plan is approved and verified.
+
+Docker remains the current production runtime and service-network boundary reference. Do not describe Hiraeth production as Docker-free, Nix/devenv-only, or fully migrated away from Compose. The following production runtime decisions remain unresolved and require a future handoff before changing deployment artifacts:
+
+- **orchestration target**: choose and verify the production target, whether Compose, another container orchestrator, a release-host runtime, or a managed platform.
+- **sidecar private network**: preserve private Phoenix-to-Scrapling connectivity, no public sidecar port, and exact CORS/private-host safeguards in the selected runtime.
+- **backup/restore tooling**: decide whether logical PostgreSQL commands remain sufficient or whether the target runtime needs managed backup, restore rehearsal, and retention tooling.
+- **memory limits**: translate the current Compose sidecar `mem_limit: 2g` and Phoenix/PostgreSQL capacity assumptions into the selected runtime.
+- **logs/observability**: route Phoenix, Oban, PostgreSQL, and Scrapling sidecar logs/telemetry into the production collector without adding unapproved vendor SDKs.
+- **rollout/rollback**: define image/release rollout, health gates, rollback, database restore, and traffic-shift procedures for the selected runtime.
+
 ## Required Environment
 
 Set these values in the deployment secret store or container environment before starting the Phoenix release:
