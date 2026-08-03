@@ -77,7 +77,11 @@ defmodule Hiraeth.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
-      {:oban, "~> 2.17"}
+      {:oban, "~> 2.17"},
+      {:credo, "~> 1.7", only: [:dev, :test]},
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
+      {:sobelow, "~> 0.13", only: [:dev, :test]},
+      {:excoveralls, "~> 0.18", only: [:dev, :test]}
     ]
   end
 
