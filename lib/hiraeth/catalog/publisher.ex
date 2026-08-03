@@ -1,4 +1,6 @@
 defmodule Hiraeth.Catalog.Publisher do
+  @moduledoc "Ash resource: a root publishing house (imprints belong to a publisher)."
+
   use Ash.Resource,
     domain: Hiraeth.Catalog,
     data_layer: AshPostgres.DataLayer,

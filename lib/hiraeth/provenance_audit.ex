@@ -318,9 +318,7 @@ defmodule Hiraeth.ProvenanceAudit do
   defp invalid_cover_reason(nil), do: "cover assignment has no cover asset"
 
   defp invalid_cover_reason(%CoverAsset{} = asset) do
-    cond do
-      true -> Covers.public_cover_rejection_reason(asset)
-    end
+    Covers.public_cover_rejection_reason(asset)
   end
 
   defp takedown_audit(cover_assets, cover_assignments, audit_events) do
@@ -509,7 +507,7 @@ defmodule Hiraeth.ProvenanceAudit do
 
   defp csv(header, rows, row_fun) do
     ([header] ++ Enum.map(rows, row_fun))
-    |> Enum.map_join("\n", fn row -> row |> Enum.map(&escape_csv/1) |> Enum.join(",") end)
+    |> Enum.map_join("\n", fn row -> Enum.map_join(row, ",", &escape_csv/1) end)
     |> Kernel.<>("\n")
   end
 

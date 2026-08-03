@@ -1,7 +1,13 @@
 defmodule Hiraeth.Ingestion.Phases.RunState do
   @moduledoc false
 
-  alias Hiraeth.Ingestion.{IngestionEvent, ProviderRun, ProviderSource, Telemetry}
+  alias Hiraeth.Ingestion.{
+    IngestionEvent,
+    ProviderManifest,
+    ProviderRun,
+    ProviderSource,
+    Telemetry
+  }
 
   @catalog_writer %{id: "ingestion-phase-worker", catalog_write?: true}
 
@@ -119,7 +125,7 @@ defmodule Hiraeth.Ingestion.Phases.RunState do
   defp stable_source_key(manifest), do: "publisher:#{manifest.provider}:#{source_mode(manifest)}"
 
   defp source_mode(manifest) do
-    case Hiraeth.Ingestion.ProviderManifest.effective_source_mode(manifest) do
+    case ProviderManifest.effective_source_mode(manifest) do
       mode when mode in ["api", "scrape"] -> mode
       _ -> "manual"
     end

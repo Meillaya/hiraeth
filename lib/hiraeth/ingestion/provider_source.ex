@@ -1,4 +1,6 @@
 defmodule Hiraeth.Ingestion.ProviderSource do
+  @moduledoc "Ash resource: a registered ingestion provider (manifest, runtime policy, scheduler state)."
+
   use Ash.Resource,
     domain: Hiraeth.Ingestion,
     data_layer: AshPostgres.DataLayer,

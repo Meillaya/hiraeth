@@ -1,4 +1,6 @@
 defmodule Hiraeth.Sources do
+  @moduledoc "Ash domain: source records, ledger entries, and operator curation overrides."
+
   use Ash.Domain
 
   alias Hiraeth.Sources.CurationOverride

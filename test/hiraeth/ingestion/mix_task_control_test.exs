@@ -1,11 +1,13 @@
 defmodule Hiraeth.Ingestion.MixTaskControlTest do
   use Hiraeth.DataCase, async: false
 
-  alias Hiraeth.Ingestion.ProviderRun
   alias Hiraeth.Ingestion.Phases.RunState
+  alias Hiraeth.Ingestion.ProviderRun
   alias Hiraeth.Oban.ProviderIngestionWorker
+  alias Hiraeth.Repo
   alias Hiraeth.TestSupport.IngestionFixtures
   alias Hiraeth.TestSupport.MixTaskMocks.{MockCoverPipeline, MockImporter, MockSidecarClient}
+  alias Mix.Tasks.Hiraeth.Ingest
 
   import Ecto.Query
 
@@ -36,7 +38,7 @@ defmodule Hiraeth.Ingestion.MixTaskControlTest do
         ExUnit.CaptureIO.capture_io(fn ->
           task =
             Task.async(fn ->
-              Mix.Tasks.Hiraeth.Ingest.do_run([
+              Ingest.do_run([
                 "--provider",
                 "test_publisher_api",
                 "--manifest",
@@ -78,7 +80,7 @@ defmodule Hiraeth.Ingestion.MixTaskControlTest do
 
       output =
         ExUnit.CaptureIO.capture_io(fn ->
-          assert :ok = Mix.Tasks.Hiraeth.Ingest.do_run(["--cancel", run.id, "--json"])
+          assert :ok = Ingest.do_run(["--cancel", run.id, "--json"])
         end)
 
       assert %{
@@ -91,7 +93,7 @@ defmodule Hiraeth.Ingestion.MixTaskControlTest do
 
       assert run_id == run.id
       assert Ash.get!(ProviderRun, run.id, authorize?: false).status == "cancelled"
-      assert Hiraeth.Repo.get!(Oban.Job, job.id).state == "cancelled"
+      assert Repo.get!(Oban.Job, job.id).state == "cancelled"
     end
 
     test "cancelled provider run preserves cancellation metadata after late phase progress" do
@@ -151,7 +153,7 @@ defmodule Hiraeth.Ingestion.MixTaskControlTest do
       output =
         ExUnit.CaptureIO.capture_io(fn ->
           assert :ok =
-                   Mix.Tasks.Hiraeth.Ingest.do_run([
+                   Ingest.do_run([
                      "--replay",
                      candidate.provider_run_id,
                      "--json"
@@ -174,11 +176,11 @@ defmodule Hiraeth.Ingestion.MixTaskControlTest do
     test "missing run control commands return friendly errors" do
       missing_id = Ecto.UUID.generate()
 
-      assert {:error, message} = Mix.Tasks.Hiraeth.Ingest.do_run(["--cancel", missing_id])
+      assert {:error, message} = Ingest.do_run(["--cancel", missing_id])
       assert message =~ "Provider run not found"
       refute message =~ "** ("
 
-      assert {:error, message} = Mix.Tasks.Hiraeth.Ingest.do_run(["--replay", missing_id])
+      assert {:error, message} = Ingest.do_run(["--replay", missing_id])
       assert message =~ "Provider run not found"
       refute message =~ "** ("
     end
@@ -195,7 +197,7 @@ defmodule Hiraeth.Ingestion.MixTaskControlTest do
   defp wait_for_ingestion_job(0), do: flunk("timed out waiting for ingestion job")
 
   defp wait_for_ingestion_job(attempts) do
-    if Hiraeth.Repo.exists?(from job in Oban.Job, where: job.queue == "ingestion") do
+    if Repo.exists?(from job in Oban.Job, where: job.queue == "ingestion") do
       :ok
     else
       receive do

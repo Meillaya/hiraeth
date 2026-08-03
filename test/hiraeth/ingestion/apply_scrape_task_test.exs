@@ -4,6 +4,7 @@ defmodule Hiraeth.Ingestion.ApplyScrapeTaskTest do
   alias Hiraeth.Imports.ImportRun
   alias Hiraeth.RealCatalog.Dataset
   alias Hiraeth.Sources.SourceRecord
+  alias Mix.Tasks.Hiraeth.ApplyScrape
 
   require Ash.Query
 
@@ -41,7 +42,7 @@ defmodule Hiraeth.Ingestion.ApplyScrapeTaskTest do
       output =
         ExUnit.CaptureIO.capture_io(fn ->
           assert :ok =
-                   Mix.Tasks.Hiraeth.ApplyScrape.run([
+                   ApplyScrape.run([
                      "--provider",
                      provider
                    ])
@@ -81,7 +82,7 @@ defmodule Hiraeth.Ingestion.ApplyScrapeTaskTest do
     test "missing --provider exits 1" do
       output =
         ExUnit.CaptureIO.capture_io(:stderr, fn ->
-          assert catch_exit(Mix.Tasks.Hiraeth.ApplyScrape.run([])) == {:shutdown, 1}
+          assert catch_exit(ApplyScrape.run([])) == {:shutdown, 1}
         end)
 
       assert output =~ "Usage: mix hiraeth.apply_scrape"
@@ -93,7 +94,7 @@ defmodule Hiraeth.Ingestion.ApplyScrapeTaskTest do
       output =
         ExUnit.CaptureIO.capture_io(:stderr, fn ->
           assert catch_exit(
-                   Mix.Tasks.Hiraeth.ApplyScrape.run([
+                   ApplyScrape.run([
                      "--provider",
                      "apply_scrape_missing_provider"
                    ])
@@ -118,7 +119,7 @@ defmodule Hiraeth.Ingestion.ApplyScrapeTaskTest do
       write_staged_fixture!(provider, @fixture_path)
 
       ExUnit.CaptureIO.capture_io(fn ->
-        assert :ok = Mix.Tasks.Hiraeth.ApplyScrape.run(["--provider", provider])
+        assert :ok = ApplyScrape.run(["--provider", provider])
       end)
 
       assert File.exists?(canonical_path)
@@ -146,7 +147,7 @@ defmodule Hiraeth.Ingestion.ApplyScrapeTaskTest do
 
       output =
         ExUnit.CaptureIO.capture_io(fn ->
-          assert :ok = Mix.Tasks.Hiraeth.ApplyScrape.run(["--provider", provider])
+          assert :ok = ApplyScrape.run(["--provider", provider])
         end)
 
       refute File.exists?(staged_path)

@@ -24,6 +24,8 @@ defmodule Hiraeth.Oban.ProviderSchedulerWorker do
              provider_source_ids: provider_source_ids(args)
            ) do
       {:ok, summary}
+    else
+      {:error, reason} -> {:error, reason}
     end
   end
 

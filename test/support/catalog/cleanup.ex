@@ -53,15 +53,17 @@ defmodule Hiraeth.CatalogCleanup do
 
   def ensure_committed_catalog_fixtures! do
     with_committed_catalog_fixture_lock(fn ->
-      Sandbox.unboxed_run(Repo, fn ->
-        unless committed_catalog_seeded?() do
-          truncate_tables!(@tables)
-          seed_committed_catalog_fixtures!()
-        end
-      end)
+      Sandbox.unboxed_run(Repo, fn -> seed_committed_catalog_if_needed!() end)
     end)
 
     clear_public_catalog_cache!()
+  end
+
+  defp seed_committed_catalog_if_needed! do
+    unless committed_catalog_seeded?() do
+      truncate_tables!(@tables)
+      seed_committed_catalog_fixtures!()
+    end
   end
 
   def committed_catalog_fixtures_ready? do

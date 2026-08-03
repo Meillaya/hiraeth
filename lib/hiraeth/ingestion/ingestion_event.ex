@@ -1,4 +1,6 @@
 defmodule Hiraeth.Ingestion.IngestionEvent do
+  @moduledoc "Ash resource: an ingestion pipeline event (phase, status, timestamps, error class)."
+
   use Ash.Resource,
     domain: Hiraeth.Ingestion,
     data_layer: AshPostgres.DataLayer,

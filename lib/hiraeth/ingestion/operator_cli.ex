@@ -15,6 +15,21 @@ defmodule Hiraeth.Ingestion.OperatorCLI do
 
   @doc false
   def run_args(args) do
+    opts = parse_args(args)
+
+    cond do
+      run_id = Keyword.get(opts, :cancel) ->
+        cancel_run(run_id, opts)
+
+      run_id = Keyword.get(opts, :replay) ->
+        replay_run(run_id, opts)
+
+      true ->
+        dispatch_default_provider_run(opts)
+    end
+  end
+
+  defp parse_args(args) do
     {opts, _argv, _invalid} =
       OptionParser.parse(args,
         strict: [
@@ -28,27 +43,26 @@ defmodule Hiraeth.Ingestion.OperatorCLI do
         ]
       )
 
-    cond do
-      run_id = Keyword.get(opts, :cancel) ->
-        cancel_run(run_id, opts)
+    opts
+  end
 
-      run_id = Keyword.get(opts, :replay) ->
-        replay_run(run_id, opts)
+  defp dispatch_default_provider_run(opts) do
+    provider = Keyword.get(opts, :provider)
 
-      true ->
-        provider = Keyword.get(opts, :provider)
+    if is_nil(provider) or String.trim(provider) == "" do
+      {:error, usage()}
+    else
+      run_provider_or_dry_run(provider, opts)
+    end
+  end
 
-        if is_nil(provider) or String.trim(provider) == "" do
-          {:error, usage()}
-        else
-          manifest_path = Keyword.get(opts, :manifest, OperatorManifest.default_path(provider))
+  defp run_provider_or_dry_run(provider, opts) do
+    manifest_path = Keyword.get(opts, :manifest, OperatorManifest.default_path(provider))
 
-          if Keyword.get(opts, :dry_run) do
-            run_dry_run(provider, manifest_path, opts)
-          else
-            run_ingestion(provider, manifest_path, opts)
-          end
-        end
+    if Keyword.get(opts, :dry_run) do
+      run_dry_run(provider, manifest_path, opts)
+    else
+      run_ingestion(provider, manifest_path, opts)
     end
   end
 
@@ -65,6 +79,8 @@ defmodule Hiraeth.Ingestion.OperatorCLI do
          :ok <- maybe_print_started(provider, run, job, opts),
          :ok <- maybe_poll_and_report(job.id, provider, run.id, opts) do
       :ok
+    else
+      {:error, reason} -> {:error, reason}
     end
   end
 

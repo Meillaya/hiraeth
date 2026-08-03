@@ -13,6 +13,7 @@ defmodule Hiraeth.SearchResourceTest do
     Work
   }
 
+  alias Ash.Resource.Info, as: AshResourceInfo
   alias Hiraeth.Search.Result, as: SearchResult
 
   setup do
@@ -98,7 +99,7 @@ defmodule Hiraeth.SearchResourceTest do
   test "search is exposed as an Ash read action on the search domain" do
     action_names =
       SearchResult
-      |> Ash.Resource.Info.actions()
+      |> AshResourceInfo.actions()
       |> Enum.map(& &1.name)
 
     assert :search in action_names

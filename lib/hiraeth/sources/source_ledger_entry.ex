@@ -1,4 +1,6 @@
 defmodule Hiraeth.Sources.SourceLedgerEntry do
+  @moduledoc "Ash resource: an append-only ledger entry recording a per-field source attribution."
+
   use Ash.Resource,
     domain: Hiraeth.Sources,
     data_layer: AshPostgres.DataLayer,

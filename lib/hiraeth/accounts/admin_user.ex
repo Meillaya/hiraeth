@@ -1,4 +1,6 @@
 defmodule Hiraeth.Accounts.AdminUser do
+  @moduledoc "Ash resource: an authenticated admin actor (role, hashed password, session history)."
+
   use Ash.Resource,
     domain: Hiraeth.Accounts,
     data_layer: AshPostgres.DataLayer,

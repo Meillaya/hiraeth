@@ -4,6 +4,7 @@ defmodule Hiraeth.Ingestion.ReviewScrapeTaskTest do
   import ExUnit.CaptureIO
 
   alias Hiraeth.Support.DeepVellumStealthyFixture
+  alias Mix.Tasks.Hiraeth.ReviewScrape
 
   @provider "review_scrape_test_provider"
 
@@ -30,7 +31,7 @@ defmodule Hiraeth.Ingestion.ReviewScrapeTaskTest do
 
       output =
         capture_io(fn ->
-          assert :ok = Mix.Tasks.Hiraeth.ReviewScrape.run(["--provider", @provider])
+          assert :ok = ReviewScrape.run(["--provider", @provider])
         end)
 
       assert output =~ "staged=1 current=1 new=0 missing=0 changed=0"
@@ -47,7 +48,7 @@ defmodule Hiraeth.Ingestion.ReviewScrapeTaskTest do
 
       output =
         capture_io(fn ->
-          assert :ok = Mix.Tasks.Hiraeth.ReviewScrape.run(["--provider", @provider])
+          assert :ok = ReviewScrape.run(["--provider", @provider])
         end)
 
       assert output =~ "staged=2 current=1 new=1 missing=0 changed=0"
@@ -75,7 +76,7 @@ defmodule Hiraeth.Ingestion.ReviewScrapeTaskTest do
 
       output =
         capture_io(fn ->
-          assert :ok = Mix.Tasks.Hiraeth.ReviewScrape.run(["--provider", @provider])
+          assert :ok = ReviewScrape.run(["--provider", @provider])
         end)
 
       assert output =~ "staged=1 current=1 new=0 missing=0 changed=1"
@@ -113,7 +114,7 @@ defmodule Hiraeth.Ingestion.ReviewScrapeTaskTest do
 
       output =
         capture_io(fn ->
-          assert :ok = Mix.Tasks.Hiraeth.ReviewScrape.run(["--provider", provider])
+          assert :ok = ReviewScrape.run(["--provider", provider])
         end)
 
       assert output =~ "validation_findings=2"
@@ -128,7 +129,7 @@ defmodule Hiraeth.Ingestion.ReviewScrapeTaskTest do
 
       output =
         capture_io(:stderr, fn ->
-          assert catch_exit(Mix.Tasks.Hiraeth.ReviewScrape.run(["--provider", @provider])) ==
+          assert catch_exit(ReviewScrape.run(["--provider", @provider])) ==
                    {:shutdown, 1}
         end)
 
@@ -142,7 +143,7 @@ defmodule Hiraeth.Ingestion.ReviewScrapeTaskTest do
 
       output =
         capture_io(:stderr, fn ->
-          assert catch_exit(Mix.Tasks.Hiraeth.ReviewScrape.run(["--provider", @provider])) ==
+          assert catch_exit(ReviewScrape.run(["--provider", @provider])) ==
                    {:shutdown, 1}
         end)
 
@@ -152,7 +153,7 @@ defmodule Hiraeth.Ingestion.ReviewScrapeTaskTest do
     test "missing --provider exits 1" do
       output =
         capture_io(:stderr, fn ->
-          assert catch_exit(Mix.Tasks.Hiraeth.ReviewScrape.run([])) == {:shutdown, 1}
+          assert catch_exit(ReviewScrape.run([])) == {:shutdown, 1}
         end)
 
       assert output =~ "Usage: mix hiraeth.review_scrape"

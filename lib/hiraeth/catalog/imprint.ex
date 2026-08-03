@@ -1,4 +1,6 @@
 defmodule Hiraeth.Catalog.Imprint do
+  @moduledoc "Ash resource: a publisher sub-label scoped to a parent publisher."
+
   use Ash.Resource,
     domain: Hiraeth.Catalog,
     data_layer: AshPostgres.DataLayer,

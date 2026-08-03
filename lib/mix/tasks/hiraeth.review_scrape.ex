@@ -67,39 +67,22 @@ defmodule Mix.Tasks.Hiraeth.ReviewScrape do
 
     with {:ok, staged} <- load_dataset(staged_path, "staged"),
          {:ok, current} <- load_dataset(current_path, "current") do
-      validation_findings = validation_findings(staged)
       staged_map = build_identity_map(staged.records)
       current_map = build_identity_map(current.records)
 
       staged_keys = MapSet.new(Map.keys(staged_map))
       current_keys = MapSet.new(Map.keys(current_map))
 
-      new_keys =
-        MapSet.difference(staged_keys, current_keys) |> MapSet.to_list() |> Enum.sort()
-
-      missing_keys =
-        MapSet.difference(current_keys, staged_keys) |> MapSet.to_list() |> Enum.sort()
-
-      common_keys =
-        MapSet.intersection(staged_keys, current_keys) |> MapSet.to_list() |> Enum.sort()
-
-      changed =
-        Enum.reduce(common_keys, [], fn key, acc ->
-          staged_record = Map.fetch!(staged_map, key)
-          current_record = Map.fetch!(current_map, key)
-
-          case record_changes(staged_record, current_record) do
-            [] -> acc
-            changes -> [{key, changes} | acc]
-          end
-        end)
-        |> Enum.reverse()
+      new_keys = sorted_diff(staged_keys, current_keys)
+      missing_keys = sorted_diff(current_keys, staged_keys)
+      common_keys = sorted_intersection(staged_keys, current_keys)
+      changed = collect_changed(common_keys, staged_map, current_map)
 
       print_report(
         provider: provider,
         staged_count: map_size(staged_map),
         current_count: map_size(current_map),
-        validation_findings: validation_findings,
+        validation_findings: validation_findings(staged),
         new_keys: new_keys,
         missing_keys: missing_keys,
         changed: changed
@@ -107,6 +90,28 @@ defmodule Mix.Tasks.Hiraeth.ReviewScrape do
 
       :ok
     end
+  end
+
+  defp sorted_diff(left, right) do
+    left |> MapSet.difference(right) |> MapSet.to_list() |> Enum.sort()
+  end
+
+  defp sorted_intersection(left, right) do
+    left |> MapSet.intersection(right) |> MapSet.to_list() |> Enum.sort()
+  end
+
+  defp collect_changed(common_keys, staged_map, current_map) do
+    common_keys
+    |> Enum.reduce([], fn key, acc ->
+      record_changed = record_changes(Map.fetch!(staged_map, key), Map.fetch!(current_map, key))
+
+      if record_changed == [] do
+        acc
+      else
+        [{key, record_changed} | acc]
+      end
+    end)
+    |> Enum.reverse()
   end
 
   defp load_dataset(path, label) do
@@ -215,33 +220,44 @@ defmodule Mix.Tasks.Hiraeth.ReviewScrape do
     if new_count == 0 and missing_count == 0 and changed_count == 0 and validation_findings == [] do
       Mix.shell().info("No differences found between staged and current datasets.")
     else
-      if new_keys != [] do
-        Mix.shell().info("")
-        Mix.shell().info("New records (+#{new_count}):")
-        Enum.each(new_keys, &Mix.shell().info("  + #{&1}"))
-      end
-
-      if missing_keys != [] do
-        Mix.shell().info("")
-        Mix.shell().info("Missing records (-#{missing_count}):")
-        Enum.each(missing_keys, &Mix.shell().info("  - #{&1}"))
-      end
-
-      if changed != [] do
-        Mix.shell().info("")
-        Mix.shell().info("Changed records (~#{changed_count}):")
-
-        Enum.each(changed, fn {key, changes} ->
-          Mix.shell().info("  ~ #{key}")
-
-          Enum.each(changes, fn {field, current_value, staged_value} ->
-            Mix.shell().info(
-              "    #{field}: #{format_value(current_value)} -> #{format_value(staged_value)}"
-            )
-          end)
-        end)
-      end
+      print_new_records(new_keys, new_count)
+      print_missing_records(missing_keys, missing_count)
+      print_changed_records(changed, changed_count)
     end
+  end
+
+  defp print_new_records(new_keys, new_count) do
+    if new_keys != [] do
+      Mix.shell().info("")
+      Mix.shell().info("New records (+#{new_count}):")
+      Enum.each(new_keys, &Mix.shell().info("  + #{&1}"))
+    end
+  end
+
+  defp print_missing_records(missing_keys, missing_count) do
+    if missing_keys != [] do
+      Mix.shell().info("")
+      Mix.shell().info("Missing records (-#{missing_count}):")
+      Enum.each(missing_keys, &Mix.shell().info("  - #{&1}"))
+    end
+  end
+
+  defp print_changed_records(changed, changed_count) do
+    if changed != [] do
+      Mix.shell().info("")
+      Mix.shell().info("Changed records (~#{changed_count}):")
+
+      Enum.each(changed, fn {key, changes} ->
+        Mix.shell().info("  ~ #{key}")
+        Enum.each(changes, &print_changed_field(key, &1))
+      end)
+    end
+  end
+
+  defp print_changed_field(_key, {field, current_value, staged_value}) do
+    Mix.shell().info(
+      "    #{field}: #{format_value(current_value)} -> #{format_value(staged_value)}"
+    )
   end
 
   defp format_value(value), do: inspect(value)

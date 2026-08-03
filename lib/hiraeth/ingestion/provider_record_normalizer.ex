@@ -2,7 +2,7 @@ defmodule Hiraeth.Ingestion.ProviderRecordNormalizer do
   @moduledoc false
 
   alias Hiraeth.Ingestion.Telemetry
-  alias Hiraeth.RealCatalog.Dataset
+  alias Hiraeth.RealCatalog.{Dataset, ISBN}
 
   require Logger
 
@@ -39,7 +39,7 @@ defmodule Hiraeth.Ingestion.ProviderRecordNormalizer do
   end
 
   defp normalized_isbn(record) do
-    case Hiraeth.RealCatalog.ISBN.normalize(get_in_map(record, [:edition, :isbn_13])) do
+    case ISBN.normalize(get_in_map(record, [:edition, :isbn_13])) do
       {:ok, isbn} -> isbn
       {:error, _reason} -> nil
     end
@@ -68,39 +68,58 @@ defmodule Hiraeth.Ingestion.ProviderRecordNormalizer do
   end
 
   defp enrich_detail_record(record, provider, client, detail_opts) do
-    if detail_enrichment_provider?(provider, detail_opts) and needs_detail_enrichment?(record) and
-         function_exported?(client, :detail, 3) do
-      source_uri = map_value(record, :source_uri)
-
-      if is_binary(source_uri) and present?(source_uri) do
-        case client.detail(source_uri, provider, Keyword.delete(detail_opts, :enabled)) do
-          {:ok, detail} when is_map(detail) ->
-            merge_detail(record, detail, provider)
-
-          {:ok, detail} ->
-            Telemetry.sidecar_error("detail", :malformed_response, %{provider: provider})
-
-            Logger.warning(
-              "sidecar detail enrichment returned malformed response for #{source_uri}: #{inspect(detail)}"
-            )
-
-            {:unchanged, record}
-
-          {:error, reason} ->
-            Telemetry.sidecar_error("detail", detail_error_code(reason), %{provider: provider})
-
-            Logger.warning(
-              "sidecar detail enrichment failed for #{source_uri}: #{inspect_detail_reason(reason)}"
-            )
-
-            {:unchanged, record}
-        end
-      else
-        {:unchanged, record}
-      end
+    if detail_enrichment_eligible?(record, provider, client, detail_opts) do
+      apply_detail_enrichment(record, provider, client, detail_opts)
     else
       {:unchanged, record}
     end
+  end
+
+  defp detail_enrichment_eligible?(record, provider, client, detail_opts) do
+    detail_enrichment_provider?(provider, detail_opts) and
+      needs_detail_enrichment?(record) and
+      function_exported?(client, :detail, 3)
+  end
+
+  defp apply_detail_enrichment(record, provider, client, detail_opts) do
+    source_uri = map_value(record, :source_uri)
+
+    if is_binary(source_uri) and present?(source_uri) do
+      handle_detail_response(record, provider, client, source_uri, detail_opts)
+    else
+      {:unchanged, record}
+    end
+  end
+
+  defp handle_detail_response(record, provider, client, source_uri, detail_opts) do
+    case client.detail(source_uri, provider, Keyword.delete(detail_opts, :enabled)) do
+      {:ok, detail} when is_map(detail) ->
+        merge_detail(record, detail, provider)
+
+      {:ok, detail} ->
+        log_malformed_detail(source_uri, provider, detail)
+        {:unchanged, record}
+
+      {:error, reason} ->
+        log_detail_failure(source_uri, provider, reason)
+        {:unchanged, record}
+    end
+  end
+
+  defp log_malformed_detail(source_uri, provider, detail) do
+    Telemetry.sidecar_error("detail", :malformed_response, %{provider: provider})
+
+    Logger.warning(
+      "sidecar detail enrichment returned malformed response for #{source_uri}: #{inspect(detail)}"
+    )
+  end
+
+  defp log_detail_failure(source_uri, provider, reason) do
+    Telemetry.sidecar_error("detail", detail_error_code(reason), %{provider: provider})
+
+    Logger.warning(
+      "sidecar detail enrichment failed for #{source_uri}: #{inspect_detail_reason(reason)}"
+    )
   end
 
   defp merge_detail(record, detail, provider) do

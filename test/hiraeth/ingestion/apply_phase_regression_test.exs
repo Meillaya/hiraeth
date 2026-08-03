@@ -5,6 +5,7 @@ defmodule Hiraeth.Ingestion.ApplyPhaseRegressionTest do
 
   alias Hiraeth.Catalog.Edition
   alias Hiraeth.Ingestion.{IngestionEvent, Phases}
+  alias Hiraeth.RealCatalog.SourceIdentity
   alias Hiraeth.Sources.{SourceLedgerEntry, SourceRecord}
   alias Hiraeth.TestSupport.IngestionFixtures
 
@@ -52,10 +53,10 @@ defmodule Hiraeth.Ingestion.ApplyPhaseRegressionTest do
     missing_record = put_in(catalog_record("missing-real"), ["edition", "isbn_13"], nil)
 
     stable_identity =
-      Hiraeth.RealCatalog.SourceIdentity.for_record(manifest.provider, stable_record)
+      SourceIdentity.for_record(manifest.provider, stable_record)
 
     missing_identity =
-      Hiraeth.RealCatalog.SourceIdentity.for_record(manifest.provider, missing_record)
+      SourceIdentity.for_record(manifest.provider, missing_record)
 
     create_candidate!(prior_run, prior_snapshot, "stable-real", %{
       normalized_metadata: stable_record

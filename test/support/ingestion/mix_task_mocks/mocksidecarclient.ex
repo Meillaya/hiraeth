@@ -1,4 +1,6 @@
 defmodule Hiraeth.TestSupport.MixTaskMocks.MockSidecarClient do
+  @moduledoc false
+
   def health(_opts \\ []) do
     {:ok, %{status: "ok", scrapling: true}}
   end

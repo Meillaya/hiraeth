@@ -6,11 +6,9 @@ defmodule Hiraeth.Ingestion.OperatorManifest do
   def default_path(provider), do: Path.join(ProviderManifest.default_dir(), "#{provider}.json")
 
   def load(manifest_path) do
-    try do
-      {:ok, ProviderManifest.load!(manifest_path)}
-    rescue
-      error -> {:error, "manifest load failed: #{Exception.message(error)}"}
-    end
+    {:ok, ProviderManifest.load!(manifest_path)}
+  rescue
+    error -> {:error, "manifest load failed: #{Exception.message(error)}"}
   end
 
   def ensure_provider_matches(provider, manifest) do

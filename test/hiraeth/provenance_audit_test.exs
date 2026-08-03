@@ -3,6 +3,7 @@ defmodule Hiraeth.ProvenanceAuditTest do
 
   import Ecto.Query
 
+  alias Ash.Resource.Info, as: AshResourceInfo
   alias Hiraeth.Audit.AuditEvent
 
   alias Hiraeth.Catalog.{
@@ -17,6 +18,8 @@ defmodule Hiraeth.ProvenanceAuditTest do
   }
 
   alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
+  alias Hiraeth.ProvenanceAudit
+  alias Hiraeth.Repo
   alias Hiraeth.Sources.{SourceLedgerEntry, SourceRecord}
 
   setup do
@@ -34,7 +37,7 @@ defmodule Hiraeth.ProvenanceAuditTest do
   } do
     seed_provenance_catalog!(admin)
 
-    audit = Hiraeth.ProvenanceAudit.run!(output_dir: output_dir, fail_on_error?: true)
+    audit = ProvenanceAudit.run!(output_dir: output_dir, fail_on_error?: true)
 
     csv_path = Path.join(output_dir, "source-ledger.csv")
     json_path = Path.join(output_dir, "audit-provenance.json")
@@ -60,7 +63,7 @@ defmodule Hiraeth.ProvenanceAuditTest do
     for field <- ~w(title format published_on isbn_13) do
       rows = Enum.filter(real_catalog_rows, &(&1.field == field))
 
-      assert length(rows) >= 1
+      assert rows != []
       refute Enum.any?(rows, &(&1.value_hash == empty_hash))
     end
   end
@@ -94,7 +97,7 @@ defmodule Hiraeth.ProvenanceAuditTest do
 
     ledger_entry!(admin, source_record)
 
-    audit = Hiraeth.ProvenanceAudit.run!(output_dir: output_dir, fail_on_error?: true)
+    audit = ProvenanceAudit.run!(output_dir: output_dir, fail_on_error?: true)
     rows = Enum.filter(audit.source_ledger, &(&1.source_record_id == source_record.id))
     fields = MapSet.new(rows, & &1.field)
 
@@ -137,7 +140,7 @@ defmodule Hiraeth.ProvenanceAuditTest do
         cached_at: DateTime.utc_now(:second)
       })
 
-    audit = Hiraeth.ProvenanceAudit.run!(output_dir: output_dir, fail_on_error?: true)
+    audit = ProvenanceAudit.run!(output_dir: output_dir, fail_on_error?: true)
 
     assert [
              %{
@@ -164,7 +167,7 @@ defmodule Hiraeth.ProvenanceAuditTest do
 
     cover_id = Ash.UUID.generate()
 
-    Hiraeth.Repo.insert_all("cover_assets", [
+    Repo.insert_all("cover_assets", [
       %{
         id: dump_uuid!(cover_id),
         source_url: "https://covers.example.test/missing-rights.jpg",
@@ -175,7 +178,7 @@ defmodule Hiraeth.ProvenanceAuditTest do
       }
     ])
 
-    Hiraeth.Repo.insert_all("cover_assignments", [
+    Repo.insert_all("cover_assignments", [
       %{
         id: dump_uuid!(Ash.UUID.generate()),
         edition_id: dump_uuid!(edition.id),
@@ -185,12 +188,12 @@ defmodule Hiraeth.ProvenanceAuditTest do
       }
     ])
 
-    audit = Hiraeth.ProvenanceAudit.audit!()
+    audit = ProvenanceAudit.audit!()
     assert [%{reason: reason}] = audit.invalid_public_covers
     assert reason =~ "rights basis"
 
     assert_raise RuntimeError, ~r/provenance audit failed/, fn ->
-      Hiraeth.ProvenanceAudit.run!(output_dir: output_dir, fail_on_error?: true)
+      ProvenanceAudit.run!(output_dir: output_dir, fail_on_error?: true)
     end
   end
 
@@ -230,7 +233,7 @@ defmodule Hiraeth.ProvenanceAuditTest do
       maybe_set_unsafe_cached_file!(cover, reason_fragment)
       assignment!(admin, edition, cover)
 
-      audit = Hiraeth.ProvenanceAudit.audit!()
+      audit = ProvenanceAudit.audit!()
 
       assert Enum.any?(
                audit.invalid_public_covers,
@@ -267,14 +270,14 @@ defmodule Hiraeth.ProvenanceAuditTest do
 
     assignment!(admin, edition, other_cover)
 
-    global_audit = Hiraeth.ProvenanceAudit.audit!()
+    global_audit = ProvenanceAudit.audit!()
 
     assert Enum.any?(
              global_audit.invalid_public_covers,
              &(&1.cover_asset_id == other_cover.id)
            )
 
-    scoped_audit = Hiraeth.ProvenanceAudit.audit!(providers: ["fixture-covers"])
+    scoped_audit = ProvenanceAudit.audit!(providers: ["fixture-covers"])
 
     assert scoped_audit.invalid_public_covers == []
   end
@@ -305,7 +308,7 @@ defmodule Hiraeth.ProvenanceAuditTest do
       })
       |> Ash.create!(actor: admin)
 
-    audit = Hiraeth.ProvenanceAudit.run!(output_dir: output_dir, fail_on_error?: false)
+    audit = ProvenanceAudit.run!(output_dir: output_dir, fail_on_error?: false)
 
     assert Enum.any?(
              audit.takedown_audit,
@@ -319,8 +322,8 @@ defmodule Hiraeth.ProvenanceAuditTest do
 
     assert File.read!(Path.join(output_dir, "takedown-audit.csv")) =~ "fixture takedown"
 
-    refute Ash.Resource.Info.action(AuditEvent, :update)
-    refute Ash.Resource.Info.action(AuditEvent, :destroy)
+    refute AshResourceInfo.action(AuditEvent, :update)
+    refute AshResourceInfo.action(AuditEvent, :destroy)
   end
 
   defp edition!(_admin) do
@@ -420,7 +423,7 @@ defmodule Hiraeth.ProvenanceAuditTest do
   end
 
   defp maybe_set_unsafe_cached_file!(cover, "cache file path") do
-    Hiraeth.Repo.update_all(
+    Repo.update_all(
       from(c in CoverAsset, where: c.id == ^cover.id),
       set: [cached_file_path: "priv/static/covers/unsafe.jpg"]
     )
@@ -520,7 +523,7 @@ defmodule Hiraeth.ProvenanceAuditTest do
       Publisher
     ]
     |> Enum.each(fn resource ->
-      Hiraeth.Repo.delete_all(resource)
+      Repo.delete_all(resource)
     end)
   end
 end

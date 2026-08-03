@@ -4,9 +4,22 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
   @moduletag :performance
   @moduletag :public_catalog_full
 
-  alias Hiraeth.Catalog.{Edition, Identifier, Publisher, Series, SeriesMembership, Work}
+  alias Hiraeth.Catalog.{
+    Contribution,
+    Contributor,
+    Edition,
+    Identifier,
+    Publisher,
+    Series,
+    SeriesMembership,
+    Work
+  }
+
+  alias Hiraeth.CatalogCleanup
   alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
   alias Hiraeth.QueryCounting
+  alias Hiraeth.Search.Result, as: SearchResult
+  alias Hiraeth.Sources.SourceRecord
   alias HiraethWeb.PublicCatalog
 
   @list_query_budget 8
@@ -16,7 +29,7 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
   @directory_elapsed_budget_microseconds 350_000
 
   setup_all do
-    Hiraeth.CatalogCleanup.ensure_committed_catalog_fixtures!()
+    CatalogCleanup.ensure_committed_catalog_fixtures!()
     :ok
   end
 
@@ -94,10 +107,10 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     assert function_exported?(PublicCatalog, :search_books, 1),
            "PublicCatalog.search_books/1 must exist before public catalog performance can be measured"
 
-    {elapsed_microseconds, books} = :timer.tc(fn -> apply(PublicCatalog, :search_books, [""]) end)
+    {elapsed_microseconds, books} = :timer.tc(fn -> PublicCatalog.search_books("") end)
 
     assert elapsed_microseconds <= 100_000
-    assert length(books) > 0
+    assert books != []
     assert length(books) <= PublicCatalog.page_size()
 
     book_keys = Enum.map(books, & &1.work_id)
@@ -176,7 +189,7 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
   end
 
   test "legacy Ash search result is marked internal so public UI cannot drift to in-memory filtering" do
-    assert Hiraeth.Search.Result.public_catalog_path?() == false
+    assert SearchResult.public_catalog_path?() == false
 
     public_files = [
       "lib/hiraeth_web/live/browse_live.ex",
@@ -442,7 +455,7 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     })
     |> Ash.create!(authorize?: false)
 
-    Hiraeth.Sources.SourceRecord
+    SourceRecord
     |> Ash.Changeset.for_create(:create, %{
       provider: "deep_vellum_official_store",
       source_type: "publisher_dataset",
@@ -549,7 +562,7 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     })
     |> Ash.create!(authorize?: false)
 
-    Hiraeth.Sources.SourceRecord
+    SourceRecord
     |> Ash.Changeset.for_create(:create, %{
       provider: "deep_vellum_official_store",
       source_type: "publisher_dataset",
@@ -629,7 +642,7 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     })
     |> Ash.create!(authorize?: false)
 
-    Hiraeth.Sources.SourceRecord
+    SourceRecord
     |> Ash.Changeset.for_create(:create, %{
       provider: "deep_vellum_official_store",
       source_type: "publisher_dataset",
@@ -697,7 +710,7 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
     })
     |> Ash.create!(authorize?: false)
 
-    Hiraeth.Sources.SourceRecord
+    SourceRecord
     |> Ash.Changeset.for_create(:create, %{
       provider: "new_directions_official_site",
       source_type: "publisher_dataset",
@@ -739,7 +752,7 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
   end
 
   defp create_contributor!(name, slug) do
-    Hiraeth.Catalog.Contributor
+    Contributor
     |> Ash.Changeset.for_create(:create, %{
       display_name: name,
       sort_name: name,
@@ -749,7 +762,7 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
   end
 
   defp create_contribution!(work_id, contributor_id, role, position) do
-    Hiraeth.Catalog.Contribution
+    Contribution
     |> Ash.Changeset.for_create(:create, %{
       work_id: work_id,
       contributor_id: contributor_id,

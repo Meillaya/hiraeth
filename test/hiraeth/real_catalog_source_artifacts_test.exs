@@ -4,7 +4,7 @@ defmodule Hiraeth.RealCatalogSourceArtifactsTest do
   @moduletag :full_catalog
   @moduletag :slow
 
-  alias Hiraeth.RealCatalog.{SourceArtifacts, SourceFetcher}
+  alias Hiraeth.RealCatalog.{Dataset, SourceArtifacts, SourceFetcher}
   alias Hiraeth.RealCatalog.SourceFetcher.SourceError
 
   @dataset_dir Path.expand("../../priv/catalog_sources/real_publishers", __DIR__)
@@ -250,7 +250,7 @@ defmodule Hiraeth.RealCatalogSourceArtifactsTest do
 
   defp manifest_provider!(provider) do
     @dataset_dir
-    |> Hiraeth.RealCatalog.Dataset.load_source_authority_manifest()
+    |> Dataset.load_source_authority_manifest()
     |> elem(1)
     |> Map.fetch!("providers")
     |> Enum.find(&(&1["provider"] == provider)) ||
@@ -258,7 +258,7 @@ defmodule Hiraeth.RealCatalogSourceArtifactsTest do
   end
 
   defp manifest_with_provider(provider) do
-    {:ok, manifest} = Hiraeth.RealCatalog.Dataset.load_source_authority_manifest(@dataset_dir)
+    {:ok, manifest} = Dataset.load_source_authority_manifest(@dataset_dir)
 
     providers =
       Enum.map(manifest["providers"], fn current ->

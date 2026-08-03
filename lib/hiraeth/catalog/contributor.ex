@@ -1,4 +1,6 @@
 defmodule Hiraeth.Catalog.Contributor do
+  @moduledoc "Ash resource: an author, translator, editor, or other contributor (person or org)."
+
   use Ash.Resource,
     domain: Hiraeth.Catalog,
     data_layer: AshPostgres.DataLayer,

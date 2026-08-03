@@ -32,42 +32,81 @@ defmodule Hiraeth.RealCatalog.SourceFetcher do
     source = source_policy!(provider_policy, url)
     max_bytes = get_in(provider_policy, ["max_bytes", "response"]) || 0
 
+    assert_positive_max_bytes!(provider, max_bytes)
+    File.mkdir_p!(output_dir)
+
+    response = perform_source_request!(url, opts, max_bytes)
+    body = IO.iodata_to_binary(response.body || "")
+    byte_size = response.private[:hiraeth_source_fetcher_bytes] || byte_size(body)
+
+    assert_size_under_max_bytes!(provider, url, max_bytes, byte_size)
+    assert_not_html_response!(provider, url, response, body)
+
+    write_source_artifact!(%{
+      provider: provider,
+      url: url,
+      source: source,
+      response: response,
+      body: body,
+      byte_size: byte_size,
+      max_bytes: max_bytes,
+      output_dir: output_dir,
+      opts: opts
+    })
+  end
+
+  defp assert_positive_max_bytes!(provider, max_bytes) do
     unless is_integer(max_bytes) and max_bytes > 0 do
       raise SourceError, "source response max_bytes must be a positive integer for #{provider}"
     end
+  end
 
-    File.mkdir_p!(output_dir)
-
-    into = bounded_body_collector(max_bytes)
-    req_options = Keyword.get(opts, :req_options, [])
-
-    response =
-      req_options
+  defp perform_source_request!(url, opts, max_bytes) do
+    req_options =
+      opts
+      |> Keyword.get(:req_options, [])
       |> Keyword.merge(
         decode_body: false,
-        into: into,
+        into: bounded_body_collector(max_bytes),
         redirect: false,
         retry: false,
         receive_timeout: Keyword.get(opts, :receive_timeout, @default_receive_timeout_ms)
       )
-      |> then(&Req.get!(url, &1))
+
+    response = req_options |> then(&Req.get!(url, &1))
 
     unless response.status in 200..299 do
-      raise SourceError,
-            "source response for #{provider} returned HTTP #{response.status}: #{url}"
+      raise SourceError, "source response returned HTTP #{response.status}: #{url}"
     end
 
-    body = IO.iodata_to_binary(response.body || "")
-    byte_size = response.private[:hiraeth_source_fetcher_bytes] || byte_size(body)
+    response
+  end
 
+  defp assert_size_under_max_bytes!(provider, _url, max_bytes, byte_size) do
     if max_bytes > 0 and byte_size > max_bytes do
       raise SourceError,
             "source response for #{provider} exceeds max_bytes #{max_bytes}: #{byte_size}"
     end
+  end
 
+  defp assert_not_html_response!(provider, url, response, body) do
     if html_response?(response, body) do
       raise SourceError, "HTML source responses are not approved for #{provider}: #{url}"
     end
+  end
+
+  defp write_source_artifact!(fetch_context) do
+    %{
+      provider: provider,
+      url: url,
+      source: source,
+      response: response,
+      body: body,
+      byte_size: byte_size,
+      max_bytes: max_bytes,
+      output_dir: output_dir,
+      opts: opts
+    } = fetch_context
 
     checksum = sha256(body)
     artifact_path = Path.join(output_dir, artifact_filename(provider, checksum, url))
@@ -75,7 +114,33 @@ defmodule Hiraeth.RealCatalog.SourceFetcher do
 
     File.write!(artifact_path, body)
 
-    metadata = %{
+    metadata =
+      source_metadata(%{
+        provider: provider,
+        url: url,
+        source: source,
+        response: response,
+        byte_size: byte_size,
+        checksum: checksum,
+        max_bytes: max_bytes,
+        opts: opts
+      })
+
+    File.write!(metadata_path, Jason.encode!(metadata, pretty: true))
+    Map.put(metadata, "artifact_path", artifact_path)
+  end
+
+  defp source_metadata(%{
+         provider: provider,
+         url: url,
+         source: source,
+         response: response,
+         byte_size: byte_size,
+         checksum: checksum,
+         max_bytes: max_bytes,
+         opts: opts
+       }) do
+    %{
       "provider" => provider,
       "url" => url,
       "source_type" => source.source_type,
@@ -87,9 +152,6 @@ defmodule Hiraeth.RealCatalog.SourceFetcher do
       "max_bytes" => max_bytes,
       "headers" => response.headers
     }
-
-    File.write!(metadata_path, Jason.encode!(metadata, pretty: true))
-    Map.put(metadata, "artifact_path", artifact_path)
   end
 
   def validate_source!(provider, url, dir \\ Dataset.default_dir()) do

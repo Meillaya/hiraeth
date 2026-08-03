@@ -44,14 +44,16 @@ defmodule HiraethWeb.Admin.IngestionRegistry do
   end
 
   def get_provider(provider_id) when is_binary(provider_id) and provider_id != "" do
-    with {:ok, provider_uuid} <- Ecto.UUID.cast(provider_id) do
-      case Ash.get(ProviderSource, provider_uuid, authorize?: false) do
-        {:ok, %ProviderSource{} = provider} -> {:ok, provider}
-        {:ok, nil} -> {:error, :not_found}
-        {:error, reason} -> {:error, reason}
-      end
-    else
-      :error -> {:error, :invalid}
+    case Ecto.UUID.cast(provider_id) do
+      {:ok, provider_uuid} ->
+        case Ash.get(ProviderSource, provider_uuid, authorize?: false) do
+          {:ok, %ProviderSource{} = provider} -> {:ok, provider}
+          {:ok, nil} -> {:error, :not_found}
+          {:error, reason} -> {:error, reason}
+        end
+
+      :error ->
+        {:error, :invalid}
     end
   end
 

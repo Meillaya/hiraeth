@@ -1,6 +1,9 @@
 defmodule HiraethWeb.HealthController do
   use HiraethWeb, :controller
 
+  alias Ecto.Adapters.SQL
+  alias Hiraeth.Repo
+
   @default_sidecar_timeout 500
 
   def health(conn, _params) do
@@ -36,7 +39,7 @@ defmodule HiraethWeb.HealthController do
   end
 
   defp default_repo_check do
-    case Ecto.Adapters.SQL.query(Hiraeth.Repo, "SELECT 1", [], timeout: 1_000) do
+    case SQL.query(Repo, "SELECT 1", [], timeout: 1_000) do
       {:ok, _result} -> :ok
       {:error, _reason} -> :unavailable
     end

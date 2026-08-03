@@ -1,4 +1,6 @@
 defmodule Hiraeth.Ingestion.RecordCandidate do
+  @moduledoc "Ash resource: a normalized ingestion record carrying diff classification, quarantine, and review state."
+
   @diff_classifications ~w(new changed unchanged removed invalid destructive)
   @quarantine_statuses ~w(clear quarantined)
   @review_decisions ~w(pending_review approved rejected ignored)
@@ -260,6 +262,8 @@ defmodule Hiraeth.Ingestion.RecordCandidate do
     with :ok <- validate_map_attribute(changeset, :raw_metadata),
          :ok <- validate_map_attribute(changeset, :normalized_metadata) do
       :ok
+    else
+      {:error, reason} -> {:error, reason}
     end
   end
 

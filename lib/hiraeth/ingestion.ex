@@ -1,4 +1,6 @@
 defmodule Hiraeth.Ingestion do
+  @moduledoc "Ash domain: provider sources, runs, snapshots, candidates, and ingestion events."
+
   use Ash.Domain
 
   resources do

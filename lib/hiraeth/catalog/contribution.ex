@@ -1,4 +1,6 @@
 defmodule Hiraeth.Catalog.Contribution do
+  @moduledoc "Ash resource: a contributor slot on a work or edition (role-scoped)."
+
   use Ash.Resource,
     domain: Hiraeth.Catalog,
     data_layer: AshPostgres.DataLayer,

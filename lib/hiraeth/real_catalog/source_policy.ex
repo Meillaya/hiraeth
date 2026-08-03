@@ -3,6 +3,8 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
   Provider-specific rules for approved real-publisher dataset records.
   """
 
+  alias Hiraeth.Ingestion.ProviderManifest
+
   @allowed_formats MapSet.new(~w(paperback hardcover ebook audiobook))
   @expansion_provider_slugs [
     "new_directions_official_site",
@@ -255,7 +257,7 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
   end
 
   def load_provider_manifest(file_path) do
-    manifest = Hiraeth.Ingestion.ProviderManifest.load!(file_path)
+    manifest = ProviderManifest.load!(file_path)
 
     cover_hosts = MapSet.new(manifest.cover_hosts || [])
     source_hosts = MapSet.new(manifest.source_hosts || [])
@@ -319,12 +321,14 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
   end
 
   def provider_gate_ready?(provider) do
-    with {:ok, gate} <- Map.fetch(@provider_gates, provider) do
-      Enum.all?(@required_gate_fields, &gate_field_present?(gate, &1)) and
-        Map.get(gate, :source_hosts) == source_hosts(provider) and
-        Map.get(gate, :cover_hosts) == cover_hosts(provider)
-    else
-      :error -> false
+    case Map.fetch(@provider_gates, provider) do
+      {:ok, gate} ->
+        Enum.all?(@required_gate_fields, &gate_field_present?(gate, &1)) and
+          Map.get(gate, :source_hosts) == source_hosts(provider) and
+          Map.get(gate, :cover_hosts) == cover_hosts(provider)
+
+      :error ->
+        false
     end
   end
 
@@ -653,7 +657,7 @@ defmodule Hiraeth.RealCatalog.SourcePolicy do
 
   defp load_manifest_provider_entry(file_path) do
     if File.exists?(file_path) do
-      manifest = Hiraeth.Ingestion.ProviderManifest.load!(file_path)
+      manifest = ProviderManifest.load!(file_path)
 
       %{}
       |> Map.put(:cover_hosts, MapSet.new(manifest.cover_hosts || []))

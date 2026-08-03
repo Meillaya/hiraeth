@@ -8,8 +8,8 @@ defmodule Hiraeth.Ingestion.Phases.TombstoneCandidates do
   """
 
   alias Hiraeth.Imports.ImportRun
-  alias Hiraeth.Ingestion.RecordCandidate
   alias Hiraeth.Ingestion.Phases.RunState
+  alias Hiraeth.Ingestion.RecordCandidate
   alias Hiraeth.Sources.{SourceLedgerEntry, SourceRecord}
 
   require Ash.Query

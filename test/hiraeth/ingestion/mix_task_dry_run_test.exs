@@ -2,6 +2,7 @@ defmodule Hiraeth.Ingestion.MixTaskDryRunTest do
   use Hiraeth.DataCase, async: false
 
   alias Hiraeth.Ingestion.{ProviderRun, ProviderSource}
+  alias Mix.Tasks.Hiraeth.Ingest
 
   @valid_manifest Path.join([
                     File.cwd!(),
@@ -44,7 +45,7 @@ defmodule Hiraeth.Ingestion.MixTaskDryRunTest do
       output =
         ExUnit.CaptureIO.capture_io(fn ->
           assert :ok =
-                   Mix.Tasks.Hiraeth.Ingest.do_run([
+                   Ingest.do_run([
                      "--provider",
                      "test_publisher_scrape_implicit",
                      "--manifest",
@@ -64,7 +65,7 @@ defmodule Hiraeth.Ingestion.MixTaskDryRunTest do
       output =
         ExUnit.CaptureIO.capture_io(fn ->
           assert :ok =
-                   Mix.Tasks.Hiraeth.Ingest.do_run([
+                   Ingest.do_run([
                      "--provider",
                      "test_publisher_api",
                      "--manifest",
@@ -101,7 +102,7 @@ defmodule Hiraeth.Ingestion.MixTaskDryRunTest do
       output =
         ExUnit.CaptureIO.capture_io(fn ->
           assert :ok =
-                   Mix.Tasks.Hiraeth.Ingest.do_run([
+                   Ingest.do_run([
                      "--provider",
                      "test_publisher_api",
                      "--manifest",
@@ -131,7 +132,7 @@ defmodule Hiraeth.Ingestion.MixTaskDryRunTest do
 
       ExUnit.CaptureIO.capture_io(fn ->
         assert :ok =
-                 Mix.Tasks.Hiraeth.Ingest.do_run([
+                 Ingest.do_run([
                    "--provider",
                    "test_publisher_api",
                    "--manifest",
@@ -161,7 +162,7 @@ defmodule Hiraeth.Ingestion.MixTaskDryRunTest do
       output =
         ExUnit.CaptureIO.capture_io(fn ->
           assert :ok =
-                   Mix.Tasks.Hiraeth.Ingest.do_run([
+                   Ingest.do_run([
                      "--provider",
                      "test_publisher_api",
                      "--manifest",
@@ -180,7 +181,7 @@ defmodule Hiraeth.Ingestion.MixTaskDryRunTest do
       output =
         ExUnit.CaptureIO.capture_io(fn ->
           assert :ok =
-                   Mix.Tasks.Hiraeth.Ingest.do_run([
+                   Ingest.do_run([
                      "--provider",
                      "deep_vellum_official_store",
                      "--manifest",

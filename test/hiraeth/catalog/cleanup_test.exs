@@ -2,8 +2,8 @@ defmodule Hiraeth.CatalogCleanupTest do
   use ExUnit.Case, async: false
 
   alias Ecto.Adapters.SQL.Sandbox
-  alias Hiraeth.CatalogCleanup
   alias Hiraeth.Catalog.TinyCommittedFixture
+  alias Hiraeth.CatalogCleanup
   alias Hiraeth.RealCatalog.{Dataset, SourceArtifacts}
   alias Hiraeth.Repo
 

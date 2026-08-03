@@ -1,8 +1,8 @@
 defmodule Hiraeth.Ingestion.Phases.QuarantineRun do
   @moduledoc "Persists an explicit quarantine phase summary for blocked candidates."
 
-  alias Hiraeth.Ingestion.RecordCandidate
   alias Hiraeth.Ingestion.Phases.RunState
+  alias Hiraeth.Ingestion.RecordCandidate
 
   require Ash.Query
 

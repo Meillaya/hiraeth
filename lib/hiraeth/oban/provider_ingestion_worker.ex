@@ -36,6 +36,7 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
     CoverPipeline,
     Phases,
     ProviderManifest,
+    ProviderRecordNormalizer,
     Telemetry
   }
 
@@ -131,14 +132,14 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
   end
 
   def normalize_provider_records(records, manifest, client) do
-    Hiraeth.Ingestion.ProviderRecordNormalizer.normalize(records, manifest, client)
+    ProviderRecordNormalizer.normalize(records, manifest, client)
   end
 
   @doc """
   Computes a content-derived SHA-256 checksum for a list of records.
   """
   def compute_file_checksum(records) do
-    Hiraeth.Ingestion.ProviderRecordNormalizer.compute_file_checksum(records)
+    ProviderRecordNormalizer.compute_file_checksum(records)
   end
 
   defp finish_compatibility_facade(phase_context, manifest) do

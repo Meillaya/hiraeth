@@ -2,6 +2,7 @@ defmodule Hiraeth.Ingestion.ScrapeTaskTest do
   use Hiraeth.DataCase, async: false
 
   alias Hiraeth.RealCatalog.Dataset
+  alias Mix.Tasks.Hiraeth.Scrape
 
   @valid_scrape_manifest Path.join([
                            File.cwd!(),
@@ -109,7 +110,7 @@ defmodule Hiraeth.Ingestion.ScrapeTaskTest do
       output =
         ExUnit.CaptureIO.capture_io(fn ->
           assert :ok =
-                   Mix.Tasks.Hiraeth.Scrape.run([
+                   Scrape.run([
                      "--provider",
                      "test_publisher_scrape",
                      "--manifest",
@@ -140,7 +141,7 @@ defmodule Hiraeth.Ingestion.ScrapeTaskTest do
     test "missing --provider exits 1" do
       output =
         ExUnit.CaptureIO.capture_io(:stderr, fn ->
-          assert catch_exit(Mix.Tasks.Hiraeth.Scrape.run([])) == {:shutdown, 1}
+          assert catch_exit(Scrape.run([])) == {:shutdown, 1}
         end)
 
       assert output =~ "Usage: mix hiraeth.scrape"
@@ -154,7 +155,7 @@ defmodule Hiraeth.Ingestion.ScrapeTaskTest do
       output =
         ExUnit.CaptureIO.capture_io(:stderr, fn ->
           assert catch_exit(
-                   Mix.Tasks.Hiraeth.Scrape.run([
+                   Scrape.run([
                      "--provider",
                      "test_publisher_scrape",
                      "--manifest",

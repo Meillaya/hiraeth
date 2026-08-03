@@ -79,7 +79,7 @@ defmodule Hiraeth.RealCatalogSourceManifestTest do
             |> Jason.decode!()
 
           assert dataset["provider"] == provider
-          assert length(dataset["records"] || []) > 0
+          assert (dataset["records"] || []) != []
         end
       end
     end

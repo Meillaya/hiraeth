@@ -1,4 +1,6 @@
 defmodule Hiraeth.Catalog do
+  @moduledoc "Ash domain: work / edition / publisher / contributor / series public catalog graph."
+
   use Ash.Domain
 
   resources do

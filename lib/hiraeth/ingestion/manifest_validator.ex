@@ -129,43 +129,77 @@ defmodule Hiraeth.Ingestion.ManifestValidator do
     api = get_field(manifest, :api) || %{}
     endpoint = Map.get(api, :endpoint) || Map.get(api, "endpoint")
     uri = parse_uri(endpoint)
-    source_hosts = source_hosts(manifest)
-    endpoint_host = normalized_host(uri.host)
 
-    findings
-    |> add_if(
-      mode == "api" and blank?(endpoint),
+    if mode == "api" do
+      findings
+      |> add_api_endpoint_required_finding(manifest, endpoint)
+      |> add_api_endpoint_scheme_finding(manifest, endpoint, uri)
+      |> add_api_endpoint_userinfo_finding(manifest, endpoint, uri)
+      |> add_api_endpoint_host_finding(manifest, endpoint, uri)
+      |> add_api_endpoint_host_allowlist_finding(manifest, endpoint, uri)
+      |> add_api_endpoint_private_host_finding(manifest, endpoint, uri)
+    else
+      findings
+    end
+  end
+
+  defp add_api_endpoint_required_finding(findings, manifest, endpoint) do
+    add_if(
+      findings,
+      blank?(endpoint),
       manifest,
       :api,
       "api.endpoint is required when source_mode is \"api\""
     )
-    |> add_if(
-      mode == "api" and present?(endpoint) and uri.scheme != "https",
+  end
+
+  defp add_api_endpoint_scheme_finding(findings, manifest, endpoint, uri) do
+    add_if(
+      findings,
+      present?(endpoint) and uri.scheme != "https",
       manifest,
       :api,
       "api.endpoint must be HTTPS"
     )
-    |> add_if(
-      mode == "api" and present?(endpoint) and present?(uri.userinfo),
+  end
+
+  defp add_api_endpoint_userinfo_finding(findings, manifest, endpoint, uri) do
+    add_if(
+      findings,
+      present?(endpoint) and present?(uri.userinfo),
       manifest,
       :api,
       "api.endpoint must not include userinfo"
     )
-    |> add_if(
-      mode == "api" and present?(endpoint) and blank?(uri.host),
+  end
+
+  defp add_api_endpoint_host_finding(findings, manifest, endpoint, uri) do
+    add_if(
+      findings,
+      present?(endpoint) and blank?(uri.host),
       manifest,
       :api,
       "api.endpoint must include a host"
     )
-    |> add_if(
-      mode == "api" and present?(endpoint) and present?(endpoint_host) and
-        endpoint_host not in source_hosts,
+  end
+
+  defp add_api_endpoint_host_allowlist_finding(findings, manifest, endpoint, uri) do
+    endpoint_host = normalized_host(uri.host)
+
+    add_if(
+      findings,
+      present?(endpoint) and present?(endpoint_host) and
+        endpoint_host not in source_hosts(manifest),
       manifest,
       :api,
       "api.endpoint host must be listed in source_hosts"
     )
-    |> add_if(
-      mode == "api" and present?(endpoint) and private_endpoint_host?(endpoint_host),
+  end
+
+  defp add_api_endpoint_private_host_finding(findings, manifest, endpoint, uri) do
+    add_if(
+      findings,
+      present?(endpoint) and private_endpoint_host?(normalized_host(uri.host)),
       manifest,
       :api,
       "api.endpoint host must not be private, loopback, or link-local"

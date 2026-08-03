@@ -16,9 +16,15 @@ defmodule Hiraeth.Ingestion.E2EIngestionTest do
     Work
   }
 
+  alias Hiraeth.CatalogCleanup
   alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
   alias Hiraeth.Imports.ImportRun
+  alias Hiraeth.Oban.ProviderIngestionWorker
+  alias Hiraeth.ProvenanceAudit
+  alias Hiraeth.RealCatalog.Importer
+  alias Hiraeth.Repo
   alias Hiraeth.Sources.{SourceLedgerEntry, SourceRecord}
+  alias Mix.Tasks.Hiraeth.Ingest
 
   require Ash.Query
 
@@ -74,7 +80,7 @@ defmodule Hiraeth.Ingestion.E2EIngestionTest do
 
   defmodule MockImporter do
     def seed_provider!(dataset, import_run) do
-      Hiraeth.RealCatalog.Importer.seed_provider!(dataset, import_run)
+      Importer.seed_provider!(dataset, import_run)
     end
   end
 
@@ -124,7 +130,7 @@ defmodule Hiraeth.Ingestion.E2EIngestionTest do
     clear_catalog!()
 
     job = %Oban.Job{args: %{"manifest_path" => @manifest_path}}
-    assert {:ok, result} = Hiraeth.Oban.ProviderIngestionWorker.perform(job)
+    assert {:ok, result} = ProviderIngestionWorker.perform(job)
 
     assert result.provider == "fixture_test_provider"
     assert result.record_count == 5
@@ -240,7 +246,7 @@ defmodule Hiraeth.Ingestion.E2EIngestionTest do
     job = %Oban.Job{args: %{"manifest_path" => @manifest_path}}
 
     # First run
-    assert {:ok, first_result} = Hiraeth.Oban.ProviderIngestionWorker.perform(job)
+    assert {:ok, first_result} = ProviderIngestionWorker.perform(job)
     assert first_result.record_count == 5
 
     edition_count = Ash.read!(Edition, authorize?: false) |> length()
@@ -256,7 +262,7 @@ defmodule Hiraeth.Ingestion.E2EIngestionTest do
     assert cover_assignment_count == 5
 
     # Second run — should skip import due to existing source records
-    assert {:ok, second_result} = Hiraeth.Oban.ProviderIngestionWorker.perform(job)
+    assert {:ok, second_result} = ProviderIngestionWorker.perform(job)
     assert second_result.record_count == 5
 
     # Counts must be identical — no duplicates
@@ -273,10 +279,10 @@ defmodule Hiraeth.Ingestion.E2EIngestionTest do
     clear_catalog!()
 
     job = %Oban.Job{args: %{"manifest_path" => @manifest_path}}
-    assert {:ok, _result} = Hiraeth.Oban.ProviderIngestionWorker.perform(job)
+    assert {:ok, _result} = ProviderIngestionWorker.perform(job)
 
     # Run provenance audit
-    audit = Hiraeth.ProvenanceAudit.audit!()
+    audit = ProvenanceAudit.audit!()
 
     # Verify no missing provenance
     assert audit.missing_provenance == [],
@@ -301,7 +307,7 @@ defmodule Hiraeth.Ingestion.E2EIngestionTest do
 
     task =
       Task.async(fn ->
-        Mix.Tasks.Hiraeth.Ingest.do_run([
+        Ingest.do_run([
           "--provider",
           "fixture_test_provider",
           "--manifest",
@@ -332,7 +338,7 @@ defmodule Hiraeth.Ingestion.E2EIngestionTest do
 
   # --- Helpers ---
 
-  defp clear_catalog!, do: Hiraeth.CatalogCleanup.clear_catalog!()
+  defp clear_catalog!, do: CatalogCleanup.clear_catalog!()
 
   defp wait_for_job!(timeout_ms \\ 5_000) do
     deadline = System.monotonic_time(:millisecond) + timeout_ms
@@ -340,7 +346,7 @@ defmodule Hiraeth.Ingestion.E2EIngestionTest do
   end
 
   defp do_wait_for_job(deadline) do
-    case Hiraeth.Repo.one(from(j in Oban.Job, where: j.queue == "ingestion", limit: 1)) do
+    case Repo.one(from(j in Oban.Job, where: j.queue == "ingestion", limit: 1)) do
       nil ->
         if System.monotonic_time(:millisecond) > deadline do
           raise "No job found in ingestion queue within timeout"

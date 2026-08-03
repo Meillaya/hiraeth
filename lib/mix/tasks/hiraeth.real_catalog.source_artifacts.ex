@@ -2,6 +2,8 @@ defmodule Mix.Tasks.Hiraeth.RealCatalog.SourceArtifacts do
   @moduledoc "Writes the deterministic real-catalog source artifact manifest."
   use Mix.Task
 
+  alias Hiraeth.RealCatalog.{Dataset, SourceArtifacts}
+
   @shortdoc "Writes source artifact manifest for checked-in real catalog fixtures"
 
   @impl Mix.Task
@@ -14,7 +16,7 @@ defmodule Mix.Tasks.Hiraeth.RealCatalog.SourceArtifacts do
         aliases: [o: :output]
       )
 
-    dataset_dir = Keyword.get(opts, :dataset_dir, Hiraeth.RealCatalog.Dataset.default_dir())
+    dataset_dir = Keyword.get(opts, :dataset_dir, Dataset.default_dir())
 
     output =
       Keyword.get(
@@ -23,7 +25,7 @@ defmodule Mix.Tasks.Hiraeth.RealCatalog.SourceArtifacts do
         Path.join(dataset_dir, "source_artifacts_manifest.json")
       )
 
-    manifest = Hiraeth.RealCatalog.SourceArtifacts.write_manifest!(dataset_dir, output)
+    manifest = SourceArtifacts.write_manifest!(dataset_dir, output)
     Mix.shell().info("wrote #{output}")
 
     Mix.shell().info(

@@ -1,4 +1,6 @@
 defmodule Hiraeth.Search.Result.Actions.Search do
+  @moduledoc "Ash read action backing the public catalog search page; returns typed result rows."
+
   use Ash.Resource.ManualRead
 
   alias Hiraeth.Catalog.Edition

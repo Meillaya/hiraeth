@@ -37,7 +37,7 @@ defmodule Hiraeth.Ingestion.ManifestValidatorTest do
     test "rejects manifest missing all required fields" do
       manifest = load_fixture("invalid_missing_fields.json")
       assert {:error, findings} = ManifestValidator.validate(manifest)
-      assert length(findings) > 0
+      assert findings != []
 
       reasons = Enum.map(findings, & &1.reason)
       assert Enum.any?(reasons, &String.contains?(&1, "source_mode is required"))

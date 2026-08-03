@@ -13,12 +13,16 @@ defmodule Hiraeth.Ingestion.OperatorDryRun do
         OperatorJSON.print(dry_run_plan(provider, manifest, manifest_path))
         :ok
       else
-        with {:ok, _provider} <- register_provider(manifest_path),
-             :ok <- check_sidecar_health(),
-             {:ok, records} <- fetch_records(manifest) do
-          validate_and_print_dry_run(provider, records, manifest, manifest_path)
-        end
+        run_sidecar_dry_run(provider, manifest, manifest_path)
       end
+    end
+  end
+
+  defp run_sidecar_dry_run(provider, manifest, manifest_path) do
+    with {:ok, _provider} <- register_provider(manifest_path),
+         :ok <- check_sidecar_health(),
+         {:ok, records} <- fetch_records(manifest) do
+      validate_and_print_dry_run(provider, records, manifest, manifest_path)
     end
   end
 
@@ -136,6 +140,8 @@ defmodule Hiraeth.Ingestion.OperatorDryRun do
     with :ok <- validate_expected_record_count(records, manifest),
          {:ok, summary} <- Validator.validate_datasets([dataset]) do
       {:ok, summary}
+    else
+      {:error, reason} -> {:error, reason}
     end
   end
 

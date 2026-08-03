@@ -4,9 +4,9 @@ defmodule Hiraeth.Ingestion.Phases.FetchSnapshot do
   records the fetch phase state without applying catalog writes.
   """
 
+  alias Hiraeth.Ingestion.Phases.RunState
   alias Hiraeth.Ingestion.{ProviderManifest, SidecarClient, SourceSnapshot, Telemetry}
   alias Hiraeth.RealCatalog.SourcePolicy
-  alias Hiraeth.Ingestion.Phases.RunState
 
   require Ash.Query
 

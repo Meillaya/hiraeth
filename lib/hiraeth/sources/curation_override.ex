@@ -1,4 +1,6 @@
 defmodule Hiraeth.Sources.CurationOverride do
+  @moduledoc "Ash resource: an operator-authorized override applied to a sourced catalog field."
+
   use Ash.Resource,
     domain: Hiraeth.Sources,
     data_layer: AshPostgres.DataLayer,

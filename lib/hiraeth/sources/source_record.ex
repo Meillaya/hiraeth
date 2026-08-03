@@ -1,4 +1,6 @@
 defmodule Hiraeth.Sources.SourceRecord do
+  @moduledoc "Ash resource: a single observed record attributable to a sourced provider or tombstone."
+
   use Ash.Resource,
     domain: Hiraeth.Sources,
     data_layer: AshPostgres.DataLayer,

@@ -1,4 +1,6 @@
 defmodule Hiraeth.Covers.CoverAssignment do
+  @moduledoc "Ash resource: a cover attached to an edition, with role and provenance source."
+
   use Ash.Resource,
     domain: Hiraeth.Covers,
     data_layer: AshPostgres.DataLayer,

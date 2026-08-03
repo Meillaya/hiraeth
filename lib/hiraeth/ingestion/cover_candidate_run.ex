@@ -105,26 +105,31 @@ defmodule Hiraeth.Ingestion.CoverCandidateRun do
     stable_source_key = "publisher:#{manifest.provider}:manifest"
 
     case provider_source_by_stable_key(stable_source_key) do
-      nil ->
-        ProviderSource
-        |> Ash.Changeset.for_create(:create, %{
-          stable_source_key: stable_source_key,
-          provider_name: manifest.name || manifest.provider,
-          source_kind: "publisher",
-          ingestion_mode: manifest.source_mode || "manifest",
-          base_uri: List.first(manifest.source_urls || []),
-          manifest_uri: List.first(manifest.source_urls || []),
-          allowed_hosts: manifest.source_hosts || [],
-          rate_limit_per_minute: rate_limit_per_minute(manifest),
-          max_bytes: manifest.rate_limit[:max_bytes] || 10_485_760,
-          license_note: manifest.permission_basis || "provider manifest ingestion",
-          enabled?: true
-        })
-        |> Ash.create!(actor: @catalog_writer)
-
-      source ->
-        source
+      nil -> create_provider_source!(manifest, stable_source_key)
+      source -> source
     end
+  end
+
+  defp create_provider_source!(manifest, stable_source_key) do
+    ProviderSource
+    |> Ash.Changeset.for_create(:create, provider_source_attrs(manifest, stable_source_key))
+    |> Ash.create!(actor: @catalog_writer)
+  end
+
+  defp provider_source_attrs(manifest, stable_source_key) do
+    %{
+      stable_source_key: stable_source_key,
+      provider_name: manifest.name || manifest.provider,
+      source_kind: "publisher",
+      ingestion_mode: manifest.source_mode || "manifest",
+      base_uri: List.first(manifest.source_urls || []),
+      manifest_uri: List.first(manifest.source_urls || []),
+      allowed_hosts: manifest.source_hosts || [],
+      rate_limit_per_minute: rate_limit_per_minute(manifest),
+      max_bytes: manifest.rate_limit[:max_bytes] || 10_485_760,
+      license_note: manifest.permission_basis || "provider manifest ingestion",
+      enabled?: true
+    }
   end
 
   defp provider_source_by_stable_key(stable_source_key) do

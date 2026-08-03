@@ -1,4 +1,6 @@
 defmodule Hiraeth.Catalog.Identifier do
+  @moduledoc "Ash resource: ISBN and other edition-scoped identifiers (unique per type/value)."
+
   use Ash.Resource,
     domain: Hiraeth.Catalog,
     data_layer: AshPostgres.DataLayer,

@@ -1,4 +1,6 @@
 defmodule Hiraeth.Catalog.SeriesMembership do
+  @moduledoc "Ash resource: a work slot inside a series (unique per series/work pair)."
+
   use Ash.Resource,
     domain: Hiraeth.Catalog,
     data_layer: AshPostgres.DataLayer,

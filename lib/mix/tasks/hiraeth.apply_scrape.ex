@@ -66,30 +66,38 @@ defmodule Mix.Tasks.Hiraeth.ApplyScrape do
     staged_path = staged_dataset_path(provider)
     canonical_path = canonical_dataset_path(provider)
 
-    unless File.exists?(staged_path) do
-      {:error, "Staged dataset not found: #{staged_path}"}
+    if File.exists?(staged_path) do
+      apply_loaded_staged_dataset(provider, staged_path, canonical_path)
     else
-      File.mkdir_p!(Path.dirname(canonical_path))
+      {:error, "Staged dataset not found: #{staged_path}"}
+    end
+  end
 
-      with {:ok, staged_dataset} <- Dataset.load_file(staged_path),
-           :ok <- validate_staged_dataset(staged_dataset) do
-        # Copy then remove so the staged file survives validation or copy failure.
-        File.cp!(staged_path, canonical_path)
-        File.rm!(staged_path)
+  defp apply_loaded_staged_dataset(provider, staged_path, canonical_path) do
+    File.mkdir_p!(Path.dirname(canonical_path))
 
-        with {:ok, dataset} <- Dataset.load_file(canonical_path),
-             import_run <- create_import_run!(dataset),
-             stale_before <- count_provider_source_records(provider),
-             {:ok, _summary} <- Importer.seed_provider!(dataset, import_run) do
-          source_records_after = count_provider_source_records(provider)
-          stale_pruned = stale_before
+    with {:ok, staged_dataset} <- Dataset.load_file(staged_path),
+         :ok <- validate_staged_dataset(staged_dataset) do
+      # Copy then remove so the staged file survives validation or copy failure.
+      File.cp!(staged_path, canonical_path)
+      File.rm!(staged_path)
 
-          print_summary(provider, dataset, source_records_after, stale_pruned)
-          :ok
-        else
-          {:error, reason} -> {:error, reason}
-        end
-      end
+      apply_canonical_dataset(provider, canonical_path)
+    end
+  end
+
+  defp apply_canonical_dataset(provider, canonical_path) do
+    with {:ok, dataset} <- Dataset.load_file(canonical_path),
+         import_run <- create_import_run!(dataset),
+         stale_before <- count_provider_source_records(provider),
+         {:ok, _summary} <- Importer.seed_provider!(dataset, import_run) do
+      source_records_after = count_provider_source_records(provider)
+      stale_pruned = stale_before
+
+      print_summary(provider, dataset, source_records_after, stale_pruned)
+      :ok
+    else
+      {:error, reason} -> {:error, reason}
     end
   end
 

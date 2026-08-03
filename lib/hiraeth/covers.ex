@@ -1,4 +1,6 @@
 defmodule Hiraeth.Covers do
+  @moduledoc "Ash domain and facade: cover assets, assignments, and the sandboxed cover cache."
+
   use Ash.Domain
 
   alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
@@ -110,14 +112,8 @@ defmodule Hiraeth.Covers do
       asset.takedown_state != "visible" ->
         "cover is hidden or under takedown"
 
-      not present?(asset.source_url) ->
-        "cover source URL is missing"
-
-      not present?(asset.provider) ->
-        "cover provider is missing"
-
-      not present?(asset.rights_basis) ->
-        "cover rights basis is missing"
+      rejection = basic_field_rejection(asset) ->
+        rejection
 
       uri.scheme != "https" ->
         "cover source URL must be HTTPS"
@@ -125,28 +121,62 @@ defmodule Hiraeth.Covers do
       not SourcePolicy.cover_host_allowed?(asset.provider, uri.host) ->
         "cover source URL host is not allowlisted for provider"
 
-      asset.cache_policy == "link_only" and
-          (present?(asset.cached_file_path) or present?(asset.thumbnail_file_path)) ->
-        "cover cache file path is not allowed for link-only public display"
-
-      asset.cache_policy == "link_only" ->
-        "public cover display requires cache_allowed with a validated local cached file"
-
-      asset.cache_policy == "cache_allowed" and asset.rights_basis != "local_cache_permitted" ->
-        "cached cover requires local cache rights basis"
-
-      asset.cache_policy == "cache_allowed" and not present?(asset.cached_file_path) ->
-        "cached cover file path is required for cacheable public display"
-
-      asset.cache_policy == "cache_allowed" and present?(asset.cached_file_path) and
-          not safe_cached_file_path?(asset.cached_file_path) ->
-        "cached cover file path must be under priv/static/covers/cache"
-
-      asset.cache_policy not in ["link_only", "cache_allowed"] ->
-        "cover cache_policy must be cache_allowed with a validated local cached file"
+      rejection = cache_policy_rejection(asset) ->
+        rejection
 
       true ->
         "cover provenance is incomplete"
+    end
+  end
+
+  defp basic_field_rejection(asset) do
+    cond do
+      not present?(asset.source_url) -> "cover source URL is missing"
+      not present?(asset.provider) -> "cover provider is missing"
+      not present?(asset.rights_basis) -> "cover rights basis is missing"
+      true -> nil
+    end
+  end
+
+  defp cache_policy_rejection(asset) do
+    cond do
+      not known_cache_policy?(asset) ->
+        "cover cache_policy must be cache_allowed with a validated local cached file"
+
+      asset.cache_policy == "link_only" ->
+        link_only_rejection(asset)
+
+      asset.cache_policy == "cache_allowed" ->
+        cache_allowed_rejection(asset)
+
+      true ->
+        nil
+    end
+  end
+
+  defp known_cache_policy?(%{cache_policy: policy}), do: policy in ["link_only", "cache_allowed"]
+
+  defp link_only_rejection(asset) do
+    if present?(asset.cached_file_path) or present?(asset.thumbnail_file_path) do
+      "cover cache file path is not allowed for link-only public display"
+    else
+      "public cover display requires cache_allowed with a validated local cached file"
+    end
+  end
+
+  defp cache_allowed_rejection(asset) do
+    cond do
+      asset.rights_basis != "local_cache_permitted" ->
+        "cached cover requires local cache rights basis"
+
+      not present?(asset.cached_file_path) ->
+        "cached cover file path is required for cacheable public display"
+
+      not safe_cached_file_path?(asset.cached_file_path) ->
+        "cached cover file path must be under priv/static/covers/cache"
+
+      true ->
+        nil
     end
   end
 
@@ -257,27 +287,43 @@ defmodule Hiraeth.Covers do
     thumbnail_path = thumbnail_path(asset, cache_root)
 
     cond do
-      not force? and cached_file_present?(asset.cached_file_path) and
-          cached_file_present?(asset.thumbnail_file_path) ->
+      cached_skip?(asset, force?) ->
         {:skip, asset}
 
-      not force? and cached_file_present?(asset.cached_file_path) ->
+      thumbnail_only_replay?(asset, force?) ->
         {:thumbnail, asset, asset.cached_file_path, thumbnail_path}
 
-      not force? and cached_file_present?(cache_path) and cached_file_present?(thumbnail_path) ->
+      adopt_cached_files?(cache_path, thumbnail_path, force?) ->
         {:adopt, asset, cache_path, thumbnail_path}
 
       true ->
-        try do
-          {:cache, asset, cache_path,
-           fetch_cover_body(asset, fetch, req_options, max_body_size)
-           |> validate_fetched_cover!(asset.source_url, max_body_size)}
-        rescue
-          exception -> {:error, asset, Exception.message(exception)}
-        catch
-          kind, reason -> {:error, asset, "#{kind}: #{inspect(reason)}"}
-        end
+        fetch_into_cache(asset, cache_path, fetch, req_options, max_body_size)
     end
+  end
+
+  defp cached_skip?(asset, force?) do
+    not force? and cached_file_present?(asset.cached_file_path) and
+      cached_file_present?(asset.thumbnail_file_path)
+  end
+
+  defp thumbnail_only_replay?(asset, force?) do
+    not force? and cached_file_present?(asset.cached_file_path)
+  end
+
+  defp adopt_cached_files?(cache_path, thumbnail_path, force?) do
+    not force? and cached_file_present?(cache_path) and cached_file_present?(thumbnail_path)
+  end
+
+  defp fetch_into_cache(asset, cache_path, fetch, req_options, max_body_size) do
+    body =
+      fetch_cover_body(asset, fetch, req_options, max_body_size)
+      |> validate_fetched_cover!(asset.source_url, max_body_size)
+
+    {:cache, asset, cache_path, body}
+  rescue
+    exception -> {:error, asset, Exception.message(exception)}
+  catch
+    kind, reason -> {:error, asset, "#{kind}: #{inspect(reason)}"}
   end
 
   defp fetch_cover_body(%CoverAsset{} = asset, nil, req_options, max_body_size) do
@@ -623,8 +669,10 @@ defmodule Hiraeth.Covers do
   defp percent_encode_path(path) do
     path
     |> String.split("/", trim: false)
-    |> Enum.map(&URI.encode(&1, fn char -> URI.char_unreserved?(char) or char == ?% end))
-    |> Enum.join("/")
+    |> Enum.map_join(
+      "/",
+      &URI.encode(&1, fn char -> URI.char_unreserved?(char) or char == ?% end)
+    )
   end
 
   defp maybe_follow_safe_cover_redirect(response, request_url, req_options, allowed_cover_hosts),

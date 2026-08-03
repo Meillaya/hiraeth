@@ -6,9 +6,9 @@ defmodule Hiraeth.Ingestion.Phases.ApplyCandidates do
   """
 
   alias Hiraeth.Imports.ImportRun
-  alias Hiraeth.Ingestion.RecordCandidate
   alias Hiraeth.Ingestion.Phases.{RunState, TombstoneCandidates}
-  alias Hiraeth.RealCatalog.Importer
+  alias Hiraeth.Ingestion.RecordCandidate
+  alias Hiraeth.RealCatalog.{Dataset, Importer}
 
   require Ash.Query
 
@@ -102,7 +102,7 @@ defmodule Hiraeth.Ingestion.Phases.ApplyCandidates do
 
     %{
       provider: provider,
-      records: Hiraeth.RealCatalog.Dataset.normalize(records),
+      records: Dataset.normalize(records),
       file: "#{provider}-approved-candidates.json",
       file_path: "record_candidates:#{provider}",
       file_checksum: checksum,

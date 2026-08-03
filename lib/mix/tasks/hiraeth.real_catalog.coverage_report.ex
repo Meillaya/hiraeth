@@ -2,6 +2,8 @@ defmodule Mix.Tasks.Hiraeth.RealCatalog.CoverageReport do
   @moduledoc "Writes the deterministic real-catalog coverage report."
   use Mix.Task
 
+  alias Hiraeth.RealCatalog.{CoverageReport, Dataset}
+
   @shortdoc "Writes real catalog approved-source coverage report"
 
   @impl Mix.Task
@@ -14,12 +16,12 @@ defmodule Mix.Tasks.Hiraeth.RealCatalog.CoverageReport do
         aliases: [o: :output]
       )
 
-    dataset_dir = Keyword.get(opts, :dataset_dir, Hiraeth.RealCatalog.Dataset.default_dir())
+    dataset_dir = Keyword.get(opts, :dataset_dir, Dataset.default_dir())
 
     output =
       Keyword.get(opts, :output, Path.join(dataset_dir, "source_coverage_report.json"))
 
-    report = Hiraeth.RealCatalog.CoverageReport.write!(dataset_dir, output)
+    report = CoverageReport.write!(dataset_dir, output)
     Mix.shell().info("wrote #{output}")
 
     Mix.shell().info(

@@ -1,4 +1,6 @@
 defmodule Hiraeth.Catalog.Series do
+  @moduledoc "Ash resource: a named grouping of works (e.g. a publisher series)."
+
   use Ash.Resource,
     domain: Hiraeth.Catalog,
     data_layer: AshPostgres.DataLayer,

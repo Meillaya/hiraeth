@@ -1,4 +1,6 @@
 defmodule Hiraeth.Catalog.Work do
+  @moduledoc "Ash resource: an abstract creative work (one or more editions/imprints may realize it)."
+
   use Ash.Resource,
     domain: Hiraeth.Catalog,
     data_layer: AshPostgres.DataLayer,

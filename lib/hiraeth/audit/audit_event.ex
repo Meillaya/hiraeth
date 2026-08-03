@@ -1,4 +1,6 @@
 defmodule Hiraeth.Audit.AuditEvent do
+  @moduledoc "Ash resource: an append-only audit event emitted by provenance, ingestion, and operator actions."
+
   use Ash.Resource,
     domain: Hiraeth.Audit,
     data_layer: AshPostgres.DataLayer,

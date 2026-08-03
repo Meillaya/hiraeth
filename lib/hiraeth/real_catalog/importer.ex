@@ -221,32 +221,7 @@ defmodule Hiraeth.RealCatalog.Importer do
         values
 
       :error ->
-        edition_work_ids =
-          Edition
-          |> cached_read()
-          |> Map.new(&{&1.id, &1.work_id})
-
-        values =
-          SourceRecord
-          |> cached_read()
-          |> Enum.reject(&(&1.file_checksum == current_file_checksum))
-          |> Enum.filter(&Map.has_key?(edition_work_ids, &1.edition_id))
-          |> Enum.sort_by(&(&1.imported_at || ~U[0001-01-01 00:00:00Z]), {:desc, DateTime})
-          |> Enum.reduce(%{}, fn source_record, acc ->
-            work_id = Map.fetch!(edition_work_ids, source_record.edition_id)
-            payload = source_record.raw_payload || %{}
-
-            [:description, :storefront_url, :editorial_praise]
-            |> Enum.reduce(acc, fn key, acc ->
-              value = source_payload_value(payload, key)
-
-              if blank_metadata?(value) do
-                acc
-              else
-                Map.put_new(acc, {work_id, key}, value)
-              end
-            end)
-          end)
+        values = compute_previous_source_work_values(current_file_checksum)
 
         Process.put(
           @previous_source_work_cache_key,
@@ -255,6 +230,41 @@ defmodule Hiraeth.RealCatalog.Importer do
 
         values
     end
+  end
+
+  defp compute_previous_source_work_values(current_file_checksum) do
+    edition_work_ids = edition_work_id_map()
+
+    SourceRecord
+    |> cached_read()
+    |> Enum.reject(&(&1.file_checksum == current_file_checksum))
+    |> Enum.filter(&Map.has_key?(edition_work_ids, &1.edition_id))
+    |> Enum.sort_by(&(&1.imported_at || ~U[0001-01-01 00:00:00Z]), {:desc, DateTime})
+    |> Enum.reduce(%{}, &accumulate_previous_source_work_value(&1, &2, edition_work_ids))
+  end
+
+  defp edition_work_id_map do
+    Edition
+    |> cached_read()
+    |> Map.new(&{&1.id, &1.work_id})
+  end
+
+  defp accumulate_previous_source_work_value(source_record, acc, edition_work_ids) do
+    work_id = Map.fetch!(edition_work_ids, source_record.edition_id)
+    payload = source_record.raw_payload || %{}
+
+    meta_keys = [:description, :storefront_url, :editorial_praise]
+
+    meta_keys
+    |> Enum.reduce(acc, fn key, acc ->
+      value = source_payload_value(payload, key)
+
+      if blank_metadata?(value) do
+        acc
+      else
+        Map.put_new(acc, {work_id, key}, value)
+      end
+    end)
   end
 
   defp source_payload_value(payload, :description), do: map_value(payload, "description")

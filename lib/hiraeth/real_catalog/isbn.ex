@@ -19,22 +19,27 @@ defmodule Hiraeth.RealCatalog.ISBN do
   end
 
   def valid_isbn13?(<<_::binary-size(13)>> = isbn) do
-    if String.match?(isbn, ~r/^97[89]\d{10}$/) do
-      {check_digit, body} = isbn |> String.graphemes() |> List.pop_at(12)
-
-      sum =
-        body
-        |> Enum.with_index()
-        |> Enum.reduce(0, fn {digit, index}, acc ->
-          weight = if rem(index, 2) == 0, do: 1, else: 3
-          acc + String.to_integer(digit) * weight
-        end)
-
-      Integer.to_string(rem(10 - rem(sum, 10), 10)) == check_digit
+    if String.match?(isbn, ~r/^97[89]\d{10}$/) and isbn_check_digit_matches?(isbn) do
+      true
     else
       false
     end
   end
 
   def valid_isbn13?(_isbn), do: false
+
+  defp isbn_check_digit_matches?(isbn) do
+    {check_digit, body} = isbn |> String.graphemes() |> List.pop_at(12)
+    sum = isbn_body_check_sum(body)
+    Integer.to_string(rem(10 - rem(sum, 10), 10)) == check_digit
+  end
+
+  defp isbn_body_check_sum(body) do
+    body
+    |> Enum.with_index()
+    |> Enum.reduce(0, fn {digit, index}, acc ->
+      weight = if rem(index, 2) == 0, do: 1, else: 3
+      acc + String.to_integer(digit) * weight
+    end)
+  end
 end

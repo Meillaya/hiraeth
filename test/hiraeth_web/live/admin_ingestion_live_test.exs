@@ -5,8 +5,8 @@ defmodule HiraethWeb.AdminIngestionLiveTest do
 
   alias Hiraeth.Accounts
   alias Hiraeth.Ingestion.{IngestionEvent, ProviderSource}
-  alias HiraethWeb.Admin.IngestionRegistry
   alias Hiraeth.TestSupport.IngestionFixtures
+  alias HiraethWeb.Admin.IngestionRegistry
 
   defp log_in_admin(conn, role) do
     email = "#{role}-#{System.unique_integer([:positive])}@example.test"

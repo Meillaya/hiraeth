@@ -1,4 +1,6 @@
 defmodule Hiraeth.Imports do
+  @moduledoc "Ash domain: CSV/manual import staging, mappings, runs, and review items."
+
   use Ash.Domain
 
   resources do

@@ -1,4 +1,6 @@
 defmodule Hiraeth.Imports.StagedImportRow do
+  @moduledoc "Ash resource: a single staged row produced by CSV/manual import before validation."
+
   use Ash.Resource,
     domain: Hiraeth.Imports,
     data_layer: AshPostgres.DataLayer,

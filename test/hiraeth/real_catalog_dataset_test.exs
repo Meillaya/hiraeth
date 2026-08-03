@@ -8,10 +8,10 @@ defmodule Hiraeth.RealCatalogDatasetTest do
 
   @dataset_dir Path.expand("../../priv/catalog_sources/real_publishers", __DIR__)
 
-  {:ok, manifest} = Hiraeth.RealCatalog.Dataset.load_source_authority_manifest(@dataset_dir)
+  {:ok, manifest} = Dataset.load_source_authority_manifest(@dataset_dir)
   @manifest manifest
 
-  files = Hiraeth.RealCatalog.Dataset.dataset_files(@dataset_dir) |> Enum.map(&Path.basename/1)
+  files = Dataset.dataset_files(@dataset_dir) |> Enum.map(&Path.basename/1)
 
   @expected_files @manifest["providers"]
                   |> Enum.filter(fn p -> p["dataset_file"] in files end)
@@ -150,7 +150,7 @@ defmodule Hiraeth.RealCatalogDatasetTest do
 
       for dataset <- datasets do
         prose_records = Enum.filter(dataset.records, &Map.has_key?(&1, :description))
-        assert length(prose_records) >= 1
+        assert prose_records != []
 
         for record <- prose_records do
           assert record.description |> String.length() |> Kernel.>(20)

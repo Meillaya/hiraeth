@@ -16,6 +16,10 @@ defmodule Hiraeth.DataCase do
 
   use ExUnit.CaseTemplate
 
+  alias Ecto.Adapters.SQL.Sandbox
+  alias Hiraeth.CatalogCleanup
+  alias Hiraeth.Repo
+
   using do
     quote do
       alias Hiraeth.Repo
@@ -29,11 +33,11 @@ defmodule Hiraeth.DataCase do
 
   setup tags do
     if tags[:reset_committed_catalog] do
-      Hiraeth.CatalogCleanup.reset_committed_catalog!()
+      CatalogCleanup.reset_committed_catalog!()
     end
 
     if tags[:reset_committed_ingestion] do
-      Hiraeth.CatalogCleanup.reset_committed_ingestion_control_plane!()
+      CatalogCleanup.reset_committed_ingestion_control_plane!()
     end
 
     Hiraeth.DataCase.setup_sandbox(tags)
@@ -44,8 +48,8 @@ defmodule Hiraeth.DataCase do
   Sets up the sandbox based on the test tags.
   """
   def setup_sandbox(tags) do
-    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(Hiraeth.Repo, shared: not tags[:async])
-    on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
+    pid = Sandbox.start_owner!(Repo, shared: not tags[:async])
+    on_exit(fn -> Sandbox.stop_owner(pid) end)
   end
 
   @doc """

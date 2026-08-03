@@ -17,8 +17,9 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     Work
   }
 
+  alias CatalogCleanup
   alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
-  alias Hiraeth.RealCatalog.Dataset
+  alias Hiraeth.RealCatalog.{Dataset, Importer}
   alias Hiraeth.Sources.SourceRecord
   alias HiraethWeb.CatalogComponents
   alias HiraethWeb.PublicCatalog
@@ -28,7 +29,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
   @immigrant_slug "deep-vellum-immigrant-paperback-9781646054541"
 
   setup_all do
-    Hiraeth.CatalogCleanup.ensure_committed_catalog_fixtures!()
+    CatalogCleanup.ensure_committed_catalog_fixtures!()
     :ok
   end
 
@@ -88,7 +89,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     assert function_exported?(PublicCatalog, :search_books, 1),
            "PublicCatalog.search_books/1 must return work-centric public book projections"
 
-    books = apply(PublicCatalog, :search_books, ["9781646054541"])
+    books = PublicCatalog.search_books("9781646054541")
 
     assert %{title: "Immigrant", formats: formats, identifiers: identifiers} =
              Enum.find(books, &(&1.title == "Immigrant"))
@@ -397,7 +398,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     publisher = PublicCatalog.publisher("deep-vellum")
 
     assert %{groupings: groupings, editions: editions} = publisher
-    assert length(editions) > 0
+    assert editions != []
 
     assert Enum.all?(Map.values(groupings), &(length(&1) <= 8))
     assert Enum.any?(groupings.formats, &(&1.label == "Paperback" and &1.count > 0))
@@ -490,7 +491,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     tmp = prose_dataset_dir!()
     on_exit(fn -> File.rm_rf!(tmp) end)
 
-    assert {:ok, _summary} = Hiraeth.RealCatalog.Importer.seed!(tmp)
+    assert {:ok, _summary} = Importer.seed!(tmp)
 
     cache_cover_for_edition_slug!(
       "archipelago-books-bob-and-hilbert-hardcover-9781962770651",
@@ -530,7 +531,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     tmp = no_isbn_dataset_dir!()
     on_exit(fn -> File.rm_rf!(tmp) end)
 
-    assert {:ok, _summary} = Hiraeth.RealCatalog.Importer.seed!(tmp)
+    assert {:ok, _summary} = Importer.seed!(tmp)
 
     slug = "archipelago-books-bob-and-hilbert-hardcover-source-57168-9781962770651"
     {:ok, view, _html} = live(conn, ~p"/books/#{slug}")

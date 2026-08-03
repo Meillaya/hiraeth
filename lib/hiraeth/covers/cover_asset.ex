@@ -1,4 +1,6 @@
 defmodule Hiraeth.Covers.CoverAsset do
+  @moduledoc "Ash resource: a source cover asset (cache path, host, fetch metadata, takedown state)."
+
   use Ash.Resource,
     domain: Hiraeth.Covers,
     data_layer: AshPostgres.DataLayer,

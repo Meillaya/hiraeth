@@ -2,8 +2,8 @@ defmodule Hiraeth.CatalogResourceTest do
   use Hiraeth.DataCase, async: true
 
   alias Hiraeth.Catalog.{
-    Contributor,
     Contribution,
+    Contributor,
     Edition,
     Identifier,
     Publisher,

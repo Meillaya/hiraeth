@@ -1,4 +1,6 @@
 defmodule Hiraeth.Ingestion.ProviderRun do
+  @moduledoc "Ash resource: a single ingestion execution (snapshots, candidates, phase state)."
+
   use Ash.Resource,
     domain: Hiraeth.Ingestion,
     data_layer: AshPostgres.DataLayer,

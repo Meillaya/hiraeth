@@ -1,4 +1,6 @@
 defmodule Hiraeth.Imports.ReviewItem do
+  @moduledoc "Ash resource: a row flagged for human review by the CSV import validation step."
+
   use Ash.Resource,
     domain: Hiraeth.Imports,
     data_layer: AshPostgres.DataLayer,

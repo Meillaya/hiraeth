@@ -73,13 +73,23 @@ defmodule Hiraeth.Ingestion.ProviderManifest do
     api = get_field(manifest, :api) || %{}
     spider = get_field(manifest, :spider) || %{}
 
+    explicit_mode(mode) || implied_mode(spider, api) || {:error, "source_mode is required"}
+  end
+
+  defp explicit_mode(mode) do
     cond do
-      present?(mode) and mode == "api" -> "api"
-      present?(mode) and mode == "scrape" -> "scrape"
-      present?(mode) -> {:error, "source_mode must be \"api\" or \"scrape\""}
+      not present?(mode) -> nil
+      mode == "api" -> "api"
+      mode == "scrape" -> "scrape"
+      true -> {:error, "source_mode must be \"api\" or \"scrape\""}
+    end
+  end
+
+  defp implied_mode(%{} = spider, %{} = api) do
+    cond do
       map_present?(spider) -> "scrape"
       map_present?(api) -> "api"
-      true -> {:error, "source_mode is required"}
+      true -> nil
     end
   end
 

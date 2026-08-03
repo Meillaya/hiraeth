@@ -1,8 +1,12 @@
 defmodule Hiraeth.Imports.ImportRun do
+  @moduledoc "Ash resource: a CSV/manual import run, with its staged rows, mappings, and apply result."
+
   use Ash.Resource,
     domain: Hiraeth.Imports,
     data_layer: AshPostgres.DataLayer,
     authorizers: [Ash.Policy.Authorizer]
+
+  alias Hiraeth.Imports.ImportRun.Actions.CsvWorkflow
 
   postgres do
     table "import_runs"
@@ -62,7 +66,7 @@ defmodule Hiraeth.Imports.ImportRun do
         public? true
       end
 
-      manual Hiraeth.Imports.ImportRun.Actions.CsvWorkflow
+      manual CsvWorkflow
     end
 
     update :update do
@@ -73,7 +77,7 @@ defmodule Hiraeth.Imports.ImportRun do
       require_atomic? false
       argument :mappings, :map, allow_nil?: false, public?: true
       change set_attribute(:status, "mapped")
-      change after_action(&Hiraeth.Imports.ImportRun.Actions.CsvWorkflow.map_columns/3)
+      change after_action(&CsvWorkflow.map_columns/3)
     end
 
     update :dry_run do
@@ -85,14 +89,14 @@ defmodule Hiraeth.Imports.ImportRun do
       require_atomic? false
       accept []
       change set_attribute(:status, "validated")
-      change after_action(&Hiraeth.Imports.ImportRun.Actions.CsvWorkflow.validate_rows/3)
+      change after_action(&CsvWorkflow.validate_rows/3)
     end
 
     update :apply_accepted_rows do
       require_atomic? false
       accept []
       change set_attribute(:status, "applied")
-      change after_action(&Hiraeth.Imports.ImportRun.Actions.CsvWorkflow.apply_rows/3)
+      change after_action(&CsvWorkflow.apply_rows/3)
     end
   end
 

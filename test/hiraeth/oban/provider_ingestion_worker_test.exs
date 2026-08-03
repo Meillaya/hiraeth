@@ -671,7 +671,7 @@ defmodule Hiraeth.Oban.ProviderIngestionWorkerTest do
 
       assert {:error, findings} = Oban.Testing.perform_job(ProviderIngestionWorker, args, [])
       assert is_list(findings)
-      assert length(findings) > 0
+      assert findings != []
     end
 
     test "zero DB writes when validation fails" do

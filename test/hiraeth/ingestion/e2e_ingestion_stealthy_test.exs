@@ -18,9 +18,13 @@ defmodule Hiraeth.Ingestion.E2EIngestionStealthyTest do
 
   alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
   alias Hiraeth.Imports.ImportRun
+  alias Hiraeth.Repo
   alias Hiraeth.Sources.{SourceLedgerEntry, SourceRecord}
   alias Hiraeth.Support.DeepVellumStealthyFixture
   alias Hiraeth.Support.MockDeepVellumStealthySidecarClient
+  alias Mix.Tasks.Hiraeth.ApplyScrape
+  alias Mix.Tasks.Hiraeth.ReviewScrape
+  alias Mix.Tasks.Hiraeth.Scrape
 
   require Ash.Query
 
@@ -59,7 +63,7 @@ defmodule Hiraeth.Ingestion.E2EIngestionStealthyTest do
     scrape_output =
       ExUnit.CaptureIO.capture_io(fn ->
         assert :ok =
-                 Mix.Tasks.Hiraeth.Scrape.run([
+                 Scrape.run([
                    "--provider",
                    @provider,
                    "--manifest",
@@ -73,7 +77,7 @@ defmodule Hiraeth.Ingestion.E2EIngestionStealthyTest do
 
     review_output =
       ExUnit.CaptureIO.capture_io(fn ->
-        assert :ok = Mix.Tasks.Hiraeth.ReviewScrape.run(["--provider", @provider])
+        assert :ok = ReviewScrape.run(["--provider", @provider])
       end)
 
     assert review_output =~ "staged=2 current=2 new=0 missing=0 changed=0"
@@ -82,7 +86,7 @@ defmodule Hiraeth.Ingestion.E2EIngestionStealthyTest do
 
     apply_output =
       ExUnit.CaptureIO.capture_io(fn ->
-        assert :ok = Mix.Tasks.Hiraeth.ApplyScrape.run(["--provider", @provider])
+        assert :ok = ApplyScrape.run(["--provider", @provider])
       end)
 
     assert apply_output =~ "Applied staged dataset for provider: #{@provider}"
@@ -111,7 +115,7 @@ defmodule Hiraeth.Ingestion.E2EIngestionStealthyTest do
 
     review_output =
       ExUnit.CaptureIO.capture_io(fn ->
-        assert :ok = Mix.Tasks.Hiraeth.ReviewScrape.run(["--provider", @provider])
+        assert :ok = ReviewScrape.run(["--provider", @provider])
       end)
 
     assert review_output =~ "staged=1 current=1 new=0 missing=0 changed=1"
@@ -158,7 +162,7 @@ defmodule Hiraeth.Ingestion.E2EIngestionStealthyTest do
           Contributor,
           Publisher
         ] do
-      Hiraeth.Repo.delete_all(resource)
+      Repo.delete_all(resource)
     end
   end
 end

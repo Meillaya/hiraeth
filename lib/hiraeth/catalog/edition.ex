@@ -1,8 +1,12 @@
 defmodule Hiraeth.Catalog.Edition do
+  @moduledoc "Ash resource: a concrete published edition (bound to a work, publisher, and identifiers)."
+
   use Ash.Resource,
     domain: Hiraeth.Catalog,
     data_layer: AshPostgres.DataLayer,
     authorizers: [Ash.Policy.Authorizer]
+
+  alias Hiraeth.Catalog.Edition.NestedCatalogEdges
 
   postgres do
     table "editions"
@@ -141,7 +145,7 @@ defmodule Hiraeth.Catalog.Edition do
       end
 
       change after_action(fn changeset, edition, context ->
-               Hiraeth.Catalog.Edition.NestedCatalogEdges.apply!(
+               NestedCatalogEdges.apply!(
                  changeset,
                  edition,
                  context.actor

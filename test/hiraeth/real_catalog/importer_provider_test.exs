@@ -4,9 +4,10 @@ defmodule Hiraeth.RealCatalogImporterProviderTest do
   @moduletag :reset_committed_catalog
 
   alias Hiraeth.Catalog.{Edition, Identifier, Publisher, Work}
+  alias Hiraeth.CatalogCleanup
   alias Hiraeth.Covers.CoverAssignment
   alias Hiraeth.Imports.ImportRun
-  alias Hiraeth.RealCatalog.Dataset
+  alias Hiraeth.RealCatalog.{Dataset, Importer}
   alias Hiraeth.Sources.{SourceLedgerEntry, SourceRecord}
 
   @fixture_path Path.join([
@@ -22,7 +23,7 @@ defmodule Hiraeth.RealCatalogImporterProviderTest do
     import_run = create_import_run!(dataset)
 
     assert {:ok, summary} =
-             Hiraeth.RealCatalog.Importer.seed_provider!(dataset, import_run)
+             Importer.seed_provider!(dataset, import_run)
 
     assert summary.editions == 3
     assert summary.publishers >= 1
@@ -78,9 +79,7 @@ defmodule Hiraeth.RealCatalogImporterProviderTest do
     import_run = create_import_run!(dataset)
 
     assert {:ok, summary} =
-             Hiraeth.RealCatalog.Importer.seed_provider!(dataset, import_run,
-               transaction_timeout: :infinity
-             )
+             Importer.seed_provider!(dataset, import_run, transaction_timeout: :infinity)
 
     assert summary.source_records == 3
     assert length(Ash.read!(SourceRecord, authorize?: false)) == 3
@@ -111,7 +110,7 @@ defmodule Hiraeth.RealCatalogImporterProviderTest do
     import_run = create_import_run!(bad_dataset)
 
     assert {:error, _reason} =
-             Hiraeth.RealCatalog.Importer.seed_provider!(bad_dataset, import_run)
+             Importer.seed_provider!(bad_dataset, import_run)
 
     # Verify nothing was written to the database
     assert [] = Ash.read!(Edition, authorize?: false)
@@ -131,7 +130,7 @@ defmodule Hiraeth.RealCatalogImporterProviderTest do
     import_run = create_import_run!(dataset)
 
     assert {:ok, first_summary} =
-             Hiraeth.RealCatalog.Importer.seed_provider!(dataset, import_run)
+             Importer.seed_provider!(dataset, import_run)
 
     assert first_summary.editions == 3
     assert first_summary.identifiers == 3
@@ -141,7 +140,7 @@ defmodule Hiraeth.RealCatalogImporterProviderTest do
     second_import_run = create_import_run!(dataset)
 
     assert {:ok, second_summary} =
-             Hiraeth.RealCatalog.Importer.seed_provider!(dataset, second_import_run)
+             Importer.seed_provider!(dataset, second_import_run)
 
     # Counts should remain the same — no duplicates
     assert second_summary.editions == 3
@@ -163,7 +162,7 @@ defmodule Hiraeth.RealCatalogImporterProviderTest do
     import_run = create_import_run!(dataset)
 
     assert {:ok, _summary} =
-             Hiraeth.RealCatalog.Importer.seed_provider!(dataset, import_run)
+             Importer.seed_provider!(dataset, import_run)
 
     assert length(Ash.read!(SourceRecord, authorize?: false)) == 3
 
@@ -173,7 +172,7 @@ defmodule Hiraeth.RealCatalogImporterProviderTest do
     slim_import_run = create_import_run!(slim_dataset)
 
     assert {:ok, slim_summary} =
-             Hiraeth.RealCatalog.Importer.seed_provider!(slim_dataset, slim_import_run)
+             Importer.seed_provider!(slim_dataset, slim_import_run)
 
     # The third record's source_record should be pruned
     assert slim_summary.source_records == 2
@@ -188,7 +187,7 @@ defmodule Hiraeth.RealCatalogImporterProviderTest do
     dataset = astra_house_sibling_dataset()
     import_run = create_import_run!(dataset)
 
-    assert {:ok, summary} = Hiraeth.RealCatalog.Importer.seed_provider!(dataset, import_run)
+    assert {:ok, summary} = Importer.seed_provider!(dataset, import_run)
     assert summary.editions == 2
 
     works = Ash.read!(Work, authorize?: false)
@@ -210,7 +209,7 @@ defmodule Hiraeth.RealCatalogImporterProviderTest do
     {:ok, datasets} = Dataset.load_dir()
     expected_total = Enum.sum(Enum.map(datasets, &length(&1.records)))
 
-    assert {:ok, summary} = Hiraeth.RealCatalog.Importer.seed!()
+    assert {:ok, summary} = Importer.seed!()
     assert summary.editions == expected_total
     assert summary.publishers == length(datasets)
 
@@ -305,7 +304,7 @@ defmodule Hiraeth.RealCatalogImporterProviderTest do
     }
   end
 
-  defp clear_catalog!, do: Hiraeth.CatalogCleanup.clear_catalog!()
+  defp clear_catalog!, do: CatalogCleanup.clear_catalog!()
 
   defp create_import_run!(dataset) do
     ImportRun

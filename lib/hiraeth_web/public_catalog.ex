@@ -6,8 +6,8 @@ defmodule HiraethWeb.PublicCatalog do
   unknown dates, languages, dimensions, page counts, or cover art.
   """
 
-  alias Hiraeth.RealCatalog.SourcePolicy
   alias Hiraeth.Catalog.PublicProjection
+  alias Hiraeth.RealCatalog.SourcePolicy
 
   @page_size 24
   @publisher_group_limit 8
@@ -884,22 +884,32 @@ defmodule HiraethWeb.PublicCatalog do
 
   defp publisher_series_groupings(editions) do
     editions
-    |> Enum.flat_map(fn edition ->
-      edition.series_titles
-      |> Enum.with_index()
-      |> Enum.map(fn {title, index} ->
-        slug = if index == 0, do: edition.series_slug
-        {title, slug, edition.work_id}
-      end)
-    end)
+    |> Enum.flat_map(&publisher_series_rows/1)
     |> Enum.reject(fn {title, _slug, _work_id} -> blank?(title) end)
-    |> Enum.group_by(fn {title, slug, _work_id} -> {title, slug} end, fn {_title, _slug, work_id} ->
-      work_id
-    end)
-    |> Enum.map(fn {{title, slug}, work_ids} ->
-      %{label: title, slug: slug, count: work_ids |> Enum.uniq() |> length()}
-    end)
+    |> group_series_by_title_and_slug()
+    |> Enum.map(&series_group_summary/1)
     |> sort_and_bound_groups()
+  end
+
+  defp publisher_series_rows(edition) do
+    edition.series_titles
+    |> Enum.with_index()
+    |> Enum.map(fn {title, index} ->
+      slug = if index == 0, do: edition.series_slug
+      {title, slug, edition.work_id}
+    end)
+  end
+
+  defp group_series_by_title_and_slug(rows) do
+    Enum.group_by(
+      rows,
+      fn {title, slug, _work_id} -> {title, slug} end,
+      fn {_title, _slug, work_id} -> work_id end
+    )
+  end
+
+  defp series_group_summary({{title, slug}, work_ids}) do
+    %{label: title, slug: slug, count: work_ids |> Enum.uniq() |> length()}
   end
 
   defp publisher_translation_groupings(editions) do
@@ -945,21 +955,30 @@ defmodule HiraethWeb.PublicCatalog do
 
   defp publisher_contributor_role_groupings(editions) do
     editions
-    |> Enum.flat_map(fn edition ->
-      edition.contributors_by_role
-      |> Enum.flat_map(fn {role, contributors} ->
-        contributors
-        |> Enum.map(fn contributor -> {role, contributor.slug || contributor.name} end)
-      end)
-    end)
+    |> Enum.flat_map(&contributor_role_pairs/1)
     |> Enum.reject(fn {role, contributor_key} -> blank?(role) or blank?(contributor_key) end)
-    |> Enum.group_by(fn {role, _contributor_key} -> role end, fn {_role, contributor_key} ->
-      contributor_key
-    end)
-    |> Enum.map(fn {role, contributor_keys} ->
-      %{label: role, count: contributor_keys |> Enum.uniq() |> length()}
-    end)
+    |> group_contributor_roles_by_role()
+    |> Enum.map(&contributor_role_summary/1)
     |> sort_and_bound_groups()
+  end
+
+  defp contributor_role_pairs(edition) do
+    edition.contributors_by_role
+    |> Enum.flat_map(fn {role, contributors} ->
+      Enum.map(contributors, fn contributor -> {role, contributor.slug || contributor.name} end)
+    end)
+  end
+
+  defp group_contributor_roles_by_role(rows) do
+    Enum.group_by(
+      rows,
+      fn {role, _contributor_key} -> role end,
+      fn {_role, contributor_key} -> contributor_key end
+    )
+  end
+
+  defp contributor_role_summary({role, contributor_keys}) do
+    %{label: role, count: contributor_keys |> Enum.uniq() |> length()}
   end
 
   defp bounded_count_group(values) do

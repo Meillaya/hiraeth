@@ -1,6 +1,7 @@
 defmodule Hiraeth.Accounts.AdminAuthTest do
   use Hiraeth.DataCase, async: false
 
+  alias Ash.Domain.Info, as: AshDomainInfo
   alias Hiraeth.Accounts
   alias Hiraeth.Accounts.{AdminSessionToken, AdminUser}
   alias Hiraeth.Ingestion.ProviderSource
@@ -132,7 +133,7 @@ defmodule Hiraeth.Accounts.AdminAuthTest do
   end
 
   test "accounts domain and router expose no public registration profile or social account surface" do
-    account_resources = Ash.Domain.Info.resources(Accounts)
+    account_resources = AshDomainInfo.resources(Accounts)
 
     assert MapSet.new(account_resources) == MapSet.new([AdminUser, AdminSessionToken])
 

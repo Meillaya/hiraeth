@@ -1,4 +1,6 @@
 defmodule Hiraeth.Imports.ImportMapping do
+  @moduledoc "Ash resource: a CSV column → catalog field mapping owned by an import run."
+
   use Ash.Resource,
     domain: Hiraeth.Imports,
     data_layer: AshPostgres.DataLayer,

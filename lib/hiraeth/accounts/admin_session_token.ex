@@ -1,4 +1,6 @@
 defmodule Hiraeth.Accounts.AdminSessionToken do
+  @moduledoc "Ash resource: a bearer token for an authenticated admin session."
+
   use Ash.Resource,
     domain: Hiraeth.Accounts,
     data_layer: AshPostgres.DataLayer,

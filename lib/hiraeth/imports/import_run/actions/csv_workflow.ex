@@ -3,6 +3,8 @@ defmodule Hiraeth.Imports.ImportRun.Actions.CsvWorkflow do
 
   use Ash.Resource.ManualCreate
 
+  require Logger
+
   alias Hiraeth.Catalog.{Edition, Identifier, Publisher, Work}
   alias Hiraeth.Imports.{ImportMapping, ImportRun, ReviewItem, StagedImportRow}
   alias Hiraeth.Repo
@@ -75,29 +77,34 @@ defmodule Hiraeth.Imports.ImportRun.Actions.CsvWorkflow do
     mappings = mappings_for(run.id)
     seen = MapSet.new()
 
-    Enum.reduce(rows, seen, fn row, seen_acc ->
-      payload = mapped_payload(row, mappings)
-      isbn = clean(payload["isbn"])
-      title = clean(payload["title"])
+    accepted_isbns =
+      Enum.reduce(rows, seen, fn row, seen_acc ->
+        payload = mapped_payload(row, mappings)
+        isbn = clean(payload["isbn"])
+        title = clean(payload["title"])
 
-      cond do
-        is_nil(title) ->
-          mark_review(row, run, "missing title", context.actor)
-          seen_acc
+        cond do
+          is_nil(title) ->
+            mark_review(row, run, "missing title", context.actor)
+            seen_acc
 
-        is_nil(isbn) ->
-          mark_review(row, run, "missing isbn", context.actor)
-          seen_acc
+          is_nil(isbn) ->
+            mark_review(row, run, "missing isbn", context.actor)
+            seen_acc
 
-        MapSet.member?(seen_acc, isbn) or existing_isbn?(isbn) ->
-          mark_review(row, run, "duplicate isbn #{isbn}", context.actor)
-          seen_acc
+          MapSet.member?(seen_acc, isbn) or existing_isbn?(isbn) ->
+            mark_review(row, run, "duplicate isbn #{isbn}", context.actor)
+            seen_acc
 
-        true ->
-          set_row_status!(row, "accepted", context.actor)
-          MapSet.put(seen_acc, isbn)
-      end
-    end)
+          true ->
+            set_row_status!(row, "accepted", context.actor)
+            MapSet.put(seen_acc, isbn)
+        end
+      end)
+
+    Logger.debug(
+      "validated rows for import run #{run.id}: accepted #{MapSet.size(accepted_isbns)}"
+    )
 
     {:ok, run}
   rescue
@@ -265,27 +272,30 @@ defmodule Hiraeth.Imports.ImportRun.Actions.CsvWorkflow do
   defp validate_row_count(_rows), do: {:error, "CSV upload must contain 250 rows or fewer"}
 
   defp parse_csv(csv) do
-    csv
-    |> parse_rows()
-    |> case do
-      {:ok, []} ->
-        {:ok, []}
-
-      {:ok, [headers | row_values]} ->
-        rows =
-          row_values
-          |> Enum.reject(&Enum.all?(&1, fn value -> clean(value) == nil end))
-          |> Enum.map(fn values ->
-            headers
-            |> Enum.zip(values)
-            |> Map.new(fn {key, value} -> {key, value} end)
-          end)
-
-        {:ok, rows}
-
-      {:error, reason} ->
-        {:error, reason}
+    with {:ok, parsed} <- parse_rows(csv) do
+      build_csv_rows(parsed)
     end
+  end
+
+  defp build_csv_rows([]), do: {:ok, []}
+
+  defp build_csv_rows([headers | row_values]) do
+    rows =
+      row_values
+      |> Enum.reject(&all_blank_row?/1)
+      |> Enum.map(&row_to_map(&1, headers))
+
+    {:ok, rows}
+  end
+
+  defp all_blank_row?(values) do
+    Enum.all?(values, fn value -> clean(value) == nil end)
+  end
+
+  defp row_to_map(values, headers) do
+    headers
+    |> Enum.zip(values)
+    |> Map.new(fn {key, value} -> {key, value} end)
   end
 
   defp parse_rows(csv) do

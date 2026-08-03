@@ -427,52 +427,56 @@ defmodule Hiraeth.RealCatalog.Validator do
   defp displayed_field_value(_record, _field), do: nil
 
   defp field_source_findings(dataset, record) do
-    sources = Map.get(record, :field_sources)
+    case Map.get(record, :field_sources) do
+      sources when is_map(sources) ->
+        record
+        |> Map.get(:displayed_fields, [])
+        |> Enum.flat_map(&field_source_for_displayed_field(&1, sources, dataset, record))
 
-    if is_map(sources) do
-      record
-      |> Map.get(:displayed_fields, [])
-      |> Enum.flat_map(fn field ->
-        source = Map.get(sources, field) || Map.get(sources, to_string(field))
+      _ ->
+        [finding(dataset, record, "displayed field requires field_sources provenance")]
+    end
+  end
 
-        if is_map(source) do
-          source_safety_findings(
-            source,
-            dataset,
-            record,
-            "displayed field requires field_sources provenance"
-          )
-        else
-          [finding(dataset, record, "displayed field requires field_sources provenance")]
-        end
-      end)
+  defp field_source_for_displayed_field(field, sources, dataset, record) do
+    source = Map.get(sources, field) || Map.get(sources, to_string(field))
+
+    if is_map(source) do
+      source_safety_findings(
+        source,
+        dataset,
+        record,
+        "displayed field requires field_sources provenance"
+      )
     else
       [finding(dataset, record, "displayed field requires field_sources provenance")]
     end
   end
 
   defp rich_metadata_field_source_findings(dataset, record) do
-    sources = Map.get(record, :field_sources)
+    case Map.get(record, :field_sources) do
+      sources when is_map(sources) ->
+        @rich_metadata_fields
+        |> Enum.filter(fn field -> not blank?(displayed_field_value(record, field)) end)
+        |> Enum.flat_map(&rich_metadata_field_source_for(&1, sources, dataset, record))
 
-    if is_map(sources) do
-      @rich_metadata_fields
-      |> Enum.filter(fn field -> not blank?(displayed_field_value(record, field)) end)
-      |> Enum.flat_map(fn field ->
-        source = Map.get(sources, field)
+      _ ->
+        [finding(dataset, record, "rich metadata field requires field_sources provenance")]
+    end
+  end
 
-        if is_map(source) do
-          source_safety_findings(
-            source,
-            dataset,
-            record,
-            "rich metadata field requires field_sources provenance"
-          )
-        else
-          [finding(dataset, record, "rich metadata field requires field_sources provenance")]
-        end
-      end)
+  defp rich_metadata_field_source_for(field, sources, dataset, record) do
+    source = Map.get(sources, field)
+
+    if is_map(source) do
+      source_safety_findings(
+        source,
+        dataset,
+        record,
+        "rich metadata field requires field_sources provenance"
+      )
     else
-      []
+      [finding(dataset, record, "rich metadata field requires field_sources provenance")]
     end
   end
 
@@ -659,28 +663,33 @@ defmodule Hiraeth.RealCatalog.Validator do
 
   defp duplicate_findings(datasets) do
     datasets
-    |> Enum.flat_map(fn dataset ->
-      Enum.map(dataset.records || [], fn record ->
-        isbn =
-          case ISBN.normalize(get_in(record, [:edition, :isbn_13])) do
-            {:ok, normalized} -> normalized
-            {:error, _reason} -> nil
-          end
-
-        {isbn, dataset, record}
-      end)
-    end)
+    |> Enum.flat_map(&dataset_isbn_rows/1)
     |> Enum.reject(fn {isbn, _dataset, _record} -> blank?(isbn) end)
     |> Enum.group_by(fn {isbn, _dataset, _record} -> isbn end)
-    |> Enum.flat_map(fn {_isbn, rows} ->
-      if length(rows) > 1 do
-        Enum.map(rows, fn {_isbn, dataset, record} ->
-          finding(dataset, record, "duplicate isbn_13")
-        end)
-      else
-        []
-      end
+    |> Enum.flat_map(&duplicate_isbn_rows/1)
+  end
+
+  defp dataset_isbn_rows(dataset) do
+    Enum.map(dataset.records || [], fn record ->
+      {normalized_isbn(record), dataset, record}
     end)
+  end
+
+  defp normalized_isbn(record) do
+    case ISBN.normalize(get_in(record, [:edition, :isbn_13])) do
+      {:ok, normalized} -> normalized
+      {:error, _reason} -> nil
+    end
+  end
+
+  defp duplicate_isbn_rows({_isbn, rows}) do
+    if length(rows) > 1 do
+      Enum.map(rows, fn {_isbn, dataset, record} ->
+        finding(dataset, record, "duplicate isbn_13")
+      end)
+    else
+      []
+    end
   end
 
   defp summary(datasets) do

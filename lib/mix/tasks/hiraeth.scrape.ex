@@ -70,18 +70,16 @@ defmodule Mix.Tasks.Hiraeth.Scrape do
   end
 
   defp load_manifest(manifest_path) do
-    try do
-      manifest = ProviderManifest.load!(manifest_path)
-      # Register the manifest with SourcePolicy so validation can use its hosts.
-      SourcePolicy.load_provider_manifest(manifest_path)
-      {:ok, manifest}
-    rescue
-      error in [RuntimeError] ->
-        {:error, Exception.message(error)}
+    manifest = ProviderManifest.load!(manifest_path)
+    # Register the manifest with SourcePolicy so validation can use its hosts.
+    SourcePolicy.load_provider_manifest(manifest_path)
+    {:ok, manifest}
+  rescue
+    error in [RuntimeError] ->
+      {:error, Exception.message(error)}
 
-      error ->
-        {:error, "manifest load failed: #{Exception.message(error)}"}
-    end
+    error ->
+      {:error, "manifest load failed: #{Exception.message(error)}"}
   end
 
   defp check_sidecar_health do

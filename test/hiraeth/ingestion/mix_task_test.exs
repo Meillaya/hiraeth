@@ -2,6 +2,8 @@ defmodule Hiraeth.Ingestion.MixTaskTest do
   use Hiraeth.DataCase, async: false
 
   alias Hiraeth.Ingestion.ProviderRun
+  alias Hiraeth.Repo
+  alias Mix.Tasks.Hiraeth.Ingest
 
   require Ash.Query
 
@@ -53,7 +55,7 @@ defmodule Hiraeth.Ingestion.MixTaskTest do
     test "valid provider ingests successfully" do
       task =
         Task.async(fn ->
-          Mix.Tasks.Hiraeth.Ingest.do_run([
+          Ingest.do_run([
             "--provider",
             "test_publisher_api",
             "--manifest",
@@ -70,7 +72,7 @@ defmodule Hiraeth.Ingestion.MixTaskTest do
     test "valid provider creates a provider run before compatibility worker execution" do
       task =
         Task.async(fn ->
-          Mix.Tasks.Hiraeth.Ingest.do_run([
+          Ingest.do_run([
             "--provider",
             "test_publisher_api",
             "--manifest",
@@ -94,12 +96,12 @@ defmodule Hiraeth.Ingestion.MixTaskTest do
 
   describe "argument validation" do
     test "missing --provider exits 1" do
-      assert catch_exit(Mix.Tasks.Hiraeth.Ingest.run([])) == {:shutdown, 1}
+      assert catch_exit(Ingest.run([])) == {:shutdown, 1}
     end
 
     test "invalid manifest exits 1" do
       assert catch_exit(
-               Mix.Tasks.Hiraeth.Ingest.run([
+               Ingest.run([
                  "--provider",
                  "test_publisher_api",
                  "--manifest",
@@ -116,7 +118,7 @@ defmodule Hiraeth.Ingestion.MixTaskTest do
       output =
         ExUnit.CaptureIO.capture_io(:stderr, fn ->
           assert catch_exit(
-                   Mix.Tasks.Hiraeth.Ingest.run([
+                   Ingest.run([
                      "--provider",
                      "test_publisher_api",
                      "--manifest",
@@ -136,7 +138,7 @@ defmodule Hiraeth.Ingestion.MixTaskTest do
   defp wait_for_ingestion_job(attempts) do
     import Ecto.Query
 
-    if Hiraeth.Repo.exists?(from job in Oban.Job, where: job.queue == "ingestion") do
+    if Repo.exists?(from job in Oban.Job, where: job.queue == "ingestion") do
       :ok
     else
       receive do

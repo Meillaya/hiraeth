@@ -3,8 +3,8 @@ defmodule Hiraeth.Ingestion.Phases.DiffCandidates do
   Writes normalized record candidates and classifies diffs without catalog apply.
   """
 
-  alias Hiraeth.Ingestion.{RecordCandidate, SourceSnapshot}
   alias Hiraeth.Ingestion.Phases.RunState
+  alias Hiraeth.Ingestion.{RecordCandidate, SourceSnapshot}
   alias Hiraeth.RealCatalog.SourceIdentity
   alias Hiraeth.Sources.SourceRecord
 

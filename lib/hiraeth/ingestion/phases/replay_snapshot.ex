@@ -4,8 +4,8 @@ defmodule Hiraeth.Ingestion.Phases.ReplaySnapshot do
   snapshot without fabricating new provenance.
   """
 
-  alias Hiraeth.Ingestion.{RecordCandidate, SourceSnapshot}
   alias Hiraeth.Ingestion.Phases.RunState
+  alias Hiraeth.Ingestion.{RecordCandidate, SourceSnapshot}
 
   require Ash.Query
 

@@ -1,4 +1,6 @@
 defmodule Hiraeth.Search do
+  @moduledoc "Ash domain: read-model search results exposed to the public catalog search page."
+
   use Ash.Domain
 
   resources do

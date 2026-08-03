@@ -3,8 +3,8 @@ defmodule Hiraeth.Ingestion.TelemetryTest do
 
   alias Hiraeth.Ingestion.{CoverCandidateRun, Phases, ProviderManifest, ProviderRun, Telemetry}
   alias Hiraeth.Oban.{ProviderIngestionWorker, ProviderSchedulerWorker}
-  alias HiraethWeb.Telemetry, as: WebTelemetry
   alias Hiraeth.TestSupport.IngestionFixtures
+  alias HiraethWeb.Telemetry, as: WebTelemetry
 
   require Ash.Query
 
