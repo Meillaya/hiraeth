@@ -17,7 +17,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
     Work
   }
 
-  alias CatalogCleanup
+  alias Hiraeth.CatalogCleanup
   alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
   alias Hiraeth.RealCatalog.{Dataset, Importer}
   alias Hiraeth.Sources.SourceRecord
