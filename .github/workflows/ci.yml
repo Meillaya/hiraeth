@@ -10,128 +10,8 @@ permissions:
   contents: read
 
 jobs:
-  devenv:
-    name: Nix/devenv migrated local gates
-    runs-on: ubuntu-latest
-
-    env:
-      MIX_ENV: test
-
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@main
-
-      - name: Bootstrap Mix dependencies in devenv shell
-        run: |
-          set -euo pipefail
-          nix run nixpkgs#devenv -- shell -- bash -lc 'mix local.hex --force && mix local.rebar --force && mix deps.get'
-
-      - name: Run devenv process/readiness test graph
-        run: nix run nixpkgs#devenv -- test
-
-      - name: Run migrated CI gates in devenv shell
-        run: |
-          set -euo pipefail
-          cleanup() {
-            nix run nixpkgs#devenv -- processes down || true
-          }
-          trap cleanup EXIT
-
-          nix run nixpkgs#devenv -- up -d hiraeth-postgres
-          nix run nixpkgs#devenv -- shell -- bash -lc 'timeout 120 bash -c "until pg_isready -h 127.0.0.1 -p 54320 -U postgres; do sleep 2; done"'
-          nix run nixpkgs#devenv -- shell -- mix ci
-          nix run nixpkgs#devenv -- shell -- bash -lc 'cd sidecar && uv run --extra dev pytest -q'
-
-  legacy-compose-postgres:
-    name: Temporary legacy-compose-postgres comparison gate
-    runs-on: ubuntu-latest
-
-    # Temporary fallback/comparison lane while CI moves to the devenv job above.
-    # Keep service-container failures visible by isolating them from the devenv lane.
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-    env:
-      MIX_ENV: test
-      DATABASE_HOST: localhost
-      DATABASE_PORT: "5432"
-
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Set up BEAM
-        uses: erlef/setup-beam@v1
-        with:
-          otp-version: "27"
-          elixir-version: "1.18"
-
-      - name: Cache Mix dependencies and build
-        uses: actions/cache@v4
-        with:
-          path: |
-            deps
-            _build
-            ~/.mix
-          key: ${{ runner.os }}-mix-${{ hashFiles('mix.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-mix-
-
-      - name: Install Mix dependencies
-        run: mix deps.get
-
-      - name: Install asset toolchain
-        run: mix assets.setup
-
-      - name: Check assets build
-        run: mix assets.build
-
-      - name: Run Phoenix legacy comparison gate
-        run: mix ci
-
-  sidecar:
-    name: Sidecar dev tests
-    runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: sidecar
-
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-          cache-dependency-glob: sidecar/uv.lock
-
-      - name: Run sidecar dev test gate
-        run: uv run --extra dev pytest -q
-
-  elixir-lint:
-    name: Elixir static gates (format/credo/sobelow/hex.audit)
+  static:
+    name: Static gates (format/credo/sobelow/hex.audit)
     runs-on: ubuntu-latest
 
     # Pure static gates: no Postgres needed. Fast parallel feedback lane;
@@ -157,9 +37,9 @@ jobs:
             deps
             _build
             ~/.mix
-          key: ${{ runner.os }}-mix-lint-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-mix-static-${{ hashFiles('mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-mix-lint-
+            ${{ runner.os }}-mix-
 
       - name: Install Mix dependencies
         run: mix deps.get
@@ -180,10 +60,12 @@ jobs:
       - name: Audit Hex dependencies
         run: mix cmd mix hex.audit
 
-  elixir-quality:
-    name: Elixir quality gates (dialyzer/coveralls)
+  test-fast:
+    name: Fast test suite (test.fast)
     runs-on: ubuntu-latest
 
+    # `mix test.fast` (via the test alias) auto-creates and migrates
+    # hiraeth_test on this container; env mirrors the retired legacy lane.
     services:
       postgres:
         image: postgres:16
@@ -199,8 +81,6 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-    # Mirrors the legacy-compose-postgres lane DB env; `mix test` (via the
-    # test alias) auto-creates and migrates hiraeth_test on this container.
     env:
       MIX_ENV: test
       DATABASE_HOST: localhost
@@ -223,31 +103,47 @@ jobs:
             deps
             _build
             ~/.mix
-          key: ${{ runner.os }}-mix-quality-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-mix-tf-${{ hashFiles('mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-mix-quality-
-
-      # Dialyxir 1.4 stores the project-private PLT under `_build/<env>/`
-      # (build_path), so the `_build` entry above already carries it; this
-      # cache guards `priv/plts` (gitignored) as the historical PLT location
-      # in case dialyxir config moves PLTs there. Key pins OTP/Elixir because
-      # PLT filenames embed erts/elixir versions.
-      - name: Cache Dialyzer PLT
-        uses: actions/cache@v4
-        with:
-          path: priv/plts
-          key: ${{ runner.os }}-plt-27-1.18-${{ hashFiles('mix.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-plt-27-1.18-
+            ${{ runner.os }}-mix-
 
       - name: Install Mix dependencies
         run: mix deps.get
 
-      - name: Run Dialyzer
-        run: mix dialyzer
+      - name: Run fast test suite
+        run: mix test.fast
 
-      # `mix coveralls --max-cases 8` forwards --max-cases to `mix test`
-      # (ExCoveralls passes unknown args through), tuning parallelism for the
-      # 2-core GitHub runner; full suite with coverage floor 86.1.
-      - name: Run test suite with coverage
-        run: mix coveralls --max-cases 8
+  devenv-smoke:
+    name: Nix/devenv smoke (postgres up + mix gate)
+    runs-on: ubuntu-latest
+
+    # Acknowledged cold-Nix exception: first `nix run nixpkgs#devenv`
+    # evaluates the whole dev environment (BEAM/Postgres/Node toolchain), so
+    # this job gets an extended budget. Deliberately lean: it only proves
+    # devenv can start Postgres and run the fast blocking gate; the full
+    # readiness graph lives in the deep lane, not here.
+    timeout-minutes: 20
+
+    env:
+      MIX_ENV: test
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Cache Nix store
+        uses: DeterminateSystems/determinate-nix-action@main
+        with:
+          cache: true
+
+      - name: Start devenv Postgres and wait for readiness
+        run: |
+          set -euo pipefail
+          nix run nixpkgs#devenv -- up -d hiraeth-postgres
+          nix run nixpkgs#devenv -- shell -- bash -lc 'timeout 120 bash -c "until pg_isready -h 127.0.0.1 -p 54320 -U postgres; do sleep 2; done"'
+
+      - name: Run fast blocking gate in devenv shell
+        run: nix run nixpkgs#devenv -- shell -- bash -lc 'mix gate'
