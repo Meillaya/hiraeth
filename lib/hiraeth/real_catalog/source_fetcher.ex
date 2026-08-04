@@ -83,7 +83,7 @@ defmodule Hiraeth.RealCatalog.SourceFetcher do
   end
 
   defp assert_size_under_max_bytes!(provider, _url, max_bytes, byte_size) do
-    if max_bytes > 0 and byte_size > max_bytes do
+    if byte_size > max_bytes do
       raise SourceError,
             "source response for #{provider} exceeds max_bytes #{max_bytes}: #{byte_size}"
     end
@@ -239,7 +239,7 @@ defmodule Hiraeth.RealCatalog.SourceFetcher do
       byte_size = (response.private[:hiraeth_source_fetcher_bytes] || 0) + byte_size(data)
       response = put_in(response.private[:hiraeth_source_fetcher_bytes], byte_size)
 
-      if max_bytes > 0 and byte_size > max_bytes do
+      if byte_size > max_bytes do
         {:halt, {request, response}}
       else
         {:cont, {request, %{response | body: [response.body, data]}}}

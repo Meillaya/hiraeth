@@ -183,7 +183,6 @@ defmodule Hiraeth.Ingestion.CoverPipeline do
       {:ok, cover, cache_path, generated_thumbnail_path}
     else
       {:error, reason} -> {:error, cover, reason}
-      nil -> {:error, cover, "thumbnail generation failed"}
     end
   rescue
     exception -> {:error, cover, Exception.message(exception)}

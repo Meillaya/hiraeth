@@ -67,9 +67,6 @@ defmodule Hiraeth.Ingestion.SidecarClient do
       {:ok, %{status: status, body: body}} ->
         sidecar_error_or_status_error("fetch", status, body)
 
-      {:ok, %{status: status}} ->
-        {:error, "sidecar fetch failed with status #{status}"}
-
       {:error, exception} ->
         {:error, Exception.message(exception)}
     end
@@ -104,9 +101,6 @@ defmodule Hiraeth.Ingestion.SidecarClient do
       {:ok, %{status: status, body: body}} ->
         sidecar_error_or_status_error("scrape", status, body)
 
-      {:ok, %{status: status}} ->
-        {:error, "sidecar scrape failed with status #{status}"}
-
       {:error, exception} ->
         {:error, Exception.message(exception)}
     end
@@ -136,9 +130,6 @@ defmodule Hiraeth.Ingestion.SidecarClient do
 
       {:ok, %{status: status, body: body}} ->
         sidecar_error_or_status_error("detail", status, body)
-
-      {:ok, %{status: status}} ->
-        {:error, "sidecar detail failed with status #{status}"}
 
       {:error, exception} ->
         {:error, Exception.message(exception)}

@@ -125,11 +125,9 @@ defmodule Hiraeth.Search.Result.Actions.Search do
   end
 
   defp page_limit(%{limit: limit}) when is_integer(limit) and limit > 0, do: limit
-  defp page_limit(%{page: %{limit: limit}}) when is_integer(limit) and limit > 0, do: limit
   defp page_limit(_query), do: 20
 
   defp page_offset(%{offset: offset}) when is_integer(offset) and offset >= 0, do: offset
-  defp page_offset(%{page: %{offset: offset}}) when is_integer(offset) and offset >= 0, do: offset
   defp page_offset(_query), do: 0
 
   defp concat_loaded(left, right), do: loaded_list(left) ++ loaded_list(right)

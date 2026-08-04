@@ -87,8 +87,8 @@ defmodule Hiraeth.Ingestion.ProviderManifest do
 
   defp implied_mode(%{} = spider, %{} = api) do
     cond do
-      map_present?(spider) -> "scrape"
-      map_present?(api) -> "api"
+      spider != %{} -> "scrape"
+      api != %{} -> "api"
       true -> nil
     end
   end
@@ -123,5 +123,4 @@ defmodule Hiraeth.Ingestion.ProviderManifest do
   end
 
   defp present?(value), do: is_binary(value) and String.trim(value) != ""
-  defp map_present?(value), do: is_map(value) and value != %{} and value != nil
 end

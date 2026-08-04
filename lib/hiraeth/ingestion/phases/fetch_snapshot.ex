@@ -48,9 +48,6 @@ defmodule Hiraeth.Ingestion.Phases.FetchSnapshot do
           {:error, reason}
       end
     else
-      {:snooze, seconds} ->
-        {:snooze, seconds}
-
       {:error, reason} ->
         mark_failed(context, reason)
         {:error, reason}

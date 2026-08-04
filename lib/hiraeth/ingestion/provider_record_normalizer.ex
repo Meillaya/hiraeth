@@ -215,7 +215,7 @@ defmodule Hiraeth.Ingestion.ProviderRecordNormalizer do
   defp existing_key(map, key) do
     cond do
       Map.has_key?(map, key) -> key
-      is_atom(key) and Map.has_key?(map, Atom.to_string(key)) -> Atom.to_string(key)
+      Map.has_key?(map, Atom.to_string(key)) -> Atom.to_string(key)
       true -> key
     end
   end

@@ -107,7 +107,6 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
       {:ok, context} -> {:ok, context}
       {:snooze, seconds} -> {:snooze, seconds}
       {:error, {code, message}} -> {:error, "sidecar fetch failed: #{code}: #{message}"}
-      {:error, reason} -> {:error, reason}
     end
   end
 
