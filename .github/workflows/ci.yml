@@ -175,10 +175,10 @@ jobs:
 
       # Run in a fresh Mix VM: Mix purges archive tasks (hex.audit lives in
       # the hex archive) once `compile` runs in the same VM, so a bare
-      # "hex.audit" step fails with "task could not be found" in-chain
+      # "mix hex.audit" step fails with "task could not be found" in-chain
       # (same rationale as the `cmd mix hex.audit` step in the ci alias).
       - name: Audit Hex dependencies
-        run: cmd mix hex.audit
+        run: mix cmd mix hex.audit
 
   elixir-quality:
     name: Elixir quality gates (dialyzer/coveralls)
