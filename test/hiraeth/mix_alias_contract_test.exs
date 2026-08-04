@@ -3,10 +3,16 @@ defmodule Hiraeth.MixAliasContractTest do
 
   @required_aliases [:precommit, :"precommit.fast", :"test.fast", :"test.full", :ci, :quality]
   @format_checked_gates [:"precommit.fast", :ci]
-  # hex.audit must run through `cmd` in a fresh Mix VM: Mix purges archive
-  # tasks once `compile` runs in-chain, so a bare "hex.audit" step is lost.
+  # Static gates must run in fresh Mix VMs (`cmd mix ...`): `mix credo`
+  # starts the credo application in-chain, which makes the later `mix test`
+  # app startup fail with "application credo ... already started"; Mix also
+  # purges archive tasks (hex.audit) once `compile` runs in the same VM.
   @ci_audit_gate "cmd mix hex.audit"
-  @ci_static_gates ["credo --strict", "sobelow", @ci_audit_gate]
+  @ci_static_gates [
+    "cmd mix credo --strict",
+    "cmd mix sobelow --config .sobelow-conf --exit Low",
+    @ci_audit_gate
+  ]
 
   defp aliases do
     Mix.Project.config()

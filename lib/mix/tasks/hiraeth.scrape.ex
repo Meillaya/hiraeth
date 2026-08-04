@@ -243,7 +243,6 @@ defmodule Mix.Tasks.Hiraeth.Scrape do
   defp format_finding(finding), do: inspect(finding)
 
   defp format_error_message(message) when is_binary(message), do: message
-  defp format_error_message(message), do: inspect(message)
 
   defp sidecar_client do
     Application.get_env(:hiraeth, :sidecar_client, SidecarClient)

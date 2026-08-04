@@ -12,7 +12,11 @@ defmodule Hiraeth.MixProject do
       deps: deps(),
       compilers: [:phoenix_live_view] ++ Mix.compilers(),
       listeners: [Phoenix.CodeReloader],
-      test_coverage: [tool: ExCoveralls]
+      test_coverage: [tool: ExCoveralls],
+      # Mix tasks live under lib/mix/tasks and call Mix API (Mix.shell/0,
+      # Mix.Task.run/1, Mix.Task behaviour); :mix is not in dialyxir's default
+      # PLT app set, so add it explicitly or dialyzer reports unknown_function.
+      dialyzer: [plt_add_apps: [:mix]]
     ]
   end
 
@@ -121,11 +125,14 @@ defmodule Hiraeth.MixProject do
         "compile --warnings-as-errors",
         "deps.unlock --unused",
         "format --check-formatted",
-        "credo --strict",
-        "sobelow",
-        # Run in a fresh Mix VM: Mix purges archive tasks (hex.audit lives in
-        # the hex archive) once `compile` runs in the same VM, so a bare
-        # "hex.audit" step fails with "task could not be found" in-chain.
+        # Run the static gates in fresh Mix VMs: `mix credo` starts the credo
+        # application (Credo.CLI.main -> Credo.Application.start), so an
+        # in-chain step makes the later `mix test` app startup fail with
+        # "application credo ... already started" (same class of issue as
+        # hex.audit: Mix purges archive tasks once `compile` runs in the
+        # same VM, so a bare hex.audit step is lost in-chain).
+        "cmd mix credo --strict",
+        "cmd mix sobelow --config .sobelow-conf --exit Low",
         "cmd mix hex.audit",
         "assets.setup",
         "assets.build",
