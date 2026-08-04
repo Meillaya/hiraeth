@@ -6,7 +6,7 @@ BOOTSTRAP_ARTIFACT := $(QA_DIR)/bootstrap/bootstrap-check.txt
 VERIFY_SUMMARY := $(QA_DIR)/verify/summary.json
 POSTGRES_READY := scripts/dev/ensure_postgres.sh start
 
-.PHONY: bootstrap-check verify precommit-fast test-fast test-full ci test-elixir test-ui test-ingest test-normalize test-covers audit-provenance test-browser verify-summary qa-pack cleanup-policy
+.PHONY: bootstrap-check verify precommit-fast test-fast test-full ci test-elixir test-ui test-ingest test-normalize test-covers audit-provenance test-browser verify-summary qa-pack cleanup-policy gate recheck plt gates:measure
 
 bootstrap-check:
 	@mkdir -p $(dir $(BOOTSTRAP_ARTIFACT))
@@ -25,6 +25,22 @@ bootstrap-check:
 	} | tee $(BOOTSTRAP_ARTIFACT)
 
 verify: bootstrap-check test-elixir test-ui test-ingest test-normalize test-covers audit-provenance test-browser verify-summary qa-pack
+
+# Fast blocking gate (Layer 0): wraps the `mix gate` alias.
+# `make gates:measure` measures the full gate baseline; pass
+# PERF_ARGS="--only fast" to measure just the fast blocking path.
+gate:
+	mix gate
+
+recheck:
+	mix gate
+
+plt:
+	mix dialyzer --plt
+
+gates:measure:
+	@mkdir -p $(QA_DIR)/perf
+	@bash scripts/qa/perf/measure_gates.sh $(PERF_ARGS)
 
 precommit-fast:
 	mix precommit.fast
