@@ -33,7 +33,8 @@ defmodule Hiraeth.MixProject do
         "precommit.fast": :test,
         "test.fast": :test,
         "test.full": :test,
-        ci: :test
+        ci: :test,
+        quality: :test
       ]
     ]
   end
@@ -120,10 +121,17 @@ defmodule Hiraeth.MixProject do
         "compile --warnings-as-errors",
         "deps.unlock --unused",
         "format --check-formatted",
+        "credo --strict",
+        "sobelow",
+        # Run in a fresh Mix VM: Mix purges archive tasks (hex.audit lives in
+        # the hex archive) once `compile` runs in the same VM, so a bare
+        # "hex.audit" step fails with "task could not be found" in-chain.
+        "cmd mix hex.audit",
         "assets.setup",
         "assets.build",
         "test.full"
-      ]
+      ],
+      quality: ["dialyzer", "coveralls"]
     ]
   end
 end

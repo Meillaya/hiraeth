@@ -1,8 +1,12 @@
 defmodule Hiraeth.MixAliasContractTest do
   use ExUnit.Case, async: true
 
-  @required_aliases [:precommit, :"precommit.fast", :"test.fast", :"test.full", :ci]
+  @required_aliases [:precommit, :"precommit.fast", :"test.fast", :"test.full", :ci, :quality]
   @format_checked_gates [:"precommit.fast", :ci]
+  # hex.audit must run through `cmd` in a fresh Mix VM: Mix purges archive
+  # tasks once `compile` runs in-chain, so a bare "hex.audit" step is lost.
+  @ci_audit_gate "cmd mix hex.audit"
+  @ci_static_gates ["credo --strict", "sobelow", @ci_audit_gate]
 
   defp aliases do
     Mix.Project.config()
@@ -65,5 +69,43 @@ defmodule Hiraeth.MixAliasContractTest do
       assert Keyword.get(preferred_envs(), alias) == :test,
              "expected preferred_envs[#{alias}] to be :test"
     end
+  end
+
+  test "CI gate runs the static analysis gates before assets and tests" do
+    ci_commands = alias_commands!(:ci)
+
+    for gate <- @ci_static_gates do
+      assert gate in ci_commands, "expected ci chain to include #{gate}"
+    end
+
+    assets_index = Enum.find_index(ci_commands, &(&1 == "assets.setup"))
+    test_index = Enum.find_index(ci_commands, &(&1 == "test.full"))
+
+    assert assets_index, "expected ci chain to include assets.setup"
+    assert test_index, "expected ci chain to include test.full"
+
+    for gate <- @ci_static_gates do
+      gate_index = Enum.find_index(ci_commands, &(&1 == gate))
+      assert gate_index < assets_index, "expected #{gate} to run before assets.setup"
+      assert gate_index < test_index, "expected #{gate} to run before test.full"
+    end
+  end
+
+  test "quality alias exists and runs the slow gates" do
+    assert Keyword.has_key?(aliases(), :quality), "expected mix alias quality to exist"
+
+    quality_commands = alias_commands!(:quality)
+    assert "dialyzer" in quality_commands
+    assert "coveralls" in quality_commands
+  end
+
+  test "fast precommit lane never gains slow gates" do
+    fast_commands = alias_commands!(:"precommit.fast")
+
+    refute "dialyzer" in fast_commands,
+           "expected precommit.fast to stay free of dialyzer"
+
+    refute "coveralls" in fast_commands,
+           "expected precommit.fast to stay free of coveralls"
   end
 end

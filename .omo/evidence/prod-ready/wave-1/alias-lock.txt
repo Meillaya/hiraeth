@@ -1,0 +1,123 @@
+• Validating lock
+✓ Validating lock in 6.07ms
+• Configuring shell
+• Configuring cachix
+✓ Configuring cachix in 1.56ms
+• Evaluating shell
+✓ Evaluating shell in 3.07ms (cached)
+✓ Configuring shell in 6.35ms
+• Loading tasks
+• Evaluating devenv.config.task.config
+✓ Evaluating devenv.config.task.config in 313µs (cached)
+✓ Loading tasks in 840µs
+• Running tasks
+• Running devenv:files:cleanup
+✓ Running devenv:files:cleanup in 6.44ms
+• Running devenv:enterShell
+✓ Running devenv:enterShell in 5.69ms
+• Running devenv:enterTest
+✓ Running devenv:enterTest in 3.86µs (no command)
+✓ Running tasks in 12.3ms
+Advisories:
+  phoenix 1.8.8 - EEF-CVE-2026-56811 (HIGH)
+    aka: CVE-2026-56811, GHSA-6983-jfq8-485w
+    Phoenix transports do not limit channel joins per connection, enabling process-exhaustion denial of service
+    https://osv.dev/vulnerability/EEF-CVE-2026-56811
+
+  phoenix 1.8.8 - EEF-CVE-2026-56812 (MEDIUM)
+    aka: CVE-2026-56812, GHSA-63mc-hw7g-86rr
+    Phoenix JavaScript presence client crashes on presence keys colliding with Object.prototype members in Presence.syncState/syncDiff
+    https://osv.dev/vulnerability/EEF-CVE-2026-56812
+
+  ash 3.28.0 - EEF-CVE-2026-55736 (MEDIUM)
+    aka: CVE-2026-55736, GHSA-f4hc-ppw9-4hhw
+    Private action arguments can be set by user input in Ash
+    https://osv.dev/vulnerability/EEF-CVE-2026-55736
+
+  plug 1.19.2 - EEF-CVE-2026-54892 (HIGH)
+    aka: CVE-2026-54892, GHSA-j43x-5hjq-rgxf
+    Plug: quadratic-time decoding of nested query/body parameters enables denial of service
+    https://osv.dev/vulnerability/EEF-CVE-2026-54892
+
+  plug 1.19.2 - EEF-CVE-2026-56813 (LOW)
+    aka: CVE-2026-56813, GHSA-wpmj-jh88-rpgm
+    Cookie attribute injection in Plug.Conn.Cookies.encode/2
+    https://osv.dev/vulnerability/EEF-CVE-2026-56813
+
+  plug 1.19.2 - EEF-CVE-2026-56814 (MEDIUM)
+    aka: CVE-2026-56814, GHSA-95qv-c9g9-rm63
+    Plug: multipart :length limit is not charged for part headers, enabling unbounded temp-file creation (denial of service)
+    https://osv.dev/vulnerability/EEF-CVE-2026-56814
+
+  bandit 1.12.0 - EEF-CVE-2026-65623 (HIGH)
+    aka: CVE-2026-65623, GHSA-vg8x-66vg-5pxh
+    Quadratic CPU blow-up reassembling fragmented WebSocket messages in Bandit
+    https://osv.dev/vulnerability/EEF-CVE-2026-65623
+
+  ymlr 5.1.5 - EEF-CVE-2026-65636 (LOW)
+    aka: CVE-2026-65636, GHSA-p8qx-7cp9-v6c9
+    YAML injection via unescaped newlines in ymlr document comments
+    https://osv.dev/vulnerability/EEF-CVE-2026-65636
+
+  swoosh 1.26.1 - EEF-CVE-2026-54893 (LOW)
+    aka: CVE-2026-54893, GHSA-754j-98wh-57rf
+    Email-derived URL path injection in the Swoosh Microsoft Graph adapter
+    https://osv.dev/vulnerability/EEF-CVE-2026-54893
+
+  mint 1.9.0 - EEF-CVE-2026-58229 (HIGH)
+    aka: CVE-2026-58229, GHSA-qrfr-wh4c-3qhw
+    Unbounded HTTP/1 response-header and chunked-trailer accumulation in Mint causes memory-exhaustion DoS
+    https://osv.dev/vulnerability/EEF-CVE-2026-58229
+
+  mint 1.9.0 - EEF-CVE-2026-59249 (MEDIUM)
+    aka: CVE-2026-59249, GHSA-x3x7-96vm-6h2w
+    Sign-tolerant HTTP/1 chunk-size parser in Mint enables response smuggling against strict intermediaries on pooled connections
+    https://osv.dev/vulnerability/EEF-CVE-2026-59249
+
+  mint 1.9.0 - EEF-CVE-2026-59246 (MEDIUM)
+    aka: CVE-2026-59246, GHSA-8pf6-g464-h6h9
+    Zero-length HTTP/2 CONTINUATION frames bypass Mint's header-block byte-size cap and exhaust client memory
+    https://osv.dev/vulnerability/EEF-CVE-2026-59246
+
+  mint 1.9.0 - EEF-CVE-2026-56810 (HIGH)
+    aka: CVE-2026-56810, GHSA-c59h-fq4p-r36r
+    mint buffers an entire chunked response chunk in memory in Mint.HTTP1.decode_body/5
+    https://osv.dev/vulnerability/EEF-CVE-2026-56810
+
+  postgrex 0.22.2 - EEF-CVE-2026-58225 (LOW)
+    aka: CVE-2026-58225, GHSA-4mw9-4qgj-m97w
+    SQL injection via unescaped dollar-quote in Postgrex.Notifications reconnect replay causes notification denial of service
+    https://osv.dev/vulnerability/EEF-CVE-2026-58225
+
+  hpax 1.0.3 - EEF-CVE-2026-58226 (HIGH)
+    aka: CVE-2026-58226, GHSA-jj2p-32j7-whj2
+    Unauthenticated denial-of-service via unbounded HPACK integer decoding in hpax
+    https://osv.dev/vulnerability/EEF-CVE-2026-58226
+
+Found packages with security advisories
+HEX_AUDIT_EXIT=1
+
+=== POST-UPGRADE EVIDENCE (TODO 7: dependency security fix-forward) ===
+DEPS_UPDATE_EXIT=0  (mix deps.update phoenix ash ash_postgres ash_phoenix bandit req postgrex swoosh phoenix_live_view)
+
+Lock after upgrade:
+  phoenix 1.8.9 (was 1.8.8)        plug 1.20.3 (was 1.19.2)      bandit 1.12.4 (was 1.12.0)
+  mint 1.9.3 (was 1.9.0)           hpax 1.0.4 (was 1.0.3)        ymlr 5.1.6 (was 5.1.5)
+  postgrex 0.22.3 (was 0.22.2)     swoosh 1.27.0 (was 1.26.1)
+  ash 3.31.0 (was 3.28.0)          ash_postgres 2.11.0           ash_phoenix 2.3.24
+
+HEX_AUDIT_POST_EXIT=0
+  Output: "No retired or security advisory packages found"
+
+GATE_EXITS (mix ci components, all 0):
+  compile --warnings-as-errors=0  deps.unlock --unused=0  format --check-formatted=0
+  credo --strict=0  sobelow=0  assets.setup=0  assets.build=0
+
+TEST_FULL: 501 tests, 0 failures (1409.9s)
+CONTRACT mix_alias: 9 tests, 0 failures; dev_environment_ci_contract: 1 test, 0 failures
+PRECOMMIT_FAST: 501 tests, 0 failures, 105 excluded (29.6s)
+
+FLAKINESS NOTE: two heavy real-catalog seed tests (7k+ records each) observed
+runtime envelope 193s-870s on the devenv lane (reproduced with the OLD lock too
+- not an upgrade regression). Declared @tag timeout recalibrated 300_000 ->
+1_800_000 in real_catalog_importer_test.exs and importer_provider_test.exs.
