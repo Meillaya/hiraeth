@@ -15,6 +15,14 @@ Scope guardrails preserved for Hiraeth v1:
 
 ## Required release gates
 
+Verification is tiered:
+
+- **Layer 0 — local blocking gate:** `mix gate` (wrapped by `make gate`/`make recheck`) is the ≤5-min blocking local preflight: compile with warnings-as-errors, unused-deps check, format check, strict Credo, and the fast ExUnit lane. It runs on every change in the developer loop.
+- **Layer 1 — parallel CI:** `.github/workflows/ci.yml` runs the `static` (format/Credo/Sobelow/hex.audit) and `test-fast` jobs in parallel on every PR and push to `main`, plus a lean devenv smoke job.
+- **Layer 2 — deep lane:** `.github/workflows/deep.yml` runs dialyzer, coverage, the full suite including assets, provenance audit, browser QA, ingestion drills, sidecar pytest, and the full devenv readiness graph on merge to `main`, nightly, and manual dispatch.
+
+`mix gate` is not a substitute for the deep lane: the fast blocking gate deliberately omits sobelow/hex.audit (network-dependent, covered by the CI `static` job and the deep `ci` lane), dialyzer, coverage, assets, provenance, browser QA, ingestion drills, sidecar pytest, and the full devenv readiness graph. A release owner must run the deep lane before any production-ready claim.
+
 Run the gates below on the final integrated worktree before making any production-ready claim:
 
 1. Fast local preflight for the developer loop: enter a `devenv shell`, then run `mix precommit` or `mix precommit.fast`, plus `mix test.fast` when the release owner wants the explicit fast ExUnit lane. Use the devenv process runner/readiness tasks for local PostgreSQL/Phoenix/sidecar checks.
@@ -79,6 +87,7 @@ Before launch or handoff, confirm:
 
 - All required release gates pass on the final integrated worktree, or blockers are explicitly recorded with owner and recovery path.
 - `mix precommit`/`mix precommit.fast` is not treated as a substitute for full release gates.
+- `mix gate` is not a substitute for the deep lane; the deep lane (deep.yml) must pass on the final integrated worktree before any production-ready claim.
 - Browser QA, ingestion drills, sidecar pytest, and CI use the consolidated script paths above.
 - Admin auth, session secret handling, private sidecar networking, strict CORS, source allowlists, private-IP rejection, and evidence redaction have fresh verification.
 - Public pages still render local `/covers/cache/...` URLs or typographic fallbacks, never remote cover URLs.

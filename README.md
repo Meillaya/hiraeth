@@ -53,6 +53,12 @@ mix hiraeth.admin.invite --email operator@example.com --role owner --expires-in 
 
 ## Verify/build
 
+Verification is tiered so the fast developer loop stays under five minutes while full release assurance runs at depth:
+
+- **Layer 0 — local blocking gate (`mix gate`, ≤5 min):** `make gate`/`make recheck` wrap the `mix gate` alias (compile with warnings-as-errors, unused-deps check, format check, strict Credo, and the fast ExUnit lane). It is the blocking local preflight for every change.
+- **Layer 1 — parallel CI (`static` + `test-fast`):** `.github/workflows/ci.yml` runs the static gates (format/Credo/Sobelow/hex.audit) and the fast test suite in parallel on every PR and push to `main`, plus a lean devenv smoke job.
+- **Layer 2 — deep lane (`deep.yml`):** `.github/workflows/deep.yml` runs dialyzer, coverage, the full suite including assets, provenance audit, browser QA, ingestion drills, sidecar pytest, and the full devenv readiness graph on merge to `main`, nightly, and manual dispatch.
+
 Fast local preflight targets the under-60s developer loop:
 
 ```sh

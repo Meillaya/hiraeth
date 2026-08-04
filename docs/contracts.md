@@ -36,6 +36,16 @@ Deprecation and version rules:
 
 Docker remains a legacy fallback and the current production runtime boundary reference. Docker/Compose documentation should describe fallback debugging, production runtime networking, or production-boundary constraints; it must not replace devenv as the preferred local/dev/test setup, and it must not imply that production is Nix/devenv-only.
 
+## Verification gate tiers
+
+Verification is tiered so the fast developer loop stays under five minutes while full release assurance runs at depth:
+
+- **Layer 0 — local blocking gate:** `mix gate` (wrapped by `make gate`/`make recheck`) is the ≤5-min blocking local preflight: compile with warnings-as-errors, unused-deps check, format check, strict Credo, and the fast ExUnit lane. It deliberately omits sobelow/hex.audit (network-dependent), dialyzer, coverage, assets, provenance, browser QA, ingestion drills, sidecar pytest, and the full devenv readiness graph.
+- **Layer 1 — parallel CI:** `.github/workflows/ci.yml` runs the `static` (format/Credo/Sobelow/hex.audit) and `test-fast` jobs in parallel on every PR and push to `main`, plus a lean devenv smoke job.
+- **Layer 2 — deep lane:** `.github/workflows/deep.yml` runs dialyzer, coverage, the full suite including assets, provenance audit, browser QA, ingestion drills, sidecar pytest, and the full devenv readiness graph on merge to `main`, nightly, and manual dispatch.
+
+`mix gate` is not a substitute for the deep lane: the fast blocking gate is a local preflight, not release assurance. The deep lane must pass before any production-ready claim.
+
 ## Private sidecar contract
 
 The Scrapling sidecar is private infrastructure for ingestion. It is not a public browser or public JSON API contract.
