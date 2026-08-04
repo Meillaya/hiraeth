@@ -6,7 +6,7 @@ BOOTSTRAP_ARTIFACT := $(QA_DIR)/bootstrap/bootstrap-check.txt
 VERIFY_SUMMARY := $(QA_DIR)/verify/summary.json
 POSTGRES_READY := scripts/dev/ensure_postgres.sh start
 
-.PHONY: bootstrap-check verify precommit-fast test-fast test-full ci test-elixir test-ui test-ingest test-normalize test-covers audit-provenance test-browser verify-summary qa-pack cleanup-policy gate recheck plt gates:measure
+.PHONY: bootstrap-check verify precommit-fast test-fast test-full ci test-elixir test-ui test-ingest test-normalize test-covers audit-provenance test-browser verify-summary qa-pack cleanup-policy gate recheck plt gates\:measure
 
 bootstrap-check:
 	@mkdir -p $(dir $(BOOTSTRAP_ARTIFACT))
@@ -38,7 +38,7 @@ recheck:
 plt:
 	mix dialyzer --plt
 
-gates:measure:
+gates\:measure:
 	@mkdir -p $(QA_DIR)/perf
 	@bash scripts/qa/perf/measure_gates.sh $(PERF_ARGS)
 
