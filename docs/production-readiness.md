@@ -31,6 +31,10 @@ Run the gates below on the final integrated worktree before making any productio
 
 The dialyzer PLT is built once and reused for fast re-runs. The local first build via `make plt` (or `mix dialyzer --plt`) takes ~10-15 min once; every subsequent `mix gate`/`mix dialyzer` reuses the persisted PLT (dialyxir 1.4 stores it under `_build/<env>/`; under devenv, `MIX_BUILD_ROOT` places it at `.devenv/mix-build/<env>/`). The deep-lane CI dialyzer job caches `_build` + `priv/plts` with an OTP/Elixir-pinned key (`${{ runner.os }}-plt-27-1.18-${{ hashFiles('mix.lock') }}`) and tolerates a cold cache: a cache miss simply rebuilds the PLT once.
 
+## Warm re-run protocol
+
+Repeated `make recheck` (an alias for `mix gate`) reuses the warm `_build` and the persisted dialyzer PLT, so independent re-verification is fast (~20s warm). `make recheck` is the fast independent-verification loop; the deep lane (deep.yml: dialyzer/coverage/full-suite/provenance/browser/drills/sidecar/devenv-full) still requires the full gates.
+
 ## Source documents and runbooks
 
 - Production operations, release, env, migration, backup/restore, rollback, telemetry, alerts, dashboards: `docs/production-operations.md`.
