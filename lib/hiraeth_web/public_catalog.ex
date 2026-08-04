@@ -444,8 +444,6 @@ defmodule HiraethWeb.PublicCatalog do
 
   defp publication_date_order_sql, do: "newest_sort desc nulls last, title_sort, slug_sort"
 
-  defp limit_params(:all, _offset, params), do: {"", params}
-
   defp limit_params(limit, offset, params) do
     limit_index = length(params) + 1
     offset_index = length(params) + 2

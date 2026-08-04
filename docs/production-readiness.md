@@ -27,6 +27,10 @@ Run the gates below on the final integrated worktree before making any productio
 8. Secret and evidence-hygiene review over the new release evidence and docs.
 9. Cover-cache preservation check: any gate that can write cover files must run through `scripts/qa/cover_cache_sandbox.sh` or an equivalent temporary worktree copy, and must prove root `priv/static/covers/cache/*` is unchanged.
 
+## Dialyzer PLT persistence
+
+The dialyzer PLT is built once and reused for fast re-runs. The local first build via `make plt` (or `mix dialyzer --plt`) takes ~10-15 min once; every subsequent `mix gate`/`mix dialyzer` reuses the persisted PLT (dialyxir 1.4 stores it under `_build/<env>/`; under devenv, `MIX_BUILD_ROOT` places it at `.devenv/mix-build/<env>/`). The deep-lane CI dialyzer job caches `_build` + `priv/plts` with an OTP/Elixir-pinned key (`${{ runner.os }}-plt-27-1.18-${{ hashFiles('mix.lock') }}`) and tolerates a cold cache: a cache miss simply rebuilds the PLT once.
+
 ## Source documents and runbooks
 
 - Production operations, release, env, migration, backup/restore, rollback, telemetry, alerts, dashboards: `docs/production-operations.md`.
