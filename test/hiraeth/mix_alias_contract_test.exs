@@ -1,8 +1,26 @@
 defmodule Hiraeth.MixAliasContractTest do
   use ExUnit.Case, async: true
 
-  @required_aliases [:precommit, :"precommit.fast", :"test.fast", :"test.full", :ci, :quality]
+  @required_aliases [
+    :precommit,
+    :"precommit.fast",
+    :"test.fast",
+    :"test.full",
+    :ci,
+    :quality,
+    :gate
+  ]
   @format_checked_gates [:"precommit.fast", :ci]
+  # The fast blocking gate deliberately omits sobelow/hex.audit: they need
+  # network and stay in the CI `static` job and deep `ci` lane.
+  @gate_commands [
+    "compile --warnings-as-errors",
+    "deps.unlock --unused",
+    "format --check-formatted",
+    "cmd mix credo --strict",
+    "test.fast"
+  ]
+  @gate_forbidden ~w(dialyzer coveralls sobelow hex.audit)
   # Static gates must run in fresh Mix VMs (`cmd mix ...`): `mix credo`
   # starts the credo application in-chain, which makes the later `mix test`
   # app startup fail with "application credo ... already started"; Mix also
@@ -113,5 +131,22 @@ defmodule Hiraeth.MixAliasContractTest do
 
     refute "coveralls" in fast_commands,
            "expected precommit.fast to stay free of coveralls"
+  end
+
+  test "gate alias runs the fast blocking checks" do
+    gate_commands = alias_commands!(:gate)
+
+    for command <- @gate_commands do
+      assert command in gate_commands, "expected gate chain to include #{command}"
+    end
+  end
+
+  test "gate alias stays free of network-dependent and slow gates" do
+    gate_commands = alias_commands!(:gate)
+
+    for forbidden <- @gate_forbidden do
+      refute Enum.any?(gate_commands, &String.contains?(&1, forbidden)),
+             "expected gate to stay free of #{forbidden}"
+    end
   end
 end
