@@ -2,6 +2,10 @@
 
 Hiraeth v1 is a browser-first Phoenix LiveView catalog. Stable contract work means documented tiers and typed projections, not a broad public JSON API.
 
+## Current production posture
+
+Hiraeth 1.0.0 is deployed to Railway at `https://hiraeth-web-production.up.railway.app` (Phoenix service + private Scrapling sidecar + managed Postgres), seeded with 8,776 source records across the approved 23-provider corpus. The admin surface has been removed; the public browser and the operator `mix hiraeth.*` tasks are the only supported surfaces.
+
 ## Public browser contract
 
 The public browser contract is the LiveView and HEEx experience reachable from routes such as `/`, `/browse`, `/search`, `/books/:slug`, `/publishers`, `/series`, and contributor discovery routes.
@@ -40,9 +44,9 @@ Docker remains a legacy fallback and the current production runtime boundary ref
 
 Verification is tiered so the fast developer loop stays under five minutes while full release assurance runs at depth:
 
-- **Layer 0 — local blocking gate:** `mix gate` (wrapped by `make gate`/`make recheck`) is the ≤5-min blocking local preflight: compile with warnings-as-errors, unused-deps check, format check, strict Credo, and the fast ExUnit lane. It deliberately omits sobelow/hex.audit (network-dependent), dialyzer, coverage, assets, provenance, browser QA, ingestion drills, sidecar pytest, and the full devenv readiness graph.
+- **Layer 0 — local blocking gate:** `mix gate` (wrapped by `make gate`/`make recheck`) is the ≤5-min blocking local preflight: compile with warnings-as-errors, unused-deps check, format check, strict Credo, and the fast ExUnit lane. It deliberately omits sobelow/hex.audit (network-dependent), dialyzer, coverage, assets, provenance, browser QA, ingestion drills, sidecar pytest, scripts tests, release image builds, and the full devenv readiness graph.
 - **Layer 1 — parallel CI:** `.github/workflows/ci.yml` runs the `static` (format/Credo/Sobelow/hex.audit) and `test-fast` jobs in parallel on every PR and push to `main`, plus a lean devenv smoke job.
-- **Layer 2 — deep lane:** `.github/workflows/deep.yml` runs dialyzer, coverage, the full suite including assets, provenance audit, browser QA, ingestion drills, sidecar pytest, and the full devenv readiness graph on merge to `main`, nightly, and manual dispatch.
+- **Layer 2 — deep lane:** `.github/workflows/deep.yml` runs dialyzer, coverage, the full suite including assets, provenance audit, browser QA, ingestion drills, sidecar pytest, scripts tests, release image builds, and the full devenv readiness graph on merge to `main`, nightly, and manual dispatch.
 
 `mix gate` is not a substitute for the deep lane: the fast blocking gate is a local preflight, not release assurance. The deep lane must pass before any production-ready claim.
 
@@ -76,6 +80,7 @@ Stability promise:
 - Operator ingestion controls must be authenticated before mutating provider runs, quarantine decisions, replay, or scheduling.
 
 Stable entrypoints after repository consolidation:
+- Ingestion and catalog operator tasks are the `mix hiraeth.*` Mix tasks: `hiraeth.providers.backfill`, `hiraeth.ingest`, `hiraeth.cache_covers`, `hiraeth.audit_provenance`, `hiraeth.real_catalog.source_artifacts`, `hiraeth.real_catalog.coverage_report`, and the scrape staging flow `hiraeth.scrape`/`hiraeth.review_scrape`/`hiraeth.apply_scrape`. See the operator entrypoints table in `docs/production-readiness.md` for the full map.
 - Browser QA operators should use `make test-browser` or `scripts/browser_qa.sh`; direct Node diagnostics live under `scripts/qa/browser/`.
 - Production ingestion drills live under `scripts/qa/ingestion/` and should be invoked by their shell scripts, not by reaching into moved test helpers.
 - Catalog source maintenance scripts live under `scripts/catalog/`; they are explicit maintenance tools for checked-in source corpus refreshes, not background app runtime dependencies.

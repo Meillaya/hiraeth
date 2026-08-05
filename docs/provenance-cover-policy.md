@@ -15,7 +15,7 @@ Full-catalog expansion is governed by `priv/catalog_sources/real_publishers/sour
 
 Execution must keep normal tests deterministic: live network retrieval belongs in bounded local tooling with source allowlists, rate limits, max-byte caps, checksums, retrieval timestamps, and recorded artifacts. Public UI still renders covers only from local `/covers/cache/...` URLs.
 
-Release-facing completeness must be worded precisely: Hiraeth has loaded every record in the approved checked-in source corpus for the current seventeen providers. Gaps against universal historical backlists, unavailable non-HTML source exports, missing cover URLs, missing purchase links, missing review links, and missing/pre-ISBN identifiers remain explicit unresolved gap states in the coverage report and UI.
+Release-facing completeness must be worded precisely: Hiraeth has loaded every record in the approved checked-in source corpus for the current twenty-three providers. Gaps against universal historical backlists, unavailable non-HTML source exports, missing cover URLs, missing purchase links, missing review links, and missing/pre-ISBN identifiers remain explicit unresolved gap states in the coverage report and UI.
 
 ## Cover lifecycle
 
