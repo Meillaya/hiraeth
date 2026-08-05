@@ -60,3 +60,25 @@ operator evidence:
 - `.git/`, `mix.exs`, `mix.lock`, `README.md`, `docs/`, and `Makefile`.
 
 When in doubt, preserve the path and add a follow-up note rather than deleting.
+
+## Named exceptions (production readiness plan)
+
+The production-readiness cleanup plan (Wave 3, TODOs 14-18) authorizes exactly
+four named moves that fall outside the allowlist/denylist above. Each is a
+single, evidence-backed deletion or archival move executed by its own TODO; this
+section is the policy authorization for them and nothing else:
+
+1. `worklog.md` → `docs/history/worklog-2026-06.md` (TODO 15): archival move of
+   the dated worklog into the history directory so the repository root stays
+   clean.
+2. `priv/repo/structure.sql` → add to `.gitignore` (TODO 16): the file is an
+   untracked local `pg_dump` artifact that is neither governed nor referenced.
+3. Makefile `bootstrap-check`/`qa-pack` `.omo`-dependency removal (TODO 17):
+   drop the `.omo/plans/hiraeth-bootstrap.md` dependency from those two targets
+   so operator targets do not depend on workspace state.
+4. Makefile `test-ingest` fake-JUnit removal (TODO 18): remove the fabricated
+   `<testsuite>` report that does not reflect real test output.
+
+These exceptions do not broaden the deletion allowlist or denylist above, and
+they do not weaken the never-cover-cache rule. Any further deletion or move
+requires a new named exception.
