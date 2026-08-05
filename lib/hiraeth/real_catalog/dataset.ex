@@ -3,10 +3,12 @@ defmodule Hiraeth.RealCatalog.Dataset do
   Reads tracked real-publisher catalog dataset files from `priv/catalog_sources`.
   """
 
-  @dataset_dir Application.app_dir(:hiraeth, "priv/catalog_sources/real_publishers")
   @source_authority_manifest_file "source_authority_manifest.json"
 
-  def default_dir, do: @dataset_dir
+  # Resolved at runtime (not a compile-time module attribute) so the path is
+  # correct in a release, where the app lives under lib/hiraeth-<vsn>/ rather
+  # than the _build/prod/lib/hiraeth build directory.
+  def default_dir, do: Application.app_dir(:hiraeth, "priv/catalog_sources/real_publishers")
   def source_authority_manifest_file, do: @source_authority_manifest_file
 
   @doc """
@@ -15,7 +17,7 @@ defmodule Hiraeth.RealCatalog.Dataset do
   """
   def normalize(value), do: atomize(value)
 
-  def load_dir(dir \\ @dataset_dir) do
+  def load_dir(dir \\ default_dir()) do
     dir
     |> dataset_files()
     |> Enum.reduce_while({:ok, []}, fn file, {:ok, datasets} ->
@@ -47,7 +49,7 @@ defmodule Hiraeth.RealCatalog.Dataset do
     end
   end
 
-  def load_source_authority_manifest(dir \\ @dataset_dir) do
+  def load_source_authority_manifest(dir \\ default_dir()) do
     path = Path.join(dir, @source_authority_manifest_file)
 
     with {:ok, body} <- File.read(path),
