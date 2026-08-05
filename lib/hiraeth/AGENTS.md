@@ -1,7 +1,7 @@
 # DOMAIN KNOWLEDGE BASE
 
 ## OVERVIEW
-Ash domain layer for catalog data, ingestion, provenance, covers, real-publisher corpus, audit, search, and admin actors.
+Ash domain layer for catalog data, ingestion, provenance, covers, real-publisher corpus, audit, and search.
 
 ## STRUCTURE
 | Area | Owns |
@@ -11,9 +11,10 @@ Ash domain layer for catalog data, ingestion, provenance, covers, real-publisher
 | `ingestion/` + `ingestion.ex` | provider runs, snapshots, candidates, events, phase pipeline |
 | `imports/` + `imports.ex` | CSV/manual import staging and review |
 | `real_catalog/` | deterministic dataset, policy, validation, importer |
+| `demo_fixtures.ex`, `real_catalog_fixtures.ex` | invented dev/test fixtures vs deterministic real-corpus seed entrypoint |
 | `covers/` + `covers.ex` | cover assets, assignments, cache safety |
 | `audit/`, `provenance_audit.ex` | operational evidence and exports |
-| `accounts/`, `search/` | admin actor helpers and read models |
+| `search/` | read models |
 
 ## WHERE TO LOOK
 | Task | File family |
@@ -22,6 +23,7 @@ Ash domain layer for catalog data, ingestion, provenance, covers, real-publisher
 | Provider ingestion behavior | `ingestion/operator_cli.ex`, `ingestion/phases/*.ex`, `ingestion/provider_*` |
 | Source identity / allowlists | `real_catalog/source_identity.ex`, `real_catalog/source_policy.ex` |
 | Real corpus import | `real_catalog/dataset.ex`, `validator.ex`, `importer.ex`, `source_artifacts.ex` |
+| Real corpus helpers | `real_catalog/isbn.ex`, `slug.ex`, `source_fetcher.ex`, `coverage_report.ex` |
 | Cover cache decisions | `covers.ex`, `covers/cover_asset.ex`, `ingestion/cover_pipeline.ex` |
 | Provenance audit | `provenance_audit.ex`, `sources/source_ledger_entry.ex` |
 

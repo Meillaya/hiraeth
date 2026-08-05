@@ -2,7 +2,7 @@
 
 Hiraeth is a Phoenix LiveView and Ash catalog for browsing curated independent publisher books with provenance-aware imports, source provenance, local cover caching, and an autonomous ingestion pipeline.
 
-It is still browser-first: the stable v1 surface is the LiveView catalog, not a public JSON API. Public routes include `/browse`, `/search`, `/publishers`, `/series`, `/contributors`, contributor role filters such as `/contributors?role=translator`, and book detail pages. Operator and ingestion controls live behind the authenticated admin boundary.
+It is still browser-first: the stable v1 surface is the LiveView catalog, not a public JSON API. Public routes include `/browse`, `/search`, `/publishers`, `/series`, `/contributors`, contributor role filters such as `/contributors?role=translator`, and book detail pages.
 
 ## What is in the app
 
@@ -43,12 +43,6 @@ mix hiraeth.cache_covers
 mix hiraeth.audit_provenance --seed
 mix hiraeth.real_catalog.source_artifacts
 mix hiraeth.real_catalog.coverage_report
-```
-
-Admin users are managed through:
-
-```sh
-mix hiraeth.admin.invite --email operator@example.com --role owner --expires-in 15m
 ```
 
 ## Verify/build

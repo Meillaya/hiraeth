@@ -67,13 +67,13 @@ Deprecation and version rules:
 
 ## Operator task contract
 
-Operator task contracts cover Mix tasks, health/readiness checks, and authenticated admin ingestion controls. These are operational surfaces, not public catalog APIs.
+Operator task contracts cover Mix tasks, health/readiness checks, and ingestion control operations. These are operational surfaces, not public catalog APIs.
 
 Stability promise:
 - Operator commands should be scriptable, deterministic, and safe to run repeatedly where documented.
 - Health and readiness endpoints may exist as narrow operations endpoints and must not expose catalog records, secrets, stack traces, or broad API discovery.
 - The current narrow operations endpoints are `GET /health` and `GET /ready`; they are not mounted under `/api` and do not expose catalog data.
-- Admin ingestion controls must be authenticated before mutating provider runs, quarantine decisions, replay, or scheduling.
+- Operator ingestion controls must be authenticated before mutating provider runs, quarantine decisions, replay, or scheduling.
 
 Stable entrypoints after repository consolidation:
 - Browser QA operators should use `make test-browser` or `scripts/browser_qa.sh`; direct Node diagnostics live under `scripts/qa/browser/`.

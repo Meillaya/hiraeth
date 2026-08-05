@@ -4,7 +4,7 @@
 Public screenshots and overflow probes force Chromium's preferred color scheme to `light` so the visual QA captures are deterministic and comparable to the read-only `Hiraeth - Quiet Index.dc.html` reference.
 
 `scripts/browser_qa.sh` is the stable operator entrypoint; implementation helpers live under `scripts/qa/browser/` so direct diagnostics can run individual Node checks without changing the `make test-browser` contract.
-Direct helper runs should use the grouped paths, for example `node scripts/qa/browser/keyboard_focus_check.mjs`, `node scripts/qa/browser/responsive_overflow_check.mjs`, `node scripts/qa/browser/public_resource_dependency_check.mjs`, and `node scripts/qa/browser/image_decode_check.mjs`. Admin registry and quarantine probes are grouped in the same helper directory; `make test-browser` remains the release-facing command.
+Direct helper runs should use the grouped paths, for example `node scripts/qa/browser/keyboard_focus_check.mjs`, `node scripts/qa/browser/responsive_overflow_check.mjs`, `node scripts/qa/browser/public_resource_dependency_check.mjs`, and `node scripts/qa/browser/image_decode_check.mjs`. `make test-browser` remains the release-facing command.
 
 The strict browser contract covers:
 

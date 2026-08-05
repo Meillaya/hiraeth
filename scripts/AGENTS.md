@@ -11,7 +11,7 @@ Operational scripts for dev readiness, browser QA, ingestion drills, catalog sou
 | `qa/browser/` | CDP/browser checks, seed data, responsive/image/focus/resource audits |
 | `qa/ingestion/` | production ingestion drill/adversarial scripts and tests |
 | `qa/cover_cache_sandbox.sh` | cache immutability sandbox/hash guard |
-| `catalog/` | operator-authorized catalog source refresh scripts |
+| `catalog/` | operator-authorized corpus refresh: `generate_full_catalog.py` (live full-corpus refresh), `generate_full_catalog_deep_vellum.py` (helper), `extract_fitzcarraldo_catalog.py` (Scrapling extraction, PEP-723 inline deps) |
 | `verify_summary.sh` | QA artifact summary gate |
 
 ## COMMANDS

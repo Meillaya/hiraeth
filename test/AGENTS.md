@@ -24,6 +24,7 @@ Fixture-driven, contract-heavy ExUnit and pytest-adjacent validation for Hiraeth
 | `:public_catalog_full` | expensive public catalog UI/data sweep |
 | `:reset_committed_catalog` | DataCase resets committed catalog fixtures |
 | `:reset_committed_ingestion` | DataCase resets ingestion control-plane fixtures |
+| `:ci_devenv_contract` | descriptive: marks the dual devenv/legacy-Compose CI lane contract (never excluded) |
 
 ## CONVENTIONS
 - Choose base case by boundary: `DataCase` for DB/Ash; `ConnCase` for conn/LiveView; plain `ExUnit.Case` for file/command/docs contracts.
@@ -33,6 +34,7 @@ Fixture-driven, contract-heavy ExUnit and pytest-adjacent validation for Hiraeth
 - LiveView tests import `Phoenix.LiveViewTest` and assert with stable selectors via `has_element?/2`, `element/2`, `form`, `render_change`, `render_submit`.
 - Use helper reset tags instead of ad hoc truncation/setup in individual tests.
 - Use explicit `@tag timeout: ...` for genuinely long tests rather than sleeps.
+- Tag exclusions live in the `mix test.fast` alias (not `test_helper.exs`) and are locked by `test/hiraeth/mix_alias_contract_test.exs`; the sandbox runs in manual mode, so DataCase/ConnCase own their connections.
 
 ## ANTI-PATTERNS
 - Raw HTML string assertions for LiveView structure when a stable selector exists.
