@@ -20,6 +20,7 @@ artifacts/
 !/priv/static/covers/cache/.gitkeep
 /priv/source_snapshots/source-snapshots/
 /priv/plts/
+/priv/repo/structure.sql
 
 # Node assets if Phoenix generator creates asset tooling
 /assets/node_modules/
