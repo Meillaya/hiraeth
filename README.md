@@ -6,7 +6,7 @@ It is still browser-first: the stable v1 surface is the LiveView catalog, not a 
 
 ## What is in the app
 
-- Curated catalog for the approved indie publisher corpus, currently 7,013 deterministic source records across providers such as New Directions, Deep Vellum, Pushkin Press, and more.
+- Curated catalog for the approved indie publisher corpus, currently 8,776 deterministic source records across providers such as New Directions, Deep Vellum, Pushkin Press, and more.
 - Provenance-aware imports, cover attribution, source artifact reports, and gap states instead of fabricated metadata.
 - Local-cache-only public cover display from `/covers/cache/...`; unsafe or missing covers render typographic fallbacks.
 - Ash-backed ingestion control plane for provider sources, provider runs, source snapshots, record candidates, diffs, quarantine, replay, and ingestion events.
@@ -98,4 +98,4 @@ Start with:
 - `docs/production-readiness.md`
 - `docs/provenance-cover-policy.md`
 
-The repository includes CI in `.github/workflows/ci.yml`, environment examples in `.env.example`, and a private sidecar service configuration in `compose.yaml`. No public production deploy has been performed from this workspace; validate deployment networking, secrets, backups, and alerts in the target environment before launch.
+The repository includes CI in `.github/workflows/ci.yml`, environment examples in `.env.example`, and a private sidecar service configuration in `compose.yaml`. The public catalog is deployed to Railway at `https://hiraeth-web-production.up.railway.app` (Phoenix service + private Scrapling sidecar + managed Postgres). Validate deployment networking, secrets, backups, and alerts in the target environment before any further launch.
