@@ -19,9 +19,9 @@ Verification is tiered:
 
 - **Layer 0 — local blocking gate:** `mix gate` (wrapped by `make gate`/`make recheck`) is the ≤5-min blocking local preflight: compile with warnings-as-errors, unused-deps check, format check, strict Credo, and the fast ExUnit lane. It runs on every change in the developer loop.
 - **Layer 1 — parallel CI:** `.github/workflows/ci.yml` runs the `static` (format/Credo/Sobelow/hex.audit) and `test-fast` jobs in parallel on every PR and push to `main`, plus a lean devenv smoke job.
-- **Layer 2 — deep lane:** `.github/workflows/deep.yml` runs dialyzer, coverage, the full suite including assets, provenance audit, browser QA, ingestion drills, sidecar pytest, and the full devenv readiness graph on merge to `main`, nightly, and manual dispatch.
+- **Layer 2 — deep lane:** `.github/workflows/deep.yml` runs dialyzer, coverage, the full suite including assets, provenance audit, browser QA, ingestion drills, sidecar pytest, scripts tests, release image builds, and the full devenv readiness graph on merge to `main`, nightly, and manual dispatch.
 
-`mix gate` is not a substitute for the deep lane: the fast blocking gate deliberately omits sobelow/hex.audit (network-dependent, covered by the CI `static` job and the deep `ci` lane), dialyzer, coverage, assets, provenance, browser QA, ingestion drills, sidecar pytest, and the full devenv readiness graph. A release owner must run the deep lane before any production-ready claim.
+`mix gate` is not a substitute for the deep lane: the fast blocking gate deliberately omits sobelow/hex.audit (network-dependent, covered by the CI `static` job and the deep `ci` lane), dialyzer, coverage, assets, provenance, browser QA, ingestion drills, sidecar pytest, scripts tests, release image builds, and the full devenv readiness graph. A release owner must run the deep lane before any production-ready claim.
 
 Run the gates below on the final integrated worktree before making any production-ready claim:
 
@@ -41,7 +41,7 @@ The dialyzer PLT is built once and reused for fast re-runs. The local first buil
 
 ## Warm re-run protocol
 
-Repeated `make recheck` (an alias for `mix gate`) reuses the warm `_build` and the persisted dialyzer PLT, so independent re-verification is fast (~20s warm). `make recheck` is the fast independent-verification loop; the deep lane (deep.yml: dialyzer/coverage/full-suite/provenance/browser/drills/sidecar/devenv-full) still requires the full gates.
+Repeated `make recheck` (an alias for `mix gate`) reuses the warm `_build` and the persisted dialyzer PLT, so independent re-verification is fast (~20s warm). `make recheck` is the fast independent-verification loop; the deep lane (deep.yml: dialyzer/coverage/full-suite/provenance/browser/drills/sidecar/scripts-tests/release-build/devenv-full) still requires the full gates.
 
 ## Source documents and runbooks
 
@@ -58,6 +58,15 @@ Repeated `make recheck` (an alias for `mix gate`) reuses the warm `_build` and t
 | Browser QA | `make test-browser` or `scripts/browser_qa.sh` | `scripts/qa/browser/` |
 | Production ingestion drill | `bash scripts/qa/ingestion/production_ingestion_drill.sh` | test helper beside the shell script in `scripts/qa/ingestion/` |
 | Production ingestion adversarial drill | `bash scripts/qa/ingestion/production_ingestion_adversarial.sh` | sidecar private-host probe and ExUnit helper in `scripts/qa/ingestion/` |
+| Provider source backfill | `mix hiraeth.providers.backfill [--dry-run] [--json]` | `lib/mix/tasks/hiraeth.providers.backfill.ex` → `Hiraeth.Ingestion.ProviderBackfill` |
+| Provider ingestion | `mix hiraeth.ingest --provider <slug> [--dry-run] [--json] [--wait]` | `lib/mix/tasks/hiraeth.ingest.ex` → `Hiraeth.Ingestion.OperatorCLI` |
+| Cover cache | `mix hiraeth.cache_covers [--force]` | `lib/mix/tasks/hiraeth.cache_covers.ex` → `Hiraeth.Covers` |
+| Provenance audit | `mix hiraeth.audit_provenance [--seed] [--output-dir <dir>]` | `lib/mix/tasks/hiraeth.audit_provenance.ex` → `Hiraeth.ProvenanceAudit` |
+| Real-catalog source artifacts | `mix hiraeth.real_catalog.source_artifacts` | `lib/mix/tasks/hiraeth.real_catalog.source_artifacts.ex` → `Hiraeth.RealCatalog.SourceArtifacts` |
+| Real-catalog coverage report | `mix hiraeth.real_catalog.coverage_report` | `lib/mix/tasks/hiraeth.real_catalog.coverage_report.ex` → `Hiraeth.RealCatalog.CoverageReport` |
+| Scrape staging | `mix hiraeth.scrape --provider <slug>` | `lib/mix/tasks/hiraeth.scrape.ex` → sidecar + `Hiraeth.RealCatalog` |
+| Scrape review | `mix hiraeth.review_scrape --provider <slug>` | `lib/mix/tasks/hiraeth.review_scrape.ex` → `Hiraeth.RealCatalog` |
+| Scrape apply | `mix hiraeth.apply_scrape --provider <slug>` | `lib/mix/tasks/hiraeth.apply_scrape.ex` → `Hiraeth.RealCatalog.Importer` |
 | Catalog source maintenance | explicit scripts under `scripts/catalog/` | `generate_full_catalog.py`, `generate_full_catalog_deep_vellum.py`, and `extract_fitzcarraldo_catalog.py` |
 | Cleanup policy smoke | `make cleanup-policy` | `docs/cleanup-policy.md` and `scripts/qa/cover_cache_sandbox.sh` |
 | Full local QA bundle | `make verify` | Make targets and `scripts/verify_summary.sh` |
