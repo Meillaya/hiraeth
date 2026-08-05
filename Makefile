@@ -14,7 +14,7 @@ bootstrap-check:
 		echo "hiraeth bootstrap check"; \
 		echo "timestamp=$$(date -u +%Y-%m-%dT%H:%M:%SZ)"; \
 		echo "checking required bootstrap files"; \
-		for path in README.md LICENSE .gitignore mix.exs mix.lock config/config.exs compose.yaml .omo/plans/hiraeth-bootstrap.md AGENTS.md; do \
+		for path in README.md LICENSE .gitignore mix.exs mix.lock config/config.exs compose.yaml AGENTS.md; do \
 			if [[ ! -e "$$path" ]]; then \
 				echo "missing=$$path"; \
 				exit 1; \
@@ -144,8 +144,8 @@ qa-pack:
 	@mkdir -p $(QA_DIR)
 	@{ \
 		echo "qa pack summary"; \
-		find $(QA_DIR) .omo/evidence -type f ! -name 'qa-pack.tar.gz' | sort > $(QA_DIR)/qa-pack-manifest.txt; \
-		tar -czf $(QA_DIR)/qa-pack.tar.gz -T $(QA_DIR)/qa-pack-manifest.txt README.md docs/architecture.md docs/browser-qa.md docs/provenance-cover-policy.md .omo/plans/hiraeth-bootstrap.md; \
+		find $(QA_DIR) -type f ! -name 'qa-pack.tar.gz' | sort > $(QA_DIR)/qa-pack-manifest.txt; \
+		tar -czf $(QA_DIR)/qa-pack.tar.gz -T $(QA_DIR)/qa-pack-manifest.txt README.md docs/architecture.md docs/browser-qa.md docs/cleanup-policy.md docs/contracts.md docs/history/worklog-2026-06.md docs/production-operations.md docs/production-readiness.md docs/provenance-cover-policy.md; \
 		test -f $(QA_DIR)/qa-pack.tar.gz; \
 		test -s $(QA_DIR)/qa-pack.tar.gz; \
 		cat $(QA_DIR)/qa-pack-manifest.txt; \
