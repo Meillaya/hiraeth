@@ -96,10 +96,15 @@ COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/hiraeth ./
 
 # The cover cache is a runtime volume (sandboxed writes only). Create the
 # mount point so the app can write covers at runtime; the cache itself is
-# never baked into the image.
+# never baked into the image. In a release the app's priv/static lives under
+# lib/hiraeth-<vsn>/, so symlink that covers/cache to the volume mount point
+# to keep Plug.Static (from: :hiraeth) serving the volume-backed cache.
 RUN mkdir -p /app/priv/static/covers/cache \
   && touch /app/priv/static/covers/cache/.gitkeep \
-  && chown -R nobody:nogroup /app/priv/static/covers/cache
+  && chown -R nobody:nogroup /app/priv/static/covers/cache \
+  && for d in /app/lib/hiraeth-*/priv/static/covers; do \
+       rm -rf "$d/cache" && ln -s /app/priv/static/covers/cache "$d/cache"; \
+     done
 
 USER nobody
 
