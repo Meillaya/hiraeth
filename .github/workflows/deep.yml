@@ -432,6 +432,9 @@ jobs:
       - name: Run sidecar dev test gate
         run: uv run --extra dev pytest -q
 
+      - name: Run sidecar supply-chain audit
+        run: uv audit
+
   devenv-full:
     name: Nix/devenv full readiness graph (devenv test)
     runs-on: ubuntu-latest
