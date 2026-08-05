@@ -16,7 +16,14 @@ defmodule Hiraeth.MixProject do
       # Mix tasks live under lib/mix/tasks and call Mix API (Mix.shell/0,
       # Mix.Task.run/1, Mix.Task behaviour); :mix is not in dialyxir's default
       # PLT app set, so add it explicitly or dialyzer reports unknown_function.
-      dialyzer: [plt_add_apps: [:mix]]
+      dialyzer: [plt_add_apps: [:mix]],
+      # Explicit release config (standard Phoenix shape): build a self-contained
+      # release under _build/prod/rel/hiraeth with the runtime executable.
+      releases: [
+        hiraeth: [
+          include_executables: [:runtime]
+        ]
+      ]
     ]
   end
 
