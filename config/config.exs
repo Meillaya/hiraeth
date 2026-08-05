@@ -12,7 +12,6 @@ config :hiraeth,
   generators: [timestamp_type: :utc_datetime]
 
 config :hiraeth, :ash_domains, [
-  Hiraeth.Accounts,
   Hiraeth.Catalog,
   Hiraeth.Sources,
   Hiraeth.Covers,

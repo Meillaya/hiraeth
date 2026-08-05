@@ -1,5 +1,5 @@
 defmodule Hiraeth.Oban.SourceSnapshotReplayWorker do
-  @moduledoc "Admin-enqueued worker for retained source snapshot replay preparation."
+  @moduledoc "Operator-enqueued worker for retained source snapshot replay preparation."
 
   use Oban.Worker, queue: :audit
 
