@@ -7,7 +7,14 @@ defmodule HiraethWeb.Router do
     plug :fetch_live_flash
     plug :put_root_layout, html: {HiraethWeb.Layouts, :root}
     plug :protect_from_forgery
-    plug :put_secure_browser_headers
+    # Self-contained-page contract (DESIGN.md): no remote fonts/scripts/styles.
+    # style-src 'unsafe-inline' is required for LiveView/Tailwind inline styles;
+    # connect-src 'self' covers the same-origin LiveView websocket.
+    plug :put_secure_browser_headers,
+         %{
+           "content-security-policy" =>
+             "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; object-src 'none'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
+         }
   end
 
   pipeline :ops do

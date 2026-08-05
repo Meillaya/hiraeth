@@ -109,6 +109,15 @@ if [[ "${ready}" != "1" ]]; then
 fi
 log "server_ready=pass"
 
+log "checking content-security-policy header on /browse"
+csp_headers="$(curl -sS -D - -o /dev/null "${BASE_URL}/browse")"
+if grep -qi '^content-security-policy:' <<< "${csp_headers}"; then
+  log "content_security_policy=pass route=/browse"
+else
+  log "content_security_policy=fail route=/browse"
+  exit 1
+fi
+
 measure_timing() {
   local route="$1"
   local label="$2"
