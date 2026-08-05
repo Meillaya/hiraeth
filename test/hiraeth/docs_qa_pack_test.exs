@@ -59,7 +59,7 @@ defmodule Hiraeth.DocsQaPackTest do
     assert operations =~
              "production orchestration remains Docker/Compose or future-runtime scoped"
 
-    assert readiness =~ "Production runtime decisions remain unresolved"
+    assert readiness =~ "Production runtime decisions are resolved for Railway"
 
     for decision <- [
           "orchestration target",
