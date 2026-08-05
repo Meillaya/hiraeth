@@ -304,7 +304,9 @@ name = "hiraeth-sidecar"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "apify-fingerprint-datapoints" },
     { name = "fastapi" },
+    { name = "httpx" },
     { name = "pydantic" },
     { name = "scrapling", extra = ["fetchers"] },
     { name = "uvicorn", extra = ["standard"] },
@@ -312,7 +314,6 @@ dependencies = [
 
 [package.optional-dependencies]
 dev = [
-    { name = "httpx" },
     { name = "pyright" },
     { name = "pytest" },
     { name = "ruff" },
@@ -320,8 +321,9 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "apify-fingerprint-datapoints", specifier = ">=0.13.0,<0.14.0" },
     { name = "fastapi", specifier = ">=0.115.0" },
-    { name = "httpx", marker = "extra == 'dev'", specifier = ">=0.27.0" },
+    { name = "httpx", specifier = ">=0.27.0" },
     { name = "pydantic", specifier = ">=2.9.0" },
     { name = "pyright", marker = "extra == 'dev'", specifier = ">=1.1.390" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3.0" },

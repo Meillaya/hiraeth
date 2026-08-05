@@ -8,12 +8,16 @@ dependencies = [
     "uvicorn[standard]>=0.32.0",
     "scrapling[fetchers]>=0.3.0",
     "pydantic>=2.9.0",
+    "httpx>=0.27.0",
+    # apify_fingerprint_datapoints 0.14.0 dropped chrome 148/149 from its
+    # browser data, so scrapling's header generation fails at import time
+    # ("No headers based on this input can be generated"). Pin below 0.14.0.
+    "apify_fingerprint_datapoints>=0.13.0,<0.14.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.3.0",
-    "httpx>=0.27.0",
     "ruff>=0.6.0",
     "pyright>=1.1.390",
 ]
