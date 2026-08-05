@@ -432,6 +432,15 @@ jobs:
       - name: Run sidecar dev test gate
         run: uv run --extra dev pytest -q
 
+      - name: Run sidecar ruff lint
+        run: uv run ruff check .
+
+      - name: Run sidecar ruff format check
+        run: uv run ruff format --check .
+
+      - name: Run sidecar pyright type check
+        run: uv run pyright
+
       - name: Run sidecar supply-chain audit
         run: uv audit
 
