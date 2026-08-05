@@ -1,0 +1,10 @@
+[project]
+name = "hiraeth-scripts"
+version = "0.1.0"
+description = "Root Python tooling for Hiraeth catalog generator scripts and their tests"
+requires-python = ">=3.11"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+]

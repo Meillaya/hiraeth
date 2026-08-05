@@ -435,6 +435,32 @@ jobs:
       - name: Run sidecar supply-chain audit
         run: uv audit
 
+  scripts-tests:
+    name: Scripts tests (tests/scripts)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    # Isolated Python tests for the catalog generator scripts under
+    # tests/scripts, driven by the root pyproject.toml (dev group = pytest).
+    # No Postgres needed; the generator scripts are stdlib-only.
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: pyproject.toml
+
+      - name: Run scripts test gate
+        run: uv run --project . pytest tests/scripts -q
+
   devenv-full:
     name: Nix/devenv full readiness graph (devenv test)
     runs-on: ubuntu-latest
