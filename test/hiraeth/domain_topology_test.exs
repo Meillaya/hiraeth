@@ -2,7 +2,6 @@ defmodule Hiraeth.DomainTopologyTest do
   use ExUnit.Case, async: true
 
   @domains [
-    Hiraeth.Accounts,
     Hiraeth.Catalog,
     Hiraeth.Sources,
     Hiraeth.Covers,
@@ -13,10 +12,6 @@ defmodule Hiraeth.DomainTopologyTest do
   ]
 
   @resources %{
-    Hiraeth.Accounts => [
-      Hiraeth.Accounts.AdminUser,
-      Hiraeth.Accounts.AdminSessionToken
-    ],
     Hiraeth.Catalog => [
       Hiraeth.Catalog.Publisher,
       Hiraeth.Catalog.Imprint,

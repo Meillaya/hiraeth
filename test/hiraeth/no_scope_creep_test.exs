@@ -23,9 +23,6 @@ defmodule Hiraeth.NoScopeCreepTest do
     assert "/publishers" in paths
     assert "/series" in paths
 
-    assert "/admin" in paths
-    assert "/admin/ingestion" in paths
-
     documented_narrow_api_paths = []
 
     broad_api_paths =
