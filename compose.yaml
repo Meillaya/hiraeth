@@ -33,8 +33,9 @@ volumes:
   scrapling_cache:
 
 # Template Phoenix service (uncomment to run app in Docker):
+# Builds from the committed root Dockerfile (multi-stage Elixir release).
 #   phoenix:
-#     build: { context: . }
+#     build: { context: ., dockerfile: Dockerfile }
 #     command: mix phx.server
 #     ports: ["4000:4000"]
 #     environment:
