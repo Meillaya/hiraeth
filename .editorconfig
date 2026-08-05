@@ -1,0 +1,32 @@
+# EditorConfig: cross-language hygiene for the Hiraeth monorepo.
+# https://editorconfig.org
+root = true
+
+# Base: 2-space indentation for the majority of the codebase.
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# Elixir / HEEx templates: 2-space (Phoenix convention).
+[*.{ex,exs,heex}]
+indent_size = 2
+
+# Shell and JavaScript modules: 2-space.
+[*.{sh,mjs}]
+indent_size = 2
+
+# YAML: 2-space.
+[*.{yml,yaml}]
+indent_size = 2
+
+# JSON: 2-space.
+[*.json]
+indent_size = 2
+
+# Python: 4-space per PEP 8.
+[*.py]
+indent_size = 4
