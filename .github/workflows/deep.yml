@@ -486,3 +486,22 @@ jobs:
 
       - name: Run full devenv readiness graph
         run: nix run nixpkgs#devenv -- test
+
+  release-build:
+    name: Release image builds (no push)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    # Builds both production images (root Phoenix release + private sidecar)
+    # to gate that the Dockerfiles stay buildable. Heavy, so it lives in the
+    # deep lane, not the fast PR path (ci.yml). Images are tagged ci-test and
+    # never pushed; no registry credentials are used.
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build root image
+        run: docker build -t hiraeth:ci-test .
+
+      - name: Build sidecar image
+        run: docker build -t hiraeth-sidecar:ci-test sidecar/
