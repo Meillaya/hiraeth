@@ -6,7 +6,7 @@ BOOTSTRAP_ARTIFACT := $(QA_DIR)/bootstrap/bootstrap-check.txt
 VERIFY_SUMMARY := $(QA_DIR)/verify/summary.json
 POSTGRES_READY := scripts/dev/ensure_postgres.sh start
 
-.PHONY: bootstrap-check verify precommit-fast test-fast test-full ci test-elixir test-ui test-ingest test-normalize test-covers audit-provenance test-browser verify-summary qa-pack cleanup-policy gate recheck plt gates\:measure
+.PHONY: bootstrap-check verify precommit-fast test-fast test-full ci test-elixir test-ui test-ingest test-normalize test-covers audit-provenance test-browser verify-summary qa-pack cleanup-policy gate recheck plt gates\:measure db-backup db-restore-drill
 
 bootstrap-check:
 	@mkdir -p $(dir $(BOOTSTRAP_ARTIFACT))
@@ -49,6 +49,14 @@ cleanup-policy:
 	@echo "Cleanup policy: never delete, clean, modify, or regenerate priv/static/covers/cache/*"
 	@test -f docs/cleanup-policy.md
 	@bash -n scripts/qa/cover_cache_sandbox.sh
+
+# Logical backup of the devenv/local database (custom format, non-empty check).
+db-backup:
+	@bash scripts/ops/db_backup.sh
+
+# Restore drill into a NEW hiraeth_restore database (never the live DB).
+db-restore-drill:
+	@bash scripts/ops/db_restore_drill.sh
 
 test-fast:
 	mix test.fast
