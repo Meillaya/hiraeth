@@ -8,6 +8,8 @@ defmodule HiraethWeb.Endpoint do
     store: :cookie,
     key: "_hiraeth_key",
     signing_salt: "jSFG9qif",
+    encryption_salt: "6c8725d9413d2d6927c5dec6c9f9a7bf",
+    secure: Application.compile_env(:hiraeth, :session_cookie_secure, false),
     same_site: "Lax"
   ]
 
@@ -36,9 +38,13 @@ defmodule HiraethWeb.Endpoint do
     plug Phoenix.Ecto.CheckRepoStatus, otp_app: :hiraeth
   end
 
-  plug Phoenix.LiveDashboard.RequestLogger,
-    param_key: "request_logger",
-    cookie_key: "request_logger"
+  # RequestLogger is a dev/test debugging aid; it is gated out of prod
+  # (config/prod.exs sets :disable_request_logger to true).
+  unless Application.compile_env(:hiraeth, :disable_request_logger, false) do
+    plug Phoenix.LiveDashboard.RequestLogger,
+      param_key: "request_logger",
+      cookie_key: "request_logger"
+  end
 
   plug Plug.RequestId
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]

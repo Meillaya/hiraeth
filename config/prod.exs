@@ -19,6 +19,11 @@ config :hiraeth, HiraethWeb.Endpoint,
     ]
   ]
 
+# Session cookie hardening: mark the cookie Secure (HTTPS-only) in prod and
+# gate the LiveDashboard RequestLogger debugging plug out of prod.
+config :hiraeth, :session_cookie_secure, true
+config :hiraeth, :disable_request_logger, true
+
 # Configure Swoosh API Client
 config :swoosh, api_client: Swoosh.ApiClient.Req
 
