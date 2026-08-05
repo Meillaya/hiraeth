@@ -14,10 +14,14 @@ config :hiraeth, HiraethWeb.Endpoint,
   force_ssl: [
     rewrite_on: [:x_forwarded_proto],
     exclude: [
-      # paths: ["/health"],
+      paths: ["/health"],
       hosts: ["localhost", "127.0.0.1"]
     ]
   ]
+
+# Readiness: the /ready probe must require the private sidecar to be healthy
+# before the app reports ready in production.
+config :hiraeth, :readiness, require_sidecar: true
 
 # Session cookie hardening: mark the cookie Secure (HTTPS-only) in prod and
 # gate the LiveDashboard RequestLogger debugging plug out of prod.
