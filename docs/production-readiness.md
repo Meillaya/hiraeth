@@ -5,7 +5,7 @@ This packet is the current production-readiness checklist for Hiraeth. It is a r
 Scope guardrails preserved for Hiraeth v1:
 
 - The Docker-to-devenv work is a bounded partial migration: devenv is the preferred local/dev/test and CI-build path, while Docker remains the current production runtime and service-network boundary reference plus a legacy local fallback. Do not claim production is Nix/devenv-only.
-- Production runtime decisions remain unresolved: orchestration target, sidecar private network, backup/restore tooling, memory limits, logs/observability, and rollout/rollback require a future production-runtime handoff before replacing Docker/Compose or declaring production Docker-free.
+- Production runtime decisions are resolved for Railway (see `docs/production-operations.md`): orchestration target = Railway managed platform, sidecar private network = Railway private networking, backup/restore tooling = `scripts/ops` drill scripts plus Railway managed backups, memory limits = Railway replica limits, logs/observability = Railway logs plus `logger_json`, and rollout/rollback = Railway deploys. Docker remains the current production runtime and service-network boundary reference; do not claim production is Nix/devenv-only or Docker-free.
 - LiveView browser-first public product; no React, no Vite SPA, and no separate frontend application.
 - No broad public JSON API in v1. Narrow `/health` and `/ready` operations endpoints are operator contracts, not catalog APIs.
 - Scraping remains Scrapling-only through the private sidecar; no custom crawler framework is introduced.
