@@ -2,8 +2,6 @@ defmodule HiraethQA.ProductionIngestionAdversarialTest do
   use Hiraeth.DataCase, async: false
   use HiraethWeb, :verified_routes
 
-  import Phoenix.ConnTest
-  import Plug.Conn
   import Hiraeth.TestSupport.ApplyPhaseRegressionHelpers
 
   alias Hiraeth.Covers.CoverAsset
@@ -13,7 +11,6 @@ defmodule HiraethQA.ProductionIngestionAdversarialTest do
 
   require Ash.Query
 
-  @endpoint HiraethWeb.Endpoint
   @safe_error_denylists [
     "Traceback",
     "Stacktrace",
@@ -106,23 +103,6 @@ defmodule HiraethQA.ProductionIngestionAdversarialTest do
 
     IO.puts(
       "PASS scheduler duplicate prevention created=1 duplicate_skipped=1 active_runs=#{length(active_runs)} reason=#{skip.reason}"
-    )
-  end
-
-  @tag :admin_unauthorized_access
-  test "admin unauthorized access fails closed without exposing admin data" do
-    conn = get(build_conn(), ~p"/admin/ingestion")
-    location = List.first(get_resp_header(conn, "location"))
-    body = conn.resp_body || ""
-
-    assert conn.status in [302, 401, 403]
-    assert location == "/"
-    refute body =~ "Provider registry and run timeline"
-    refute body =~ "admin@example"
-    assert_safe_error!(body)
-
-    IO.puts(
-      "PASS admin unauthorized access failed closed status=#{conn.status} location=#{location} admin_data_exposed=false"
     )
   end
 

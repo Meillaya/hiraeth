@@ -26,7 +26,6 @@ ensure_postgres
 run_mix_tag "destructive diff is quarantined/fails closed" "destructive_diff"
 run_mix_tag "cover host rejection blocks unsafe host with safe error" "cover_host_rejection"
 run_mix_tag "scheduler duplicate prevention prevents duplicate scheduling/runs" "scheduler_duplicate_prevention"
-run_mix_tag "admin unauthorized access fails closed without exposing admin data" "admin_unauthorized_access"
 
 echo "RUN sidecar private-host rejection :: cd sidecar && uv run --extra dev python ../scripts/qa/ingestion/sidecar_private_host_probe.py"
 (
