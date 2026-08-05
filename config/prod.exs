@@ -28,5 +28,9 @@ config :swoosh, local: false
 # Do not print debug messages in production
 config :logger, level: :info
 
+# JSON logs in prod; :default_handler formatter overrides the legacy :default_formatter (dev/test keep text).
+config :logger, :default_handler,
+  formatter: {LoggerJSON.Formatters.Basic, metadata: [:request_id]}
+
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.

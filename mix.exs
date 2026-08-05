@@ -82,6 +82,7 @@ defmodule Hiraeth.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 1.0"},
       {:jason, "~> 1.2"},
+      {:logger_json, "~> 7.0", only: [:prod]},
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
       {:oban, "~> 2.17"},

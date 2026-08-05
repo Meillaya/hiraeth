@@ -16,7 +16,7 @@ import Config
 #
 # Alternatively, you can use `mix phx.gen.release` to generate a `bin/server`
 # script that automatically sets the env var above.
-if System.get_env("PHX_SERVER") do
+if System.get_env("PHX_SERVER") == "true" do
   config :hiraeth, HiraethWeb.Endpoint, server: true
 end
 
@@ -27,6 +27,15 @@ config :hiraeth, :scrapling_sidecar,
   base_url: System.get_env("SCRAPLING_SIDECAR_URL") || "http://localhost:8000"
 
 if config_env() == :prod do
+  scrapling_sidecar_url =
+    System.get_env("SCRAPLING_SIDECAR_URL") ||
+      raise """
+      environment variable SCRAPLING_SIDECAR_URL is missing.
+      For example: http://sidecar:8000
+      """
+
+  config :hiraeth, :scrapling_sidecar, base_url: scrapling_sidecar_url
+
   database_url =
     System.get_env("DATABASE_URL") ||
       raise """
@@ -56,7 +65,19 @@ if config_env() == :prod do
       You can generate one by calling: mix phx.gen.secret
       """
 
-  host = System.get_env("PHX_HOST") || "example.com"
+  host =
+    System.get_env("PHX_HOST") ||
+      raise """
+      environment variable PHX_HOST is missing.
+      For example: example.com
+      """
+
+  live_view_signing_salt =
+    System.get_env("LIVE_VIEW_SIGNING_SALT") ||
+      raise """
+      environment variable LIVE_VIEW_SIGNING_SALT is missing.
+      You can generate one by calling: mix phx.gen.secret
+      """
 
   config :hiraeth, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
@@ -64,12 +85,27 @@ if config_env() == :prod do
     url: [host: host, port: 443, scheme: "https"],
     http: [
       # Enable IPv6 and bind on all interfaces.
-      # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
+      # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network access only.
       # See the documentation on https://bandit.hexdocs.pm/Bandit.html#t:options/0
       # for details about using IPv6 vs IPv4 and loopback vs public addresses.
       ip: {0, 0, 0, 0, 0, 0, 0, 0}
     ],
-    secret_key_base: secret_key_base
+    secret_key_base: secret_key_base,
+    live_view: [signing_salt: live_view_signing_salt]
+
+  log_level =
+    case System.get_env("LOG_LEVEL") do
+      nil ->
+        :info
+
+      level when level in ~w(debug info warning error) ->
+        String.to_atom(level)
+
+      other ->
+        raise "invalid LOG_LEVEL #{inspect(other)}; expected one of: debug, info, warning, error"
+    end
+
+  Logger.configure(level: log_level)
 
   # ## SSL Support
   #
