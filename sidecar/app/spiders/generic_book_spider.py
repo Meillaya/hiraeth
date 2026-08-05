@@ -27,7 +27,11 @@ class GenericBookSpider(BaseSpider):
         publication_date_sel = selectors.get("publication_date", ".date::text")
         source_uri_sel = selectors.get("source_uri")
 
-        items = response.xpath(item_selector) if item_selector.startswith("//") else response.css(item_selector)
+        items = (
+            response.xpath(item_selector)
+            if item_selector.startswith("//")
+            else response.css(item_selector)
+        )
         for item in items:
             title = self._extract(item, title_sel)
             if not title:
@@ -38,7 +42,10 @@ class GenericBookSpider(BaseSpider):
             cover_url = self._absolute_url(response.url, self._extract(item, cover_sel))
             description = self._extract(item, description_sel)
             publication_date = self._extract(item, publication_date_sel)
-            source_uri = self._absolute_url(response.url, self._extract(item, source_uri_sel)) or response.url
+            source_uri = (
+                self._absolute_url(response.url, self._extract(item, source_uri_sel))
+                or response.url
+            )
 
             contributors = []
             if author:
@@ -95,7 +102,11 @@ class GenericBookSpider(BaseSpider):
         """
         if not selector:
             return None
-        result = item.css(selector).get() if not selector.startswith("//") else item.xpath(selector).get()
+        result = (
+            item.css(selector).get()
+            if not selector.startswith("//")
+            else item.xpath(selector).get()
+        )
         return result.strip() if result else None
 
     @staticmethod

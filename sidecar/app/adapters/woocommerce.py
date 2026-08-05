@@ -5,7 +5,6 @@ from typing import Any
 import anyio
 import httpx
 
-
 _ISBN13_PATTERN = re.compile(r"(?<!\d)(97[89](?:[\s-]?\d){10})(?!\d)")
 _TAG_PATTERN = re.compile(r"<[^>]+>")
 _GENRE_OR_REGION_TAGS = {
@@ -35,7 +34,9 @@ def _valid_isbn13(value: str) -> bool:
     if len(digits) != 13 or not digits.startswith(("978", "979")):
         return False
 
-    checksum = sum((1 if index % 2 == 0 else 3) * int(digit) for index, digit in enumerate(digits[:12]))
+    checksum = sum(
+        (1 if index % 2 == 0 else 3) * int(digit) for index, digit in enumerate(digits[:12])
+    )
     check_digit = (10 - checksum % 10) % 10
     return check_digit == int(digits[-1])
 
@@ -117,7 +118,9 @@ def _contributors_from_description(description: str | None) -> list[dict[str, st
     if not description:
         return []
 
-    possessive_match = re.search(r"\b([A-ZÀ-Ž][\wÀ-ž.-]+(?:\s+[A-ZÀ-Ž][\wÀ-ž.-]+){1,3})[’']s\b", description)
+    possessive_match = re.search(
+        r"\b([A-ZÀ-Ž][\wÀ-ž.-]+(?:\s+[A-ZÀ-Ž][\wÀ-ž.-]+){1,3})[’']s\b", description
+    )
     if possessive_match:
         return [{"name": possessive_match.group(1), "role": "author"}]
 
@@ -144,25 +147,83 @@ def _contributor_role(name: str, description: str | None) -> str:
         return "author"
 
     escaped = re.escape(name)
-    if re.search(rf"\btranslated\b[^.]*\bby\s+{escaped}\b|\b{escaped}\b[^.]*\btranslated\b", description, re.IGNORECASE):
+    if re.search(
+        rf"\btranslated\b[^.]*\bby\s+{escaped}\b|\b{escaped}\b[^.]*\btranslated\b",
+        description,
+        re.IGNORECASE,
+    ):
         return "translator"
 
     return "author"
 
 
 def _build_field_sources(provider: str, source_uri: str) -> dict[str, Any]:
-    basis = "Operator-authorized public catalog refresh from official publisher pages/APIs; factual bibliographic metadata, official product descriptions, official cover URLs, purchase links, and source provenance preserved for each field."
+    basis = (
+        "Operator-authorized public catalog refresh from official publisher pages/APIs; "
+        "factual bibliographic metadata, official product descriptions, official cover URLs, "
+        "purchase links, and source provenance preserved for each field."
+    )
     return {
-        "title": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "contributors": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "publisher": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "format": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "published_on": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "isbn_13": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "cover": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "description": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "storefront_url": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "subjects": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
+        "title": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "contributors": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "publisher": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "format": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "published_on": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "isbn_13": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "cover": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "description": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "storefront_url": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "subjects": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
     }
 
 
@@ -190,7 +251,9 @@ def _displayed_fields(
     return fields
 
 
-def _product_to_record(product: dict[str, Any], provider: str, endpoint: str, publisher_name: str | None = None) -> dict[str, Any]:
+def _product_to_record(
+    product: dict[str, Any], provider: str, endpoint: str, publisher_name: str | None = None
+) -> dict[str, Any]:
     permalink = product.get("permalink", "")
     source_uri = permalink if permalink else f"{endpoint}/product/{product.get('id', '')}"
     product_id = product.get("id", "")
@@ -199,7 +262,9 @@ def _product_to_record(product: dict[str, Any], provider: str, endpoint: str, pu
     isbn = _isbn_from_sku(sku) or _isbn_from_tags(tags)
     source_sku = isbn or sku
     title = product.get("name", "")
-    published_on = _published_on_from_product(product) or product.get("date_created", "")[:10] or None
+    published_on = (
+        _published_on_from_product(product) or product.get("date_created", "")[:10] or None
+    )
     images = product.get("images", [])
     cover_url = images[0].get("src", "") if images else ""
     short_description = _strip_html(product.get("short_description", ""))
@@ -241,7 +306,10 @@ def _product_to_record(product: dict[str, Any], provider: str, endpoint: str, pu
         ),
         "curation": {
             "status": "approved",
-            "notes": "Operator-authorized full-catalog refresh from public source; generated deterministically with field provenance.",
+            "notes": (
+                "Operator-authorized full-catalog refresh from public source; generated "
+                "deterministically with field provenance."
+            ),
         },
         "storefront_url": source_uri,
         "field_sources": _build_field_sources(provider, source_uri),
@@ -249,7 +317,9 @@ def _product_to_record(product: dict[str, Any], provider: str, endpoint: str, pu
             "source_url": cover_url,
             "provider": provider,
             "rights_basis": "local_cache_permitted",
-            "attribution_text": f"Cover via {publisher} official source" if publisher else "Cover via official source",
+            "attribution_text": f"Cover via {publisher} official source"
+            if publisher
+            else "Cover via official source",
             "attribution_url": source_uri,
             "cache_policy": "cache_allowed",
         },
@@ -260,7 +330,9 @@ def _product_to_record(product: dict[str, Any], provider: str, endpoint: str, pu
         record["missing_fields"] = {"isbn_13": "not present in source record"}
 
     if tags:
-        record["work"]["subjects"] = [t.get("name", "") if isinstance(t, dict) else str(t) for t in tags]
+        record["work"]["subjects"] = [
+            t.get("name", "") if isinstance(t, dict) else str(t) for t in tags
+        ]
 
     return record
 

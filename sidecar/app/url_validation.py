@@ -133,6 +133,4 @@ def _parsed_ip_address(
 
 
 def _could_be_legacy_ipv4(host: str) -> bool:
-    return host != "" and all(
-        character in _NUMERIC_IPV4_HOST_CHARS for character in host
-    )
+    return host != "" and all(character in _NUMERIC_IPV4_HOST_CHARS for character in host)

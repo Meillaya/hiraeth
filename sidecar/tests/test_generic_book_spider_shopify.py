@@ -48,5 +48,10 @@ def test_shopify_collection_cards_resolve_item_urls():
     assert record["work"]["title"] == "Yñiga"
     assert record["source_uri"] == "https://coffeehousepress.org/products/yniga"
     assert record["storefront_url"] == "https://coffeehousepress.org/products/yniga"
-    assert record["field_sources"]["title"]["source_uri"] == "https://coffeehousepress.org/products/yniga"
-    assert record["cover"]["source_url"] == "https://coffeehousepress.org/cdn/shop/files/Yniga.jpg?v=1"
+    assert (
+        record["field_sources"]["title"]["source_uri"]
+        == "https://coffeehousepress.org/products/yniga"
+    )
+    assert (
+        record["cover"]["source_url"] == "https://coffeehousepress.org/cdn/shop/files/Yniga.jpg?v=1"
+    )

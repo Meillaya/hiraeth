@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import health, fetch, scrape
+from app.routers import fetch, health, scrape
 
 CORS_ORIGINS_ENV: Final = "HIRAETH_SIDECAR_CORS_ORIGINS"
 
@@ -33,9 +33,7 @@ def _raise_if_forbidden_origin(origin: str) -> None:
     parsed = urlparse(origin)
 
     if parsed.scheme not in {"http", "https"} or parsed.netloc == "":
-        raise CorsConfigurationError(
-            f"CORS origin must include http(s) scheme and host: {origin}"
-        )
+        raise CorsConfigurationError(f"CORS origin must include http(s) scheme and host: {origin}")
 
     if parsed.username is not None or parsed.password is not None:
         raise CorsConfigurationError(f"CORS origin must not include userinfo: {origin}")

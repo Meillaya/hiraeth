@@ -39,7 +39,9 @@ class MockAsyncClient:
         return MockResponse(self._pages.pop(0))
 
 
-def _run_woocommerce_fetch(products: list[dict[str, Any]], *, publisher_name: str | None = None) -> list[dict[str, Any]]:
+def _run_woocommerce_fetch(
+    products: list[dict[str, Any]], *, publisher_name: str | None = None
+) -> list[dict[str, Any]]:
     client = MockAsyncClient([products])
     config: dict[str, Any] = {
         "provider": "sandorf_passage_official_store",
@@ -93,7 +95,7 @@ def test_fetch_woocommerce_extracts_isbn13_from_sandorf_numeric_tag_when_sku_mis
     ]
 
 
-def test_fetch_woocommerce_preserves_two_lines_source_uri_for_detail_enrichment_when_sku_missing() -> None:
+def test_fetch_woocommerce_preserves_two_lines_source_uri_when_sku_missing() -> None:
     # Given: Two Lines-style WooCommerce data with no SKU and no ISBN in product tags.
     products = [
         {

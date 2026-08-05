@@ -59,7 +59,9 @@ def _products_from_shopify_events(html: str, base_url: str) -> list[ProductCard]
     return products
 
 
-def _products_from_event_payload(payload: str, base_url: str, seen_handles: set[str]) -> list[ProductCard]:
+def _products_from_event_payload(
+    payload: str, base_url: str, seen_handles: set[str]
+) -> list[ProductCard]:
     try:
         decoded_payload = json.loads(f'"{payload}"')
         events = json.loads(decoded_payload)
@@ -94,7 +96,9 @@ def _variants_from_event(event: Any) -> list[JsonDict]:
     return [variant for variant in variants if isinstance(variant, dict)]
 
 
-def _product_from_variant(variant: JsonDict, base_url: str, seen_handles: set[str]) -> ProductCard | None:
+def _product_from_variant(
+    variant: JsonDict, base_url: str, seen_handles: set[str]
+) -> ProductCard | None:
     product = variant.get("product")
     if not isinstance(product, dict):
         return None
@@ -110,7 +114,9 @@ def _product_from_variant(variant: JsonDict, base_url: str, seen_handles: set[st
         return None
 
     seen_handles.add(handle)
-    return ProductCard(title=title, vendor=vendor, handle=handle, cover_url=_image_from_variant(variant, base_url))
+    return ProductCard(
+        title=title, vendor=vendor, handle=handle, cover_url=_image_from_variant(variant, base_url)
+    )
 
 
 def _image_from_variant(variant: JsonDict, base_url: str) -> str | None:
@@ -133,19 +139,33 @@ def _products_from_sparq_cards(html: str, base_url: str) -> list[ProductCard]:
 
 
 def _product_from_segment(segment: str, base_url: str) -> ProductCard | None:
-    title = _text_for_class(segment, "sparq-item-title") or _text_for_class(segment, "product-title")
+    title = _text_for_class(segment, "sparq-item-title") or _text_for_class(
+        segment, "product-title"
+    )
     vendor = _text_for_class(segment, "vendor-title") or _text_for_class(segment, "vendor")
     handle = _attr(segment, "data-handle") or _handle_from_href(_attr(segment, "href"))
-    return ProductCard(title, vendor, handle, _first_image_url(segment, base_url)) if title and vendor and handle else None
+    return (
+        ProductCard(title, vendor, handle, _first_image_url(segment, base_url))
+        if title and vendor and handle
+        else None
+    )
 
 
 def _text_for_class(html: str, class_name: str) -> str | None:
-    match = re.search(rf"<[^>]*class=['\"][^'\"]*{re.escape(class_name)}[^'\"]*['\"][^>]*>(.*?)</[^>]+>", html, re.DOTALL)
+    match = re.search(
+        rf"<[^>]*class=['\"][^'\"]*{re.escape(class_name)}[^'\"]*['\"][^>]*>(.*?)</[^>]+>",
+        html,
+        re.DOTALL,
+    )
     return _clean_text(_strip_tags(match.group(1))) if match else None
 
 
 def _description_text(html: str) -> str | None:
-    match = re.search(r"<[^>]*class=['\"][^'\"]*product-single__description[^'\"]*rte[^'\"]*['\"][^>]*>(.*?)</div>", html, re.DOTALL)
+    match = re.search(
+        r"<[^>]*class=['\"][^'\"]*product-single__description[^'\"]*rte[^'\"]*['\"][^>]*>(.*?)</div>",
+        html,
+        re.DOTALL,
+    )
     return _clean_text(_strip_tags(match.group(1))) if match else None
 
 
@@ -163,7 +183,9 @@ def _normalize_image_url(url: str) -> str:
     parsed = urlparse(url)
     if parsed.netloc == "store.deepvellum.org" and parsed.path.startswith("/cdn/shop/"):
         path = parsed.path.removeprefix("/cdn/shop/")
-        return parsed._replace(netloc="cdn.shopify.com", path=f"{_SHOPIFY_FILES_PREFIX}{path}").geturl()
+        return parsed._replace(
+            netloc="cdn.shopify.com", path=f"{_SHOPIFY_FILES_PREFIX}{path}"
+        ).geturl()
     return url
 
 

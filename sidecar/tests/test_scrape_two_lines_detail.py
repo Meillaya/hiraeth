@@ -20,7 +20,11 @@ def _load_fixture(name: str) -> str:
 def test_scrape_detail_endpoint_returns_two_lines_enrichment(monkeypatch) -> None:
     # Given: an allowlisted Two Lines product detail URL and deterministic detail HTML.
     async def fake_fetch_async(url: str, **_kwargs):
-        return type("FakeResponse", (), {"url": url, "text": _load_fixture("two_lines_detail_lion_cross_point.html")})()
+        return type(
+            "FakeResponse",
+            (),
+            {"url": url, "text": _load_fixture("two_lines_detail_lion_cross_point.html")},
+        )()
 
     monkeypatch.setattr(StealthyFetcher, "fetch_async", fake_fetch_async)
 
@@ -41,7 +45,10 @@ def test_scrape_detail_endpoint_returns_two_lines_enrichment(monkeypatch) -> Non
     assert data["contributors"] == [{"name": "Angus Turvill", "role": "translator"}]
     assert data["isbn_13"] == "9781931883702"
     assert data["published_on"] == "2018-03-13"
-    assert data["cover"]["source_url"] == "https://www.twolinespress.com/wp-content/uploads/2018/03/lion-cross-point.jpg"
+    assert (
+        data["cover"]["source_url"]
+        == "https://www.twolinespress.com/wp-content/uploads/2018/03/lion-cross-point.jpg"
+    )
     assert "haunting coming-of-age" in data["description"]
 
 

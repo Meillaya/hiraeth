@@ -124,7 +124,6 @@ class TestDeepVellumDetailScrapeRouter:
         assert response.status_code == 422
         assert response.json()["detail"]["code"] == "invalid_host"
         assert (
-            response.json()["detail"]["message"]
-            == "Detail URL must target a Deep Vellum product"
+            response.json()["detail"]["message"] == "Detail URL must target a Deep Vellum product"
         )
         fetch_async.assert_not_awaited()

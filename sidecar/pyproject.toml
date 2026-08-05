@@ -14,8 +14,26 @@ dependencies = [
 dev = [
     "pytest>=8.3.0",
     "httpx>=0.27.0",
+    "ruff>=0.6.0",
 ]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+# E/F/W: pycodestyle + pyflakes core correctness
+# I: import sorting (isort)
+# UP: pyupgrade modernizations for py311
+# B: flake8-bugbear common bug patterns
+select = ["E", "F", "W", "I", "UP", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+# E501: literal HTML fixture lines inside triple-quoted strings; wrapping would
+# alter the exact fixture content the contract tests assert on.
+"tests/test_astra_house_spider.py" = ["E501"]
+"tests/test_fetch.py" = ["E501"]

@@ -11,9 +11,7 @@ client = TestClient(app)
 
 
 def _mock_httpx_client(
-    responses: list[
-        tuple[int, dict[str, Any] | list[Any] | str | bytes, dict[str, str]]
-    ],
+    responses: list[tuple[int, dict[str, Any] | list[Any] | str | bytes, dict[str, str]]],
 ):
     """Return a patch target that yields an AsyncClient mock.
 
@@ -303,9 +301,7 @@ def test_fetch_shopify_does_not_treat_incidental_by_phrase_as_author():
 
     assert response.status_code == 200
     record = response.json()["records"][0]
-    assert record["contributors"] == [
-        {"name": "Guillaume Apollinaire", "role": "author"}
-    ]
+    assert record["contributors"] == [{"name": "Guillaume Apollinaire", "role": "author"}]
     assert len(record["contributors"][0]["name"]) < 80
 
 
@@ -559,9 +555,7 @@ def test_fetch_squarespace_filters_bundles_and_uses_store_item_fields():
                         "variants": [
                             {"sku": "2026Bundle", "price": 9000},
                         ],
-                        "mainImage": {
-                            "assetUrl": "https://images.example.com/bundle-main.png"
-                        },
+                        "mainImage": {"assetUrl": "https://images.example.com/bundle-main.png"},
                     },
                 },
                 {
@@ -670,10 +664,7 @@ def test_fetch_squarespace_filters_bundles_and_uses_store_item_fields():
 
     placeholder = data["records"][2]
     assert placeholder["cover"]["source_url"] == ""
-    assert (
-        placeholder["no_cover_reason"]
-        == "no usable cover image URL present in source record"
-    )
+    assert placeholder["no_cover_reason"] == "no usable cover image URL present in source record"
     assert "cover" not in placeholder["displayed_fields"]
 
 
@@ -731,10 +722,7 @@ def test_fetch_wordpress_basic():
     assert record["edition"]["format"] == "paperback"
     assert record["edition"]["published_on"] == "2024-06-10"
     assert record["description"] == "Excerpt."
-    assert (
-        record["cover"]["source_url"]
-        == "https://blog.example.com/wp-json/wp/v2/media/7"
-    )
+    assert record["cover"]["source_url"] == "https://blog.example.com/wp-json/wp/v2/media/7"
     assert record["work"]["subjects"] == ["Poetry"]
 
 
@@ -1248,9 +1236,7 @@ def test_fetch_shopify_extracts_book_metadata_from_body_html():
     assert open_letter_record["publisher"] == "Coffee House Press"
     assert coffee_record["contributors"] == [{"name": "Kirmen Uribe", "role": "author"}]
     assert coffee_record["edition"]["isbn_13"] == "9781566897730"
-    assert open_letter_record["contributors"] == [
-        {"name": "Arnon Grunberg", "role": "author"}
-    ]
+    assert open_letter_record["contributors"] == [{"name": "Arnon Grunberg", "role": "author"}]
     assert open_letter_record["edition"]["isbn_13"] == "9781960385628"
 
 
@@ -1433,7 +1419,9 @@ def test_fetch_wordpress_pushkin_filters_imprints_and_uses_embedded_cover():
             "date": "2026-02-26T10:45:21",
             "title": {"rendered": "The Gate"},
             "content": {
-                "rendered": "<p>Humble clerk Sosuke lives at the bottom of a cliff.</p><p>“Praise quote.”</p>"
+                "rendered": (
+                    "<p>Humble clerk Sosuke lives at the bottom of a cliff.</p><p>“Praise quote.”</p>"
+                )
             },
             "imprint": [16],
             "featured_media": 99,
@@ -1533,7 +1521,5 @@ def test_fetch_wordpress_pushkin_filters_imprints_and_uses_embedded_cover():
         {"name": "Natsume Soseki", "role": "author"},
         {"name": "Francis Mathy", "role": "translator"},
     ]
-    assert (
-        record["description"] == "Humble clerk Sosuke lives at the bottom of a cliff."
-    )
+    assert record["description"] == "Humble clerk Sosuke lives at the bottom of a cliff."
     assert record["cover"]["source_url"] == "https://us.pushkinpress.com/full.jpg"

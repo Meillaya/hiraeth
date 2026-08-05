@@ -69,10 +69,7 @@ def _isbn_from_text(text: str | None) -> str | None:
 def _valid_isbn13(isbn: str) -> bool:
     if len(isbn) != 13 or not isbn.isdigit():
         return False
-    total = sum(
-        (1 if index % 2 == 0 else 3) * int(digit)
-        for index, digit in enumerate(isbn[:12])
-    )
+    total = sum((1 if index % 2 == 0 else 3) * int(digit) for index, digit in enumerate(isbn[:12]))
     return (10 - (total % 10)) % 10 == int(isbn[-1])
 
 
@@ -103,9 +100,7 @@ def _contributors_from_product(
         return tagged_contributors
 
     vendor = str(product.get("vendor") or "").strip()
-    vendor_matches_publisher = bool(
-        publisher_name and vendor.lower() == publisher_name.lower()
-    )
+    vendor_matches_publisher = bool(publisher_name and vendor.lower() == publisher_name.lower())
     if (
         vendor_as_author
         and vendor
@@ -118,7 +113,10 @@ def _contributors_from_product(
         return []
 
     match = re.match(
-        r"^(?:(?:fiction|novel|poetry|drama|literature|nonfiction|non-fiction|art|theater|theatre|philosophy)\s+)?(?P<role>by|edited by)\s+(?P<name>.+?)(?=\s+(?:January|February|March|April|May|June|July|August|September|October|November|December|\d{4}|•|$))",
+        r"^(?:(?:fiction|novel|poetry|drama|literature|nonfiction|non-fiction|art|theater|theatre|"
+        r"philosophy)\s+)?(?P<role>by|edited by)\s+(?P<name>.+?)(?=\s+(?:"
+        r"January|February|March|April|May|June|July|August|"
+        r"September|October|November|December|\d{4}|•|$))",
         description,
         flags=re.IGNORECASE,
     )
@@ -143,7 +141,11 @@ def _format_from_variant_title(variant_title: str | None) -> str | None:
 
 
 def _build_field_sources(provider: str, source_uri: str) -> dict[str, Any]:
-    basis = "Operator-authorized public catalog refresh from official publisher pages/APIs; factual bibliographic metadata, official product descriptions, official cover URLs, purchase links, and source provenance preserved for each field."
+    basis = (
+        "Operator-authorized public catalog refresh from official publisher pages/APIs; "
+        "factual bibliographic metadata, official product descriptions, official cover URLs, "
+        "purchase links, and source provenance preserved for each field."
+    )
     return {
         "title": {
             "provider": provider,
@@ -246,9 +248,7 @@ def _product_variant_to_record(
     vendor = product.get("vendor", "")
     title = product.get("title", "")
     published_at = product.get("published_at")
-    published_on = (
-        published_at[:10] if published_at and isinstance(published_at, str) else None
-    )
+    published_on = published_at[:10] if published_at and isinstance(published_at, str) else None
     tags = product.get("tags", [])
     body_html = product.get("body_html", "")
     description = _strip_html(body_html)
@@ -293,7 +293,10 @@ def _product_variant_to_record(
         ),
         "curation": {
             "status": "approved",
-            "notes": "Operator-authorized full-catalog refresh from public source; generated deterministically with field provenance.",
+            "notes": (
+                "Operator-authorized full-catalog refresh from public source; generated "
+                "deterministically with field provenance."
+            ),
         },
         "storefront_url": source_uri,
         "field_sources": _build_field_sources(provider, source_uri),
@@ -326,9 +329,7 @@ async def fetch(config: dict[str, Any]) -> list[dict[str, Any]]:
     api_config = config["api"]
     allowed_vendors = set(api_config.get("allowed_vendors") or [])
     collection_path = str(api_config.get("collection_path") or "").strip("/")
-    products_path = (
-        f"/{collection_path}/products.json" if collection_path else "/products.json"
-    )
+    products_path = f"/{collection_path}/products.json" if collection_path else "/products.json"
     vendor_as_author = api_config.get("vendor_as_author", True) is not False
 
     records: list[dict[str, Any]] = []

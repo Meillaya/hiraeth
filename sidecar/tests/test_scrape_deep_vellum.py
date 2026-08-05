@@ -12,13 +12,9 @@ client = TestClient(app)
 
 class TestDeepVellumScrapeRouter:
     def test_scrape_endpoint_dispatches_deep_vellum_default_to_stealthy(self):
-        with patch(
-            "app.routers.scrape.DeepVellumStealthySpider"
-        ) as mock_stealthy_spider:
+        with patch("app.routers.scrape.DeepVellumStealthySpider") as mock_stealthy_spider:
             mock_instance = mock_stealthy_spider.return_value
-            mock_instance.scrape_catalog = AsyncMock(
-                return_value=[{"title": "Stealthy Book"}]
-            )
+            mock_instance.scrape_catalog = AsyncMock(return_value=[{"title": "Stealthy Book"}])
 
             response = client.post(
                 "/scrape/",
@@ -44,52 +40,38 @@ class TestDeepVellumScrapeRouter:
 
     def test_scrape_endpoint_rejects_deep_vellum_catalog_url_before_fetch(self) -> None:
         # Given: a caller-controlled Deep Vellum catalog URL aimed at instance metadata.
-        with patch.object(
-            StealthyFetcher, "fetch_async", new_callable=AsyncMock
-        ) as fetch_async:
+        with patch.object(StealthyFetcher, "fetch_async", new_callable=AsyncMock) as fetch_async:
             # When: the catalog scrape endpoint receives the unsafe URL.
             response = client.post(
                 "/scrape/",
                 json={
                     "provider": "deep_vellum_official_store",
-                    "config": {
-                        "catalog_url": "http://169.254.169.254/latest/meta-data/"
-                    },
+                    "config": {"catalog_url": "http://169.254.169.254/latest/meta-data/"},
                 },
             )
 
         # Then: the endpoint rejects it before any fetch attempt.
         assert response.status_code == 422
         assert response.json()["detail"]["code"] == "invalid_host"
-        assert (
-            "Unsupported Deep Vellum catalog URL"
-            in response.json()["detail"]["message"]
-        )
+        assert "Unsupported Deep Vellum catalog URL" in response.json()["detail"]["message"]
         fetch_async.assert_not_awaited()
 
     def test_scrape_endpoint_rejects_deep_vellum_start_url_before_fetch(self) -> None:
         # Given: a caller-controlled Deep Vellum start URL aimed at instance metadata.
-        with patch.object(
-            StealthyFetcher, "fetch_async", new_callable=AsyncMock
-        ) as fetch_async:
+        with patch.object(StealthyFetcher, "fetch_async", new_callable=AsyncMock) as fetch_async:
             # When: the catalog scrape endpoint receives the unsafe URL.
             response = client.post(
                 "/scrape/",
                 json={
                     "provider": "deep_vellum_official_store",
-                    "config": {
-                        "start_urls": ["http://169.254.169.254/latest/meta-data/"]
-                    },
+                    "config": {"start_urls": ["http://169.254.169.254/latest/meta-data/"]},
                 },
             )
 
         # Then: the endpoint rejects it before any fetch attempt.
         assert response.status_code == 422
         assert response.json()["detail"]["code"] == "invalid_host"
-        assert (
-            "Unsupported Deep Vellum catalog URL"
-            in response.json()["detail"]["message"]
-        )
+        assert "Unsupported Deep Vellum catalog URL" in response.json()["detail"]["message"]
         fetch_async.assert_not_awaited()
 
     def test_scrape_endpoint_rejects_deep_vellum_canary_url_without_reflection(
@@ -101,9 +83,7 @@ class TestDeepVellumScrapeRouter:
             "https://secret-canary:password@store.deepvellum.org/collections/all"
             "?token=secret-canary#secret-canary"
         )
-        with patch.object(
-            StealthyFetcher, "fetch_async", new_callable=AsyncMock
-        ) as fetch_async:
+        with patch.object(StealthyFetcher, "fetch_async", new_callable=AsyncMock) as fetch_async:
             # When: the scrape endpoint validates the provider-specific catalog URL.
             response = client.post(
                 "/scrape/",
@@ -130,9 +110,7 @@ class TestDeepVellumScrapeRouter:
         # Given: legacy spider dispatch config with a caller-controlled metadata URL.
         with (
             patch("app.routers.scrape.DeepVellumSpider") as mock_dv_spider,
-            patch.object(
-                StealthyFetcher, "fetch_async", new_callable=AsyncMock
-            ) as fetch_async,
+            patch.object(StealthyFetcher, "fetch_async", new_callable=AsyncMock) as fetch_async,
         ):
             # When: the catalog scrape endpoint receives the unsafe URL.
             response = client.post(
@@ -149,10 +127,7 @@ class TestDeepVellumScrapeRouter:
         # Then: the endpoint rejects it before any legacy spider or fetch can run.
         assert response.status_code == 422
         assert response.json()["detail"]["code"] == "invalid_host"
-        assert (
-            "Unsupported Deep Vellum catalog URL"
-            in response.json()["detail"]["message"]
-        )
+        assert "Unsupported Deep Vellum catalog URL" in response.json()["detail"]["message"]
         mock_dv_spider.assert_not_called()
         fetch_async.assert_not_awaited()
 
@@ -162,9 +137,7 @@ class TestDeepVellumScrapeRouter:
         # Given: legacy flag dispatch config with a caller-controlled metadata URL.
         with (
             patch("app.routers.scrape.DeepVellumSpider") as mock_dv_spider,
-            patch.object(
-                StealthyFetcher, "fetch_async", new_callable=AsyncMock
-            ) as fetch_async,
+            patch.object(StealthyFetcher, "fetch_async", new_callable=AsyncMock) as fetch_async,
         ):
             # When: the catalog scrape endpoint receives the unsafe URL.
             response = client.post(
@@ -181,10 +154,7 @@ class TestDeepVellumScrapeRouter:
         # Then: the endpoint rejects it before any legacy spider or fetch can run.
         assert response.status_code == 422
         assert response.json()["detail"]["code"] == "invalid_host"
-        assert (
-            "Unsupported Deep Vellum catalog URL"
-            in response.json()["detail"]["message"]
-        )
+        assert "Unsupported Deep Vellum catalog URL" in response.json()["detail"]["message"]
         mock_dv_spider.assert_not_called()
         fetch_async.assert_not_awaited()
 
@@ -194,9 +164,7 @@ class TestDeepVellumScrapeRouter:
         # Given: legacy spider dispatch with an allowed first URL and unsafe second URL.
         with (
             patch("app.routers.scrape.DeepVellumSpider") as mock_dv_spider,
-            patch.object(
-                StealthyFetcher, "fetch_async", new_callable=AsyncMock
-            ) as fetch_async,
+            patch.object(StealthyFetcher, "fetch_async", new_callable=AsyncMock) as fetch_async,
         ):
             # When: the catalog scrape endpoint receives mixed start URLs.
             response = client.post(
@@ -216,10 +184,7 @@ class TestDeepVellumScrapeRouter:
         # Then: every start URL is validated before legacy spider dispatch.
         assert response.status_code == 422
         assert response.json()["detail"]["code"] == "invalid_host"
-        assert (
-            "Unsupported Deep Vellum catalog URL"
-            in response.json()["detail"]["message"]
-        )
+        assert "Unsupported Deep Vellum catalog URL" in response.json()["detail"]["message"]
         mock_dv_spider.assert_not_called()
         fetch_async.assert_not_awaited()
 
@@ -229,9 +194,7 @@ class TestDeepVellumScrapeRouter:
         # Given: legacy flag dispatch with an allowed first URL and unsafe second URL.
         with (
             patch("app.routers.scrape.DeepVellumSpider") as mock_dv_spider,
-            patch.object(
-                StealthyFetcher, "fetch_async", new_callable=AsyncMock
-            ) as fetch_async,
+            patch.object(StealthyFetcher, "fetch_async", new_callable=AsyncMock) as fetch_async,
         ):
             # When: the catalog scrape endpoint receives mixed start URLs.
             response = client.post(
@@ -251,21 +214,14 @@ class TestDeepVellumScrapeRouter:
         # Then: every start URL is validated before legacy spider dispatch.
         assert response.status_code == 422
         assert response.json()["detail"]["code"] == "invalid_host"
-        assert (
-            "Unsupported Deep Vellum catalog URL"
-            in response.json()["detail"]["message"]
-        )
+        assert "Unsupported Deep Vellum catalog URL" in response.json()["detail"]["message"]
         mock_dv_spider.assert_not_called()
         fetch_async.assert_not_awaited()
 
     def test_scrape_endpoint_dispatches_deep_vellum_stealthy_by_scraper_config(self):
-        with patch(
-            "app.routers.scrape.DeepVellumStealthySpider"
-        ) as mock_stealthy_spider:
+        with patch("app.routers.scrape.DeepVellumStealthySpider") as mock_stealthy_spider:
             mock_instance = mock_stealthy_spider.return_value
-            mock_instance.scrape_catalog = AsyncMock(
-                return_value=[{"title": "Stealthy Book"}]
-            )
+            mock_instance.scrape_catalog = AsyncMock(return_value=[{"title": "Stealthy Book"}])
 
             response = client.post(
                 "/scrape/",

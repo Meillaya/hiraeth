@@ -9,12 +9,8 @@ import anyio
 import httpx
 
 _TAG_PATTERN: Final = re.compile(r"<[^>]+>")
-_PARAGRAPH_PATTERN: Final = re.compile(
-    r"<p\b[^>]*>(.*?)</p>", re.IGNORECASE | re.DOTALL
-)
-_HEADING_PATTERN: Final = re.compile(
-    r"<h2\b[^>]*>(.*?)</h2>", re.IGNORECASE | re.DOTALL
-)
+_PARAGRAPH_PATTERN: Final = re.compile(r"<p\b[^>]*>(.*?)</p>", re.IGNORECASE | re.DOTALL)
+_HEADING_PATTERN: Final = re.compile(r"<h2\b[^>]*>(.*?)</h2>", re.IGNORECASE | re.DOTALL)
 _ISBN13_PATTERN: Final = re.compile(r"(?<!\d)(97[89](?:[\s-]?\d){10})(?!\d)")
 _MONTHS: Final = {
     "january": "01",
@@ -65,7 +61,11 @@ class DetailMetadata:
 
 
 def _build_field_sources(provider: str, source_uri: str) -> dict[str, Any]:
-    basis = "Operator-authorized public catalog refresh from official publisher pages/APIs; factual bibliographic metadata, official product descriptions, official cover URLs, purchase links, and source provenance preserved for each field."
+    basis = (
+        "Operator-authorized public catalog refresh from official publisher pages/APIs; "
+        "factual bibliographic metadata, official product descriptions, official cover URLs, "
+        "purchase links, and source provenance preserved for each field."
+    )
     return {
         "title": {
             "provider": provider,
@@ -146,8 +146,7 @@ def _valid_isbn13(value: str) -> bool:
     if len(digits) != 13 or not digits.startswith(("978", "979")):
         return False
     checksum = sum(
-        (1 if index % 2 == 0 else 3) * int(digit)
-        for index, digit in enumerate(digits[:12])
+        (1 if index % 2 == 0 else 3) * int(digit) for index, digit in enumerate(digits[:12])
     )
     return (10 - checksum % 10) % 10 == int(digits[-1])
 
@@ -164,11 +163,7 @@ def _isbn_from_meta(meta: Any) -> str | None:
     if isinstance(meta, dict):
         items = meta.items()
     elif isinstance(meta, list):
-        items = (
-            (item.get("key"), item.get("value"))
-            for item in meta
-            if isinstance(item, dict)
-        )
+        items = ((item.get("key"), item.get("value")) for item in meta if isinstance(item, dict))
     else:
         return None
 
@@ -211,16 +206,12 @@ def _format_from_tags(tags: Any) -> str:
 def _post_title(post: dict[str, Any]) -> str:
     title_field = post.get("title")
     return _html_to_text(
-        title_field.get("rendered", "")
-        if isinstance(title_field, dict)
-        else str(title_field or "")
+        title_field.get("rendered", "") if isinstance(title_field, dict) else str(title_field or "")
     )
 
 
 def _date_from_text(text: str) -> str | None:
-    match = re.search(
-        r"Published\s+(\d{1,2})(?:st|nd|rd|th)?\s+([A-Z][a-z]+)\s+(\d{4})", text
-    )
+    match = re.search(r"Published\s+(\d{1,2})(?:st|nd|rd|th)?\s+([A-Z][a-z]+)\s+(\d{4})", text)
     if match:
         month = _MONTHS.get(match.group(2).lower())
         return f"{match.group(3)}-{month}-{int(match.group(1)):02d}" if month else None
@@ -251,9 +242,7 @@ def _cover_url(post: dict[str, Any], endpoint: str) -> str:
     media = embedded.get("wp:featuredmedia", []) if isinstance(embedded, dict) else []
     if not media:
         featured_media = post.get("featured_media", 0)
-        return (
-            f"{endpoint}/wp-json/wp/v2/media/{featured_media}" if featured_media else ""
-        )
+        return f"{endpoint}/wp-json/wp/v2/media/{featured_media}" if featured_media else ""
 
     first = media[0]
     if not isinstance(first, dict):
@@ -287,9 +276,7 @@ def _imprint_terms(raw_terms: list[dict[str, Any]]) -> dict[int, ImprintTerm]:
     return terms
 
 
-def _post_imprints(
-    post: dict[str, Any], taxonomy: TaxonomyContext
-) -> list[ImprintTerm]:
+def _post_imprints(post: dict[str, Any], taxonomy: TaxonomyContext) -> list[ImprintTerm]:
     return [
         taxonomy.terms[term_id]
         for term_id in post.get(taxonomy.field, [])
@@ -330,17 +317,12 @@ def _allowed_detail_url(
     except ValueError:
         return True
     return not (
-        address.is_private
-        or address.is_loopback
-        or address.is_link_local
-        or address.is_unspecified
+        address.is_private or address.is_loopback or address.is_link_local or address.is_unspecified
     )
 
 
 def _detail_path_prefixes(api_config: dict[str, Any]) -> tuple[str, ...]:
-    raw_prefixes = (
-        api_config.get("detail_path_prefixes") or _DEFAULT_DETAIL_PATH_PREFIXES
-    )
+    raw_prefixes = api_config.get("detail_path_prefixes") or _DEFAULT_DETAIL_PATH_PREFIXES
     prefixes = [str(prefix) for prefix in raw_prefixes if str(prefix).startswith("/")]
     return tuple(prefixes)
 
@@ -370,10 +352,7 @@ def _normalized_heading(text: str) -> str:
 
 
 def _contributor_headings(html: str, title: str | None = None) -> list[str]:
-    headings = [
-        _html_to_text(match.group(1)).strip()
-        for match in _HEADING_PATTERN.finditer(html)
-    ]
+    headings = [_html_to_text(match.group(1)).strip() for match in _HEADING_PATTERN.finditer(html)]
     title_key = _normalized_heading(title or "")
     filtered = [
         heading
@@ -397,9 +376,7 @@ def _looks_like_subtitle(text: str) -> bool:
     )
 
 
-def _contributors_from_detail(
-    html: str, title: str | None = None
-) -> list[dict[str, str]]:
+def _contributors_from_detail(html: str, title: str | None = None) -> list[dict[str, str]]:
     contributors: list[dict[str, str]] = []
     for text in _contributor_headings(html, title):
         lowered = text.lower()
@@ -414,15 +391,16 @@ def _contributors_from_detail(
     return contributors[:4]
 
 
-def _contributors_from_possessive_title(
-    text: str, title: str | None
-) -> list[dict[str, str]]:
+def _contributors_from_possessive_title(text: str, title: str | None) -> list[dict[str, str]]:
     if not title:
         return []
 
     normalized_text = text.replace("’", "'")
     title_pattern = re.escape(title.replace("’", "'"))
-    pattern = rf"\b([A-Z][A-Za-zÀ-ÖØ-öø-ÿ'.-]+(?:\s+[A-Z][A-Za-zÀ-ÖØ-öø-ÿ'.-]+){{0,3}})'s\s+{title_pattern}\b"
+    pattern = (
+        rf"\b([A-Z][A-Za-zÀ-ÖØ-öø-ÿ'.-]+(?:\s+[A-Z][A-Za-zÀ-ÖØ-öø-ÿ'.-]+){{0,3}})'s\s+"
+        rf"{title_pattern}\b"
+    )
     match = re.search(pattern, normalized_text)
     return [{"name": match.group(1), "role": "author"}] if match else []
 
@@ -442,11 +420,7 @@ def _contributors_from_product_facts(html: str) -> list[dict[str, str]]:
         value = _product_fact_text(html, label)
         if not value:
             continue
-        names = [
-            name.strip()
-            for name in re.split(r"\s+(?:and|&)\s+|,\s*", value)
-            if name.strip()
-        ]
+        names = [name.strip() for name in re.split(r"\s+(?:and|&)\s+|,\s*", value) if name.strip()]
         contributors.extend({"name": name, "role": role} for name in names)
     return contributors[:4]
 
@@ -470,9 +444,7 @@ def _format_from_product_facts(html: str) -> str | None:
 
 
 def _page_count_from_product_facts(html: str) -> int | None:
-    value = _product_fact_text(html, "Number of pages") or _product_fact_text(
-        html, "Pages"
-    )
+    value = _product_fact_text(html, "Number of pages") or _product_fact_text(html, "Pages")
     if not value:
         return None
 
@@ -545,8 +517,7 @@ def _post_to_record(
     if not tags:
         raw_tags = post.get("tags") or []
         tags = [
-            str(tag.get("name") or tag) if isinstance(tag, dict) else str(tag)
-            for tag in raw_tags
+            str(tag.get("name") or tag) if isinstance(tag, dict) else str(tag) for tag in raw_tags
         ]
     displayed_fields = ["title", "publisher", "format", "storefront_url"]
     displayed_fields += [
@@ -588,7 +559,10 @@ def _post_to_record(
         "displayed_fields": displayed_fields,
         "curation": {
             "status": "approved",
-            "notes": "Operator-authorized full-catalog refresh from public source; generated deterministically with field provenance.",
+            "notes": (
+                "Operator-authorized full-catalog refresh from public source; generated "
+                "deterministically with field provenance."
+            ),
         },
         "storefront_url": source_uri,
         "field_sources": _build_field_sources(provider, source_uri),
@@ -655,14 +629,8 @@ async def fetch(config: dict[str, Any]) -> list[dict[str, Any]]:
     page = 1
 
     async with httpx.AsyncClient() as client:
-        terms = (
-            await _fetch_taxonomy(client, endpoint, taxonomy, max_bytes)
-            if taxonomy
-            else {}
-        )
-        taxonomy_context = (
-            TaxonomyContext(field=taxonomy, terms=terms) if taxonomy else None
-        )
+        terms = await _fetch_taxonomy(client, endpoint, taxonomy, max_bytes) if taxonomy else {}
+        taxonomy_context = TaxonomyContext(field=taxonomy, terms=terms) if taxonomy else None
         while True:
             url = f"{endpoint}/wp-json/wp/v2/{post_type}?per_page=100&page={page}&_embed=1"
             response = await client.get(url, headers=_HEADERS)
@@ -680,9 +648,7 @@ async def fetch(config: dict[str, Any]) -> list[dict[str, Any]]:
                 raw_source_uri = str(post.get("link") or "")
                 detail_source_uri = (
                     raw_source_uri
-                    if _allowed_detail_url(
-                        raw_source_uri, source_hosts, detail_path_prefixes
-                    )
+                    if _allowed_detail_url(raw_source_uri, source_hosts, detail_path_prefixes)
                     else ""
                 )
                 detail = None

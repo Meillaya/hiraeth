@@ -79,7 +79,9 @@ def test_scrape_catalog_enriches_allowed_products(monkeypatch: pytest.MonkeyPatc
         assert "prompt:" not in record.get("description", "")
 
 
-def test_scrape_catalog_reads_embedded_shopify_product_variants(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_scrape_catalog_reads_embedded_shopify_product_variants(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Given current Shopify event data, when scraping, then allowed books are enriched."""
     calls: list[str] = []
     fixtures = {
@@ -104,7 +106,9 @@ def test_scrape_catalog_reads_embedded_shopify_product_variants(monkeypatch: pyt
     assert {record["work"]["title"] for record in records} == {"Rilke Shake", "Brazillionaires"}
     for record in records:
         _ = BookRecord(**record)
-        assert record["cover"]["source_url"].startswith("https://cdn.shopify.com/s/files/1/0433/1651/0883/products/")
+        assert record["cover"]["source_url"].startswith(
+            "https://cdn.shopify.com/s/files/1/0433/1651/0883/products/"
+        )
 
 
 def test_contributor_extraction_stops_at_block_boundaries() -> None:
@@ -125,12 +129,17 @@ def test_contributor_extraction_stops_at_block_boundaries() -> None:
 
 def test_contributor_extraction_ignores_by_inside_prose() -> None:
     """Given prose containing by, when extracting contributors, then it is ignored."""
-    description = "Description | Best Literary Translations 2024 features poems. By spotlighting journals, it honors translators."
+    description = (
+        "Description | Best Literary Translations 2024 features poems. By spotlighting "
+        "journals, it honors translators."
+    )
 
     assert DeepVellumStealthySpider._extract_contributors(description) == []
 
 
-def test_scrape_catalog_rejects_unsafe_catalog_url_before_fetch(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_scrape_catalog_rejects_unsafe_catalog_url_before_fetch(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Given metadata URL config, when scraping, then no fetch is attempted."""
     calls: list[str] = []
 
@@ -149,7 +158,9 @@ def test_scrape_catalog_rejects_unsafe_catalog_url_before_fetch(monkeypatch: pyt
     assert calls == []
 
 
-def test_scrape_catalog_rejects_unsafe_start_url_before_fetch(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_scrape_catalog_rejects_unsafe_start_url_before_fetch(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Given metadata start URL config, when scraping, then no fetch is attempted."""
     calls: list[str] = []
 
@@ -174,7 +185,9 @@ def test_vendor_not_in_allowlist_is_dropped(monkeypatch: pytest.MonkeyPatch) -> 
 
     async def fake_fetch_async(url: str, **_kwargs) -> FakeStealthyResponse:
         calls.append(url)
-        return FakeStealthyResponse(url=url, text=_load_fixture("deep_vellum_stealthy_vendor_only_catalog.html"))
+        return FakeStealthyResponse(
+            url=url, text=_load_fixture("deep_vellum_stealthy_vendor_only_catalog.html")
+        )
 
     monkeypatch.setattr(StealthyFetcher, "fetch_async", fake_fetch_async)
 
@@ -184,10 +197,15 @@ def test_vendor_not_in_allowlist_is_dropped(monkeypatch: pytest.MonkeyPatch) -> 
     assert calls == [CATALOG_URL]
 
 
-def test_partial_detail_without_isbn_or_cover_is_validation_friendly(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_partial_detail_without_isbn_or_cover_is_validation_friendly(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Given missing ISBN and cover, when scraping, then missing fields are explained."""
     calls: list[str] = []
-    fixtures = {CATALOG_URL: "deep_vellum_stealthy_partial_catalog.html", PARTIAL_URL: "deep_vellum_stealthy_detail_partial.html"}
+    fixtures = {
+        CATALOG_URL: "deep_vellum_stealthy_partial_catalog.html",
+        PARTIAL_URL: "deep_vellum_stealthy_detail_partial.html",
+    }
 
     async def fake_fetch_async(url: str, **_kwargs) -> FakeStealthyResponse:
         calls.append(url)
@@ -212,13 +230,17 @@ def test_partial_detail_without_isbn_or_cover_is_validation_friendly(monkeypatch
     assert "cover" not in record["displayed_fields"]
 
 
-def test_detail_fixture_extracts_enrichment_without_live_network(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_detail_fixture_extracts_enrichment_without_live_network(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Given a detail URL, when fetched via the seam, then only fixture data is parsed."""
     calls: list[str] = []
 
     async def fake_fetch_async(url: str, **_kwargs) -> FakeStealthyResponse:
         calls.append(url)
-        return FakeStealthyResponse(url=url, text=_load_fixture("deep_vellum_stealthy_detail_rilke.html"))
+        return FakeStealthyResponse(
+            url=url, text=_load_fixture("deep_vellum_stealthy_detail_rilke.html")
+        )
 
     monkeypatch.setattr(StealthyFetcher, "fetch_async", fake_fetch_async)
 
@@ -227,7 +249,10 @@ def test_detail_fixture_extracts_enrichment_without_live_network(monkeypatch: py
     contributors = DeepVellumStealthySpider._extract_contributors(detail.description)
 
     assert calls == [RILKE_URL]
-    assert contributors == [{"name": "Angélica Freitas", "role": "author"}, {"name": "Hilary Kaplan", "role": "translator"}]
+    assert contributors == [
+        {"name": "Angélica Freitas", "role": "author"},
+        {"name": "Hilary Kaplan", "role": "translator"},
+    ]
     assert DeepVellumStealthySpider._extract_isbn(detail.description) == "9781939419545"
     assert DeepVellumStealthySpider._extract_publication_date(detail.description) == "2015-03-24"
     assert detail.cover_url == "https://cdn.shopify.com/deep-vellum/rilke-detail.jpg"
@@ -241,17 +266,25 @@ def test_manifest_rate_limit_controls_concurrency(monkeypatch: pytest.MonkeyPatc
     async def fake_fetch_async(url: str, **_kwargs) -> FakeStealthyResponse:
         nonlocal active, max_active
         if url == CATALOG_URL:
-            return FakeStealthyResponse(url=url, text=_load_fixture("deep_vellum_stealthy_catalog.html"))
+            return FakeStealthyResponse(
+                url=url, text=_load_fixture("deep_vellum_stealthy_catalog.html")
+            )
         active += 1
         max_active = max(max_active, active)
         await anyio.sleep(0)
         active -= 1
-        fixture = "deep_vellum_stealthy_detail_rilke.html" if url == RILKE_URL else "deep_vellum_stealthy_detail_brazillionaires.html"
+        fixture = (
+            "deep_vellum_stealthy_detail_rilke.html"
+            if url == RILKE_URL
+            else "deep_vellum_stealthy_detail_brazillionaires.html"
+        )
         return FakeStealthyResponse(url=url, text=_load_fixture(fixture))
 
     monkeypatch.setattr(StealthyFetcher, "fetch_async", fake_fetch_async)
 
-    records = anyio.run(DeepVellumStealthySpider().scrape_catalog, {"rate_limit": {"max_concurrency": 1}})
+    records = anyio.run(
+        DeepVellumStealthySpider().scrape_catalog, {"rate_limit": {"max_concurrency": 1}}
+    )
 
     assert len(records) == 2
     assert max_active == 1
@@ -265,7 +298,11 @@ def test_manifest_delay_and_max_bytes_are_enforced(monkeypatch: pytest.MonkeyPat
         sleeps.append(seconds)
 
     async def fake_fetch_async(url: str, **_kwargs) -> FakeStealthyResponse:
-        fixture = "deep_vellum_stealthy_catalog.html" if url == CATALOG_URL else "deep_vellum_stealthy_detail_rilke.html"
+        fixture = (
+            "deep_vellum_stealthy_catalog.html"
+            if url == CATALOG_URL
+            else "deep_vellum_stealthy_detail_rilke.html"
+        )
         return FakeStealthyResponse(url=url, text=_load_fixture(fixture))
 
     monkeypatch.setattr("app.spiders.deep_vellum_stealthy.anyio.sleep", fake_sleep)

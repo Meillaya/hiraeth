@@ -13,24 +13,80 @@ _EBOOK_TITLE_SUFFIX = re.compile(r"\s*\((?:e-?book)\)\s*$", re.IGNORECASE)
 
 
 def _build_field_sources(provider: str, source_uri: str) -> dict[str, Any]:
-    basis = "Operator-authorized public catalog refresh from official publisher pages/APIs; factual bibliographic metadata, official product descriptions, official cover URLs, purchase links, and source provenance preserved for each field."
+    basis = (
+        "Operator-authorized public catalog refresh from official publisher pages/APIs; "
+        "factual bibliographic metadata, official product descriptions, official cover URLs, "
+        "purchase links, and source provenance preserved for each field."
+    )
     return {
-        "title": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "contributors": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "publisher": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "format": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "published_on": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "isbn_13": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "cover": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "description": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "storefront_url": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
-        "subjects": {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis},
+        "title": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "contributors": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "publisher": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "format": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "published_on": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "isbn_13": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "cover": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "description": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "storefront_url": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
+        "subjects": {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        },
     }
 
 
 def _first_isbn_from_variants(item: dict[str, Any]) -> str:
     structured_content = item.get("structuredContent", {})
-    variants = structured_content.get("variants", []) if isinstance(structured_content, dict) else []
+    variants = (
+        structured_content.get("variants", []) if isinstance(structured_content, dict) else []
+    )
     for variant in variants:
         if not isinstance(variant, dict):
             continue
@@ -75,7 +131,9 @@ def _cover_url(item: dict[str, Any], listing_cover_urls: dict[str, str] | None =
         return str(asset_url)
 
     structured_content = item.get("structuredContent", {})
-    main_image = structured_content.get("mainImage", {}) if isinstance(structured_content, dict) else {}
+    main_image = (
+        structured_content.get("mainImage", {}) if isinstance(structured_content, dict) else {}
+    )
     if isinstance(main_image, dict):
         cover = main_image.get("absoluteUrl", "") or main_image.get("assetUrl", "")
         if usable_cover_url(cover):
@@ -129,7 +187,9 @@ def _item_to_record(
     listing_cover_urls: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     full_url = item.get("fullUrl", "")
-    source_uri = absolute_url(endpoint, full_url) if full_url else f"{endpoint}/{item.get('id', '')}"
+    source_uri = (
+        absolute_url(endpoint, full_url) if full_url else f"{endpoint}/{item.get('id', '')}"
+    )
     title = _canonical_title(str(item.get("title", "")))
     body = item.get("body", "") or item.get("excerpt", "")
     description = _strip_html(body)
@@ -175,7 +235,10 @@ def _item_to_record(
         "displayed_fields": _displayed_fields(published_on, isbn, cover_url, description),
         "curation": {
             "status": "approved",
-            "notes": "Operator-authorized full-catalog refresh from public source; generated deterministically with field provenance.",
+            "notes": (
+                "Operator-authorized full-catalog refresh from public source; generated "
+                "deterministically with field provenance."
+            ),
         },
         "storefront_url": source_uri,
         "field_sources": _build_field_sources(provider, source_uri),

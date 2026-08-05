@@ -2,8 +2,8 @@
 
 import json
 import re
-from collections.abc import AsyncGenerator, Generator
-from typing import Any, Callable, cast
+from collections.abc import AsyncGenerator, Callable, Generator
+from typing import Any, cast
 
 from scrapling.spiders import Request, Response
 
@@ -152,7 +152,9 @@ class DeepVellumSpider(BaseSpider):
 
         title = self._text(response, "h1.product-single__title::text") or grid_data.get("title")
         description = self._all_text(response, ".product-single__description.rte")
-        contributor_line = self._all_text(response, ".product-single__description.rte > p:first-of-type")
+        contributor_line = self._all_text(
+            response, ".product-single__description.rte > p:first-of-type"
+        )
 
         isbn_13 = self._extract_isbn(description)
         published_on = self._extract_publication_date(description)
@@ -330,9 +332,7 @@ class DeepVellumSpider(BaseSpider):
             return []
         clause = match.group(1).strip()
         parts = re.split(r"\s+Translated by\s+", clause, maxsplit=1)
-        contributors: list[dict[str, str]] = [
-            {"name": parts[0].strip(), "role": "author"}
-        ]
+        contributors: list[dict[str, str]] = [{"name": parts[0].strip(), "role": "author"}]
         if len(parts) > 1:
             contributors.append({"name": parts[1].strip(), "role": "translator"})
         return contributors

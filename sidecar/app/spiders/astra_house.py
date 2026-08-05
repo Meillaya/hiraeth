@@ -41,7 +41,9 @@ _LINK_PATTERN: Final = re.compile(
     re.IGNORECASE,
 )
 _TAG_PATTERN: Final = re.compile(r"<[^>]+>")
-_SCRIPT_STYLE_PATTERN: Final = re.compile(r"<(script|style)\b[^>]*>.*?</\1>", re.IGNORECASE | re.DOTALL)
+_SCRIPT_STYLE_PATTERN: Final = re.compile(
+    r"<(script|style)\b[^>]*>.*?</\1>", re.IGNORECASE | re.DOTALL
+)
 _ISBN13_PATTERN: Final = re.compile(r"(?<!\d)(97[89](?:[\s-]?\d){10})(?!\d)")
 _TITLE_PATTERN: Final = re.compile(
     r"<h2\b[^>]*>\s*<a\b[^>]*>(.*?)</a>\s*</h2>|<h1\b[^>]*class=[\"'][^\"']*product_title[^\"']*[\"'][^>]*>(.*?)</h1>",
@@ -52,19 +54,24 @@ _AUTHOR_PATTERN: Final = re.compile(
     re.IGNORECASE | re.DOTALL,
 )
 _DATE_PATTERN: Final = re.compile(
-    r"<span>\s*Published:\s*</span>\s*(\d{2})/(\d{2})/(\d{4})|Publication Date:\s*(\d{4}-\d{2}-\d{2})",
+    r"<span>\s*Published:\s*</span>\s*(\d{2})/(\d{2})/(\d{4})|"
+    r"Publication Date:\s*(\d{4}-\d{2}-\d{2})",
     re.IGNORECASE,
 )
 _COVER_PATTERN: Final = re.compile(
     r"(?:src|content)=[\"'](https?://images\.penguinrandomhouse\.com/[^\"']+)[\"']|"
-    + r"[\"'](?:thumbnailUrl|image)[\"']\s*:\s*[\"'](https?:\\?/\\?/images\.penguinrandomhouse\.com\\?/[^\"']+)[\"']",
+    + r"[\"'](?:thumbnailUrl|image)[\"']\s*:\s*[\"'](https?:\\?/\\?/"
+    + r"images\.penguinrandomhouse\.com\\?/[^\"']+)[\"']",
     re.IGNORECASE,
 )
 _ABOUT_PATTERN: Final = re.compile(
     r"<div\b[^>]*class=[\"'][^\"']*book-about-body[^\"']*[\"'][^>]*>(.*?)<div\b[^>]*class=[\"'][^\"']*bookpage-detailslist",
     re.IGNORECASE | re.DOTALL,
 )
-_DESCRIPTION_PATTERN: Final = re.compile(r"<div\b[^>]*class=[\"'][^\"']*description[^\"']*[\"'][^>]*>(.*?)</div>", re.IGNORECASE | re.DOTALL)
+_DESCRIPTION_PATTERN: Final = re.compile(
+    r"<div\b[^>]*class=[\"'][^\"']*description[^\"']*[\"'][^>]*>(.*?)</div>",
+    re.IGNORECASE | re.DOTALL,
+)
 _PRAISE_SECTION_PATTERN: Final = re.compile(
     r"<div\b[^>]*class=[\"'][^\"']*book-accordion-section[^\"']*[\"'][^>]*data-accordion=[\"']praise[\"'][^>]*>.*?"
     r"<div\b[^>]*class=[\"'][^\"']*book-accordion-body[^\"']*[\"'][^>]*>(.*?)</div>\s*</div>",
@@ -182,7 +189,9 @@ def parse_astra_house_detail(html: str, source_uri: str) -> ProductDetail:
 
 
 def _format_options(html: str, source_uri: str, primary_isbn: str | None) -> list[FormatOption]:
-    options = [FormatOption(source_uri=source_uri, format=_current_format(html), isbn_13=primary_isbn)]
+    options = [
+        FormatOption(source_uri=source_uri, format=_current_format(html), isbn_13=primary_isbn)
+    ]
     for match in _OPTION_PATTERN.finditer(html):
         attrs = match.group(1)
         data_url = _option_data_url(attrs)
@@ -193,7 +202,9 @@ def _format_options(html: str, source_uri: str, primary_isbn: str | None) -> lis
             continue
         label = _html_to_text(match.group(2))
         isbn = _isbn_from_text(option_url) or primary_isbn
-        options.append(FormatOption(source_uri=option_url, format=_format_from_label(label), isbn_13=isbn))
+        options.append(
+            FormatOption(source_uri=option_url, format=_format_from_label(label), isbn_13=isbn)
+        )
     return _unique_options(options)
 
 
@@ -244,7 +255,9 @@ def _extract_html_text(pattern: re.Pattern[str], html: str) -> str | None:
 def _valid_isbn13(value: str) -> bool:
     if len(value) != 13 or not value.startswith(("978", "979")):
         return False
-    checksum = sum((1 if index % 2 == 0 else 3) * int(digit) for index, digit in enumerate(value[:12]))
+    checksum = sum(
+        (1 if index % 2 == 0 else 3) * int(digit) for index, digit in enumerate(value[:12])
+    )
     return (10 - checksum % 10) % 10 == int(value[-1])
 
 
@@ -329,7 +342,7 @@ def _praise_items(html: str, source_uri: str) -> list[dict[str, str]]:
 def _praise_item(quote: str, source: str, source_uri: str) -> dict[str, str] | None:
     if not source or source == "Publisher official page":
         quote, source = _split_praise_source(quote)
-    quote = quote.strip().strip("\"“”")
+    quote = quote.strip().strip('"“”')
     source = source.strip().lstrip("—–-").strip() or "Publisher official page"
     if not quote:
         return None
@@ -339,7 +352,11 @@ def _praise_item(quote: str, source: str, source_uri: str) -> dict[str, str] | N
 
 def _html_lines(html: str) -> list[str]:
     text = _TAG_PATTERN.sub(" ", html)
-    return [line for raw_line in unescape(text).splitlines() if (line := re.sub(r"\s+", " ", raw_line).strip())]
+    return [
+        line
+        for raw_line in unescape(text).splitlines()
+        if (line := re.sub(r"\s+", " ", raw_line).strip())
+    ]
 
 
 def _source_line(text: str) -> bool:
@@ -364,14 +381,45 @@ def _record(provider: str, detail: ProductDetail, option: FormatOption) -> dict[
         "source_sku": isbn or "",
         "publisher": ASTRA_HOUSE_NAME,
         "imprint": ASTRA_HOUSE_NAME,
-        "work": {"title": detail.title, "subtitle": None, "original_title": None, "publication_state": "published"},
-        "edition": {"title": detail.title, "subtitle": None, "format": option.format, "published_on": detail.published_on, "isbn_13": isbn},
+        "work": {
+            "title": detail.title,
+            "subtitle": None,
+            "original_title": None,
+            "publication_state": "published",
+        },
+        "edition": {
+            "title": detail.title,
+            "subtitle": None,
+            "format": option.format,
+            "published_on": detail.published_on,
+            "isbn_13": isbn,
+        },
         "contributors": contributors,
-        "displayed_fields": _displayed_fields(isbn, detail.published_on, cover_url, detail.description, detail.editorial_praise, contributors),
-        "curation": {"status": "approved", "notes": "Operator-authorized Astra House imprint scrape with official product-page provenance."},
+        "displayed_fields": _displayed_fields(
+            isbn,
+            detail.published_on,
+            cover_url,
+            detail.description,
+            detail.editorial_praise,
+            contributors,
+        ),
+        "curation": {
+            "status": "approved",
+            "notes": (
+                "Operator-authorized Astra House imprint scrape with official product-page "
+                "provenance."
+            ),
+        },
         "storefront_url": option.source_uri,
         "field_sources": _field_sources(provider, option.source_uri),
-        "cover": {"source_url": cover_url, "provider": provider, "rights_basis": "local_cache_permitted", "attribution_text": "Cover via Astra House official source", "attribution_url": option.source_uri, "cache_policy": "cache_allowed"},
+        "cover": {
+            "source_url": cover_url,
+            "provider": provider,
+            "rights_basis": "local_cache_permitted",
+            "attribution_text": "Cover via Astra House official source",
+            "attribution_url": option.source_uri,
+            "cache_policy": "cache_allowed",
+        },
         "description": detail.description,
         "editorial_praise": detail.editorial_praise,
         "no_cover_reason": None if cover_url else "source_page_missing_cover",
@@ -401,13 +449,24 @@ def _displayed_fields(
         ("description", description),
         ("editorial_praise", editorial_praise),
     )
-    return ["title", "publisher", "format", "storefront_url"] + [field for field, value in optional_fields if value]
+    return ["title", "publisher", "format", "storefront_url"] + [
+        field for field, value in optional_fields if value
+    ]
 
 
 def _field_sources(provider: str, source_uri: str) -> dict[str, Any]:
-    basis = "Operator-authorized public catalog refresh from official publisher pages/APIs; factual bibliographic metadata, official product descriptions, official cover URLs, purchase links, and source provenance preserved for each field."
+    basis = (
+        "Operator-authorized public catalog refresh from official publisher pages/APIs; "
+        "factual bibliographic metadata, official product descriptions, official cover URLs, "
+        "purchase links, and source provenance preserved for each field."
+    )
     return {
-        field: {"provider": provider, "source_uri": source_uri, "source_type": "publisher_dataset", "rights_basis": basis}
+        field: {
+            "provider": provider,
+            "source_uri": source_uri,
+            "source_type": "publisher_dataset",
+            "rights_basis": basis,
+        }
         for field in (
             "title",
             "contributors",

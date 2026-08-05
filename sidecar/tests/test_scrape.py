@@ -19,9 +19,7 @@ def _load_fixture(name: str) -> str:
 
 
 def _make_response(url: str, html: str, status: int = 200) -> Response:
-    return Response(
-        url, html, status, "OK" if status == 200 else "Forbidden", {}, {}, {}
-    )
+    return Response(url, html, status, "OK" if status == 200 else "Forbidden", {}, {}, {})
 
 
 class TestGenericBookSpider:
@@ -319,9 +317,7 @@ class TestScrapeRouter:
             "https://LOCALHOST./books",
         ],
     )
-    def test_scrape_endpoint_rejects_generic_https_private_aliases_before_spider(
-        self, alias_url
-    ):
+    def test_scrape_endpoint_rejects_generic_https_private_aliases_before_spider(self, alias_url):
         # Given: a generic scrape URL uses HTTPS but resolves to local/private address forms.
         endpoint_host = alias_url.removeprefix("https://").split("/", 1)[0]
         with patch("app.routers.scrape.GenericBookSpider") as mock_generic_spider:
@@ -363,6 +359,4 @@ class TestScrapeRouter:
         assert response.status_code == 422
         data = response.json()
         assert data["detail"]["code"] == "parse_failed"
-        assert (
-            data["detail"]["message"] == "sidecar scrape failed to parse the response"
-        )
+        assert data["detail"]["message"] == "sidecar scrape failed to parse the response"

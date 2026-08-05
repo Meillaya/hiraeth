@@ -132,11 +132,16 @@ class BookRecord(BaseModel):
     source_uri: str
     work: JsonObject = Field(
         default_factory=dict,
-        description="Work metadata: title, subtitle, original_title, original_language_code, subjects",
+        description=(
+            "Work metadata: title, subtitle, original_title, original_language_code, subjects"
+        ),
     )
     edition: JsonObject = Field(
         default_factory=dict,
-        description="Edition metadata: title, subtitle, format, published_on, isbn_13, language_code, page_count, dimensions",
+        description=(
+            "Edition metadata: title, subtitle, format, published_on, isbn_13, language_code, "
+            "page_count, dimensions"
+        ),
     )
     contributors: list[dict[str, str]] = Field(
         default_factory=list,

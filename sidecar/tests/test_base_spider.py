@@ -26,9 +26,7 @@ class TestBaseSpider:
                 for item in response.css(".item"):
                     yield {"text": item.css("::text").get()}
 
-        spider = DummySpider(
-            config={"start_urls": ["http://example.com"], "download_delay": 0}
-        )
+        spider = DummySpider(config={"start_urls": ["http://example.com"], "download_delay": 0})
 
         with patch(
             "scrapling.spiders.session.SessionManager.fetch",

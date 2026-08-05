@@ -17,14 +17,19 @@ class TwoLinesDetail:
 
 _ISBN13_PATTERN: Final = re.compile(r"(?<!\d)(97[89](?:[\s-]?\d){10})(?!\d)")
 _TAG_PATTERN: Final = re.compile(r"<[^>]+>")
-_SCRIPT_STYLE_PATTERN: Final = re.compile(r"<(script|style)\b[^>]*>.*?</\1>", re.IGNORECASE | re.DOTALL)
+_SCRIPT_STYLE_PATTERN: Final = re.compile(
+    r"<(script|style)\b[^>]*>.*?</\1>", re.IGNORECASE | re.DOTALL
+)
 _TRANSLATOR_PATTERN: Final = re.compile(
     r"\btranslated(?:\s+from\s+[A-Za-z ,;-]+)?\s+by\s+(.+?)(?=\s+(?:ISBN|Publication Date)\b|$)",
     re.IGNORECASE,
 )
-_AUTHOR_PATTERN: Final = re.compile(r"(?:^|\s\|\s)By\s+(.+?)(?=\s+Translated\b|\s+ISBN\b|\s+Publication Date\b|$)")
+_AUTHOR_PATTERN: Final = re.compile(
+    r"(?:^|\s\|\s)By\s+(.+?)(?=\s+Translated\b|\s+ISBN\b|\s+Publication Date\b|$)"
+)
 _ROLE_BLOCK_PATTERN: Final = re.compile(
-    r"<div\b[^>]*class=[\"'][^\"']*text-lg[^\"']*[\"'][^>]*>\s*(by|introduced by|translated by)\s*(?:from\s+[A-Za-z ]+)?\s*([^<]+?)\s*</div>",
+    r"<div\b[^>]*class=[\"'][^\"']*text-lg[^\"']*[\"'][^>]*>\s*(by|introduced by|translated by)\s*"
+    r"(?:from\s+[A-Za-z ]+)?\s*([^<]+?)\s*</div>",
     re.IGNORECASE,
 )
 _PUBLICATION_DATE_PATTERN: Final = re.compile(
@@ -76,7 +81,9 @@ def _html_to_text(html: str) -> str:
 def _valid_isbn13(value: str) -> bool:
     if len(value) != 13 or not value.startswith(("978", "979")):
         return False
-    checksum = sum((1 if index % 2 == 0 else 3) * int(digit) for index, digit in enumerate(value[:12]))
+    checksum = sum(
+        (1 if index % 2 == 0 else 3) * int(digit) for index, digit in enumerate(value[:12])
+    )
     return (10 - checksum % 10) % 10 == int(value[-1])
 
 

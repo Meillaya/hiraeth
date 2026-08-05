@@ -7,9 +7,9 @@ from anyio import to_thread
 from fastapi import APIRouter
 
 from app.models import (
+    ERROR_RESPONSES,
     DetailScrapeRequest,
     DetailScrapeResponse,
-    ERROR_RESPONSES,
     JsonObject,
     ScrapeRequest,
     ScrapeResponse,
@@ -17,7 +17,6 @@ from app.models import (
     sidecar_http_error,
     sidecar_runtime_error,
 )
-from app.url_validation import validate_start_urls_against_source_hosts
 from app.spiders.astra_house import (
     ASTRA_HOUSE_PROVIDER,
     AstraHouseCatalogUrlNotAllowedError,
@@ -31,6 +30,7 @@ from app.spiders.deep_vellum_stealthy import (
     _response_text,
 )
 from app.spiders.two_lines_detail import parse_two_lines_detail
+from app.url_validation import validate_start_urls_against_source_hosts
 
 router = APIRouter(prefix="/scrape", tags=["scrape"])
 
@@ -228,9 +228,7 @@ async def scrape_detail(request: DetailScrapeRequest) -> DetailScrapeResponse:
 
     spider = DeepVellumStealthySpider()
     try:
-        response = await StealthyFetcher.fetch_async(
-            request.url, **spider.fetch_options
-        )
+        response = await StealthyFetcher.fetch_async(request.url, **spider.fetch_options)
     except OSError as error:
         raise sidecar_http_error(
             502,
