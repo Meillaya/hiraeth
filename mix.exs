@@ -40,13 +40,10 @@ defmodule Hiraeth.MixProject do
   def cli do
     [
       preferred_envs: [
-        precommit: :test,
-        "precommit.fast": :test,
         gate: :test,
         "test.fast": :test,
         "test.full": :test,
-        ci: :test,
-        quality: :test
+        ci: :test
       ]
     ]
   end
@@ -118,13 +115,6 @@ defmodule Hiraeth.MixProject do
         "esbuild hiraeth --minify",
         "phx.digest"
       ],
-      precommit: ["precommit.fast"],
-      "precommit.fast": [
-        "compile --warnings-as-errors",
-        "deps.unlock --unused",
-        "format --check-formatted",
-        "test.fast"
-      ],
       # The ≤5-min blocking gate. Deliberately omits sobelow/hex.audit: they
       # need network and stay in the CI `static` job and deep `ci` lane.
       gate: [
@@ -154,8 +144,7 @@ defmodule Hiraeth.MixProject do
         "assets.setup",
         "assets.build",
         "test.full"
-      ],
-      quality: ["dialyzer", "coveralls"]
+      ]
     ]
   end
 end

@@ -17,7 +17,7 @@ Scope guardrails preserved for Hiraeth v1:
 
 Verification is tiered:
 
-- **Layer 0 — local blocking gate:** `mix gate` (wrapped by `make gate`/`make recheck`) is the ≤5-min blocking local preflight: compile with warnings-as-errors, unused-deps check, format check, strict Credo, and the fast ExUnit lane. It runs on every change in the developer loop.
+- **Layer 0 — local blocking gate:** `mix gate` (wrapped by `make gate`) is the ≤5-min blocking local preflight: compile with warnings-as-errors, unused-deps check, format check, strict Credo, and the fast ExUnit lane. It runs on every change in the developer loop.
 - **Layer 1 — parallel CI:** `.github/workflows/ci.yml` runs the `static` (format/Credo/Sobelow/hex.audit) and `test-fast` jobs in parallel on every PR and push to `main`, plus a lean devenv smoke job.
 - **Layer 2 — deep lane:** `.github/workflows/deep.yml` runs dialyzer, coverage, the full suite including assets, provenance audit, browser QA, ingestion drills, sidecar pytest, scripts tests, release image builds, and the full devenv readiness graph on merge to `main`, nightly, and manual dispatch.
 
@@ -25,7 +25,7 @@ Verification is tiered:
 
 Run the gates below on the final integrated worktree before making any production-ready claim:
 
-1. Fast local preflight for the developer loop: enter a `devenv shell`, then run `mix precommit` or `mix precommit.fast`, plus `mix test.fast` when the release owner wants the explicit fast ExUnit lane. Use the devenv process runner/readiness tasks for local PostgreSQL/Phoenix/sidecar checks.
+1. Fast local preflight for the developer loop: enter a `devenv shell`, then run `mix gate`, plus `mix test.fast` when the release owner wants the explicit fast ExUnit lane. Use the devenv process runner/readiness tasks for local PostgreSQL/Phoenix/sidecar checks.
 2. Full local and CI/release assurance: `mix test.full`, `mix ci`, and the GitHub Actions workflow in `.github/workflows/ci.yml`.
 3. Sidecar assurance: `cd sidecar && uv run --extra dev pytest -q`.
 4. Browser QA: `STRICT_TIMING=1 make test-browser`, which delegates to the stable `scripts/browser_qa.sh` entrypoint and grouped helpers under `scripts/qa/browser/`.
@@ -41,7 +41,7 @@ The dialyzer PLT is built once and reused for fast re-runs. The local first buil
 
 ## Warm re-run protocol
 
-Repeated `make recheck` (an alias for `mix gate`) reuses the warm `_build` and the persisted dialyzer PLT, so independent re-verification is fast (~20s warm). `make recheck` is the fast independent-verification loop; the deep lane (deep.yml: dialyzer/coverage/full-suite/provenance/browser/drills/sidecar/scripts-tests/release-build/devenv-full) still requires the full gates.
+Repeated `make gate` reuses the warm `_build` and the persisted dialyzer PLT, so independent re-verification is fast (~20s warm). `make gate` is the fast independent-verification loop; the deep lane (deep.yml: dialyzer/full-suite-with-coverage/provenance/browser/drills/sidecar/scripts-tests/release-build/devenv-full) still requires the full gates.
 
 ## Source documents and runbooks
 
@@ -77,7 +77,7 @@ The grouped helper paths are implementation details unless documented as operato
 
 | Area | Current packet position | Runbook/contract path |
 | --- | --- | --- |
-| CI | GitHub workflow runs full Phoenix assurance with `mix ci`; fast local `mix precommit`/`mix precommit.fast` is a separate developer preflight. Sidecar pytest remains an adjacent CI/release lane. | `.github/workflows/ci.yml`, `docs/production-operations.md` |
+| CI | GitHub workflow runs full Phoenix assurance with `mix ci`; fast local `mix gate` is a separate developer preflight. Sidecar pytest remains an adjacent CI/release lane. | `.github/workflows/ci.yml`, `docs/production-operations.md` |
 | release/deploy | Phoenix release build, migration, container start, pool sizing, and env setup are documented. | `docs/production-operations.md` |
 | env | Required runtime variables are documented; docs must never contain real values. | `docs/production-operations.md`, `.env.example` |
 | health/readiness | `/health` and `/ready` are narrow operator endpoints and not a public API. | `docs/contracts.md`, `docs/production-operations.md` |
@@ -94,8 +94,7 @@ The grouped helper paths are implementation details unless documented as operato
 Before launch or handoff, confirm:
 
 - All required release gates pass on the final integrated worktree, or blockers are explicitly recorded with owner and recovery path.
-- `mix precommit`/`mix precommit.fast` is not treated as a substitute for full release gates.
-- `mix gate` is not a substitute for the deep lane; the deep lane (deep.yml) must pass on the final integrated worktree before any production-ready claim.
+- `mix gate` is not treated as a substitute for full release gates; the deep lane (deep.yml) must pass on the final integrated worktree before any production-ready claim.
 - Browser QA, ingestion drills, sidecar pytest, and CI use the consolidated script paths above.
 - Session secret handling, private sidecar networking, strict CORS, source allowlists, private-IP rejection, and evidence redaction have fresh verification.
 - Public pages still render local `/covers/cache/...` URLs or typographic fallbacks, never remote cover URLs.

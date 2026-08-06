@@ -2,15 +2,12 @@ defmodule Hiraeth.MixAliasContractTest do
   use ExUnit.Case, async: true
 
   @required_aliases [
-    :precommit,
-    :"precommit.fast",
     :"test.fast",
     :"test.full",
     :ci,
-    :quality,
     :gate
   ]
-  @format_checked_gates [:"precommit.fast", :ci]
+  @format_checked_gates [:gate, :ci]
   # The fast blocking gate deliberately omits sobelow/hex.audit: they need
   # network and stay in the CI `static` job and deep `ci` lane.
   @gate_commands [
@@ -53,10 +50,6 @@ defmodule Hiraeth.MixAliasContractTest do
     end
   end
 
-  test "precommit delegates directly to the fast precommit gate" do
-    assert alias_commands!(:precommit) == ["precommit.fast"]
-  end
-
   test "fast and full test gates are separate aliases" do
     fast_commands = alias_commands!(:"test.fast")
     full_commands = alias_commands!(:"test.full")
@@ -76,7 +69,7 @@ defmodule Hiraeth.MixAliasContractTest do
     end
   end
 
-  test "precommit and CI gates check formatting without mutating files" do
+  test "gate and CI gates check formatting without mutating files" do
     for gate <- @format_checked_gates do
       gate_commands = alias_commands!(gate)
 
@@ -113,24 +106,6 @@ defmodule Hiraeth.MixAliasContractTest do
       assert gate_index < assets_index, "expected #{gate} to run before assets.setup"
       assert gate_index < test_index, "expected #{gate} to run before test.full"
     end
-  end
-
-  test "quality alias exists and runs the slow gates" do
-    assert Keyword.has_key?(aliases(), :quality), "expected mix alias quality to exist"
-
-    quality_commands = alias_commands!(:quality)
-    assert "dialyzer" in quality_commands
-    assert "coveralls" in quality_commands
-  end
-
-  test "fast precommit lane never gains slow gates" do
-    fast_commands = alias_commands!(:"precommit.fast")
-
-    refute "dialyzer" in fast_commands,
-           "expected precommit.fast to stay free of dialyzer"
-
-    refute "coveralls" in fast_commands,
-           "expected precommit.fast to stay free of coveralls"
   end
 
   test "gate alias runs the fast blocking checks" do

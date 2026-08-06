@@ -11,6 +11,12 @@ defmodule Hiraeth.VerifyGateTest do
     assert makefile =~ "$(QA_DIR)/verify/summary.json"
     assert File.exists?(script)
 
+    # The verify chain is the non-redundant lane: provenance audit, browser
+    # QA, summary gate, and QA pack. Per-suite Makefile wrappers (test-elixir,
+    # test-ui, test-ingest, test-normalize, test-covers) and the bootstrap
+    # file check were collapsed into `mix gate`/`mix ci` and removed.
+    assert makefile =~ "verify: audit-provenance test-browser verify-summary qa-pack"
+
     script_text = File.read!(script)
 
     for gate <- [

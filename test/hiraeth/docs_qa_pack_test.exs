@@ -20,7 +20,7 @@ defmodule Hiraeth.DocsQaPackTest do
     refute readme =~ ~r/^\s*docker\s+\S+\s+up\s+-d\s+postgres$/m
     assert readme =~ "## Verify/build"
     assert readme =~ "Fast local preflight"
-    assert readme =~ "mix precommit"
+    assert readme =~ "mix gate"
     assert readme =~ "mix test.fast"
     assert readme =~ "Full local, CI, and release assurance"
     assert readme =~ "mix ci"

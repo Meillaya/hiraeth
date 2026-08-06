@@ -31,12 +31,6 @@ required_routes = [
 ]
 
 artifact_expectations = {
-    "bootstrap_check": qa_dir / "bootstrap/bootstrap-check.txt",
-    "test_elixir": qa_dir / "elixir/test-elixir.txt",
-    "test_ui": qa_dir / "ui/test-ui.txt",
-    "test_ingest": qa_dir / "ingest/test-ingest.txt",
-    "test_normalize": qa_dir / "normalize/test-normalize.txt",
-    "test_covers": qa_dir / "covers/test-covers.txt",
     "audit_provenance": qa_dir / "provenance/audit-provenance.txt",
     "test_browser": qa_dir / "browser/test-browser.txt",
 }
