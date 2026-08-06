@@ -56,10 +56,13 @@ defmodule Hiraeth.AshPostgresMigrationTest do
     cover_assets
     cover_assignments
     import_runs
+    audit_events
+  )
+
+  @removed_tables ~w(
     import_mappings
     staged_import_rows
     review_items
-    audit_events
   )
 
   test "AshPostgres migrations create expected domain tables without a flat books table" do
@@ -77,6 +80,11 @@ defmodule Hiraeth.AshPostgresMigrationTest do
 
     for table <- @expected_tables do
       assert table in table_names
+    end
+
+    for table <- @removed_tables do
+      refute table in table_names,
+             "#{table} was dropped with the Imports CSV workflow and must stay absent"
     end
 
     refute "books" in table_names

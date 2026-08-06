@@ -18,7 +18,7 @@ summary_path = qa_dir / "verify" / "summary.json"
 mix_text = (root / "mix.exs").read_text() + "\n" + (root / "mix.lock").read_text()
 router_text = (root / "lib/hiraeth_web/router.ex").read_text()
 
-required_domains = ["Catalog", "Sources", "Covers", "Imports", "Search", "Audit"]
+required_domains = ["Catalog", "Sources", "Covers", "Imports", "Audit"]
 required_routes = [
     'live "/"',
     'live "/browse"',

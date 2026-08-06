@@ -1,12 +1,9 @@
 defmodule Hiraeth.Imports do
-  @moduledoc "Ash domain: CSV/manual import staging, mappings, runs, and review items."
+  @moduledoc "Ash domain: import run lineage rows written by ingestion apply/tombstone phases."
 
   use Ash.Domain
 
   resources do
     resource Hiraeth.Imports.ImportRun
-    resource Hiraeth.Imports.ImportMapping
-    resource Hiraeth.Imports.StagedImportRow
-    resource Hiraeth.Imports.ReviewItem
   end
 end

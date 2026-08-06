@@ -7,7 +7,6 @@ defmodule Hiraeth.DomainTopologyTest do
     Hiraeth.Covers,
     Hiraeth.Imports,
     Hiraeth.Ingestion,
-    Hiraeth.Search,
     Hiraeth.Audit
   ]
 
@@ -29,12 +28,7 @@ defmodule Hiraeth.DomainTopologyTest do
       Hiraeth.Sources.SourceLedgerEntry
     ],
     Hiraeth.Covers => [Hiraeth.Covers.CoverAsset, Hiraeth.Covers.CoverAssignment],
-    Hiraeth.Imports => [
-      Hiraeth.Imports.ImportRun,
-      Hiraeth.Imports.ImportMapping,
-      Hiraeth.Imports.StagedImportRow,
-      Hiraeth.Imports.ReviewItem
-    ],
+    Hiraeth.Imports => [Hiraeth.Imports.ImportRun],
     Hiraeth.Ingestion => [
       Hiraeth.Ingestion.ProviderSource,
       Hiraeth.Ingestion.ProviderRun,
@@ -42,7 +36,6 @@ defmodule Hiraeth.DomainTopologyTest do
       Hiraeth.Ingestion.RecordCandidate,
       Hiraeth.Ingestion.IngestionEvent
     ],
-    Hiraeth.Search => [Hiraeth.Search.Result],
     Hiraeth.Audit => [Hiraeth.Audit.AuditEvent]
   }
 

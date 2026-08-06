@@ -18,7 +18,6 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
   alias Hiraeth.CatalogCleanup
   alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
   alias Hiraeth.QueryCounting
-  alias Hiraeth.Search.Result, as: SearchResult
   alias Hiraeth.Sources.SourceRecord
   alias HiraethWeb.PublicCatalog
 
@@ -185,24 +184,6 @@ defmodule HiraethWeb.PublicCatalogPerformanceTest do
       assert measurement.query_count <= @list_query_budget
       assert measurement.elapsed_microseconds <= @warm_elapsed_budget_microseconds
       assert Enum.uniq_by(measurement.result.entries, & &1.work_id) == measurement.result.entries
-    end
-  end
-
-  test "legacy Ash search result is marked internal so public UI cannot drift to in-memory filtering" do
-    assert SearchResult.public_catalog_path?() == false
-
-    public_files = [
-      "lib/hiraeth_web/live/browse_live.ex",
-      "lib/hiraeth_web/live/search_live.ex",
-      "lib/hiraeth_web/live/home_live.ex",
-      "lib/hiraeth_web/live/book_live.ex",
-      "lib/hiraeth_web/live/publishers_live.ex",
-      "lib/hiraeth_web/live/series_live.ex"
-    ]
-
-    for file <- public_files do
-      refute File.read!(file) =~ "Hiraeth.Search.Result",
-             "#{file} must use HiraethWeb.PublicCatalog instead of in-memory Ash search"
     end
   end
 

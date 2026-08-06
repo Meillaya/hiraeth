@@ -1,12 +1,10 @@
 defmodule Hiraeth.Imports.ImportRun do
-  @moduledoc "Ash resource: a CSV/manual import run, with its staged rows, mappings, and apply result."
+  @moduledoc "Ash resource: an import run row carrying apply/tombstone provenance lineage."
 
   use Ash.Resource,
     domain: Hiraeth.Imports,
     data_layer: AshPostgres.DataLayer,
     authorizers: [Ash.Policy.Authorizer]
-
-  alias Hiraeth.Imports.ImportRun.Actions.CsvWorkflow
 
   postgres do
     table "import_runs"
@@ -34,12 +32,6 @@ defmodule Hiraeth.Imports.ImportRun do
     end
   end
 
-  relationships do
-    has_many :mappings, Hiraeth.Imports.ImportMapping
-    has_many :staged_rows, Hiraeth.Imports.StagedImportRow
-    has_many :review_items, Hiraeth.Imports.ReviewItem
-  end
-
   identities do
     identity :unique_provider_status, [:provider, :status, :id]
   end
@@ -52,51 +44,8 @@ defmodule Hiraeth.Imports.ImportRun do
       accept [:provider, :status, :row_limit]
     end
 
-    create :upload_csv do
-      accept [:provider]
-
-      argument :file_name, :string do
-        allow_nil? false
-        public? true
-      end
-
-      argument :csv_content, :string do
-        allow_nil? false
-        constraints allow_empty?: true, trim?: false
-        public? true
-      end
-
-      manual CsvWorkflow
-    end
-
     update :update do
       accept [:provider, :status, :row_limit]
-    end
-
-    update :map_columns do
-      require_atomic? false
-      argument :mappings, :map, allow_nil?: false, public?: true
-      change set_attribute(:status, "mapped")
-      change after_action(&CsvWorkflow.map_columns/3)
-    end
-
-    update :dry_run do
-      accept []
-      change set_attribute(:status, "dry_run")
-    end
-
-    update :validate_rows do
-      require_atomic? false
-      accept []
-      change set_attribute(:status, "validated")
-      change after_action(&CsvWorkflow.validate_rows/3)
-    end
-
-    update :apply_accepted_rows do
-      require_atomic? false
-      accept []
-      change set_attribute(:status, "applied")
-      change after_action(&CsvWorkflow.apply_rows/3)
     end
   end
 

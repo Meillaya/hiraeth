@@ -3,7 +3,7 @@
 
 alias Hiraeth.Catalog.{Edition, Series, SeriesMembership}
 alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
-alias Hiraeth.Imports.{ImportRun, ReviewItem, StagedImportRow}
+alias Hiraeth.Imports.ImportRun
 
 if Mix.env() not in [:dev, :test] do
   raise "scripts/qa/browser/seed_browser_qa.exs may only run in dev/test environments"
@@ -50,23 +50,6 @@ run =
       provider: "browser_qa_import",
       status: "review",
       row_limit: 250
-    })
-    |> Ash.create!(actor: catalog_writer)
-
-row =
-  StagedImportRow
-  |> Ash.read!(authorize?: false)
-  |> Enum.find(&(&1.import_run_id == run.id and &1.row_number == 1)) ||
-    StagedImportRow
-    |> Ash.Changeset.for_create(:create, %{
-      import_run_id: run.id,
-      row_number: 1,
-      raw_payload: %{
-        "title" => "Browser QA Review Row",
-        "isbn" => "",
-        "publisher" => "Browser QA Press"
-      },
-      status: "needs_review"
     })
     |> Ash.create!(actor: catalog_writer)
 
@@ -157,19 +140,4 @@ CoverAssignment
   |> Ash.update!(authorize?: false)
 end)
 
-ReviewItem
-|> Ash.read!(authorize?: false)
-|> Enum.find(
-  &(&1.import_run_id == run.id and &1.message == "Browser QA missing ISBN review item")
-) ||
-  ReviewItem
-  |> Ash.Changeset.for_create(:create, %{
-    import_run_id: run.id,
-    staged_import_row_id: row.id,
-    entity_type: "staged_import_row",
-    decision: "pending",
-    message: "Browser QA missing ISBN review item"
-  })
-  |> Ash.create!(actor: catalog_writer)
-
-IO.puts("seeded browser_qa_import review row and cached cover for #{edition.slug}")
+IO.puts("seeded browser_qa_import run #{run.id} and cached cover for #{edition.slug}")
