@@ -6,6 +6,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Self-hosted OFL fonts (Newsreader, Space Grotesk, Space Mono) with `@font-face` rules and license/provenance documentation under `priv/static/fonts/`.
+- Three full-site design prototypes built from real catalog data under `artifacts/design-prototypes/` as the sanctioned UI exploration artifact; `docs/architecture.md` documents the fallback when the `agy` CLI produces no output.
+- Per-provider `cadence_hours` on provider manifests and `ProviderSource` (default 24h) with manifest validation and backfill.
+- Weekly scheduled cover cache refresh and provenance audit workers on the idle `:covers` and `:audit` Oban queues.
+- README pointer to the "Autonomous catalog updates" ops runbook section for what runs when, the kill-switch, and rollout order.
+
+### Changed
+
+- CI consolidated: the deep lane runs the full suite once with coverage merged into a single coveralls run (86.1 floor); the `devenv-smoke` job stays as PR-time proof of the pinned Nix BEAM toolchain.
+- Mix aliases collapsed to `gate` (single fast blocking gate), `ci` (full lane), `test.fast`, and `test.full`; the Makefile `verify` chain slimmed to `audit-provenance test-browser verify-summary qa-pack`.
+- Local development is devenv-only; the root and `sidecar/Dockerfile` remain the production runtime boundary.
+- Sidecar `base_url` config de-duplicated: the default lives in `config/config.exs`, dev/test inherit it, and `config/runtime.exs` reads `SCRAPLING_SIDECAR_URL`.
+
+### Removed
+
+- Unrouted page scaffold, Swoosh/Mailer, and the dev-only mailbox route.
+- `Hiraeth.Search` domain, the Imports CSV workflow (including its tables via a drop migration), and the never-enqueued `SourceSnapshotReplayWorker`.
+- `compose.yaml` and every Compose reference; devenv owns local, Dockerfiles own production.
+
 ## [1.0.0] - 2026-08-05
 
 ### Added

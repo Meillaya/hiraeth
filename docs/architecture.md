@@ -6,7 +6,7 @@ Hiraeth is an Elixir-first Phoenix application for browsing carefully curated in
 
 - LiveView owns the browser UI. Phoenix LiveView, HEEx templates, Phoenix components, Tailwind CSS, and `assets/js/app.js` / `assets/css/app.css` are the only v1 browser UI surface.
 - No React, no Vite SPA, and no separate frontend application in v1.
-- Use the `agy` CLI for UI design exploration before substantial visual implementation work.
+- Use the `agy` CLI for UI design exploration before substantial visual implementation work. When `agy` exits successfully but produces no output, self-contained HTML/CSS prototypes with captured screenshots are the sanctioned exploration artifact (precedent: `docs/history/worklog-2026-06.md:317,917`).
 - JSON APIs are not part of v1 unless a later task explicitly adds a narrow integration endpoint.
 
 ## Domain model ownership

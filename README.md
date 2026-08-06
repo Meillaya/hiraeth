@@ -43,6 +43,8 @@ mix hiraeth.real_catalog.source_artifacts
 mix hiraeth.real_catalog.coverage_report
 ```
 
+Autonomous scheduled ingestion runs on its own per-provider cadence; see the "Autonomous catalog updates" section of `docs/production-operations.md` for what runs when, the kill-switch, and rollout order.
+
 ## Verify/build
 
 Verification is tiered so the fast developer loop stays under five minutes while full release assurance runs at depth:

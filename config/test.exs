@@ -40,8 +40,6 @@ config :phoenix,
 
 config :hiraeth, Oban, testing: :manual
 
-config :hiraeth, :scrapling_sidecar, base_url: "http://localhost:8000"
-
 config :hiraeth,
        :source_snapshot_retention_root,
        Path.expand("../tmp/source_snapshots/test", __DIR__)
