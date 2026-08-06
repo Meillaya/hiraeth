@@ -41,6 +41,7 @@ defmodule Hiraeth.Ingestion.ManifestValidator do
       |> add_spider_module_finding(manifest)
       |> add_spider_start_urls_finding(manifest)
       |> add_expected_record_count_finding(manifest)
+      |> add_cadence_hours_finding(manifest)
 
     if findings == [] do
       {:ok, manifest}
@@ -263,6 +264,26 @@ defmodule Hiraeth.Ingestion.ManifestValidator do
       manifest,
       :expected_record_count,
       "expected_record_count must be a positive integer"
+    )
+  end
+
+  # --- cadence_hours must be positive integer when present ---
+
+  defp add_cadence_hours_finding(findings, manifest) do
+    cadence = Map.get(manifest, :cadence_hours) || Map.get(manifest, "cadence_hours")
+
+    findings
+    |> add_if(
+      not is_nil(cadence) and not is_integer(cadence),
+      manifest,
+      :cadence_hours,
+      "cadence_hours must be a positive integer"
+    )
+    |> add_if(
+      is_integer(cadence) and cadence < 1,
+      manifest,
+      :cadence_hours,
+      "cadence_hours must be a positive integer"
     )
   end
 

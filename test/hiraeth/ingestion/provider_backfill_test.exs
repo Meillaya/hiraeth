@@ -73,6 +73,7 @@ defmodule Hiraeth.Ingestion.ProviderBackfillTest do
     assert fitzcarraldo.source_kind == "publisher"
     assert fitzcarraldo.ingestion_mode == "manual"
     assert fitzcarraldo.enabled? == false
+    assert fitzcarraldo.cadence_hours == 24
   end
 
   test "apply! disables active provider source rows outside the canonical inventory" do
@@ -131,6 +132,46 @@ defmodule Hiraeth.Ingestion.ProviderBackfillTest do
     refute Enum.any?(manifest_uris, &(&1 =~ File.cwd!()))
   end
 
+  test "apply! persists cadence_hours from the provider manifest" do
+    opts = write_tmp_cadence_inventory(%{cadence_hours: 6})
+
+    assert %{created: 1, updated: 0} = ProviderBackfill.apply!(opts)
+
+    [row] = Ash.read!(ProviderSource, authorize?: false)
+    assert row.stable_source_key == "cadence_fixture_official_store"
+    assert row.cadence_hours == 6
+    assert row.enabled? == true
+  end
+
+  test "apply! defaults cadence_hours to 24 when the manifest omits it" do
+    opts = write_tmp_cadence_inventory(%{})
+
+    assert %{created: 1, updated: 0} = ProviderBackfill.apply!(opts)
+
+    [row] = Ash.read!(ProviderSource, authorize?: false)
+    assert row.stable_source_key == "cadence_fixture_official_store"
+    assert row.cadence_hours == 24
+  end
+
+  test "apply! defaults cadence_hours to 24 for corpus-only manual providers" do
+    ProviderBackfill.apply!()
+
+    rows = Ash.read!(ProviderSource, authorize?: false)
+
+    fitzcarraldo =
+      Enum.find(rows, &(&1.stable_source_key == "fitzcarraldo_editions_official_site"))
+
+    deep_vellum = Enum.find(rows, &(&1.stable_source_key == "deep_vellum_official_store"))
+
+    assert fitzcarraldo.ingestion_mode == "manual"
+    assert fitzcarraldo.enabled? == false
+    assert fitzcarraldo.cadence_hours == 24
+
+    assert deep_vellum.ingestion_mode == "scrape"
+    assert deep_vellum.enabled? == true
+    assert deep_vellum.cadence_hours == 24
+  end
+
   test "build_inventory rejects malformed provider manifests" do
     tmp =
       Path.join(
@@ -155,5 +196,45 @@ defmodule Hiraeth.Ingestion.ProviderBackfillTest do
 
     assert message =~ "manifest validation failed"
     assert message =~ "broken.json"
+  end
+
+  defp write_tmp_cadence_inventory(cadence_attrs) do
+    tmp =
+      Path.join(
+        System.tmp_dir!(),
+        "hiraeth-provider-backfill-cadence-#{System.unique_integer([:positive])}"
+      )
+
+    real_dir = Path.join(tmp, "real_publishers")
+    manifest_dir = Path.join(tmp, "provider_manifests")
+
+    File.mkdir_p!(real_dir)
+    File.mkdir_p!(manifest_dir)
+
+    manifest =
+      %{
+        provider: "cadence_fixture_official_store",
+        name: "Cadence Fixture",
+        source_mode: "api",
+        source_urls: ["https://www.example.com/books"],
+        source_hosts: ["www.example.com"],
+        cover_hosts: ["cdn.example.com"],
+        api: %{type: "shopify", endpoint: "https://www.example.com"},
+        permission_basis: "Test.",
+        takedown_contact: "test@example.com",
+        excluded_content: ["raw_html"],
+        cover_cache_policy: "cache_allowed",
+        not_legal_advice: true
+      }
+      |> Map.merge(cadence_attrs)
+
+    File.write!(
+      Path.join(manifest_dir, "cadence_fixture_official_store.json"),
+      Jason.encode!(manifest)
+    )
+
+    on_exit(fn -> File.rm_rf!(tmp) end)
+
+    [real_publishers_dir: real_dir, provider_manifests_dir: manifest_dir]
   end
 end

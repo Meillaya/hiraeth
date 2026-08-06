@@ -511,6 +511,48 @@ defmodule Hiraeth.Ingestion.ManifestValidatorTest do
     end
   end
 
+  describe "validate/1 with cadence_hours" do
+    test "accepts a positive integer cadence_hours" do
+      manifest = valid_api_manifest(%{cadence_hours: 12})
+      assert {:ok, _manifest} = ManifestValidator.validate(manifest)
+    end
+
+    test "accepts a manifest without cadence_hours" do
+      manifest = valid_api_manifest(%{})
+      assert {:ok, _manifest} = ManifestValidator.validate(manifest)
+    end
+
+    test "rejects cadence_hours of 0" do
+      manifest = valid_api_manifest(%{cadence_hours: 0})
+      assert {:error, findings} = ManifestValidator.validate(manifest)
+
+      assert Enum.any?(findings, fn finding ->
+               finding.field == :cadence_hours and
+                 String.contains?(finding.reason, "cadence_hours must be a positive integer")
+             end)
+    end
+
+    test "rejects negative cadence_hours" do
+      manifest = valid_api_manifest(%{cadence_hours: -6})
+      assert {:error, findings} = ManifestValidator.validate(manifest)
+
+      assert Enum.any?(findings, fn finding ->
+               finding.field == :cadence_hours and
+                 String.contains?(finding.reason, "cadence_hours must be a positive integer")
+             end)
+    end
+
+    test "rejects non-integer cadence_hours" do
+      manifest = valid_api_manifest(%{cadence_hours: "daily"})
+      assert {:error, findings} = ManifestValidator.validate(manifest)
+
+      assert Enum.any?(findings, fn finding ->
+               finding.field == :cadence_hours and
+                 String.contains?(finding.reason, "cadence_hours must be a positive integer")
+             end)
+    end
+  end
+
   describe "real publisher ingestion manifests" do
     @real_manifest_dir Path.expand("../../../priv/catalog_sources/provider_manifests", __DIR__)
     @new_provider_expectations %{

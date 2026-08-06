@@ -1,6 +1,7 @@
 {
   "provider": "deep_vellum_official_store",
   "name": "Deep Vellum",
+  "cadence_hours": 24,
   "source_mode": "scrape",
   "source_urls": [
     "https://store.deepvellum.org/collections/all"

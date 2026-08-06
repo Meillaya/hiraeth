@@ -1,6 +1,7 @@
 {
   "provider": "pushkin_press_us_official_store",
   "name": "Pushkin Press US",
+  "cadence_hours": 24,
   "source_mode": "api",
   "source_urls": [
     "https://us.pushkinpress.com/our-books/",

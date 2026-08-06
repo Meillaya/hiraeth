@@ -1,6 +1,7 @@
 {
   "provider": "astra_house_official_store",
   "name": "Astra House",
+  "cadence_hours": 24,
   "source_mode": "scrape",
   "source_urls": [
     "https://astrapublishinghouse.com/imprints/astra-house/"

@@ -1,6 +1,7 @@
 {
   "provider": "open_letter_books_official_store",
   "name": "Open Letter Books",
+  "cadence_hours": 24,
   "source_mode": "api",
   "source_urls": [
     "https://www.openletterbooks.org/collections/books",

@@ -1,6 +1,7 @@
 {
   "provider": "sandorf_passage_official_store",
   "name": "Sandorf Passage",
+  "cadence_hours": 24,
   "source_mode": "api",
   "source_urls": [
     "https://sandorfpassage.org/shop/",

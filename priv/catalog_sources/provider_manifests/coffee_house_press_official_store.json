@@ -1,6 +1,7 @@
 {
   "provider": "coffee_house_press_official_store",
   "name": "Coffee House Press",
+  "cadence_hours": 24,
   "source_mode": "api",
   "source_urls": [
     "https://coffeehousepress.org/collections/shop",

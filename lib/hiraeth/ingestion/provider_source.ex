@@ -48,6 +48,13 @@ defmodule Hiraeth.Ingestion.ProviderSource do
     attribute :license_note, :string, public?: true
     attribute :enabled?, :boolean, allow_nil?: false, default: false, public?: true
 
+    attribute :cadence_hours, :integer do
+      allow_nil? false
+      default 24
+      constraints min: 1
+      public? true
+    end
+
     create_timestamp :inserted_at
     update_timestamp :updated_at
   end
@@ -86,7 +93,8 @@ defmodule Hiraeth.Ingestion.ProviderSource do
         :checksum_algorithm,
         :required_checksum,
         :license_note,
-        :enabled?
+        :enabled?,
+        :cadence_hours
       ]
     end
 
@@ -105,7 +113,8 @@ defmodule Hiraeth.Ingestion.ProviderSource do
         :checksum_algorithm,
         :required_checksum,
         :license_note,
-        :enabled?
+        :enabled?,
+        :cadence_hours
       ]
     end
   end

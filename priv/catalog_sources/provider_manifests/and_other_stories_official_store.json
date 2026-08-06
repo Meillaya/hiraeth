@@ -1,6 +1,7 @@
 {
     "provider": "and_other_stories_official_store",
     "name": "And Other Stories",
+    "cadence_hours": 24,
     "source_mode": "api",
     "source_urls": [
         "https://www.andotherstories.org/books/",

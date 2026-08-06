@@ -1,6 +1,7 @@
 {
   "provider": "two_lines_press_official_store",
   "name": "Two Lines Press",
+  "cadence_hours": 24,
   "source_mode": "api",
   "source_urls": [
     "https://www.twolinespress.com/shop/books",

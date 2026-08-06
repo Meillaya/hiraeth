@@ -1,6 +1,7 @@
 {
   "provider": "wakefield_press_official_store",
   "name": "Wakefield Press",
+  "cadence_hours": 24,
   "source_mode": "api",
   "source_urls": [
     "https://wakefieldpress.com/",

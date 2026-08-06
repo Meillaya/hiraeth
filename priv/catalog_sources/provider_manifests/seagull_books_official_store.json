@@ -1,6 +1,7 @@
 {
   "provider": "seagull_books_official_store",
   "name": "Seagull Books",
+  "cadence_hours": 24,
   "source_mode": "api",
   "source_urls": [
     "https://seagullbooks.org/collections/all-books-in-print",

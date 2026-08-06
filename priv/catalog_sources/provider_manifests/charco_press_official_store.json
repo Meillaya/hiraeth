@@ -1,6 +1,7 @@
 {
   "provider": "charco_press_official_store",
   "name": "Charco Press",
+  "cadence_hours": 24,
   "source_mode": "api",
   "source_urls": [
     "https://charcopress.com/bookstore"

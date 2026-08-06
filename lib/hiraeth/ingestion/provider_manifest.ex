@@ -22,7 +22,8 @@ defmodule Hiraeth.Ingestion.ProviderManifest do
     :takedown_contact,
     :excluded_content,
     :cover_cache_policy,
-    :not_legal_advice
+    :not_legal_advice,
+    cadence_hours: 24
   ]
 
   @manifest_dir Application.app_dir(:hiraeth, "priv/catalog_sources/provider_manifests")
@@ -96,7 +97,7 @@ defmodule Hiraeth.Ingestion.ProviderManifest do
   # --- Atomize helpers (mirror Dataset.atomize pattern) ---
 
   @known_keys ~w(
-    provider name source_mode source_urls source_hosts cover_hosts
+    provider name source_mode source_urls source_hosts cover_hosts cadence_hours
     api spider rate_limit detail_enrichment expected_record_count permission_basis
     takedown_contact excluded_content cover_cache_policy not_legal_advice
     type endpoint auth allowed_vendors collection_path vendor_as_author post_type taxonomy include_imprints exclude_imprints fetch_detail_pages detail_path_prefixes source_handle_patterns host path_prefix handle_pattern module start_urls selectors use_stealthy_fetcher

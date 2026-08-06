@@ -67,6 +67,28 @@ defmodule Hiraeth.Ingestion.ProviderManifestTest do
     end
   end
 
+  describe "load!/1 with cadence_hours" do
+    test "parses cadence_hours from manifest JSON into the struct" do
+      path = write_temp_manifest(Map.put(cadence_base_manifest(), :cadence_hours, 48))
+
+      manifest = ProviderManifest.load!(path)
+
+      assert manifest.cadence_hours == 48
+    after
+      cleanup_temp_manifests()
+    end
+
+    test "defaults cadence_hours to 24 when the manifest omits it" do
+      path = write_temp_manifest(cadence_base_manifest())
+
+      manifest = ProviderManifest.load!(path)
+
+      assert manifest.cadence_hours == 24
+    after
+      cleanup_temp_manifests()
+    end
+  end
+
   describe "effective_source_mode/1" do
     test "returns scrape when spider config is present and source_mode is absent" do
       manifest = %{
@@ -181,6 +203,23 @@ defmodule Hiraeth.Ingestion.ProviderManifestTest do
     after
       cleanup_temp_manifests()
     end
+  end
+
+  defp cadence_base_manifest do
+    %{
+      provider: "cadence_test_provider",
+      name: "Cadence Test Provider",
+      source_mode: "api",
+      source_urls: ["https://www.example.com/books"],
+      source_hosts: ["www.example.com"],
+      cover_hosts: ["cdn.example.com"],
+      api: %{type: "shopify", endpoint: "https://www.example.com"},
+      permission_basis: "Official publisher pages expose public catalog facts.",
+      takedown_contact: "contact@example.com",
+      excluded_content: ["raw_html"],
+      cover_cache_policy: "cache_allowed",
+      not_legal_advice: true
+    }
   end
 
   defp secret_manifest(secret_url) do
