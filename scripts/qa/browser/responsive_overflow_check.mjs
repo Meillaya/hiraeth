@@ -160,10 +160,26 @@ function overflowProbeExpression() {
     const viewportWidth = document.documentElement.clientWidth;
     const documentScrollWidth = Math.max(document.documentElement.scrollWidth, document.body.scrollWidth);
     const overflowing = [];
+    const isClippedByRealScrollContainer = element => {
+      // An element is clipped (not viewport-overflowing) when it is itself or an
+      // ancestor is a REAL horizontal scroll container: computed overflow-x in
+      // (auto, scroll) AND scrollWidth > clientWidth (its content actually
+      // overflows it, so the container clips its right edge).
+      for (let ancestor = element; ancestor; ancestor = ancestor.parentElement) {
+        if (ancestor.scrollWidth > ancestor.clientWidth) {
+          const ancestorStyle = window.getComputedStyle(ancestor);
+          const overflowX = ancestorStyle.overflowX;
+          if (overflowX === 'auto' || overflowX === 'scroll') return true;
+        }
+      }
+      return false;
+    };
     for (const element of document.querySelectorAll('body *')) {
       const rect = element.getBoundingClientRect();
       const style = window.getComputedStyle(element);
-      if (rect.width > 0 && rect.right > viewportWidth + 1 && style.position !== 'fixed') {
+      if (rect.width > 0 && rect.right > viewportWidth + 1) {
+        const exempt = style.position === 'fixed' || isClippedByRealScrollContainer(element);
+        if (exempt) continue;
         overflowing.push({
           tag: element.tagName,
           id: element.id || '',
