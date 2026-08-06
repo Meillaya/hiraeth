@@ -1,7 +1,6 @@
 defmodule Hiraeth.TestSupport.ApplyPhaseRegressionHelpers do
   @moduledoc false
 
-  alias Hiraeth.Catalog.{Edition, Identifier, Publisher, Work}
   alias Hiraeth.Ingestion.{ProviderManifest, RecordCandidate}
   alias Hiraeth.RealCatalog.SourceIdentity
   alias Hiraeth.Sources.{SourceLedgerEntry, SourceRecord}
@@ -160,20 +159,6 @@ defmodule Hiraeth.TestSupport.ApplyPhaseRegressionHelpers do
   end
 
   defp clear_catalog! do
-    [
-      SourceLedgerEntry,
-      SourceRecord,
-      Hiraeth.Covers.CoverAssignment,
-      Hiraeth.Covers.CoverAsset,
-      Identifier,
-      Hiraeth.Catalog.Contribution,
-      Edition,
-      Hiraeth.Catalog.SeriesMembership,
-      Hiraeth.Catalog.Series,
-      Work,
-      Hiraeth.Catalog.Imprint,
-      Publisher
-    ]
-    |> Enum.each(&Hiraeth.Repo.delete_all/1)
+    Hiraeth.CatalogCleanup.clear_catalog_in_sandbox!()
   end
 end

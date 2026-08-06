@@ -1,5 +1,5 @@
 defmodule Hiraeth.ProvenanceAuditTest do
-  use Hiraeth.DataCase, async: false
+  use Hiraeth.DataCase, async: true
 
   import Ecto.Query
 
@@ -7,13 +7,9 @@ defmodule Hiraeth.ProvenanceAuditTest do
   alias Hiraeth.Audit.AuditEvent
 
   alias Hiraeth.Catalog.{
-    Contribution,
     Edition,
     Identifier,
-    Imprint,
     Publisher,
-    Series,
-    SeriesMembership,
     Work
   }
 
@@ -507,23 +503,6 @@ defmodule Hiraeth.ProvenanceAuditTest do
   end
 
   defp clear_catalog! do
-    [
-      SourceLedgerEntry,
-      SourceRecord,
-      AuditEvent,
-      CoverAssignment,
-      CoverAsset,
-      Identifier,
-      Contribution,
-      Edition,
-      SeriesMembership,
-      Series,
-      Work,
-      Imprint,
-      Publisher
-    ]
-    |> Enum.each(fn resource ->
-      Repo.delete_all(resource)
-    end)
+    Hiraeth.CatalogCleanup.clear_catalog_in_sandbox!()
   end
 end

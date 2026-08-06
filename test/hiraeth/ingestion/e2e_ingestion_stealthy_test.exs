@@ -4,21 +4,9 @@ defmodule Hiraeth.Ingestion.E2EIngestionStealthyTest do
   @moduletag :integration
   @moduletag :slow
 
-  alias Hiraeth.Catalog.{
-    Contribution,
-    Contributor,
-    Edition,
-    Identifier,
-    Imprint,
-    Publisher,
-    Series,
-    SeriesMembership,
-    Work
-  }
+  alias Hiraeth.Catalog.{Contribution, Edition}
 
   alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
-  alias Hiraeth.Imports.ImportRun
-  alias Hiraeth.Repo
   alias Hiraeth.Sources.{SourceLedgerEntry, SourceRecord}
   alias Hiraeth.Support.DeepVellumStealthyFixture
   alias Hiraeth.Support.MockDeepVellumStealthySidecarClient
@@ -146,23 +134,6 @@ defmodule Hiraeth.Ingestion.E2EIngestionStealthyTest do
   defp restore_file!(path, :missing), do: File.rm(path)
 
   defp clear_catalog! do
-    for resource <- [
-          SourceLedgerEntry,
-          SourceRecord,
-          ImportRun,
-          CoverAssignment,
-          CoverAsset,
-          Identifier,
-          Contribution,
-          SeriesMembership,
-          Edition,
-          Work,
-          Series,
-          Imprint,
-          Contributor,
-          Publisher
-        ] do
-      Repo.delete_all(resource)
-    end
+    Hiraeth.CatalogCleanup.clear_catalog_in_sandbox!()
   end
 end

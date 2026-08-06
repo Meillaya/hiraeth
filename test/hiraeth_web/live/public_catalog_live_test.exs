@@ -977,23 +977,7 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
   end
 
   defp clear_catalog! do
-    for resource <- [
-          Hiraeth.Sources.SourceLedgerEntry,
-          Hiraeth.Sources.SourceRecord,
-          Hiraeth.Imports.ImportRun,
-          Hiraeth.Covers.CoverAssignment,
-          Hiraeth.Covers.CoverAsset,
-          Hiraeth.Catalog.Identifier,
-          Hiraeth.Catalog.Contribution,
-          Hiraeth.Catalog.Edition,
-          Hiraeth.Catalog.SeriesMembership,
-          Hiraeth.Catalog.Work,
-          Hiraeth.Catalog.Series,
-          Hiraeth.Catalog.Imprint,
-          Hiraeth.Catalog.Publisher
-        ] do
-      Hiraeth.Repo.delete_all(resource)
-    end
+    Hiraeth.CatalogCleanup.clear_catalog_in_sandbox!()
   end
 
   defp ceil_div(value, divisor), do: div(value + divisor - 1, divisor)

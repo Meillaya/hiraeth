@@ -5,6 +5,9 @@ defmodule Hiraeth.CatalogCleanup do
   alias Hiraeth.RealCatalog.{Dataset, Importer, SourceArtifacts}
   alias Hiraeth.Repo
 
+  # Child-first order (FKs are RESTRICT by default): every table precedes any
+  # table it references. Resets delete in this exact order, so concurrent
+  # full-table DELETEs lock rows in the same order and can never deadlock.
   @tables ~w(
     source_ledger_entries
     curation_overrides
@@ -33,6 +36,8 @@ defmodule Hiraeth.CatalogCleanup do
     oban_jobs
   )
 
+  @full_corpus_seed_lock {__MODULE__, :full_corpus_seed}
+
   def reset_committed_catalog! do
     with_committed_catalog_fixture_lock(fn ->
       reset_committed_tables!(@tables)
@@ -40,10 +45,35 @@ defmodule Hiraeth.CatalogCleanup do
     end)
   end
 
+  # Sandbox-scoped variant: runs inside the caller's sandbox transaction, so
+  # it only clears the test's own view and rolls back with it. The committed
+  # corpus is deleted once at suite start (test_helper.exs), so these deletes
+  # are no-ops that never contend on corpus rows.
+  def reset_committed_catalog_in_sandbox! do
+    with_committed_catalog_fixture_lock(fn ->
+      delete_all_tables!(@tables)
+    end)
+  end
+
+  def reset_committed_ingestion_control_plane_in_sandbox! do
+    with_committed_catalog_fixture_lock(fn ->
+      delete_all_tables!(@ingestion_control_plane_tables)
+    end)
+  end
+
+  # Full-corpus clear for test files that need a clean view: serialized under
+  # the fixture lock so concurrent full-table DELETEs never contend on the
+  # same rows (which would trip Ecto's default 15s query timeout).
+  def clear_catalog_in_sandbox! do
+    with_committed_catalog_fixture_lock(fn ->
+      delete_all_tables!(@tables)
+    end)
+  end
+
   def reset_committed_catalog_with_fixtures! do
     with_committed_catalog_fixture_lock(fn ->
       Sandbox.unboxed_run(Repo, fn ->
-        truncate_tables!(@tables)
+        delete_all_tables!(@tables)
         seed_committed_catalog_fixtures!()
       end)
     end)
@@ -61,8 +91,14 @@ defmodule Hiraeth.CatalogCleanup do
 
   defp seed_committed_catalog_if_needed! do
     unless committed_catalog_seeded?() do
-      truncate_tables!(@tables)
-      seed_committed_catalog_fixtures!()
+      lock_id = acquire_full_corpus_seed_lock!()
+
+      try do
+        delete_all_tables!(@tables)
+        seed_committed_catalog_fixtures!()
+      after
+        release_full_corpus_seed_lock(lock_id)
+      end
     end
   end
 
@@ -71,13 +107,51 @@ defmodule Hiraeth.CatalogCleanup do
   end
 
   def reset_committed_ingestion_control_plane! do
-    reset_committed_tables!(@ingestion_control_plane_tables)
+    with_committed_catalog_fixture_lock(fn ->
+      reset_committed_tables!(@ingestion_control_plane_tables)
+    end)
   end
 
   def clear_catalog!, do: :ok
 
   defp with_committed_catalog_fixture_lock(fun) when is_function(fun, 0) do
-    :global.trans({__MODULE__, :committed_catalog_fixtures}, fun, [node()], :infinity)
+    # OTP 28 :global locks are exclusive per ResourceId and reentrant per
+    # LockRequesterId: a fixed requester id is SHARED across processes, so the
+    # caller must carry its own unique requester id to serialize.
+    :global.trans(
+      {{__MODULE__, :committed_catalog_fixtures}, {self(), System.unique_integer([:positive])}},
+      fun,
+      [node()],
+      :infinity
+    )
+  end
+
+  # Serializes FULL-corpus imports (the importer giant tests and the committed
+  # corpus reseed). Two concurrent full-corpus imports run find_or_create on
+  # the same contributors and deadlock on the unique-index ShareLocks (40P01),
+  # so they must never overlap.
+  def acquire_full_corpus_seed_lock! do
+    lock_id = {
+      @full_corpus_seed_lock,
+      {self(), System.unique_integer([:positive])}
+    }
+
+    :global.set_lock(lock_id, [node()], :infinity)
+    lock_id
+  end
+
+  def release_full_corpus_seed_lock(lock_id) do
+    :global.del_lock(lock_id, [node()])
+  end
+
+  def with_full_corpus_seed_lock(fun) when is_function(fun, 0) do
+    lock_id = acquire_full_corpus_seed_lock!()
+
+    try do
+      fun.()
+    after
+      release_full_corpus_seed_lock(lock_id)
+    end
   end
 
   defp clear_public_catalog_cache! do
@@ -178,16 +252,20 @@ defmodule Hiraeth.CatalogCleanup do
   end
 
   defp reset_committed_tables!(tables) do
-    Sandbox.unboxed_run(Repo, fn -> truncate_tables!(tables) end)
+    Sandbox.unboxed_run(Repo, fn -> delete_all_tables!(tables) end)
   end
 
-  defp truncate_tables!(tables) do
-    Repo.query!("TRUNCATE TABLE #{table_list(tables)} RESTART IDENTITY CASCADE", [],
-      timeout: :infinity
-    )
-  end
+  # DELETE (ROW EXCLUSIVE, per-row) instead of TRUNCATE (ACCESS EXCLUSIVE):
+  # concurrent sandbox transactions hold ACCESS SHARE / ROW EXCLUSIVE locks
+  # that TRUNCATE waits on while already holding locks later-needed by those
+  # transactions (lock cycle -> 40P01). DELETE is compatible with ACCESS
+  # SHARE and only contends per-row, and the child-first @tables order keeps
+  # row-lock acquisition identical across concurrent resets.
+  defp delete_all_tables!(tables) do
+    for table <- tables do
+      Repo.query!("DELETE FROM #{table}", [], timeout: :infinity)
+    end
 
-  defp table_list(tables) do
-    Enum.map_join(tables, ", ", &~s("#{&1}"))
+    :ok
   end
 end

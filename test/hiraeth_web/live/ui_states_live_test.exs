@@ -1,5 +1,5 @@
 defmodule HiraethWeb.UiStatesLiveTest do
-  use HiraethWeb.ConnCase, async: false
+  use HiraethWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
 

@@ -1,5 +1,10 @@
 defmodule Hiraeth.RealCatalogImporterTest do
-  use Hiraeth.DataCase, async: false
+  use Hiraeth.DataCase, async: true
+
+  # Corpus-dataset seeds serialize on the full-corpus lock and can wait for
+  # the committed reseed (~4 min), so the default 60s test timeout would kill
+  # them mid-wait.
+  @moduletag timeout: 600_000
 
   alias Hiraeth.Catalog.{
     Contribution,
@@ -25,6 +30,9 @@ defmodule Hiraeth.RealCatalogImporterTest do
   # the CI/devenv lane is 193s-870s, so keep a generous wall-clock budget.
   @tag timeout: 1_800_000
   test "real catalog importer seeds approved publisher records with provenance and covers idempotently" do
+    seed_lock = Hiraeth.CatalogCleanup.acquire_full_corpus_seed_lock!()
+    on_exit(fn -> Hiraeth.CatalogCleanup.release_full_corpus_seed_lock(seed_lock) end)
+
     clear_catalog!()
 
     {:ok, datasets} = Dataset.load_dir()
@@ -196,7 +204,8 @@ defmodule Hiraeth.RealCatalogImporterTest do
     tmp = tiny_dataset_dir!()
     on_exit(fn -> File.rm_rf!(tmp) end)
 
-    assert {:ok, summary} = Importer.seed!(tmp)
+    assert {:ok, summary} =
+             Hiraeth.CatalogCleanup.with_full_corpus_seed_lock(fn -> Importer.seed!(tmp) end)
 
     assert summary.editions == 1
     assert summary.publishers == 1
@@ -231,7 +240,9 @@ defmodule Hiraeth.RealCatalogImporterTest do
     tmp = no_cover_dataset_dir!(:delete_cover)
     on_exit(fn -> File.rm_rf!(tmp) end)
 
-    assert {:ok, summary} = Importer.seed!(tmp)
+    assert {:ok, summary} =
+             Hiraeth.CatalogCleanup.with_full_corpus_seed_lock(fn -> Importer.seed!(tmp) end)
+
     assert summary.editions == archipelago_record_count()
     assert summary.cover_assignments == archipelago_cover_count() - 1
 
@@ -292,7 +303,8 @@ defmodule Hiraeth.RealCatalogImporterTest do
     cached_record = %{record | cover: cover}
     write_archipelago_payload!(tmp, dataset, cached_record, remaining_records)
 
-    assert {:ok, _summary} = Importer.seed!(tmp)
+    assert {:ok, _summary} =
+             Hiraeth.CatalogCleanup.with_full_corpus_seed_lock(fn -> Importer.seed!(tmp) end)
 
     cached_asset =
       CoverAsset
@@ -312,7 +324,8 @@ defmodule Hiraeth.RealCatalogImporterTest do
     })
     |> Ash.update!(authorize?: false)
 
-    assert {:ok, _summary} = Importer.seed!(tmp)
+    assert {:ok, _summary} =
+             Hiraeth.CatalogCleanup.with_full_corpus_seed_lock(fn -> Importer.seed!(tmp) end)
 
     repaired_asset =
       CoverAsset
@@ -330,7 +343,9 @@ defmodule Hiraeth.RealCatalogImporterTest do
     tmp = no_cover_dataset_dir!(:empty_cover)
     on_exit(fn -> File.rm_rf!(tmp) end)
 
-    assert {:ok, summary} = Importer.seed!(tmp)
+    assert {:ok, summary} =
+             Hiraeth.CatalogCleanup.with_full_corpus_seed_lock(fn -> Importer.seed!(tmp) end)
+
     assert summary.editions == archipelago_record_count()
     assert summary.cover_assignments == archipelago_cover_count() - 1
 
@@ -380,7 +395,9 @@ defmodule Hiraeth.RealCatalogImporterTest do
 
     write_archipelago_payload!(tmp, dataset, no_isbn_record, remaining_records)
 
-    assert {:ok, summary} = Importer.seed!(tmp)
+    assert {:ok, summary} =
+             Hiraeth.CatalogCleanup.with_full_corpus_seed_lock(fn -> Importer.seed!(tmp) end)
+
     assert summary.editions == archipelago_record_count()
     assert summary.identifiers == archipelago_record_count()
     assert summary.source_records == archipelago_record_count()
@@ -462,7 +479,9 @@ defmodule Hiraeth.RealCatalogImporterTest do
 
     write_archipelago_payload!(tmp, dataset, record, remaining_records)
 
-    assert {:ok, first_summary} = Importer.seed!(tmp)
+    assert {:ok, first_summary} =
+             Hiraeth.CatalogCleanup.with_full_corpus_seed_lock(fn -> Importer.seed!(tmp) end)
+
     assert first_summary.source_records == archipelago_record_count()
 
     work = Work |> Ash.read!(authorize?: false) |> Enum.find(&(&1.title == record.work.title))
@@ -486,7 +505,9 @@ defmodule Hiraeth.RealCatalogImporterTest do
 
     write_archipelago_payload!(tmp, dataset, prose_record, remaining_records)
 
-    assert {:ok, second_summary} = Importer.seed!(tmp)
+    assert {:ok, second_summary} =
+             Hiraeth.CatalogCleanup.with_full_corpus_seed_lock(fn -> Importer.seed!(tmp) end)
+
     assert second_summary.editions == archipelago_record_count()
     assert second_summary.source_records == archipelago_record_count() * 2
 
@@ -508,7 +529,9 @@ defmodule Hiraeth.RealCatalogImporterTest do
 
     write_archipelago_payload!(tmp, dataset, overwrite_attempt, remaining_records)
 
-    assert {:ok, third_summary} = Importer.seed!(tmp)
+    assert {:ok, third_summary} =
+             Hiraeth.CatalogCleanup.with_full_corpus_seed_lock(fn -> Importer.seed!(tmp) end)
+
     assert third_summary.source_records == archipelago_record_count() * 3
 
     preserved_work =
@@ -576,7 +599,9 @@ defmodule Hiraeth.RealCatalogImporterTest do
 
     write_archipelago_payload!(tmp, dataset, enriched_record, remaining_records)
 
-    assert {:ok, summary} = Importer.seed!(tmp)
+    assert {:ok, summary} =
+             Hiraeth.CatalogCleanup.with_full_corpus_seed_lock(fn -> Importer.seed!(tmp) end)
+
     assert summary.editions == archipelago_record_count()
 
     work = Work |> Ash.read!(authorize?: false) |> Enum.find(&(&1.title == record.work.title))
@@ -635,7 +660,9 @@ defmodule Hiraeth.RealCatalogImporterTest do
 
     write_archipelago_payload!(tmp, dataset, unsourced_record, remaining_records)
 
-    assert {:error, findings} = Importer.seed!(tmp)
+    assert {:error, findings} =
+             Hiraeth.CatalogCleanup.with_full_corpus_seed_lock(fn -> Importer.seed!(tmp) end)
+
     reasons = Enum.map(findings, & &1.reason)
 
     assert "rich metadata field requires field_sources provenance" in reasons
@@ -649,7 +676,8 @@ defmodule Hiraeth.RealCatalogImporterTest do
     tmp = prose_dataset_dir!()
     on_exit(fn -> File.rm_rf!(tmp) end)
 
-    assert {:ok, _summary} = Importer.seed!(tmp)
+    assert {:ok, _summary} =
+             Hiraeth.CatalogCleanup.with_full_corpus_seed_lock(fn -> Importer.seed!(tmp) end)
 
     {:ok, dataset} = Dataset.load_file(Path.join(Dataset.default_dir(), "archipelago_books.json"))
     record = unique_title_record!(dataset.records)
@@ -675,23 +703,7 @@ defmodule Hiraeth.RealCatalogImporterTest do
   end
 
   defp clear_catalog! do
-    for resource <- [
-          SourceLedgerEntry,
-          SourceRecord,
-          ImportRun,
-          CoverAssignment,
-          CoverAsset,
-          Identifier,
-          Contribution,
-          SeriesMembership,
-          Edition,
-          Work,
-          Series,
-          Imprint,
-          Publisher
-        ] do
-      Repo.delete_all(resource)
-    end
+    Hiraeth.CatalogCleanup.clear_catalog_in_sandbox!()
   end
 
   defp tiny_dataset_dir! do

@@ -1,5 +1,5 @@
 defmodule Hiraeth.RealCatalog.SourcePolicyManifestTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
   alias Hiraeth.RealCatalog.{SourcePolicy, Validator}
 

@@ -4,7 +4,7 @@ defmodule Hiraeth.Ingestion.ScheduleDispatcherTest do
   adoption, per-tick dispatch cap ordering, and Oban conflict semantics.
   """
 
-  use Hiraeth.DataCase, async: false
+  use Hiraeth.DataCase, async: true
 
   alias Hiraeth.Ingestion.{IngestionEvent, ProviderRun, ProviderScheduler}
   alias Hiraeth.Oban.ProviderIngestionWorker

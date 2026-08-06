@@ -1,5 +1,5 @@
 defmodule Hiraeth.RealCatalogImporterProviderTest do
-  use Hiraeth.DataCase, async: false
+  use Hiraeth.DataCase, async: true
 
   @moduletag :reset_committed_catalog
 
@@ -206,6 +206,9 @@ defmodule Hiraeth.RealCatalogImporterProviderTest do
   # 193s-870s, so keep a generous wall-clock budget.
   @tag timeout: 1_800_000
   test "existing seed!/1 still works after adding seed_provider!/2" do
+    seed_lock = Hiraeth.CatalogCleanup.acquire_full_corpus_seed_lock!()
+    on_exit(fn -> Hiraeth.CatalogCleanup.release_full_corpus_seed_lock(seed_lock) end)
+
     clear_catalog!()
 
     {:ok, datasets} = Dataset.load_dir()

@@ -32,15 +32,19 @@ defmodule Hiraeth.DataCase do
   end
 
   setup tags do
+    # Sandbox owner must start BEFORE tag resets: resets then run inside the
+    # test's own transaction (sandbox-scoped), which keeps the committed
+    # corpus intact and never issues ACCESS EXCLUSIVE TRUNCATEs.
+    Hiraeth.DataCase.setup_sandbox(tags)
+
     if tags[:reset_committed_catalog] do
-      CatalogCleanup.reset_committed_catalog!()
+      CatalogCleanup.reset_committed_catalog_in_sandbox!()
     end
 
     if tags[:reset_committed_ingestion] do
-      CatalogCleanup.reset_committed_ingestion_control_plane!()
+      CatalogCleanup.reset_committed_ingestion_control_plane_in_sandbox!()
     end
 
-    Hiraeth.DataCase.setup_sandbox(tags)
     :ok
   end
 

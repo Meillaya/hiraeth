@@ -50,12 +50,15 @@ defmodule Hiraeth.CatalogCleanupTest do
 
   test "reset_committed_catalog! waits for the committed fixture lock" do
     caller = self()
-    lock_key = {CatalogCleanup, :committed_catalog_fixtures}
+
+    # OTP 28 :global locks are exclusive per ResourceId and reentrant per
+    # LockRequesterId, so the holder carries its own unique requester id.
+    lock_resource_id = {CatalogCleanup, :committed_catalog_fixtures}
 
     holder =
       Task.async(fn ->
         :global.trans(
-          lock_key,
+          {lock_resource_id, {self(), :lock_holder}},
           fn ->
             send(caller, :fixture_lock_acquired)
 

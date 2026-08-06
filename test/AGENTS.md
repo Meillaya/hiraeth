@@ -24,7 +24,7 @@ Fixture-driven, contract-heavy ExUnit and pytest-adjacent validation for Hiraeth
 | `:public_catalog_full` | expensive public catalog UI/data sweep |
 | `:reset_committed_catalog` | DataCase resets committed catalog fixtures |
 | `:reset_committed_ingestion` | DataCase resets ingestion control-plane fixtures |
-| `:ci_devenv_contract` | descriptive: marks the dual devenv/legacy-Compose CI lane contract (never excluded) |
+| `:ci_devenv_contract` | descriptive: marks the devenv-only CI lane contract (never excluded) |
 
 ## CONVENTIONS
 - Choose base case by boundary: `DataCase` for DB/Ash; `ConnCase` for conn/LiveView; plain `ExUnit.Case` for file/command/docs contracts.

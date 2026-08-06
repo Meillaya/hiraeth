@@ -1,5 +1,5 @@
 defmodule Hiraeth.Ingestion.ProviderBackfillTest do
-  use Hiraeth.DataCase, async: false
+  use Hiraeth.DataCase, async: true
 
   alias Hiraeth.Ingestion.{ProviderBackfill, ProviderSource}
 

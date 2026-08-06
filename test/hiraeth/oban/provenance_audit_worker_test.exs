@@ -8,7 +8,7 @@ defmodule Hiraeth.Oban.ProvenanceAuditWorkerTest do
   row counts are unchanged before/after perform/1.
   """
 
-  use Hiraeth.DataCase, async: false
+  use Hiraeth.DataCase, async: true
 
   alias Hiraeth.Oban.ProvenanceAuditWorker
   alias Hiraeth.Sources.{SourceLedgerEntry, SourceRecord}
