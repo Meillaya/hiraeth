@@ -73,7 +73,9 @@ config :hiraeth, Oban,
     Oban.Plugins.Pruner,
     {Oban.Plugins.Cron,
      crontab: [
-       {"*/15 * * * *", Hiraeth.Oban.ProviderSchedulerWorker}
+       {"*/15 * * * *", Hiraeth.Oban.ProviderSchedulerWorker},
+       {"0 4 * * 0", Hiraeth.Oban.CoverRefreshWorker},
+       {"30 4 * * 0", Hiraeth.Oban.ProvenanceAuditWorker}
      ]}
   ]
 

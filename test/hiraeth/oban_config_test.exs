@@ -12,6 +12,19 @@ defmodule Hiraeth.ObanConfigTest do
     assert is_pid(pid)
   end
 
+  test "Oban crontab schedules the weekly cover refresh and provenance audit beside the scheduler tick" do
+    oban_config = Application.fetch_env!(:hiraeth, Oban)
+
+    {Oban.Plugins.Cron, cron_config} =
+      Enum.find(oban_config[:plugins], &match?({Oban.Plugins.Cron, _}, &1))
+
+    crontab = Keyword.fetch!(cron_config, :crontab)
+
+    assert {"*/15 * * * *", Hiraeth.Oban.ProviderSchedulerWorker} in crontab
+    assert {"0 4 * * 0", Hiraeth.Oban.CoverRefreshWorker} in crontab
+    assert {"30 4 * * 0", Hiraeth.Oban.ProvenanceAuditWorker} in crontab
+  end
+
   test "oban_jobs table exists in the database" do
     assert {:ok, %{rows: rows}} =
              Hiraeth.Repo.query(
