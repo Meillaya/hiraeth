@@ -1,0 +1,173 @@
+{
+  "count": 24,
+  "captures": [
+    {
+      "direction": "gallery",
+      "page": "index",
+      "viewport": "1440x900",
+      "file": "captures/gallery/index-1440x900.png",
+      "bytes": 180803
+    },
+    {
+      "direction": "gallery",
+      "page": "index",
+      "viewport": "390x844",
+      "file": "captures/gallery/index-390x844.png",
+      "bytes": 176555
+    },
+    {
+      "direction": "gallery",
+      "page": "browse",
+      "viewport": "1440x900",
+      "file": "captures/gallery/browse-1440x900.png",
+      "bytes": 324625
+    },
+    {
+      "direction": "gallery",
+      "page": "browse",
+      "viewport": "390x844",
+      "file": "captures/gallery/browse-390x844.png",
+      "bytes": 46806
+    },
+    {
+      "direction": "gallery",
+      "page": "book",
+      "viewport": "1440x900",
+      "file": "captures/gallery/book-1440x900.png",
+      "bytes": 697383
+    },
+    {
+      "direction": "gallery",
+      "page": "book",
+      "viewport": "390x844",
+      "file": "captures/gallery/book-390x844.png",
+      "bytes": 408484
+    },
+    {
+      "direction": "gallery",
+      "page": "publishers",
+      "viewport": "1440x900",
+      "file": "captures/gallery/publishers-1440x900.png",
+      "bytes": 60708
+    },
+    {
+      "direction": "gallery",
+      "page": "publishers",
+      "viewport": "390x844",
+      "file": "captures/gallery/publishers-390x844.png",
+      "bytes": 37896
+    },
+    {
+      "direction": "ledger",
+      "page": "index",
+      "viewport": "1440x900",
+      "file": "captures/ledger/index-1440x900.png",
+      "bytes": 115994
+    },
+    {
+      "direction": "ledger",
+      "page": "index",
+      "viewport": "390x844",
+      "file": "captures/ledger/index-390x844.png",
+      "bytes": 44637
+    },
+    {
+      "direction": "ledger",
+      "page": "browse",
+      "viewport": "1440x900",
+      "file": "captures/ledger/browse-1440x900.png",
+      "bytes": 119564
+    },
+    {
+      "direction": "ledger",
+      "page": "browse",
+      "viewport": "390x844",
+      "file": "captures/ledger/browse-390x844.png",
+      "bytes": 50572
+    },
+    {
+      "direction": "ledger",
+      "page": "book",
+      "viewport": "1440x900",
+      "file": "captures/ledger/book-1440x900.png",
+      "bytes": 553400
+    },
+    {
+      "direction": "ledger",
+      "page": "book",
+      "viewport": "390x844",
+      "file": "captures/ledger/book-390x844.png",
+      "bytes": 251575
+    },
+    {
+      "direction": "ledger",
+      "page": "publishers",
+      "viewport": "1440x900",
+      "file": "captures/ledger/publishers-1440x900.png",
+      "bytes": 123144
+    },
+    {
+      "direction": "ledger",
+      "page": "publishers",
+      "viewport": "390x844",
+      "file": "captures/ledger/publishers-390x844.png",
+      "bytes": 50180
+    },
+    {
+      "direction": "night-reading",
+      "page": "index",
+      "viewport": "1440x900",
+      "file": "captures/night-reading/index-1440x900.png",
+      "bytes": 452722
+    },
+    {
+      "direction": "night-reading",
+      "page": "index",
+      "viewport": "390x844",
+      "file": "captures/night-reading/index-390x844.png",
+      "bytes": 329697
+    },
+    {
+      "direction": "night-reading",
+      "page": "browse",
+      "viewport": "1440x900",
+      "file": "captures/night-reading/browse-1440x900.png",
+      "bytes": 446744
+    },
+    {
+      "direction": "night-reading",
+      "page": "browse",
+      "viewport": "390x844",
+      "file": "captures/night-reading/browse-390x844.png",
+      "bytes": 93253
+    },
+    {
+      "direction": "night-reading",
+      "page": "book",
+      "viewport": "1440x900",
+      "file": "captures/night-reading/book-1440x900.png",
+      "bytes": 411592
+    },
+    {
+      "direction": "night-reading",
+      "page": "book",
+      "viewport": "390x844",
+      "file": "captures/night-reading/book-390x844.png",
+      "bytes": 375172
+    },
+    {
+      "direction": "night-reading",
+      "page": "publishers",
+      "viewport": "1440x900",
+      "file": "captures/night-reading/publishers-1440x900.png",
+      "bytes": 166450
+    },
+    {
+      "direction": "night-reading",
+      "page": "publishers",
+      "viewport": "390x844",
+      "file": "captures/night-reading/publishers-390x844.png",
+      "bytes": 84895
+    }
+  ]
+}

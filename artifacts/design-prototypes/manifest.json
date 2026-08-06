@@ -1,0 +1,254 @@
+{
+  "corpus_providers": 23,
+  "corpus_total_records": 8776,
+  "directions": [
+    "gallery",
+    "ledger",
+    "night-reading"
+  ],
+  "sampled": [
+    {
+      "cover": "a325e4a6d359bd85f42eb046ab9ac18eb1c45c58c1987ab2beaaffa239f3dec2.jpg",
+      "dataset": "a_strange_object.json",
+      "format": "ebook",
+      "provider": "a_strange_object_official_store",
+      "publisher": "A Strange Object",
+      "title": "Belly Up",
+      "typographic_fallback": false,
+      "year": "2016"
+    },
+    {
+      "cover": "5322047c7ddc4ef575ee3b981b0ad420fe529992a82b4cfa91a3b206224c5fea.jpg",
+      "dataset": "and_other_stories.json",
+      "format": "paperback",
+      "provider": "and_other_stories_official_store",
+      "publisher": "And Other Stories",
+      "title": "University Island",
+      "typographic_fallback": false,
+      "year": "2027"
+    },
+    {
+      "cover": "fe6f54a42682b37b539f7373a5eaf0823fe4586e475ce9410c688996a1b3e347.jpg",
+      "dataset": "archipelago_books.json",
+      "format": "paperback",
+      "provider": "archipelago_books_official_store",
+      "publisher": "Archipelago Books",
+      "title": "A Change of Time",
+      "typographic_fallback": false,
+      "year": "2019"
+    },
+    {
+      "cover": "9e2d785c42cb9aed033672f21eac76e8e9bdaa2614de9f10f017d65b723fd518.jpg",
+      "dataset": "astra_house.json",
+      "format": "paperback",
+      "provider": "astra_house_official_store",
+      "publisher": "Astra House",
+      "title": "Dad Had a Bad Day",
+      "typographic_fallback": false,
+      "year": null
+    },
+    {
+      "cover": "7f2a21c8875bab81da427d18b10caa4a662ec06819a20d38a10c6b8191770d1e.jpg",
+      "dataset": "coffee_house_press.json",
+      "format": "paperback",
+      "provider": "coffee_house_press_official_store",
+      "publisher": "Coffee House Press",
+      "title": "Read This! Handpicked Favorites from America\u2019s Indie Bookstores",
+      "typographic_fallback": false,
+      "year": "2026"
+    },
+    {
+      "cover": "b8a5a71409b7dd8ffa9598bc7a2ffda0766b1108f46b0d3998410b86fe3094b6.png",
+      "dataset": "dalkey_archive.json",
+      "format": "paperback",
+      "provider": "dalkey_archive_official_store",
+      "publisher": "Dalkey Archive",
+      "title": "15 Days: Warsaw to London",
+      "typographic_fallback": false,
+      "year": "2021"
+    },
+    {
+      "cover": "e423c92a076730fe26deb4afa3462d04907970c060e5fcf963df6ff63c2f4040.jpg",
+      "dataset": "deep_vellum.json",
+      "format": "paperback",
+      "provider": "deep_vellum_official_store",
+      "publisher": "Deep Vellum",
+      "title": "\"Muslim\"",
+      "typographic_fallback": false,
+      "year": "2019"
+    },
+    {
+      "cover": "d73544ea8749bf2007e22781ce7dbf1fd0dbe60e676f2629fbb79ddb7c6c4ba5.jpg",
+      "dataset": "fitzcarraldo_editions.json",
+      "format": "paperback",
+      "provider": "fitzcarraldo_editions_official_site",
+      "publisher": "Fitzcarraldo Editions",
+      "title": "The Mulai",
+      "typographic_fallback": false,
+      "year": "2026"
+    },
+    {
+      "cover": "fd67abad0030388cfb220fc238b47a73e5ef786b3cae2ba61efc47917765cf42.jpg",
+      "dataset": "fum_destampa.json",
+      "format": "ebook",
+      "provider": "fum_destampa_official_store",
+      "publisher": "Fum d'Estampa",
+      "title": "The Calf",
+      "typographic_fallback": false,
+      "year": "2025"
+    },
+    {
+      "cover": "368b844ded76f32aa03b7f1df4f4e48751aeff4d8341af1046b0fbc066bc42ae.jpg",
+      "dataset": "historical_materialism.json",
+      "format": "hardcover",
+      "provider": "historical_materialism_official_site",
+      "publisher": "Historical Materialism",
+      "title": "(De)Automating the Future. Marxist Perspectives on Capitalism and Technology",
+      "typographic_fallback": false,
+      "year": "2024"
+    },
+    {
+      "cover": "4bc84e7d1d96429090348e936cccdf2a3411cd99f815cb6ed5ef1a53ef4b02c4.jpg",
+      "dataset": "la_reunion.json",
+      "format": "hardcover",
+      "provider": "la_reunion_official_store",
+      "publisher": "La Reunion",
+      "title": "A Life of My Own",
+      "typographic_fallback": false,
+      "year": "2019"
+    },
+    {
+      "cover": "ed506295ab25505587085366d70117d23141584f8fd8c261df830962496673e8.jpg",
+      "dataset": "mcnally_editions.json",
+      "format": "paperback",
+      "provider": "mcnally_editions_official_site",
+      "publisher": "McNally Editions",
+      "title": "Quake",
+      "typographic_fallback": false,
+      "year": "2026"
+    },
+    {
+      "cover": "c410d3ec86e329b8f6b08ed5b3734dc3815274fecb359e7dbfeabe609f2d3085.jpg",
+      "dataset": "new_directions.json",
+      "format": "paperback",
+      "provider": "new_directions_official_site",
+      "publisher": "New Directions",
+      "title": "21 Poems",
+      "typographic_fallback": false,
+      "year": "2017"
+    },
+    {
+      "cover": "2e5ecdbb0262f3c81eb1ab0f99960f3fb087e3c88c81f252514678fd673eaae7.jpg",
+      "dataset": "nyrb.json",
+      "format": "paperback",
+      "provider": "nyrb_official_store",
+      "publisher": "NYRB",
+      "title": "The Universal Baseball Association, Inc., J. Henry Waugh, Prop.",
+      "typographic_fallback": false,
+      "year": "2025"
+    },
+    {
+      "cover": "b40981b3aa14c8dc6718e930fb3e5985013d07d6e13f2795dd1291b0e7714434.jpg",
+      "dataset": "phoneme_media.json",
+      "format": "ebook",
+      "provider": "phoneme_media_official_store",
+      "publisher": "Phoneme Media",
+      "title": "A Blind Salmon",
+      "typographic_fallback": false,
+      "year": "2024"
+    },
+    {
+      "cover": "15d0b2af1c43160840fdca455a960bccdb375a1353e42293b7b86cf72b587c5c.jpeg",
+      "dataset": "pushkin_press.json",
+      "format": "paperback",
+      "provider": "pushkin_press_official_site",
+      "publisher": "Pushkin Press",
+      "title": "Marie Antoinette",
+      "typographic_fallback": false,
+      "year": "2026"
+    },
+    {
+      "cover": "4eef18014bab5b3578ec89a679f5eb42da40772a3959a150d90c933940e8e0ea.jpg",
+      "dataset": "seagull_books.json",
+      "format": "paperback",
+      "provider": "seagull_books_official_store",
+      "publisher": "Seagull Books",
+      "title": "(A)pollonia",
+      "typographic_fallback": false,
+      "year": "2025"
+    },
+    {
+      "cover": "ac1522819ae8b80fb5057f9ca4540b27c113358ac10085401728ac5858fdbaf6.jpg",
+      "dataset": "semiotexte.json",
+      "format": "paperback",
+      "provider": "semiotexte_official_site",
+      "publisher": "Semiotext(e)",
+      "title": "69 Ways To Play The Blues",
+      "typographic_fallback": false,
+      "year": null
+    },
+    {
+      "cover": "9b5f37d9971458f47d35e647b95997a7bd1134ed0ed0b588b44667edd08472fa.jpg",
+      "dataset": "seven_stories_press.json",
+      "format": "paperback",
+      "provider": "seven_stories_press_official_site",
+      "publisher": "Seven Stories Press",
+      "title": "The Grief Shop",
+      "typographic_fallback": false,
+      "year": null
+    },
+    {
+      "cover": "6423b25cb98f786173a3ef2ffcfafbeedb38d31d2bace4a6e5c107809659464d.png",
+      "dataset": "tilted_axis_press.json",
+      "format": "paperback",
+      "provider": "tilted_axis_press_official_site",
+      "publisher": "Tilted Axis Press",
+      "title": "Carnaval Fever",
+      "typographic_fallback": false,
+      "year": "2025"
+    },
+    {
+      "cover": "11eb6313c32339c32c088c4976df60d8b110a607f923b1ce868609013fc23d65.jpg",
+      "dataset": "transit_books.json",
+      "format": "paperback",
+      "provider": "transit_books_official_site",
+      "publisher": "Transit Books",
+      "title": "A New Name: Septology VI-VII",
+      "typographic_fallback": false,
+      "year": null
+    },
+    {
+      "cover": null,
+      "dataset": "and_other_stories.json",
+      "format": "paperback",
+      "provider": "and_other_stories_official_store",
+      "publisher": "And Other Stories",
+      "title": "101 Detectives",
+      "typographic_fallback": true,
+      "year": "2015"
+    },
+    {
+      "cover": null,
+      "dataset": "dalkey_archive.json",
+      "format": "ebook",
+      "provider": "dalkey_archive_official_store",
+      "publisher": "Dalkey Archive",
+      "title": "Homesick",
+      "typographic_fallback": true,
+      "year": "2024"
+    },
+    {
+      "cover": null,
+      "dataset": "dalkey_archive.json",
+      "format": "paperback",
+      "provider": "dalkey_archive_official_store",
+      "publisher": "Dalkey Archive",
+      "title": "Review of Contemporary Fiction: VIII",
+      "typographic_fallback": true,
+      "year": "2022"
+    }
+  ],
+  "sampled_count": 24,
+  "spotlight_title": "Dad Had a Bad Day",
+  "task": "simplify-design-autoingest todo 8"
+}
