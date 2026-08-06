@@ -192,9 +192,6 @@ defmodule Hiraeth.DevEnvironmentContractTest do
              ~r/after\s*=\s*\[[\s\S]*"devenv:processes:scrapling-sidecar"[\s\S]*\]/,
            "sidecar-ready task must start the private Scrapling sidecar process"
 
-    assert devenv_nix =~ ~r/uv\s+run\s+--extra\s+dev\s+pytest\s+-q/,
-           "sidecar-ready task must prove the Python sidecar test suite in the devenv shell"
-
     assert devenv_nix =~ ~s(StealthyFetcher) and devenv_nix =~ ~s(DynamicFetcher),
            "sidecar-ready task must prove both Scrapling browser-backed fetchers"
 

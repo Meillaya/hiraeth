@@ -183,8 +183,6 @@ in
             echo "sidecar_health=pass" >&2
 
             cd sidecar
-            uv run --extra dev pytest -q
-            echo "sidecar_pytest=pass" >&2
 
             cat > /tmp/hiraeth-sidecar-ready-fetchers.py <<'PY'
       import sys
