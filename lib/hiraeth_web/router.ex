@@ -44,7 +44,7 @@ defmodule HiraethWeb.Router do
     live "/editions/:slug", EditionLive, :show
   end
 
-  # Enable LiveDashboard and Swoosh mailbox preview in development
+  # Enable LiveDashboard in development
   if Application.compile_env(:hiraeth, :dev_routes) do
     import Phoenix.LiveDashboard.Router
 
@@ -52,7 +52,6 @@ defmodule HiraethWeb.Router do
       pipe_through :browser
 
       live_dashboard "/dashboard", metrics: HiraethWeb.Telemetry
-      forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
   end
 end
