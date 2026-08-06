@@ -87,10 +87,15 @@ def resolve_cover_file(full_name: str) -> str | None:
     return None
 
 
+BLOCK_TAGS = r"</?(?:p|div|br|li|ul|ol|h[1-6]|blockquote|section|article|tr|td|th|table|hr|figure|figcaption|dd|dt|dl|pre)\b[^>]*>"
+
+
 def plain_text(value: str) -> str:
-    text = re.sub(r"<[^>]+>", " ", value)
+    text = re.sub(BLOCK_TAGS, " ", value, flags=re.IGNORECASE)
+    text = re.sub(r"<[^>]+>", "", text)
     text = html.unescape(text)
-    return re.sub(r"\s+", " ", text).strip()
+    text = re.sub(r"\s+", " ", text).strip()
+    return re.sub(r"\s+([,.;:!?])", r"\1", text)
 
 
 def excerpt(text: str, limit: int) -> str:
@@ -103,6 +108,7 @@ def excerpt(text: str, limit: int) -> str:
 
 
 def load_datasets() -> tuple[list[dict], dict[str, int]]:
+    """Load all datasets; corpus counts are keyed by display publisher name."""
     datasets: list[dict] = []
     corpus_counts: dict[str, int] = {}
     for path in sorted(DATASET_DIR.glob("*.json")):
@@ -111,7 +117,9 @@ def load_datasets() -> tuple[list[dict], dict[str, int]]:
         with path.open(encoding="utf-8") as handle:
             payload = json.load(handle)
         records = payload.get("records", [])
-        corpus_counts[payload.get("provider", path.stem)] = len(records)
+        for record in records:
+            publisher = record.get("publisher") or "Publisher unknown"
+            corpus_counts[publisher] = corpus_counts.get(publisher, 0) + 1
         datasets.append({"file": path.name, "provider": payload.get("provider", path.stem), "records": records})
     return datasets, corpus_counts
 
@@ -932,11 +940,10 @@ a { color: inherit; }
 .masthead { border-bottom: 1px solid var(--rule); background: var(--paper); position: sticky; top: 0; z-index: 50; }
 .masthead-inner { display: flex; align-items: stretch; gap: 0; min-height: 56px; }
 .wordmark {
-  display: flex; align-items: center; padding-right: 28px; margin-right: 28px;
-  border-right: 1px solid var(--rule);
+  display: flex; align-items: center; padding-right: 28px;
   font-weight: 700; font-size: 14px; letter-spacing: 0.22em; text-transform: uppercase; text-decoration: none;
 }
-.site-nav { display: flex; align-items: stretch; margin-left: auto; }
+.site-nav { display: flex; align-items: stretch; margin-left: auto; border-left: 1px solid var(--rule); }
 .nav-link {
   display: flex; align-items: center; padding: 0 18px;
   font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; text-decoration: none;
@@ -1173,9 +1180,9 @@ def ledger_rail(ctx: dict, active: str = "") -> str:
     return f"""<aside class="rail" aria-label="Index rail">
   <p class="rail-heading">Index</p>
   <ul class="rail-list">
-    <li><a class="rail-link{' is-active' if active == 'holdings' else ''}" href="index.html"><span>Holdings</span><span class="rail-count">{len(ctx['books'])}</span></a></li>
-    <li><a class="rail-link{' is-active' if active == 'browse' else ''}" href="browse.html"><span>Full sample</span><span class="rail-count">{len(ctx['books'])}</span></a></li>
-    <li><a class="rail-link{' is-active' if active == 'publishers' else ''}" href="publishers.html"><span>Publishers</span><span class="rail-count">{len(ctx['corpus_counts'])}</span></a></li>
+    <li><a class="rail-link{' is-active' if active == 'holdings' else ''}" href="index.html"><span>Holdings ledger</span><span class="rail-count">{len(ctx['books'])}</span></a></li>
+    <li><a class="rail-link{' is-active' if active == 'browse' else ''}" href="browse.html"><span>Browse + filters</span><span class="rail-count">{len(ctx['books'])}</span></a></li>
+    <li><a class="rail-link{' is-active' if active == 'publishers' else ''}" href="publishers.html"><span>Publisher index</span><span class="rail-count">{len(ctx['corpus_counts'])}</span></a></li>
   </ul>
   <p class="rail-heading">Publishers in sample</p>
   <ul class="rail-list">

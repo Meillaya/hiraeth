@@ -77,11 +77,10 @@ a { color: inherit; }
 .masthead { border-bottom: 1px solid var(--rule); background: var(--paper); position: sticky; top: 0; z-index: 50; }
 .masthead-inner { display: flex; align-items: stretch; gap: 0; min-height: 56px; }
 .wordmark {
-  display: flex; align-items: center; padding-right: 28px; margin-right: 28px;
-  border-right: 1px solid var(--rule);
+  display: flex; align-items: center; padding-right: 28px;
   font-weight: 700; font-size: 14px; letter-spacing: 0.22em; text-transform: uppercase; text-decoration: none;
 }
-.site-nav { display: flex; align-items: stretch; margin-left: auto; }
+.site-nav { display: flex; align-items: stretch; margin-left: auto; border-left: 1px solid var(--rule); }
 .nav-link {
   display: flex; align-items: center; padding: 0 18px;
   font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; text-decoration: none;
