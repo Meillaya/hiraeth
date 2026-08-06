@@ -7,8 +7,7 @@
 .debug-journal.md
 
 # Generated QA artifacts
-artifacts/*
-!artifacts/design-prototypes/
+artifacts/
 
 # Elixir/Phoenix build artifacts
 /_build/
@@ -49,4 +48,3 @@ __pycache__/
 /.cache/
 /.direnv/
 /.envrc
-!artifacts/design-prototypes/
