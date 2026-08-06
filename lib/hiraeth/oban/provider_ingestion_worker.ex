@@ -37,12 +37,15 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
     Phases,
     ProviderManifest,
     ProviderRecordNormalizer,
+    RecordCandidate,
     Telemetry
   }
 
   alias Hiraeth.RealCatalog.SourcePolicy
 
   require Ash.Query
+
+  @scheduled_approvable_diff_classifications ~w(new changed unchanged)
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: args, inserted_at: inserted_at}) do
@@ -63,6 +66,8 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
          {:ok, phase_context} <-
            run_if_not_cancelled(phase_context, &cache_covers_compatibility_phase(&1, manifest)),
          {:ok, phase_context} <- run_if_not_cancelled(phase_context, &Phases.QuarantineRun.run/1),
+         {:ok, phase_context} <-
+           run_if_not_cancelled(phase_context, &maybe_auto_approve_scheduled/1),
          {:ok, phase_context} <-
            run_if_not_cancelled(phase_context, &Phases.ApplyCandidates.run/1),
          {:ok, phase_context} <- run_if_not_cancelled(phase_context, &Phases.AuditRun.run/1),
@@ -102,6 +107,7 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
       %{manifest_path: manifest_path}
       |> maybe_put_context_id(:provider_source_id, args["provider_source_id"])
       |> maybe_put_context_id(:provider_run_id, args["provider_run_id"])
+      |> Map.put(:scheduled, args["scheduled"] == true)
 
     case Phases.FetchSnapshot.run(context) do
       {:ok, context} -> {:ok, context}
@@ -133,6 +139,56 @@ defmodule Hiraeth.Oban.ProviderIngestionWorker do
   def normalize_provider_records(records, manifest, client) do
     ProviderRecordNormalizer.normalize(records, manifest, client)
   end
+
+  @doc """
+  Scheduled-run auto-approval step.
+
+  Approves every pending-review, quarantine-clear candidate classified as
+  new/changed/unchanged for this run, so scheduled jobs apply non-destructive
+  catalog updates without an operator. Removed/invalid/destructive candidates
+  are force-quarantined at creation and are never matched here, so scheduled
+  runs can never tombstone.
+
+  Returns `{:ok, count}` with the number of candidates approved.
+  """
+  def auto_approve_scheduled_candidates(run_id) when is_binary(run_id) do
+    candidates =
+      RecordCandidate
+      |> Ash.Query.filter(
+        provider_run_id == ^run_id and
+          diff_classification in ^@scheduled_approvable_diff_classifications and
+          quarantine_status == "clear" and
+          review_decision == "pending_review"
+      )
+      |> Ash.read!(authorize?: false)
+
+    Enum.reduce_while(candidates, {:ok, 0}, fn candidate, {:ok, count} ->
+      case approve_scheduled_candidate(candidate) do
+        {:ok, _approved} -> {:cont, {:ok, count + 1}}
+        {:error, reason} -> {:halt, {:error, reason}}
+      end
+    end)
+  end
+
+  defp approve_scheduled_candidate(candidate) do
+    candidate
+    |> Ash.Changeset.for_update(:approve_for_apply, %{
+      reviewer_note: "Auto-approved by scheduled ingestion run (provider_scheduler).",
+      review_actor_id: "provider_scheduler",
+      reviewed_at: DateTime.utc_now(:second)
+    })
+    |> Ash.update(actor: Phases.RunState.catalog_writer())
+  end
+
+  defp maybe_auto_approve_scheduled(%{scheduled: true, provider_run_id: run_id} = context)
+       when is_binary(run_id) do
+    case auto_approve_scheduled_candidates(run_id) do
+      {:ok, _approved_count} -> {:ok, context}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  defp maybe_auto_approve_scheduled(context), do: {:ok, context}
 
   @doc """
   Computes a content-derived SHA-256 checksum for a list of records.

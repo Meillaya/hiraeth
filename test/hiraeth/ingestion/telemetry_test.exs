@@ -1,7 +1,15 @@
 defmodule Hiraeth.Ingestion.TelemetryTest do
   use Hiraeth.DataCase, async: false
 
-  alias Hiraeth.Ingestion.{CoverCandidateRun, Phases, ProviderManifest, ProviderRun, Telemetry}
+  alias Hiraeth.Ingestion.{
+    CoverCandidateRun,
+    Phases,
+    ProviderManifest,
+    ProviderRun,
+    ProviderScheduler,
+    Telemetry
+  }
+
   alias Hiraeth.Oban.{ProviderIngestionWorker, ProviderSchedulerWorker}
   alias Hiraeth.TestSupport.IngestionFixtures
   alias HiraethWeb.Telemetry, as: WebTelemetry
@@ -45,6 +53,8 @@ defmodule Hiraeth.Ingestion.TelemetryTest do
     events = [
       Telemetry.phase_event(),
       Telemetry.scheduler_tick_event(),
+      Telemetry.scheduler_dispatch_start_event(),
+      Telemetry.scheduler_dispatch_stop_event(),
       Telemetry.sidecar_error_event(),
       Telemetry.queue_latency_event(),
       Telemetry.cover_cache_event()
@@ -152,12 +162,36 @@ defmodule Hiraeth.Ingestion.TelemetryTest do
     assert provider_source_id == source.id
   end
 
+  test "scheduler dispatch emits dispatch start/stop telemetry for a due source" do
+    source = create_source!("telemetry-dispatch", ingestion_mode: "manifest", enabled?: true)
+
+    assert {:ok, %{created: [_run], dispatched: [_dispatched]}} =
+             ProviderScheduler.schedule_tick(now: @tick_at, provider_source_ids: [source.id])
+
+    assert_receive {:telemetry_event, [:hiraeth, :ingestion, :scheduler, :dispatch, :start],
+                    _start_measurements, start_metadata}
+
+    assert start_metadata.tick_at == "2026-06-29T12:00:00Z"
+
+    assert_receive {:telemetry_event, [:hiraeth, :ingestion, :scheduler, :dispatch, :stop],
+                    stop_measurements, stop_metadata}
+
+    assert stop_measurements.dispatched_count == 1
+    assert stop_measurements.duration >= 0
+    assert stop_metadata.tick_at == "2026-06-29T12:00:00Z"
+    assert stop_metadata.dispatched_count == 1
+  end
+
   test "custom millisecond duration metrics preserve emitted millisecond values" do
     assert metric_measurement("hiraeth.ingestion.scheduler.tick.duration", %{duration: 300_000}) ==
              300_000
 
     assert metric_measurement("hiraeth.ingestion.queue.latency.duration", %{duration: 300_000}) ==
              300_000
+
+    assert metric_measurement("hiraeth.ingestion.scheduler.dispatch.stop.duration", %{
+             duration: 300_000
+           }) == 300_000
   end
 
   test "telemetry helper metadata is whitelisted and drops secret-like fields" do

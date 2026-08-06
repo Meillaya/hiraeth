@@ -35,16 +35,22 @@ defmodule Hiraeth.Ingestion.ProviderSchedulerTest do
   end
 
   @tag :duplicate_tick
-  test "duplicate schedule ticks do not create duplicate active runs" do
+  test "duplicate schedule ticks adopt the queued run and skip re-dispatch on job conflict" do
     source = create_source!("duplicate-tick", ingestion_mode: "manifest", enabled?: true)
 
     opts = [now: @tick_at, provider_source_ids: [source.id]]
 
-    assert {:ok, %{created: [_run], skipped: []}} = ProviderScheduler.schedule_tick(opts)
-    assert {:ok, %{created: [], skipped: [skip]}} = ProviderScheduler.schedule_tick(opts)
+    assert {:ok, %{created: [run], dispatched: [dispatched], skipped: []}} =
+             ProviderScheduler.schedule_tick(opts)
 
-    assert skip.provider_source_id == source.id
-    assert skip.reason == :active_run_exists
+    assert dispatched.id == run.id
+
+    # Still due: the queued scheduled run is adopted (not duplicated); the
+    # pending job from the first tick conflicts, keeping the run queued.
+    assert {:ok, %{created: [], adopted: [adopted], dispatched: [], skipped: []}} =
+             ProviderScheduler.schedule_tick(opts)
+
+    assert adopted.id == run.id
 
     assert [_single_active_run] = active_runs_for(source)
   end
@@ -65,20 +71,23 @@ defmodule Hiraeth.Ingestion.ProviderSchedulerTest do
     assert active_runs_for(manual) == []
   end
 
-  test "stale completed runs do not block a new scheduled run" do
+  test "recent succeeded run suppresses the scheduled run (cadence gate)" do
     source = create_source!("stale-completed", ingestion_mode: "api", enabled?: true)
-    stale_run = create_run!(source, "scheduled:2026-06-29T11:00:00Z", "succeeded")
 
-    assert {:ok, %{created: [run], skipped: []}} =
+    _recent_run =
+      create_run!(
+        source,
+        "scheduled:2026-06-29T11:00:00Z",
+        "succeeded",
+        DateTime.add(@tick_at, -1 * 3_600, :second)
+      )
+
+    assert {:ok, %{created: [], adopted: [], dispatched: [], skipped: [skip]}} =
              ProviderScheduler.schedule_tick(now: @tick_at, provider_source_ids: [source.id])
 
-    assert run.id != stale_run.id
-    assert run.provider_source_id == source.id
-
-    assert Enum.count(
-             Ash.read!(ProviderRun, authorize?: false),
-             &(&1.provider_source_id == source.id)
-           ) == 2
+    assert skip.provider_source_id == source.id
+    assert skip.reason == :not_due
+    assert active_runs_for(source) == []
   end
 
   test "cancelled run does not enqueue phases" do
@@ -108,15 +117,19 @@ defmodule Hiraeth.Ingestion.ProviderSchedulerTest do
     |> Ash.update!(actor: IngestionFixtures.catalog_writer())
   end
 
-  defp create_run!(source, run_key, status) do
-    ProviderRun
-    |> Ash.Changeset.for_create(:create, %{
+  defp create_run!(source, run_key, status, finished_at \\ nil) do
+    attrs = %{
       provider_source_id: source.id,
       status: status,
       requested_by: "provider_scheduler",
       run_key: run_key,
       provenance: %{}
-    })
+    }
+
+    attrs = if is_nil(finished_at), do: attrs, else: Map.put(attrs, :finished_at, finished_at)
+
+    ProviderRun
+    |> Ash.Changeset.for_create(:create, attrs)
     |> Ash.create!(actor: IngestionFixtures.catalog_writer())
   end
 

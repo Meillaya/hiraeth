@@ -1,9 +1,16 @@
 defmodule Hiraeth.Ingestion.OperatorCLI do
   @moduledoc "Operator-facing implementation for `mix hiraeth.ingest`."
 
-  alias Hiraeth.Ingestion.{OperatorControl, OperatorDryRun, OperatorJSON, OperatorManifest}
+  alias Hiraeth.Ingestion.{
+    OperatorControl,
+    OperatorDryRun,
+    OperatorJSON,
+    OperatorManifest,
+    ProviderRun,
+    SidecarClient
+  }
+
   alias Hiraeth.Ingestion.Phases.RunState
-  alias Hiraeth.Ingestion.SidecarClient
   alias Hiraeth.Oban.ProviderIngestionWorker
 
   import Ecto.Query
@@ -124,14 +131,45 @@ defmodule Hiraeth.Ingestion.OperatorCLI do
       provider_run_id: run.id
     }
 
-    job =
-      ProviderIngestionWorker.new(args)
-      |> Oban.insert!()
-
-    {:ok, job}
+    with {:conflict, conflicting_job} <- insert_job(args) do
+      cancel_conflicting_job(conflicting_job)
+      insert_job(args)
+    end
   rescue
     error -> {:error, "ingestion enqueue failed: #{Exception.message(error)}"}
   end
+
+  # Oban's unique constraint makes a duplicate insert return the pending job
+  # with conflict? true instead of raising; cancelling it prevents the
+  # scheduled job from orphaning the operator's fresh run.
+  defp insert_job(args) do
+    job = ProviderIngestionWorker.new(args) |> Oban.insert!()
+
+    if job.conflict? do
+      {:conflict, job}
+    else
+      {:ok, job}
+    end
+  end
+
+  defp cancel_conflicting_job(job) do
+    Oban.cancel_job(job)
+    cancel_conflicting_run(job.args["provider_run_id"])
+  end
+
+  defp cancel_conflicting_run(run_id) when is_binary(run_id) and run_id != "" do
+    case Ash.get(ProviderRun, run_id, authorize?: false) do
+      {:ok, %ProviderRun{status: status} = run} when status in ["queued", "running"] ->
+        run
+        |> Ash.Changeset.for_update(:cancel, %{finished_at: DateTime.utc_now(:second)})
+        |> Ash.update(actor: RunState.catalog_writer())
+
+      _other ->
+        :ok
+    end
+  end
+
+  defp cancel_conflicting_run(_run_id), do: :ok
 
   defp maybe_print_started(provider, run, job, opts) do
     if json?(opts) do

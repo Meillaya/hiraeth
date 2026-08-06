@@ -9,12 +9,16 @@ defmodule Hiraeth.Ingestion.Telemetry do
 
   @phase_event [:hiraeth, :ingestion, :phase, :stop]
   @scheduler_tick_event [:hiraeth, :ingestion, :scheduler, :tick]
+  @scheduler_dispatch_start_event [:hiraeth, :ingestion, :scheduler, :dispatch, :start]
+  @scheduler_dispatch_stop_event [:hiraeth, :ingestion, :scheduler, :dispatch, :stop]
   @sidecar_error_event [:hiraeth, :ingestion, :sidecar, :error]
   @queue_latency_event [:hiraeth, :ingestion, :queue, :latency]
   @cover_cache_event [:hiraeth, :ingestion, :cover, :cache]
 
   def phase_event, do: @phase_event
   def scheduler_tick_event, do: @scheduler_tick_event
+  def scheduler_dispatch_start_event, do: @scheduler_dispatch_start_event
+  def scheduler_dispatch_stop_event, do: @scheduler_dispatch_stop_event
   def sidecar_error_event, do: @sidecar_error_event
   def queue_latency_event, do: @queue_latency_event
   def cover_cache_event, do: @cover_cache_event
@@ -55,6 +59,22 @@ defmodule Hiraeth.Ingestion.Telemetry do
       @scheduler_tick_event,
       measurements,
       sanitize_metadata(metadata, [:tick_at])
+    )
+  end
+
+  def scheduler_dispatch_start(metadata \\ %{}) do
+    :telemetry.execute(
+      @scheduler_dispatch_start_event,
+      %{},
+      sanitize_metadata(metadata, [:tick_at])
+    )
+  end
+
+  def scheduler_dispatch_stop(measurements, metadata \\ %{}) do
+    :telemetry.execute(
+      @scheduler_dispatch_stop_event,
+      measurements,
+      sanitize_metadata(metadata, [:tick_at, :dispatched_count])
     )
   end
 

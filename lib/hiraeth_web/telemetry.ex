@@ -83,6 +83,8 @@ defmodule HiraethWeb.Telemetry do
       summary("hiraeth.ingestion.scheduler.tick.duration"),
       summary("hiraeth.ingestion.scheduler.tick.created_count"),
       summary("hiraeth.ingestion.scheduler.tick.skipped_count"),
+      summary("hiraeth.ingestion.scheduler.dispatch.stop.duration"),
+      summary("hiraeth.ingestion.scheduler.dispatch.stop.dispatched_count"),
       summary("hiraeth.ingestion.queue.latency.duration", tags: [:worker]),
       sum("hiraeth.ingestion.sidecar.error.count", tags: [:operation, :error_code]),
       summary("hiraeth.ingestion.cover.cache.failed_count", tags: [:status]),

@@ -1,8 +1,10 @@
 defmodule Hiraeth.Ingestion.MixTaskTest do
   use Hiraeth.DataCase, async: false
 
-  alias Hiraeth.Ingestion.ProviderRun
+  alias Hiraeth.Ingestion.{ProviderRun, ProviderSource}
+  alias Hiraeth.Oban.ProviderIngestionWorker
   alias Hiraeth.Repo
+  alias Hiraeth.TestSupport.IngestionFixtures
   alias Mix.Tasks.Hiraeth.Ingest
 
   require Ash.Query
@@ -131,6 +133,81 @@ defmodule Hiraeth.Ingestion.MixTaskTest do
     end
   end
 
+  describe "operator conflict semantics" do
+    setup do
+      # Jobs must not execute inline here: the conflict cancel-and-replace flow
+      # is what is under test, not the pipeline itself.
+      Application.put_env(
+        :hiraeth,
+        Oban,
+        Keyword.put(Application.get_env(:hiraeth, Oban), :testing, :manual)
+      )
+
+      :ok
+    end
+
+    test "operator run replaces a pending scheduled job and its queued run" do
+      source = create_source_for!("test_publisher_api")
+
+      scheduled_run =
+        ProviderRun
+        |> Ash.Changeset.for_create(:create, %{
+          provider_source_id: source.id,
+          status: "queued",
+          requested_by: "provider_scheduler",
+          run_key: "scheduled:2026-08-05T12:00:00Z",
+          provenance: %{"scheduled" => true}
+        })
+        |> Ash.create!(actor: IngestionFixtures.catalog_writer())
+
+      assert {:ok, scheduled_job} =
+               Oban.insert(
+                 ProviderIngestionWorker.new(%{
+                   "scheduled" => true,
+                   provider: "test_publisher_api",
+                   manifest_path: @valid_manifest,
+                   provider_source_id: source.id,
+                   provider_run_id: scheduled_run.id
+                 })
+               )
+
+      assert :ok =
+               Ingest.do_run([
+                 "--provider",
+                 "test_publisher_api",
+                 "--manifest",
+                 @valid_manifest,
+                 "--json"
+               ])
+
+      assert %{state: "cancelled"} = Repo.get(Oban.Job, scheduled_job.id)
+      assert Ash.get!(ProviderRun, scheduled_run.id, authorize?: false).status == "cancelled"
+
+      [operator_run] =
+        provider_runs_for("test_publisher_api")
+        |> Enum.filter(&(&1.requested_by == "mix hiraeth.ingest"))
+
+      assert operator_run.status == "queued"
+
+      assert [operator_job] =
+               Repo.all(
+                 from(job in Oban.Job,
+                   where:
+                     fragment("?->>? = ?", job.args, "provider_run_id", ^operator_run.id) and
+                       job.state == "available"
+                 )
+               )
+
+      refute operator_job.args["scheduled"] == true
+
+      # Every queued operator run has exactly one live job; nothing is orphaned.
+      assert Enum.all?(
+               provider_runs_for("test_publisher_api"),
+               &(&1.status != "queued" or queued_run_job_count(&1.id) == 1)
+             )
+    end
+  end
+
   defp wait_for_ingestion_job(attempts \\ 200)
 
   defp wait_for_ingestion_job(0), do: flunk("timed out waiting for ingestion job")
@@ -155,5 +232,37 @@ defmodule Hiraeth.Ingestion.MixTaskTest do
     |> Enum.filter(
       &(&1.provider_source && &1.provider_source.stable_source_key =~ "publisher:#{provider}:")
     )
+  end
+
+  defp create_source_for!(provider) do
+    ProviderSource
+    |> Ash.Changeset.for_create(:create, %{
+      stable_source_key: "publisher:#{provider}:api",
+      provider_name: provider,
+      source_kind: "publisher",
+      ingestion_mode: "api",
+      base_uri: "https://fixture.example.com/books",
+      manifest_uri: @valid_manifest,
+      allowed_hosts: ["fixture.example.com"],
+      rate_limit_per_minute: 30,
+      max_bytes: 1_048_576,
+      checksum_algorithm: "sha256",
+      required_checksum: "sha256:#{provider}",
+      license_note: "Deterministic fixture provider for operator conflict tests.",
+      enabled?: true,
+      cadence_hours: 24
+    })
+    |> Ash.create!(actor: IngestionFixtures.catalog_writer())
+  end
+
+  defp queued_run_job_count(run_id) do
+    import Ecto.Query
+
+    Repo.one(
+      from(job in Oban.Job,
+        where: fragment("?->>? = ?", job.args, "provider_run_id", ^run_id),
+        select: count(job.id)
+      )
+    ) || 0
   end
 end
