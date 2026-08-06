@@ -43,7 +43,7 @@ mix hiraeth.real_catalog.source_artifacts
 mix hiraeth.real_catalog.coverage_report
 ```
 
-Autonomous scheduled ingestion runs on its own per-provider cadence; see the "Autonomous catalog updates" section of `docs/production-operations.md` for what runs when, the kill-switch, and rollout order.
+Autonomous scheduled ingestion runs on its own per-provider cadence; see the "Autonomous catalog updates" section of `docs/production-operations.md` for what runs when, the `HIRAETH_SCHEDULED_INGEST` kill-switch (off by default locally via devenv), and rollout order.
 
 ## Verify/build
 

@@ -243,3 +243,79 @@ Build operator dashboards from the telemetry events above:
 - Cover cache cached/failed/error counts and latest failed provider run.
 
 All panels should link back to provider run IDs or ingestion run timelines rather than exposing raw source payloads.
+
+## Autonomous catalog updates
+
+Scheduled ingestion runs without an operator: the Oban Cron plugin ticks the scheduler, the scheduler plans and dispatches provider runs, and the worker pipeline applies only quarantine-clear, non-destructive changes. This section covers what runs when, the non-destructive guarantee, enabling/disabling autonomy, rollout order, and investigation paths.
+
+### What runs when
+
+All autonomous scheduling comes from the Oban Cron crontab built in `config/runtime.exs` (UTC):
+
+| Schedule (UTC) | Worker | Queue | What it does |
+| --- | --- | --- | --- |
+| Every 15 minutes (`*/15 * * * *`) | `Hiraeth.Oban.ProviderSchedulerWorker` | `ingestion` | Scheduler tick: plans and dispatches due provider runs. |
+| Sunday 04:00 (`0 4 * * 0`) | `Hiraeth.Oban.CoverRefreshWorker` | `covers` | Weekly cover cache refresh (mix-task-identical defaults: `force?: false`, `strict?: false`). |
+| Sunday 04:30 (`30 4 * * 0`) | `Hiraeth.Oban.ProvenanceAuditWorker` | `audit` | Weekly provenance audit export to `artifacts/qa/provenance`. |
+
+Each scheduler tick (`Hiraeth.Ingestion.ProviderScheduler.schedule_tick/1`):
+
+- Classifies enabled manifest-mode provider sources against their per-provider `cadence_hours` (default `24`, overridable per provider in the provider manifest) using the last-succeeded `finished_at` of the previous run; sources past their cadence are due.
+- Creates a new queued `ProviderRun` (`run_key` `"scheduled:<iso8601>"`) for due sources with no pending scheduled run, or **adopts** an existing queued scheduled run (`status = 'queued'` and `requested_by = 'provider_scheduler'`) so a stale queued run from a previous tick is consumed instead of duplicated.
+- Dispatches at most **2 runs per tick**, ordered oldest-last-succeeded first; sources beyond the cap are deferred (`dispatch_cap_deferred` skip reason) to the next tick.
+- Emits telemetry: `[:hiraeth, :ingestion, :scheduler, :tick]` (created/skipped counts, `tick_at`), `[:hiraeth, :ingestion, :scheduler, :dispatch, :start]` and `[:hiraeth, :ingestion, :scheduler, :dispatch, :stop]` (`tick_at`, `dispatched_count`).
+
+The weekly workers emit their own telemetry events: `[:hiraeth, :covers, :scheduled, :refresh]` (cover refresh) and `[:hiraeth, :provenance, :scheduled, :audit]` (provenance audit).
+
+### Non-destructive guarantee
+
+Scheduled runs can only ever **add or update** catalog data; they can never remove it:
+
+- In the worker pipeline, the scheduled path (job arg `"scheduled" => true`) auto-approves candidates that are simultaneously `diff_classification` in `[new, changed, unchanged]`, `quarantine_status` `"clear"`, and `review_decision` `"pending_review"` — via the `approve_for_apply` action with `review_actor_id` `"provider_scheduler"`.
+- `removed`, `invalid`, and `destructive` candidates are force-quarantined at creation and never match that filter, so a scheduled run can **never tombstone** a catalog row. Tombstoning stays a reviewed, operator-only action.
+- The auto-approval is idempotent by construction: approved candidates leave `pending_review`, so re-running a tick or replaying a snapshot cannot double-approve.
+- Operator runs (`mix hiraeth.ingest`, `requested_by = 'mix hiraeth.ingest'`) never get the `"scheduled"` flag, so the manual lane keeps its full review gates.
+
+### Pre-rollout reconciliation (mandatory)
+
+Before enabling autonomy on Railway (`HIRAETH_SCHEDULED_INGEST=true`), reconcile the queued runs the old eager scheduler left behind. On the production database:
+
+```sql
+SELECT count(*), provider_source_id
+FROM provider_runs
+WHERE status = 'queued' AND requested_by = 'provider_scheduler'
+GROUP BY provider_source_id;
+```
+
+- Expect roughly **11 stale queued scheduled runs** from the pre-dispatcher scheduler. This is plausible, not an incident.
+- The adoption rule consumes them at 2 per tick, so they drain over ~90 minutes after autonomy is enabled. No action is needed beyond confirming the per-provider counts are plausible (one run per provider) and that none are weeks-stale duplicates.
+- If any provider has **more than one** stale queued run, cancel the duplicates (keep one) before enabling autonomy.
+
+### Kill-switch
+
+- Set `HIRAETH_SCHEDULED_INGEST=false` in the Railway dashboard (Variables tab) and redeploy. `config/runtime.exs` then builds the Oban plugin list without the Cron entries, so **all three autonomous schedules are off**: the 15-minute tick, the weekly cover refresh, and the weekly provenance audit. Queues and the Pruner remain.
+- Manual operator tasks (`mix hiraeth.ingest ...`, `mix hiraeth.cache_covers`, `mix hiraeth.audit_provenance`) are unaffected by the kill-switch.
+- The default when the variable is unset is `true` (autonomy on). Local development via devenv pins `HIRAETH_SCHEDULED_INGEST=false`, so there is **no local auto-fetch**; run providers explicitly with `mix hiraeth.ingest --provider <slug> --wait`.
+
+### Rollout order for the migrations
+
+Two migrations in this area have ordering constraints relative to the code that uses them:
+
+1. **Apply `20260806002149_add_provider_sources_cadence_hours` in production BEFORE deploying any release whose code declares `cadence_hours`.** AshPostgres selects every declared attribute, so code that declares the attribute against a table that lacks the column fails at query time. The migration is a safe additive `ALTER TABLE ... ADD COLUMN` with `NOT NULL DEFAULT 24`.
+2. **Apply `20260806001818_drop_imports_csv_workflow_tables` only AFTER the release that removed the Imports CSV resources is live.** The migration drops `review_items`, `staged_import_rows`, and `import_mappings` (not `import_runs`, which keeps live provenance lineage). Running the drops against code that still references the resources breaks those queries.
+
+Railway runs migrations via the release pre-deploy command before switching traffic, so the ordering rule above means: deploy the migration ahead of the attribute-declaring code (or include the cadence migration in the deploy immediately before), and never let the drop migration run before the removal code is live.
+
+### Railway single-instance notes
+
+- The Phoenix web server and Oban run in the **same container** (one Railway service). Oban workers share the web process's BEAM node.
+- A Railway deploy (including an env-var change with redeploy) interrupts executing jobs; Oban's default retry behavior re-runs interrupted jobs after the new version boots.
+- Environment variables — including `HIRAETH_SCHEDULED_INGEST` — are dashboard config; changing them requires a redeploy to take effect.
+
+### Investigating scheduled runs
+
+- **Oban job states**: query `oban_jobs` for the workers above (`worker` in `Hiraeth.Oban.ProviderSchedulerWorker`, `Hiraeth.Oban.ProviderIngestionWorker`, `Hiraeth.Oban.CoverRefreshWorker`, `Hiraeth.Oban.ProvenanceAuditWorker`) and inspect `state` (`available`, `scheduled`, `executing`, `retryable`, `completed`, `discarded`, `cancelled`) and `args`.
+- **IngestionEvent kinds**: `phase_enqueue_intent` (a run was planned/dispatched), `dispatch_skipped_job_pending` (dispatch skipped because a unique job is already pending for that provider — the run stays queued and is adopted later), plus the `scheduler.dispatch` start/stop telemetry events.
+- **ProviderRun statuses**: `queued` → `running` → `succeeded`/`failed`; scheduled runs carry `run_key` `"scheduled:<iso8601>"` and `requested_by` `"provider_scheduler"`. A long-lived `queued`/`running` scheduled run blocks re-dispatch for that provider (skip reason `active_run_exists`).
+- **Quarantine review**: `mix hiraeth.ingest` output and the DB ingestion tables (record candidates and diffs) show what is quarantined and why. Approve only source-backed non-destructive candidates; leave `removed`/`invalid`/`destructive` quarantined with an operator note. See the alert response steps above for the full workflow.
+- **Force a provider now**: `mix hiraeth.ingest --provider <slug> --wait` runs the full pipeline synchronously as a manual operator run, bypassing cadence and the dispatch cap.
