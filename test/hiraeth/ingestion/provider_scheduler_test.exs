@@ -9,9 +9,18 @@ defmodule Hiraeth.Ingestion.ProviderSchedulerTest do
   @tick_at ~U[2026-06-29 12:00:00Z]
 
   test "scheduler config is present" do
-    assert Application.fetch_env!(:hiraeth, Oban)
-           |> Keyword.fetch!(:plugins)
-           |> Enum.any?(&provider_scheduler_plugin?/1)
+    # The devenv dev guard exports HIRAETH_SCHEDULED_INGEST=false, which
+    # runtime.exs honors by dropping the scheduler cron entry entirely. The
+    # full kill-switch matrix is pinned by Hiraeth.ObanConfigKillSwitchTest.
+    if System.get_env("HIRAETH_SCHEDULED_INGEST", "true") == "false" do
+      assert Application.fetch_env!(:hiraeth, Oban)
+             |> Keyword.fetch!(:plugins)
+             |> Enum.any?(&provider_scheduler_plugin?/1) == false
+    else
+      assert Application.fetch_env!(:hiraeth, Oban)
+             |> Keyword.fetch!(:plugins)
+             |> Enum.any?(&provider_scheduler_plugin?/1)
+    end
   end
 
   test "scheduler creates queued provider runs and phase enqueue intent for enabled automatic sources" do

@@ -37,6 +37,9 @@ in
     DATABASE_NAME = "hiraeth_dev";
     PGUSER = "postgres";
     PGPASSWORD = "postgres";
+    # Autonomous ingestion kill-switch: local dev never auto-fetches publisher
+    # sites. Operators trigger runs with `mix hiraeth.ingest`.
+    HIRAETH_SCHEDULED_INGEST = "false";
   };
 
 

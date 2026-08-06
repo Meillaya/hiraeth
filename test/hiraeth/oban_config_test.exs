@@ -15,14 +15,23 @@ defmodule Hiraeth.ObanConfigTest do
   test "Oban crontab schedules the weekly cover refresh and provenance audit beside the scheduler tick" do
     oban_config = Application.fetch_env!(:hiraeth, Oban)
 
-    {Oban.Plugins.Cron, cron_config} =
-      Enum.find(oban_config[:plugins], &match?({Oban.Plugins.Cron, _}, &1))
+    crontab =
+      case Enum.find(oban_config[:plugins], &match?({Oban.Plugins.Cron, _}, &1)) do
+        {Oban.Plugins.Cron, cron_config} -> Keyword.fetch!(cron_config, :crontab)
+        nil -> []
+      end
 
-    crontab = Keyword.fetch!(cron_config, :crontab)
-
-    assert {"*/15 * * * *", Hiraeth.Oban.ProviderSchedulerWorker} in crontab
-    assert {"0 4 * * 0", Hiraeth.Oban.CoverRefreshWorker} in crontab
-    assert {"30 4 * * 0", Hiraeth.Oban.ProvenanceAuditWorker} in crontab
+    # The devenv dev guard exports HIRAETH_SCHEDULED_INGEST=false, which
+    # runtime.exs honors by dropping all autonomous cron entries. The full
+    # true/false matrix is pinned by Hiraeth.ObanConfigKillSwitchTest via
+    # Config.Reader against the release-boot path.
+    if System.get_env("HIRAETH_SCHEDULED_INGEST", "true") == "false" do
+      assert crontab == []
+    else
+      assert {"*/15 * * * *", Hiraeth.Oban.ProviderSchedulerWorker} in crontab
+      assert {"0 4 * * 0", Hiraeth.Oban.CoverRefreshWorker} in crontab
+      assert {"30 4 * * 0", Hiraeth.Oban.ProvenanceAuditWorker} in crontab
+    end
   end
 
   test "oban_jobs table exists in the database" do

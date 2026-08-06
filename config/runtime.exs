@@ -26,6 +26,31 @@ config :hiraeth, HiraethWeb.Endpoint,
 config :hiraeth, :scrapling_sidecar,
   base_url: System.get_env("SCRAPLING_SIDECAR_URL") || "http://localhost:8000"
 
+# Autonomous ingestion kill-switch: HIRAETH_SCHEDULED_INGEST=false drops ALL
+# autonomous cron entries (scheduler tick, weekly cover refresh, weekly
+# provenance audit) so autonomy is fully off; manual mix tasks are unaffected.
+# Queues and the Pruner always stay.
+scheduled_ingest = System.get_env("HIRAETH_SCHEDULED_INGEST", "true") != "false"
+
+oban_plugins =
+  [
+    Oban.Plugins.Pruner
+  ] ++
+    if scheduled_ingest do
+      [
+        {Oban.Plugins.Cron,
+         crontab: [
+           {"*/15 * * * *", Hiraeth.Oban.ProviderSchedulerWorker},
+           {"0 4 * * 0", Hiraeth.Oban.CoverRefreshWorker},
+           {"30 4 * * 0", Hiraeth.Oban.ProvenanceAuditWorker}
+         ]}
+      ]
+    else
+      []
+    end
+
+config :hiraeth, Oban, plugins: oban_plugins
+
 if config_env() == :prod do
   scrapling_sidecar_url =
     System.get_env("SCRAPLING_SIDECAR_URL") ||
