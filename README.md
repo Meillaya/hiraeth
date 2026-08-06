@@ -16,7 +16,7 @@ It is still browser-first: the stable v1 surface is the LiveView catalog, not a 
 
 ## Run locally
 
-devenv is the preferred local/dev/test path. It provides the pinned Elixir/OTP toolchain, PostgreSQL 16 on `127.0.0.1:54320`, Node, Python/`uv`, and browser dependencies used by Phoenix and the Scrapling sidecar. Docker remains a legacy fallback and the current production runtime boundary reference; do not treat this partial migration as a claim that production is Nix/devenv-only.
+devenv is the preferred local/dev/test path. It provides the pinned Elixir/OTP toolchain, PostgreSQL 16 on `127.0.0.1:54320`, Node, Python/`uv`, and browser dependencies used by Phoenix and the Scrapling sidecar. Local development is devenv-only. Docker remains the production runtime boundary reference — Railway builds the Phoenix service from the root `Dockerfile` and the sidecar from `sidecar/Dockerfile` — not a local setup path.
 
 Use a `devenv shell` for ad hoc Mix commands and the devenv process runner for managed local PostgreSQL, Phoenix, and sidecar processes:
 
@@ -29,9 +29,7 @@ mix run priv/repo/seeds.exs
 mix phx.server
 ```
 
-Open <http://localhost:4000>. For managed readiness checks, run the configured devenv tasks from the repository root; they start the declared local processes and probe Phoenix/sidecar readiness without requiring Compose.
-
-If devenv is unavailable, Docker/Compose may still be used as a legacy fallback for local PostgreSQL or as the production-runtime reference documented below. Keep any Docker instructions scoped to that fallback/boundary role rather than making Compose the default local setup.
+Open <http://localhost:4000>. For managed readiness checks, run the configured devenv tasks from the repository root; they start the declared local processes and probe Phoenix/sidecar readiness.
 
 ## Operate ingestion
 
@@ -98,4 +96,4 @@ Start with:
 - `docs/production-readiness.md`
 - `docs/provenance-cover-policy.md`
 
-The repository includes CI in `.github/workflows/ci.yml`, environment examples in `.env.example`, and a private sidecar service configuration in `compose.yaml`. The public catalog is deployed to Railway at `https://hiraeth-web-production.up.railway.app` (Phoenix service + private Scrapling sidecar + managed Postgres). Validate deployment networking, secrets, backups, and alerts in the target environment before any further launch.
+The repository includes CI in `.github/workflows/ci.yml` and environment examples in `.env.example`. The public catalog is deployed to Railway at `https://hiraeth-web-production.up.railway.app`: the Phoenix service builds from the root `Dockerfile`, the private Scrapling sidecar builds from `sidecar/Dockerfile`, and Postgres is Railway-managed. Validate deployment networking, secrets, backups, and alerts in the target environment before any further launch.

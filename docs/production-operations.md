@@ -2,18 +2,18 @@
 
 This runbook covers the Phoenix release/container path for Hiraeth production deployments. It assumes PostgreSQL 16, the Scrapling sidecar service, and Phoenix releases built from this repository.
 
-Local development has a bounded partial migration to devenv: devenv is the preferred local/dev/test path for shell work, managed loopback PostgreSQL/Phoenix/sidecar processes, and readiness tasks. Docker remains the current production runtime and service-network boundary reference, plus a legacy local fallback when devenv is unavailable. Do not use this runbook to claim that production is Nix/devenv-only.
+Local development has a bounded partial migration to devenv: devenv is the preferred local/dev/test path for shell work, managed loopback PostgreSQL/Phoenix/sidecar processes, and readiness tasks. Local development is devenv-only. Docker remains the current production runtime boundary reference: Railway builds the Phoenix service from the root `Dockerfile` and the sidecar from `sidecar/Dockerfile`. Do not use this runbook to claim that production is Nix/devenv-only.
 
 ## Production Runtime Boundary
 
-The Docker-to-devenv migration is a bounded local/dev/CI-build migration, not in every capacity, and it is not a production migration. devenv is the preferred path for local shell work, local managed PostgreSQL/Phoenix/sidecar processes, and CI-build verification covered by the migration plan. For this boundary, production orchestration remains Docker/Compose or future-runtime scoped until a separate production-runtime plan is approved and verified.
+The Docker-to-devenv migration is a bounded local/dev/CI-build migration, not in every capacity, and it is not a production migration. devenv is the preferred path for local shell work, local managed PostgreSQL/Phoenix/sidecar processes, and CI-build verification covered by the migration plan. For this boundary, production orchestration remains Docker/Dockerfile-based (Railway) or future-runtime scoped until a separate production-runtime plan is approved and verified.
 
-Docker remains the current production runtime and service-network boundary reference. Do not describe Hiraeth production as Docker-free, Nix/devenv-only, or fully migrated away from Compose. The production runtime target is Railway (managed platform). The following production runtime decisions are resolved for Railway:
+Docker remains the current production runtime boundary reference. Do not describe Hiraeth production as Docker-free, Nix/devenv-only, or fully migrated away from Docker. The production runtime target is Railway (managed platform). The following production runtime decisions are resolved for Railway:
 
 - **orchestration target**: Railway managed platform. One Railway project with a production environment containing three services: a managed PostgreSQL 16 database (Railway Postgres template), the Phoenix service (builds from the committed root `Dockerfile`), and the private Scrapling sidecar service (builds from `sidecar/Dockerfile`). The Phoenix service reads `DATABASE_URL=${{Postgres.DATABASE_URL}}` as a Railway reference variable, which also orders deploys so Postgres deploys before Phoenix.
 - **sidecar private network**: Railway private networking. Phoenix reaches the sidecar over the private network at `http://sidecar.railway.internal:8000` (internal DNS, zero-config, Wireguard-encrypted, no public exposure). The sidecar gets no public domain and no public port; set `SCRAPLING_SIDECAR_URL=http://sidecar.railway.internal:8000`. CORS/private-host safeguards are preserved: `HIRAETH_SIDECAR_CORS_ORIGINS` stays unset in production (server-to-server calls need no CORS), and the sidecar's URL validation still rejects private, loopback, link-local, and userinfo fetch targets.
 - **backup/restore tooling**: logical PostgreSQL backups via `scripts/ops/db_backup.sh` and `scripts/ops/db_restore_drill.sh` (pg_dump `--format=custom` plus a pg_restore drill into a scratch database) remain the portable, offsite layer and the only layer that survives project deletion. Railway's managed Postgres adds scheduled volume backups (daily kept 6 days, weekly 1 month, monthly 3 months) and point-in-time recovery (pgBackRest, roughly a 4-week window) for same-project restore. Run the restore drill on a schedule and record restore time and dump age as the real RTO/RPO.
-- **memory limits**: Railway has no instance size to pick; services scale vertically up to plan limits and are billed per minute of actual usage (RAM $10/GB/month, CPU $20/vCPU/month). Translate the Compose sidecar `mem_limit: 2g` and Phoenix/PostgreSQL capacity assumptions into per-service replica limits (service settings → Deploy → Replica Limits) set at 1.5-2x the observed peak from the Metrics tab: sidecar 2 GB (matches the Compose `mem_limit: 2g`), Phoenix 1 GB to start, tuned from metrics. `POOL_SIZE` stays per-instance (start at 10); keep `instances × POOL_SIZE` below the Postgres connection limit.
+- **memory limits**: Railway has no instance size to pick; services scale vertically up to plan limits and are billed per minute of actual usage (RAM $10/GB/month, CPU $20/vCPU/month). Translate the standing sidecar 2 GB memory assumption and the Phoenix/PostgreSQL capacity assumptions into per-service replica limits (service settings → Deploy → Replica Limits) set at 1.5-2x the observed peak from the Metrics tab: sidecar 2 GB, Phoenix 1 GB to start, tuned from metrics. `POOL_SIZE` stays per-instance (start at 10); keep `instances × POOL_SIZE` below the Postgres connection limit.
 - **logs/observability**: Railway logs (build/deploy panel, Log Explorer, `railway logs` CLI) are the collector. The prod `logger_json` structured JSON logs make Phoenix/Oban logs filterable in the Log Explorer (`@level:error`, `@requestId:...`); Postgres and sidecar logs land in the same environment Log Explorer. The ingestion `:telemetry` events and alert thresholds below stay as documented; no unapproved vendor SDKs are added.
 - **rollout/rollback**: Railway deploys. A pre-deploy command runs migrations (`bin/hiraeth eval "Ecto.Migrator.with_repo(Hiraeth.Repo, &Ecto.Migrator.run(&1, :up, all: true))"`) before the new version goes live; a failed pre-deploy aborts the deploy. The Railway healthcheck polls `/health` (excluded from `force_ssl`) until HTTP 200 before switching traffic (default 300s timeout). Rollback is a Railway deployment rollback (three-dot menu on a prior deployment), which restores the previous image and variables; image retention bounds how far back rollback works (Hobby 72h, Pro 120h). Database restore uses the drill scripts (logical) or a Railway volume-backup/PITR restore into a replacement database, then repoints `DATABASE_URL`.
 
@@ -26,7 +26,7 @@ Set these values in the deployment secret store or container environment before 
 | `SECRET_KEY_BASE` | yes | Signs and encrypts Phoenix cookies and session data. Generate a unique production value with `mix phx.gen.secret`. | `replace-with-generated-secret-key-base` |
 | `DATABASE_URL` | yes | PostgreSQL connection string used by `Hiraeth.Repo`. | `postgres://hiraeth_user:replace-with-database-password@postgres:5432/hiraeth_prod` |
 | `PHX_HOST` | yes | Public hostname used for generated HTTPS URLs. | `hiraeth.example.com` |
-| `SCRAPLING_SIDECAR_URL` | yes | HTTP URL for the Scrapling sidecar reachable from the Phoenix container. | `http://scrapling-sidecar:8000` |
+| `SCRAPLING_SIDECAR_URL` | yes | HTTP URL for the Scrapling sidecar reachable from the Phoenix service. | `http://sidecar.railway.internal:8000` |
 | `POOL_SIZE` | yes | Ecto connection pool size for each running Phoenix instance. Start at `10`, then tune with database capacity and instance count. | `10` |
 | `PHX_SERVER` | yes for releases | Enables the Phoenix web server in releases. | `true` |
 | `PORT` | no | HTTP port inside the container. Defaults to `4000` in `config/runtime.exs`. | `4000` |
@@ -64,25 +64,13 @@ docker run --rm \
   bin/hiraeth start
 ```
 
-With the included Compose services, the sidecar URL for the Phoenix container is:
+On Railway, Phoenix reaches the sidecar over the private network:
 
 ```bash
-SCRAPLING_SIDECAR_URL=http://scrapling-sidecar:8000
+SCRAPLING_SIDECAR_URL=http://sidecar.railway.internal:8000
 ```
 
-Keep PostgreSQL and the Scrapling sidecar on the same container network as Phoenix. The runtime config reads `SCRAPLING_SIDECAR_URL` directly and falls back to `http://localhost:8000` only when the variable is unset, which is not suitable for a multi-container production deployment.
-
-The committed `compose.yaml` keeps `scrapling-sidecar` service-network-only by using Compose `expose` and no sidecar `ports` entry. Do not add a sidecar host port to the default or production Compose path. If a developer needs host access for local debugging, use an uncommitted override that binds only to loopback, for example:
-
-```yaml
-# compose.sidecar-local-ports.override.yaml (local debugging only; do not use in production)
-services:
-  scrapling-sidecar:
-    ports:
-      - "127.0.0.1:8000:8000"
-```
-
-Run that override only when needed with `docker compose -f compose.yaml -f compose.sidecar-local-ports.override.yaml up scrapling-sidecar`.
+Keep PostgreSQL and the Scrapling sidecar private to the deployment network. The runtime config reads `SCRAPLING_SIDECAR_URL` directly and falls back to `http://localhost:8000` only when the variable is unset, which is not suitable for production. The sidecar must never get a public domain or host port; local debugging binds loopback only (`127.0.0.1:8000`) through devenv, as documented in `sidecar/README.md`.
 
 ## Run Migrations
 

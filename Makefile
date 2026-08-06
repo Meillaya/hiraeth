@@ -14,7 +14,7 @@ bootstrap-check:
 		echo "hiraeth bootstrap check"; \
 		echo "timestamp=$$(date -u +%Y-%m-%dT%H:%M:%SZ)"; \
 		echo "checking required bootstrap files"; \
-		for path in README.md LICENSE .gitignore mix.exs mix.lock config/config.exs compose.yaml AGENTS.md; do \
+		for path in README.md LICENSE .gitignore mix.exs mix.lock config/config.exs AGENTS.md; do \
 			if [[ ! -e "$$path" ]]; then \
 				echo "missing=$$path"; \
 				exit 1; \

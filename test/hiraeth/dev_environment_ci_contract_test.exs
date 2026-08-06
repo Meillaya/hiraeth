@@ -41,8 +41,8 @@ defmodule Hiraeth.DevEnvironmentCIContractTest do
 
     assert_only_postgres_services_for_test_fast!(workflow)
 
-    refute workflow =~ ~r/legacy-compose-postgres/,
-           "ci.yml must not define a legacy-compose-postgres job (removed in the tiered-gates rewrite)"
+    refute workflow =~ ~r/legacy-\w+-postgres/,
+           "ci.yml must not define a legacy containerized-postgres job (removed in the tiered-gates rewrite)"
 
     refute workflow =~ ~r/--option\s+sandbox\s+false|sandbox\s*=\s*false|--impure/,
            "CI workflow must not disable Nix sandboxing or rely on impure evaluation"
@@ -75,10 +75,10 @@ defmodule Hiraeth.DevEnvironmentCIContractTest do
     end
   end
 
-  # The tiered-gates rewrite removed the legacy-compose-postgres lane; the only
-  # remaining GitHub service container is the postgres:16 block that feeds the
-  # fast test suite. Assert exactly one services: block exists and it lives in
-  # the test-fast job.
+  # The tiered-gates rewrite removed the legacy containerized-postgres lane; the
+  # only remaining GitHub service container is the postgres:16 block that feeds
+  # the fast test suite. Assert exactly one services: block exists and it lives
+  # in the test-fast job.
   defp assert_only_postgres_services_for_test_fast!(workflow) do
     services_blocks = Regex.scan(~r/^\s*services:\s*$/m, workflow)
 

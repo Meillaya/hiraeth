@@ -45,12 +45,8 @@ defmodule Hiraeth.Ingestion.ProductionIngestionScriptContractTest do
                "mix test scripts/qa/ingestion/production_ingestion_adversarial_test.exs --only destructive_diff --seed 0 --trace"
              )
 
-      refute Enum.any?(commands, &String.contains?(&1, "docker compose up -d postgres"))
-
-      refute Enum.any?(
-               commands,
-               &String.contains?(&1, "docker compose exec -T postgres pg_isready")
-             )
+      refute Enum.any?(commands, &String.starts_with?(&1, "docker ")),
+             "ingestion drills must not invoke docker; devenv owns local postgres"
     end)
   end
 
@@ -82,14 +78,18 @@ defmodule Hiraeth.Ingestion.ProductionIngestionScriptContractTest do
       assert "nix run nixpkgs#devenv -- processes stop hiraeth-postgres" in commands
 
       refute Enum.any?(commands, &String.starts_with?(&1, "mix "))
-      refute Enum.any?(commands, &String.contains?(&1, "docker compose down"))
+
+      refute Enum.any?(commands, &String.starts_with?(&1, "docker ")),
+             "browser QA failure path must not invoke docker; devenv owns local postgres"
     end)
   end
 
   test "make verify migrated local targets use shared devenv postgres readiness helper" do
     makefile = File.read!(Path.join(@root, "Makefile"))
 
-    refute makefile =~ "docker compose up -d postgres"
+    refute makefile =~ ~r/\bdocker\b/i,
+           "Makefile targets must use devenv-managed postgres, not docker"
+
     assert makefile =~ "scripts/dev/ensure_postgres.sh start"
   end
 
@@ -123,9 +123,6 @@ defmodule Hiraeth.Ingestion.ProductionIngestionScriptContractTest do
     write_executable!(Path.join(bin, "docker"), """
     #!/usr/bin/env bash
     echo "docker $*" >> #{sh(log)}
-    if [[ "$*" == "compose exec -T postgres pg_isready -U postgres" ]]; then
-      exit 0
-    fi
     exit 0
     """)
   end

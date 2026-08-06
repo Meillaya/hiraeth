@@ -4,7 +4,7 @@ This packet is the current production-readiness checklist for Hiraeth. It is a r
 
 Scope guardrails preserved for Hiraeth v1:
 
-- The Docker-to-devenv work is a bounded partial migration: devenv is the preferred local/dev/test and CI-build path, while Docker remains the current production runtime and service-network boundary reference plus a legacy local fallback. Do not claim production is Nix/devenv-only.
+- The Docker-to-devenv work is a bounded partial migration: devenv is the preferred local/dev/test and CI-build path, and local development is devenv-only, while Docker remains the current production runtime boundary reference (root `Dockerfile` + `sidecar/Dockerfile` built on Railway). Do not claim production is Nix/devenv-only.
 - Production runtime decisions are resolved for Railway (see `docs/production-operations.md`): orchestration target = Railway managed platform, sidecar private network = Railway private networking, backup/restore tooling = `scripts/ops` drill scripts plus Railway managed backups, memory limits = Railway replica limits, logs/observability = Railway logs plus `logger_json`, and rollout/rollback = Railway deploys. Docker remains the current production runtime and service-network boundary reference; do not claim production is Nix/devenv-only or Docker-free.
 - LiveView browser-first public product; no React, no Vite SPA, and no separate frontend application.
 - No broad public JSON API in v1. Narrow `/health` and `/ready` operations endpoints are operator contracts, not catalog APIs.
@@ -83,7 +83,7 @@ The grouped helper paths are implementation details unless documented as operato
 | health/readiness | `/health` and `/ready` are narrow operator endpoints and not a public API. | `docs/contracts.md`, `docs/production-operations.md` |
 | backup/restore | Logical PostgreSQL backup and restore drill commands are documented, with restore into a replacement database first. | `docs/production-operations.md` |
 | contracts/API tiers | Public browser, stable internal Ash, private sidecar, operator, and future JSON API rules are explicit. | `docs/contracts.md` |
-| sidecar exposure/private CORS | Sidecar is private infrastructure; default Compose keeps it service-network-only with no host `ports`; CORS is disabled by default, exact-origin only when configured, and wildcard origins are forbidden. | `compose.yaml`, `docs/contracts.md`, `sidecar/README.md` |
+| sidecar exposure/private CORS | Sidecar is private infrastructure; production keeps it on the Railway private network with no public domain or host port, and local devenv binds loopback only; CORS is disabled by default, exact-origin only when configured, and wildcard origins are forbidden. | `docs/contracts.md`, `docs/production-operations.md`, `sidecar/README.md` |
 | ingestion control plane | Provider sources/runs, snapshots, record candidates, ingestion events, registry backfill, scheduler, phase workers, quarantine, and replay are durable domain state. | Ash resources and workers under `lib/hiraeth/ingestion/` and `lib/hiraeth/oban/` |
 | cover cache/quarantine | Cover candidate cache is local-cache-first with host allowlists, retry/quarantine state, and remote hotlink prevention. Root cleanup must never clean `priv/static/covers/cache/*`. | `docs/provenance-cover-policy.md`, `docs/cleanup-policy.md`, `docs/production-operations.md` |
 | telemetry/alerts/dashboards | Telemetry event names, safe metadata rules, alert thresholds, incident response, and dashboard panels are documented. | `docs/production-operations.md` |

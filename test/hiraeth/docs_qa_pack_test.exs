@@ -17,7 +17,7 @@ defmodule Hiraeth.DocsQaPackTest do
     assert readme =~ "mix phx.server"
     assert readme =~ "Docker remains"
     assert readme =~ "production runtime"
-    refute readme =~ ~r/^\s*docker compose up -d postgres$/m
+    refute readme =~ ~r/^\s*docker\s+\S+\s+up\s+-d\s+postgres$/m
     assert readme =~ "## Verify/build"
     assert readme =~ "Fast local preflight"
     assert readme =~ "mix precommit"
@@ -57,7 +57,7 @@ defmodule Hiraeth.DocsQaPackTest do
     assert operations =~ "local/dev/CI-build"
 
     assert operations =~
-             "production orchestration remains Docker/Compose or future-runtime scoped"
+             "production orchestration remains Docker/Dockerfile-based (Railway) or future-runtime scoped"
 
     assert readiness =~ "Production runtime decisions are resolved for Railway"
 
