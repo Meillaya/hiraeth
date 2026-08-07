@@ -5,7 +5,7 @@
 **Branch:** main
 
 ## OVERVIEW
-Hiraeth is a Phoenix 1.8 / LiveView discovery catalog for indie publisher and bookstore data (v1.0.0, deployed to Railway). Ash resources own domain behavior; Scrapling-powered Python sidecar handles permitted external fetch/scrape work; devenv is the preferred local/dev/test environment while the Dockerfiles remain the production-boundary reference.
+Hiraeth is a Phoenix 1.8 / LiveView discovery catalog for indie publisher and bookstore data (v1.0.0, deployed to Railway). Ash resources own domain behavior; Scrapling-powered Python sidecar handles permitted external fetch/scrape work; local dev uses the nix-profile toolchain plus a standalone postgres (the devenv config files remain in-repo as dormant groundwork) while the Dockerfiles remain the production-boundary reference.
 
 ## STRUCTURE
 ```
@@ -28,8 +28,6 @@ priv/catalog_sources     # approved provider manifests, source registry
 priv/catalog_sources/provider_manifests  # per-provider source allowlists
 priv/resource_snapshots  # governed snapshot/replay evidence (incl. repo)
 priv/static/covers       # hashed local cover cache (sandboxed writes only)
-docs/                    # contracts, cleanup policy, production ops/readiness, provenance policy
-tests/scripts            # Python pytest for scripts/catalog generators (not Elixir test/)
 artifacts/qa             # QA evidence outputs (make verify, provenance audits)
 ```
 
@@ -41,7 +39,7 @@ artifacts/qa             # QA evidence outputs (make verify, provenance audits)
 | Public browser UI | `lib/hiraeth_web/live`, `lib/hiraeth_web/public_catalog.ex` | LiveView only |
 | Operator Mix tasks | `lib/mix/tasks` | ingest, scrape, covers, audits |
 | External fetch/scrape | `sidecar/app`, `sidecar/tests` | private sidecar, Scrapling only |
-| Dev/test orchestration | `devenv.nix`, `Makefile` | devenv path is canonical |
+| Dev/test orchestration | `scripts/dev/ensure_postgres.sh`, `devenv.nix`, `Makefile` | standalone postgres + nix-profile toolchain (devenv dormant) |
 | Frontend verification | `test/hiraeth_web/live`, `test/hiraeth_web` | LiveView/route logic tests (no browser-QA lane) |
 | Ingestion QA drills | `scripts/qa/ingestion` | production drill + adversarial drill |
 | Test support harnesses | `test/support` | data_case, factories, contract fixtures |
@@ -49,9 +47,8 @@ artifacts/qa             # QA evidence outputs (make verify, provenance audits)
 | Provider manifests | `priv/catalog_sources/provider_manifests` | per-provider source allowlists |
 | Source snapshots | `priv/resource_snapshots/repo` | governed snapshot/replay evidence |
 | Cover cache | `priv/static/covers` | hashed local cache; sandboxed writes only |
-| Governance docs | `docs/` | contracts, cleanup-policy, ops, readiness, provenance |
 | DB backup/restore drills | `scripts/ops`, `Makefile` (`db-backup`, `db-restore-drill`) | restore drills target a separate DB, never live |
-| Release/deployment | `Dockerfile`, `docs/production-readiness.md`, `docs/production-operations.md` | multi-stage release image; Railway |
+| Release/deployment | `Dockerfile` | multi-stage release image; Railway |
 
 ## CODE MAP
 | Symbol / file | Type | Location | Role |
@@ -105,7 +102,7 @@ artifacts/qa             # QA evidence outputs (make verify, provenance audits)
 ## COMMANDS
 ```bash
 nix run nixpkgs#devenv -- test
-nix run nixpkgs#devenv -- up -d hiraeth-postgres
+scripts/dev/ensure_postgres.sh start   # standalone postgres (127.0.0.1:54320)
 nix run nixpkgs#devenv -- shell -- mix gate
 nix run nixpkgs#devenv -- shell -- mix ci
 mix gate                 # Layer 0 blocking gate (compile warnings-as-errors + format check + credo --strict + test.fast)
@@ -116,14 +113,13 @@ make db-backup           # scripts/ops/db_backup.sh
 make db-restore-drill    # scripts/ops/db_restore_drill.sh (separate DB only)
 cd sidecar && uv run --extra dev pytest -q
 cd sidecar && uv run ruff check . && uv run pyright && uv audit
-uv run --project . pytest tests/scripts -q   # root pyproject: catalog-generator tests
 ```
 
 ## NOTES
 - `mix gate` checks compile with warnings-as-errors, unused deps, formatting (checks it, does not rewrite), strict Credo, and the fast test lane; sobelow/hex.audit are network-dependent and run only in `mix ci`/CI.
 - `mix test.fast` excludes `slow`, `full_catalog`, `integration`, `performance`, `browser`, `public_catalog_full`.
-- CI splits: `ci.yml` runs static + test-fast (postgres:16 service) on PRs and pushes to `main`; `deep.yml` runs dialyzer, the full suite as a 3-partition matrix on merge to `main` and manual dispatch, a nightly coverage job enforcing the 86.1 floor, ingestion drills, sidecar pytest/ruff/pyright/uv-audit, scripts tests, and release image builds. The legacy Compose lane was removed; contract tests pin the lane split above. Frontend correctness is verified by the LiveView/route logic tests in `test/hiraeth_web/live` and `test/hiraeth_web`, which run inside the ExUnit lanes; there is no browser-QA lane.
-- devenv is the local dev/test environment only; CI lanes do not invoke devenv.
+- CI splits: `ci.yml` runs static + test-fast (postgres:16 service) on PRs and pushes to `main`; `deep.yml` runs dialyzer, the full suite as a 3-partition matrix on merge to `main` and manual dispatch, a nightly coverage job enforcing the 86.1 floor, ingestion drills, sidecar pytest/ruff/pyright/uv-audit, and release image builds. The legacy Compose lane was removed; contract tests pin the lane split above. Frontend correctness is verified by the LiveView/route logic tests in `test/hiraeth_web/live` and `test/hiraeth_web`, which run inside the ExUnit lanes; there is no browser-QA lane.
+- devenv is dormant local-dev groundwork: local dev runs the nix-profile toolchain on bare PATH plus a standalone postgres via `scripts/dev/ensure_postgres.sh` (127.0.0.1:54320); CI lanes do not invoke devenv.
 - `.omx`, `.omo`, `.omc`, `_build`, `deps`, `.devenv`, `.direnv`, caches, and artifacts are workspace/tool state unless a task explicitly targets them.
 - Custom Mix aliases (`gate`, `ci`, `test.fast`, `test.full`) auto-run under `MIX_ENV=test` via `preferred_envs`; `mix test` auto-creates and migrates the DB first.
 - `priv/repo/structure.sql` is a gitignored, untracked local pg_dump artifact — neither governed nor referenced; do not commit it without explicit intent.

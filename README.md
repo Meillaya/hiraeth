@@ -16,14 +16,21 @@ It is still browser-first: the stable v1 surface is the LiveView catalog, not a 
 
 ## Run locally
 
-devenv is the preferred local/dev/test path. It provides the pinned Elixir/OTP toolchain, PostgreSQL 16 on `127.0.0.1:54320`, Node, Python/`uv`, and browser dependencies used by Phoenix and the Scrapling sidecar. Local development is devenv-only. Docker remains the production runtime boundary reference — Railway builds the Phoenix service from the root `Dockerfile` and the sidecar from `sidecar/Dockerfile` — not a local setup path.
+Local dev runs the nix-profile toolchain directly on PATH (mix, Elixir/OTP, Node, Python/`uv`) plus a standalone PostgreSQL 16 on `127.0.0.1:54320` managed by `scripts/dev/ensure_postgres.sh`. Install the postgres binaries once with `nix profile add nixpkgs#postgresql_16` — the script `die`s with this exact instruction when they are missing from PATH, and nothing is installed into your nix profile automatically. Docker remains the production runtime boundary reference — Railway builds the Phoenix service from the root `Dockerfile` and the sidecar from `sidecar/Dockerfile` — not a local setup path.
 
-Install the devenv CLI with `nix profile add nixpkgs#devenv` (the upstream-documented pattern; no `nix run` wrapper needed). The devenv input is rev-pinned in `devenv.yaml`/`flake.nix` (same rev, d1fb321e). Known issue to watch: the embedded cachix/nix fork (f33db89) has a readOnlyMode use-after-free (cachix/devenv#3064, fixed upstream in Nix 2.35) — revisit the pin once a devenv release embeds Nix >= 2.35. `flake.nix` also trusts the devenv.cachix.org binary cache (`devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw=`) for local nix use.
+The devenv config files (`devenv.nix`, `devenv.yaml`, `flake.nix`, `devenv.lock`, `flake.lock`, `.envrc`) stay in the repo as dormant groundwork for a later revival; local development does not invoke devenv or nix. Reviving that path later means a `devenv shell` for ad hoc Mix commands and the devenv process runner for managed local PostgreSQL, Phoenix, and sidecar processes.
 
-Use a `devenv shell` for ad hoc Mix commands and the devenv process runner for managed local PostgreSQL, Phoenix, and sidecar processes:
+Start and stop the standalone postgres — the first `start` initializes `~/.local/share/hiraeth/pgdata` and bootstraps the `hiraeth_dev`/`hiraeth_test` databases plus the `postgres` role (superuser, password `postgres`):
 
 ```sh
-devenv shell
+bash scripts/dev/ensure_postgres.sh start
+bash scripts/dev/ensure_postgres.sh status
+bash scripts/dev/ensure_postgres.sh stop
+```
+
+Then run the app:
+
+```sh
 mix deps.get
 mix ash.migrate
 MIX_ENV=test mix ash.migrate
@@ -31,7 +38,7 @@ mix run priv/repo/seeds.exs
 mix phx.server
 ```
 
-Open <http://localhost:4000>. For managed readiness checks, run the configured devenv tasks from the repository root; they start the declared local processes and probe Phoenix/sidecar readiness.
+Open <http://localhost:4000>. Postgres data lives in `~/.local/share/hiraeth/pgdata` (`HIRAETH_PGDATA` overrides it) and logs to `~/.local/share/hiraeth/postgres.log`; readiness is probed with `pg_isready -h localhost -p 54320 -U postgres`.
 
 ## Operate ingestion
 
@@ -45,7 +52,7 @@ mix hiraeth.real_catalog.source_artifacts
 mix hiraeth.real_catalog.coverage_report
 ```
 
-Autonomous scheduled ingestion runs on its own per-provider cadence; see the "Autonomous catalog updates" section of `docs/production-operations.md` for what runs when, the `HIRAETH_SCHEDULED_INGEST` kill-switch (off by default locally via devenv), and rollout order.
+Autonomous scheduled ingestion runs on its own per-provider cadence; see the "Autonomous catalog updates" runbook section for what runs when, the `HIRAETH_SCHEDULED_INGEST` kill-switch (off by default locally via devenv), and rollout order.
 
 ## Verify/build
 
@@ -53,7 +60,7 @@ Verification is tiered so the fast developer loop stays under five minutes while
 
 - **Layer 0 — local blocking gate (`mix gate`, ≤5 min):** `make gate` wraps the `mix gate` alias (compile with warnings-as-errors, unused-deps check, format check, strict Credo, and the fast ExUnit lane). It is the single blocking local preflight for every change.
 - **Layer 1 — parallel CI (`static` + `test-fast`):** `.github/workflows/ci.yml` runs the static gates (format/Credo/Sobelow/hex.audit) and the fast test suite (postgres:16 service container) in parallel on every PR and push to `main`.
-- **Layer 2 — deep lane (`deep.yml`):** `.github/workflows/deep.yml` runs dialyzer, the full suite as a 3-partition test matrix on merge to `main` and manual dispatch, a nightly coverage job enforcing the 86.1 floor, plus assets, provenance audit, ingestion drills, sidecar pytest/ruff/pyright/uv-audit, scripts tests, and release image builds.
+- **Layer 2 — deep lane (`deep.yml`):** `.github/workflows/deep.yml` runs dialyzer, the full suite as a 3-partition test matrix on merge to `main` and manual dispatch, a nightly coverage job enforcing the 86.1 floor, plus assets, provenance audit, ingestion drills, sidecar pytest/ruff/pyright/uv-audit, and release image builds.
 
 Frontend correctness is verified by the LiveView and route logic test suites under `test/hiraeth_web/live/` (and the route/controller tests under `test/hiraeth_web/`), which run as part of the ExUnit lanes above; there is no separate browser-level QA lane.
 
@@ -85,19 +92,10 @@ Stable operator entrypoints stay at the root or top-level task names (`make veri
 ## Cleanup safety
 
 Repository cleanup is allowlist-only and must never delete, clean, modify, or
-regenerate the root `priv/static/covers/cache/*` cover cache. See
-`docs/cleanup-policy.md`; run cache-writing verification through
-`scripts/qa/cover_cache_sandbox.sh` so the root cover cache is hashed before and
-after the sandboxed command.
+regenerate the root `priv/static/covers/cache/*` cover cache. Run cache-writing
+verification through `scripts/qa/cover_cache_sandbox.sh` so the root cover cache
+is hashed before and after the sandboxed command.
 
 ## Production notes
-
-Start with:
-
-- `docs/contracts.md`
-- `docs/cleanup-policy.md`
-- `docs/production-operations.md`
-- `docs/production-readiness.md`
-- `docs/provenance-cover-policy.md`
 
 The repository includes CI in `.github/workflows/ci.yml` and environment examples in `.env.example`. The public catalog is deployed to Railway at `https://hiraeth-web-production.up.railway.app`: the Phoenix service builds from the root `Dockerfile`, the private Scrapling sidecar builds from `sidecar/Dockerfile`, and Postgres is Railway-managed. Validate deployment networking, secrets, backups, and alerts in the target environment before any further launch.

@@ -10,7 +10,8 @@ defmodule Hiraeth.DocsQaPackTest do
     assert readme =~ "Phoenix LiveView and Ash catalog"
     assert readme =~ "provenance-aware imports"
     assert readme =~ "## Run locally"
-    assert readme =~ "devenv is the preferred local/dev/test path"
+    assert readme =~ "standalone PostgreSQL 16"
+    assert readme =~ "dormant groundwork"
     assert readme =~ "devenv shell"
     assert readme =~ "devenv process runner"
     assert readme =~ "MIX_ENV=test mix ash.migrate"
@@ -31,63 +32,15 @@ defmodule Hiraeth.DocsQaPackTest do
     assert readme =~ "New Directions"
   end
 
-  test "docs describe devenv-local boundary without claiming production-only Nix" do
-    contracts = read!("docs/contracts.md")
-    operations = read!("docs/production-operations.md")
-    readiness = read!("docs/production-readiness.md")
+  test "sidecar README keeps the devenv-local boundary without claiming production-only Nix" do
     sidecar = read!("sidecar/README.md")
 
-    for document <- [contracts, operations, readiness, sidecar] do
-      assert document =~ "Docker remains"
-      assert document =~ "production runtime"
-      refute document =~ ~r/cleanly migrated\s+(?:in|for|across)?\s*(?:all|every)?\s*capacity/i
-      refute_docker_free_production_claim!(document)
-    end
-
-    assert contracts =~ "Local devenv uses loopback-only sidecar transport"
+    assert sidecar =~ "Docker remains"
+    assert sidecar =~ "production runtime"
     assert sidecar =~ "Run locally from a devenv shell"
-    assert operations =~ "devenv is the preferred local/dev/test path"
-    assert readiness =~ "bounded partial migration"
-  end
-
-  test "production runtime boundary is explicit and rejects Docker-free overclaims" do
-    operations = read!("docs/production-operations.md")
-    readiness = read!("docs/production-readiness.md")
-    assert operations =~ "## Production Runtime Boundary"
-    assert operations =~ "bounded partial migration"
-
-    assert operations =~
-             "production orchestration remains Docker/Dockerfile-based (Railway) or future-runtime scoped"
-
-    assert readiness =~ "Production runtime decisions are resolved for Railway"
-
-    for decision <- [
-          "orchestration target",
-          "sidecar private network",
-          "backup/restore tooling",
-          "memory limits",
-          "logs/observability",
-          "rollout/rollback"
-        ] do
-      assert operations =~ decision
-      assert readiness =~ decision
-    end
-
-    refute_docker_free_production_claim!(operations)
-    refute_docker_free_production_claim!(readiness)
-  end
-
-  test "architecture docs explain Oban deferral and cover legal review boundary" do
-    architecture = read!("docs/architecture.md")
-    policy = read!("docs/provenance-cover-policy.md")
-
-    assert architecture =~ "when imports exceed synchronous limits"
-    assert architecture =~ "Oban"
-    assert policy =~ "legal review required before production"
-    assert policy =~ "link-only"
-    assert policy =~ "takedown"
-    assert policy =~ "field-level provenance"
-    assert policy =~ "New Directions"
+    assert sidecar =~ "127.0.0.1:8000"
+    refute sidecar =~ ~r/cleanly migrated\s+(?:in|for|across)?\s*(?:all|every)?\s*capacity/i
+    refute_docker_free_production_claim!(sidecar)
   end
 
   test "qa-pack target creates a tarball and manifest" do

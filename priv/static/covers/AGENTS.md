@@ -23,7 +23,7 @@ This child guide specializes cache immutability, the public path surface, and th
 
 | Concern | Location |
 |---|---|
-| Cleanup allow and deny list | `docs/cleanup-policy.md` |
+| Cleanup allow and deny list | `scripts/qa/cover_cache_sandbox.sh` |
 | Sandboxed cache-write verification | `scripts/qa/cover_cache_sandbox.sh` |
 | Cover caching operator task | `mix hiraeth.cache_covers` |
 | Cache-root symlink rejection tests | `test/hiraeth/ingestion/cover_cache_root_test.exs` |
@@ -48,4 +48,4 @@ This child guide specializes cache immutability, the public path surface, and th
 - Running cache-writing commands against the root cache without the sandbox guard.
 - Adding runtime PNG or JPEG files to version control.
 
-The never-clean rule is defined by `docs/cleanup-policy.md` and enforced by `scripts/qa/cover_cache_sandbox.sh`, `mix hiraeth.cache_covers`, and the policy's allow and deny list.
+The never-clean rule is enforced by `scripts/qa/cover_cache_sandbox.sh`, `mix hiraeth.cache_covers`, and the sandbox script's allow and deny list.
