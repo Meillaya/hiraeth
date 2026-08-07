@@ -94,15 +94,35 @@ defmodule HiraethQA.ProductionIngestionAdversarialTest do
     source = create_scheduler_source!("t25-duplicate-#{System.unique_integer([:positive])}")
     opts = [now: @tick_at, provider_source_ids: [source.id]]
 
-    assert {:ok, %{created: [_run], skipped: []}} = ProviderScheduler.schedule_tick(opts)
-    assert {:ok, %{created: [], skipped: [skip]}} = ProviderScheduler.schedule_tick(opts)
-    assert skip.reason == :active_run_exists
+    assert {:ok, %{created: [run], skipped: []}} = ProviderScheduler.schedule_tick(opts)
+
+    # Second tick with the same window adopts the queued scheduled run instead
+    # of creating a duplicate; exactly one active run remains.
+    assert {:ok, %{created: [], adopted: [adopted], skipped: []}} =
+             ProviderScheduler.schedule_tick(opts)
+
+    assert adopted.id == run.id
 
     active_runs = active_runs_for(source)
     assert length(active_runs) == 1
 
+    # A scheduler tick against an active run it does not own (operator-created)
+    # is rejected via :active_run_exists and never duplicated.
+    foreign_source = create_scheduler_source!("t25-foreign-#{System.unique_integer([:positive])}")
+    _foreign_run = create_foreign_run!(foreign_source)
+
+    assert {:ok, %{created: [], adopted: [], skipped: [skip]}} =
+             ProviderScheduler.schedule_tick(
+               now: @tick_at,
+               provider_source_ids: [foreign_source.id]
+             )
+
+    assert skip.provider_source_id == foreign_source.id
+    assert skip.reason == :active_run_exists
+    assert length(active_runs_for(foreign_source)) == 1
+
     IO.puts(
-      "PASS scheduler duplicate prevention created=1 duplicate_skipped=1 active_runs=#{length(active_runs)} reason=#{skip.reason}"
+      "PASS scheduler duplicate prevention created=1 adopted=1 active_runs=1 foreign_skip_reason=#{skip.reason}"
     )
   end
 
@@ -110,6 +130,18 @@ defmodule HiraethQA.ProductionIngestionAdversarialTest do
     IngestionFixtures.create_provider_source!(suffix)
     |> Ash.Changeset.for_update(:update, %{ingestion_mode: "manifest", enabled?: true})
     |> Ash.update!(actor: IngestionFixtures.catalog_writer())
+  end
+
+  defp create_foreign_run!(source) do
+    ProviderRun
+    |> Ash.Changeset.for_create(:create, %{
+      provider_source_id: source.id,
+      status: "queued",
+      requested_by: "mix hiraeth.ingest_provider",
+      run_key: "operator-#{System.unique_integer([:positive])}",
+      provenance: %{"manifest_uri" => source.manifest_uri}
+    })
+    |> Ash.create!(actor: IngestionFixtures.catalog_writer())
   end
 
   defp active_runs_for(source) do
