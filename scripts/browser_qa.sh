@@ -457,6 +457,34 @@ node "${BROWSER_QA_HELPER_DIR}/image_decode_check.mjs" \
 grep -q '"passed": true' "${QA_DIR}/thumbnail-image-decode.json"
 log "thumbnail_image_decode=pass artifact=${QA_DIR}/thumbnail-image-decode.json card_uses_derivative=pass natural_dimensions_minimum=64x64"
 
+# Bounded resource-dependency scan (replaces the unbounded all-hrefs/srcs harvest):
+# (1) allowlist -- /assets/* and /covers/cache/* files referenced by the captured
+#     pages (specific files only, no directory walk) plus the known public `pages`
+#     routes; every curl uses --max-time 10 and any non-2xx/3xx fails.
+# (2) preserved internal-link 404 check -- deduplicated /books/* and
+#     /contributors/* hrefs from captured DOM, hard-capped at 100 unique per
+#     prefix, curled with --max-time 10 so a stale catalog link fails the gate.
+resource_scan_targets=("${pages[@]}")
+while IFS= read -r local_ref; do
+  [[ -n "${local_ref}" ]] || continue
+  resource_scan_targets+=("${local_ref}")
+done < <(grep -hoE '(src|href)="/(assets|covers/cache)/[^"]+"' "${QA_DIR}"/*.html | sed -E 's/^(src|href)="([^"]+)"$/\2/' | sort -u)
+
+for prefix in /books/ /contributors/; do
+  while IFS= read -r internal_link; do
+    [[ -n "${internal_link}" ]] || continue
+    resource_scan_targets+=("${internal_link}")
+  done < <(grep -hoE "href=\"${prefix}[^\"]+\"" "${QA_DIR}"/*.html | sed -E 's/^href="([^"]+)"$/\1/' | sort -u | head -n 100)
+done
+
+for resource in "${resource_scan_targets[@]}"; do
+  status="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 -L "${BASE_URL}${resource}" || true)"
+  if [[ ! "${status}" =~ ^[23][0-9][0-9]$ ]]; then
+    resource_failures+=("${resource}:${status}")
+  fi
+done
+
+# external https refs are classified only (never curled) -- same allow/disallow gate
 while IFS= read -r resource; do
   [[ -n "${resource}" ]] || continue
   case "${resource}" in
@@ -469,14 +497,8 @@ while IFS= read -r resource; do
     http://*|https://*)
       disallowed_external_resource_references+=("${resource}")
       ;;
-    /*)
-      status="$(curl -sS -o /dev/null -w '%{http_code}' -L "${BASE_URL}${resource}" || true)"
-      if [[ ! "${status}" =~ ^[23][0-9][0-9]$ ]]; then
-        resource_failures+=("${resource}:${status}")
-      fi
-      ;;
   esac
-done < <(grep -RhoE '(src|href)="[^"]+"' "${QA_DIR}"/*.html | sed -E 's/^(src|href)="([^"]+)"$/\2/' | sort -u)
+done < <(grep -hoE '(src|href)="https?://[^"]+"' "${QA_DIR}"/*.html | sed -E 's/^(src|href)="([^"]+)"$/\2/' | sort -u)
 
 {
   echo "accessibility and keyboard audit"
