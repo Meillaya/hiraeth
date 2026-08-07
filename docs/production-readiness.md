@@ -4,7 +4,7 @@ This packet is the current production-readiness checklist for Hiraeth. It is a r
 
 Scope guardrails preserved for Hiraeth v1:
 
-- The Docker-to-devenv work is a bounded partial migration: devenv is the preferred local/dev/test and CI-build path, and local development is devenv-only, while Docker remains the current production runtime boundary reference (root `Dockerfile` + `sidecar/Dockerfile` built on Railway). Do not claim production is Nix/devenv-only.
+- The Docker-to-devenv work is a bounded partial migration: devenv is the preferred local/dev/test path, and local development is devenv-only, while Docker remains the current production runtime boundary reference (root `Dockerfile` + `sidecar/Dockerfile` built on Railway). Do not claim production is Nix/devenv-only.
 - Production runtime decisions are resolved for Railway (see `docs/production-operations.md`): orchestration target = Railway managed platform, sidecar private network = Railway private networking, backup/restore tooling = `scripts/ops` drill scripts plus Railway managed backups, memory limits = Railway replica limits, logs/observability = Railway logs plus `logger_json`, and rollout/rollback = Railway deploys. Docker remains the current production runtime and service-network boundary reference; do not claim production is Nix/devenv-only or Docker-free.
 - LiveView browser-first public product; no React, no Vite SPA, and no separate frontend application.
 - No broad public JSON API in v1. Narrow `/health` and `/ready` operations endpoints are operator contracts, not catalog APIs.
@@ -18,10 +18,10 @@ Scope guardrails preserved for Hiraeth v1:
 Verification is tiered:
 
 - **Layer 0 — local blocking gate:** `mix gate` (wrapped by `make gate`) is the ≤5-min blocking local preflight: compile with warnings-as-errors, unused-deps check, format check, strict Credo, and the fast ExUnit lane. It runs on every change in the developer loop.
-- **Layer 1 — parallel CI:** `.github/workflows/ci.yml` runs the `static` (format/Credo/Sobelow/hex.audit) and `test-fast` jobs in parallel on every PR and push to `main`, plus a lean devenv smoke job.
-- **Layer 2 — deep lane:** `.github/workflows/deep.yml` runs dialyzer, coverage, the full suite including assets, provenance audit, browser QA, ingestion drills, sidecar pytest, scripts tests, release image builds, and the full devenv readiness graph on merge to `main`, nightly, and manual dispatch.
+- **Layer 1 — parallel CI:** `.github/workflows/ci.yml` runs the `static` (format/Credo/Sobelow/hex.audit) and `test-fast` (postgres:16 service container) jobs in parallel on every PR and push to `main`.
+- **Layer 2 — deep lane:** `.github/workflows/deep.yml` runs dialyzer, the full suite as a 3-partition test matrix on merge to `main` and manual dispatch, a nightly coverage job enforcing the 86.1 floor, plus assets, provenance audit, browser QA, ingestion drills, sidecar pytest, scripts tests, and release image builds.
 
-`mix gate` is not a substitute for the deep lane: the fast blocking gate deliberately omits sobelow/hex.audit (network-dependent, covered by the CI `static` job and the deep `ci` lane), dialyzer, coverage, assets, provenance, browser QA, ingestion drills, sidecar pytest, scripts tests, release image builds, and the full devenv readiness graph. A release owner must run the deep lane before any production-ready claim.
+`mix gate` is not a substitute for the deep lane: the fast blocking gate deliberately omits sobelow/hex.audit (network-dependent, covered by the CI `static` job and the deep `ci` lane), dialyzer, coverage, assets, provenance, browser QA, ingestion drills, sidecar pytest, scripts tests, and release image builds. A release owner must run the deep lane before any production-ready claim.
 
 Run the gates below on the final integrated worktree before making any production-ready claim:
 
@@ -42,7 +42,7 @@ The deep-lane CI dialyzer job keeps the `-plt-` cache scoped to the repo's gitig
 
 ## Warm re-run protocol
 
-Repeated `make gate` reuses the warm `_build` and the persisted dialyzer PLT, so independent re-verification is fast (~20s warm). `make gate` is the fast independent-verification loop; the deep lane (deep.yml: dialyzer/full-suite-with-coverage/provenance/browser/drills/sidecar/scripts-tests/release-build/devenv-full) still requires the full gates.
+Repeated `make gate` reuses the warm `_build` and the persisted dialyzer PLT, so independent re-verification is fast (~20s warm). `make gate` is the fast independent-verification loop; the deep lane (deep.yml: dialyzer/full-suite-matrix/provenance/browser/drills/sidecar/scripts-tests/release-build/nightly-coverage) still requires the full gates.
 
 ## Source documents and runbooks
 

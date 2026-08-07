@@ -52,8 +52,8 @@ Autonomous scheduled ingestion runs on its own per-provider cadence; see the "Au
 Verification is tiered so the fast developer loop stays under five minutes while full release assurance runs at depth:
 
 - **Layer 0 — local blocking gate (`mix gate`, ≤5 min):** `make gate` wraps the `mix gate` alias (compile with warnings-as-errors, unused-deps check, format check, strict Credo, and the fast ExUnit lane). It is the single blocking local preflight for every change.
-- **Layer 1 — parallel CI (`static` + `test-fast` + `devenv-smoke`):** `.github/workflows/ci.yml` runs the static gates (format/Credo/Sobelow/hex.audit) and the fast test suite in parallel on every PR and push to `main`, plus the `devenv-smoke` job proving the pinned Nix BEAM toolchain compiles and passes `mix gate` at PR time.
-- **Layer 2 — deep lane (`deep.yml`):** `.github/workflows/deep.yml` runs dialyzer, the full suite with coverage merged into a single coveralls run (86.1 floor), assets, provenance audit, browser QA, ingestion drills, sidecar pytest/ruff/pyright/uv-audit, scripts tests, release image builds, and the full devenv readiness graph on merge to `main`, nightly, and manual dispatch.
+- **Layer 1 — parallel CI (`static` + `test-fast`):** `.github/workflows/ci.yml` runs the static gates (format/Credo/Sobelow/hex.audit) and the fast test suite (postgres:16 service container) in parallel on every PR and push to `main`.
+- **Layer 2 — deep lane (`deep.yml`):** `.github/workflows/deep.yml` runs dialyzer, the full suite as a 3-partition test matrix on merge to `main` and manual dispatch, a nightly coverage job enforcing the 86.1 floor, plus assets, provenance audit, browser QA, ingestion drills, sidecar pytest/ruff/pyright/uv-audit, scripts tests, and release image builds.
 
 Fast local preflight targets the under-60s developer loop:
 

@@ -44,9 +44,9 @@ Docker remains the current production runtime boundary reference: Railway builds
 
 Verification is tiered so the fast developer loop stays under five minutes while full release assurance runs at depth:
 
-- **Layer 0 — local blocking gate:** `mix gate` (wrapped by `make gate`) is the ≤5-min blocking local preflight: compile with warnings-as-errors, unused-deps check, format check, strict Credo, and the fast ExUnit lane. It deliberately omits sobelow/hex.audit (network-dependent), dialyzer, coverage, assets, provenance, browser QA, ingestion drills, sidecar pytest, scripts tests, release image builds, and the full devenv readiness graph.
-- **Layer 1 — parallel CI:** `.github/workflows/ci.yml` runs the `static` (format/Credo/Sobelow/hex.audit) and `test-fast` jobs in parallel on every PR and push to `main`, plus a lean devenv smoke job.
-- **Layer 2 — deep lane:** `.github/workflows/deep.yml` runs dialyzer, coverage, the full suite including assets, provenance audit, browser QA, ingestion drills, sidecar pytest, scripts tests, release image builds, and the full devenv readiness graph on merge to `main`, nightly, and manual dispatch.
+- **Layer 0 — local blocking gate:** `mix gate` (wrapped by `make gate`) is the ≤5-min blocking local preflight: compile with warnings-as-errors, unused-deps check, format check, strict Credo, and the fast ExUnit lane. It deliberately omits sobelow/hex.audit (network-dependent), dialyzer, coverage, assets, provenance, browser QA, ingestion drills, sidecar pytest, scripts tests, and release image builds.
+- **Layer 1 — parallel CI:** `.github/workflows/ci.yml` runs the `static` (format/Credo/Sobelow/hex.audit) and `test-fast` (postgres:16 service container) jobs in parallel on every PR and push to `main`.
+- **Layer 2 — deep lane:** `.github/workflows/deep.yml` runs dialyzer, the full suite as a 3-partition test matrix on merge to `main` and manual dispatch, a nightly coverage job enforcing the 86.1 floor, plus assets, provenance audit, browser QA, ingestion drills, sidecar pytest, scripts tests, and release image builds.
 
 `mix gate` is not a substitute for the deep lane: the fast blocking gate is a local preflight, not release assurance. The deep lane must pass before any production-ready claim.
 

@@ -6,7 +6,7 @@ Local development has a bounded partial migration to devenv: devenv is the prefe
 
 ## Production Runtime Boundary
 
-The Docker-to-devenv migration is a bounded local/dev/CI-build migration, not in every capacity, and it is not a production migration. devenv is the preferred path for local shell work, local managed PostgreSQL/Phoenix/sidecar processes, and CI-build verification covered by the migration plan. For this boundary, production orchestration remains Docker/Dockerfile-based (Railway) or future-runtime scoped until a separate production-runtime plan is approved and verified.
+The Docker-to-devenv migration is a bounded local/dev migration, not in every capacity, and it is not a production migration. devenv is the preferred path for local shell work, local managed PostgreSQL/Phoenix/sidecar processes, and local-build verification covered by the migration plan. For this boundary, production orchestration remains Docker/Dockerfile-based (Railway) or future-runtime scoped until a separate production-runtime plan is approved and verified.
 
 Docker remains the current production runtime boundary reference. Do not describe Hiraeth production as Docker-free, Nix/devenv-only, or fully migrated away from Docker. The production runtime target is Railway (managed platform). The following production runtime decisions are resolved for Railway:
 

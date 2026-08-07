@@ -1,9 +1,9 @@
 name: CI
 
 # Triggers: every PR, plus pushes to main. The main-push static gates
-# intentionally overlap the deep lane's full-suite job: PR-time static checks
-# are the fast protection, while the deep lane re-runs everything at full
-# depth on merge to main, nightly, and manual dispatch.
+# intentionally overlap the deep lane's 3-partition test matrix: PR-time
+# static checks are the fast protection, while the deep lane re-runs
+# everything at full depth on merge to main, nightly, and manual dispatch.
 on:
   pull_request:
   push:

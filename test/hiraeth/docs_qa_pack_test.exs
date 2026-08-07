@@ -54,7 +54,7 @@ defmodule Hiraeth.DocsQaPackTest do
     operations = read!("docs/production-operations.md")
     readiness = read!("docs/production-readiness.md")
     assert operations =~ "## Production Runtime Boundary"
-    assert operations =~ "local/dev/CI-build"
+    assert operations =~ "bounded partial migration"
 
     assert operations =~
              "production orchestration remains Docker/Dockerfile-based (Railway) or future-runtime scoped"

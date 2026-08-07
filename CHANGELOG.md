@@ -16,7 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
-- CI consolidated: the deep lane runs the full suite once with coverage merged into a single coveralls run (86.1 floor); the `devenv-smoke` job stays as PR-time proof of the pinned Nix BEAM toolchain.
+- CI consolidated: the deep lane runs the full suite as a 3-partition test matrix on merge to `main` and manual dispatch, with the coveralls 86.1 coverage floor enforced by a nightly-only coverage job; devenv is the local dev/test environment only and no CI lane invokes it.
 - Mix aliases collapsed to `gate` (single fast blocking gate), `ci` (full lane), `test.fast`, and `test.full`; the Makefile `verify` chain slimmed to `audit-provenance test-browser verify-summary qa-pack`.
 - Local development is devenv-only; the root and `sidecar/Dockerfile` remain the production runtime boundary.
 - Sidecar `base_url` config de-duplicated: the default lives in `config/config.exs`, dev/test inherit it, and `config/runtime.exs` reads `SCRAPLING_SIDECAR_URL`.
