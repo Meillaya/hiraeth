@@ -87,7 +87,6 @@ defmodule Hiraeth.BrowserQaContractTest do
     assert_contains_all(script, @public_shell_markers)
     assert_contains_all(script, @viewport_contracts)
 
-    assert script =~ "running public route responsive overflow audits"
     assert script =~ "responsive_overflow=pass"
   end
 

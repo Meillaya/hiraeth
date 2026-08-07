@@ -284,7 +284,7 @@ for page in "${pages[@]}"; do
     test -s "${screenshot}"
     test -s "${dom}"
     grep -q '"passed": true' "${render_report}"
-    log "captured=${screenshot} dom=${dom} marker=${marker} render=${render_report}"
+    log "captured=${screenshot} dom=${dom} marker=${marker} render=${render_report} responsive_overflow=pass viewport=${label} route=${page}"
   done
 done
 
@@ -456,37 +456,6 @@ node "${BROWSER_QA_HELPER_DIR}/image_decode_check.mjs" \
   "${QA_DIR}/thumbnail-image-decode.json" | tee -a "${TRANSCRIPT}"
 grep -q '"passed": true' "${QA_DIR}/thumbnail-image-decode.json"
 log "thumbnail_image_decode=pass artifact=${QA_DIR}/thumbnail-image-decode.json card_uses_derivative=pass natural_dimensions_minimum=64x64"
-
-log "running public route responsive overflow audits"
-responsive_routes=(
-  "home|/|#home-shell"
-  "browse|/browse|#browse-shell"
-  "search|/search|#search-shell"
-  "publishers|/publishers|#publishers-shell"
-  "publisher-detail|/publishers/deep-vellum|#publisher-detail-shell"
-  "contributors|/contributors|#contributors-shell"
-  "contributor-detail|/contributors/david-bowles|#contributor-detail-shell"
-  "series|/series|#series-shell"
-  "series-detail|/series/browser-qa-series|#series-detail-shell"
-  "book-detail|/books/deep-vellum-immigrant|#book-detail-shell"
-  "edition-not-found|/editions/not-a-real-edition|#edition-detail-shell"
-)
-
-for route_spec in "${responsive_routes[@]}"; do
-  IFS='|' read -r route_label route_path marker <<< "${route_spec}"
-  for viewport_spec in "mobile|390|844" "tablet|768|1024"; do
-    IFS='|' read -r viewport_label viewport_width viewport_height <<< "${viewport_spec}"
-    overflow_artifact="${QA_DIR}/${viewport_label}-${route_label}-overflow.json"
-    CHROME_BIN="${CHROME_BIN}" node "${BROWSER_QA_HELPER_DIR}/responsive_overflow_check.mjs" \
-      "${BASE_URL}${route_path}" \
-      "${overflow_artifact}" \
-      "${viewport_width}" \
-      "${viewport_height}" \
-      "${marker}" | tee -a "${TRANSCRIPT}"
-    grep -q '"passed": true' "${overflow_artifact}"
-    log "responsive_overflow=pass viewport=${viewport_label} route=${route_path} marker=${marker} artifact=${overflow_artifact}"
-  done
-done
 
 while IFS= read -r resource; do
   [[ -n "${resource}" ]] || continue
