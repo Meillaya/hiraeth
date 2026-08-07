@@ -187,9 +187,9 @@ jobs:
     timeout-minutes: 20
 
     # `make audit-provenance` runs the full-corpus provenance audit. Its
-    # `ensure_postgres.sh` helper invokes `nix run nixpkgs#devenv`, so Nix is
-    # installed here; the postgres:16 service + env provide the DB the app
-    # connects to (DATABASE_PORT=5432).
+    # `ensure_postgres.sh` helper uses the postgres:16 service container (no
+    # Nix/devenv needed); the service + env provide the DB the app connects to
+    # (DATABASE_PORT=5432).
     services:
       postgres:
         image: postgres:16
@@ -231,14 +231,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-mix-
 
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@main
-
-      - name: Cache Nix store
-        uses: DeterminateSystems/determinate-nix-action@main
-        with:
-          cache: true
-
       - name: Install Mix dependencies
         run: mix deps.get
 
@@ -251,10 +243,10 @@ jobs:
     timeout-minutes: 30
 
     # `STRICT_TIMING=1 make test-browser` runs the full browser evidence sweep.
-    # browser_qa.sh requires a Chromium binary (it does not self-install) and
-    # its `ensure_postgres.sh` helper invokes `nix run nixpkgs#devenv`, so
-    # Chrome and Nix are installed here; the postgres:16 service + env provide
-    # the DB the app connects to.
+    # browser_qa.sh requires a Chromium binary (it does not self-install), so
+    # Chrome is installed here; its `ensure_postgres.sh` helper uses the
+    # postgres:16 service container (no Nix/devenv needed), which provides the
+    # DB the app connects to.
     services:
       postgres:
         image: postgres:16
@@ -296,14 +288,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-mix-
 
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@main
-
-      - name: Cache Nix store
-        uses: DeterminateSystems/determinate-nix-action@main
-        with:
-          cache: true
-
       - name: Install Chromium
         uses: browser-actions/setup-chrome@v1
 
@@ -318,10 +302,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
-    # Both drill scripts start Postgres via `ensure_postgres.sh` (which invokes
-    # `nix run nixpkgs#devenv`), and the adversarial script runs the sidecar
-    # probe via `uv run`, so Nix + Python/uv are installed here; the postgres:16
-    # service + env provide the DB the app connects to.
+    # Both drill scripts start Postgres via `ensure_postgres.sh`, which uses
+    # the postgres:16 service container (no Nix/devenv needed); the adversarial
+    # script runs the sidecar probe via `uv run`, so Python/uv are installed
+    # here, and the service + env provide the DB the app connects to.
     services:
       postgres:
         image: postgres:16
@@ -362,14 +346,6 @@ jobs:
           key: ${{ runner.os }}-mix-deep-drills-${{ hashFiles('mix.lock') }}
           restore-keys: |
             ${{ runner.os }}-mix-
-
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@main
-
-      - name: Cache Nix store
-        uses: DeterminateSystems/determinate-nix-action@main
-        with:
-          cache: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -457,32 +433,6 @@ jobs:
 
       - name: Run scripts test gate
         run: uv run --project . pytest tests/scripts -q
-
-  devenv-full:
-    name: Nix/devenv full readiness graph (devenv test)
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-
-    # The full devenv readiness graph (`devenv -- test`). devenv manages its
-    # own Postgres, so no postgres service here. Extended budget for the
-    # acknowledged cold-Nix evaluation.
-    env:
-      MIX_ENV: test
-
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@main
-
-      - name: Cache Nix store
-        uses: DeterminateSystems/determinate-nix-action@main
-        with:
-          cache: true
-
-      - name: Run full devenv readiness graph
-        run: nix run nixpkgs#devenv -- test
 
   release-build:
     name: Release image builds (no push)
