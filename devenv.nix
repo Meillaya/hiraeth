@@ -44,54 +44,26 @@ in
 
 
 
-  # Use a devenv-managed PostgreSQL process instead of the built-in PostgreSQL service because
-  # devenv 2.1.2 socket-activates declared service ports before PostgreSQL binds,
-  # which can make readiness pass against the wrapper and then fail with
-  # address-in-use. The explicit process owns port 54320 itself.
+  # PostgreSQL runs through the canonical devenv services.postgres module.
+  # The socket-only port allocation workaround for devenv 2.1.2 is obsolete:
+  # upstream commit 43b5089 (PR #3004) fixed socket-only port allocation and
+  # landed in v2.2/v2.2.1 (pin 8f297eae). The service owns port 54320 directly.
 
-  processes."hiraeth-postgres" = {
-    exec = ''
-            set -euo pipefail
-            export PGDATA="$DEVENV_STATE/hiraeth-postgres"
-            export PGHOST="127.0.0.1"
-            export PGPORT="54320"
-            export PGUSER="postgres"
-            export PGPASSWORD="postgres"
-            runtime_dir="$DEVENV_RUNTIME/hiraeth-postgres"
-            init_runtime_dir="$DEVENV_RUNTIME/hiraeth-postgres-init"
-            mkdir -p "$runtime_dir" "$init_runtime_dir"
-
-            if [ ! -d "$PGDATA" ]; then
-              initdb --locale=C --encoding=UTF8 --username=postgres
-              cat > "$PGDATA/postgresql.conf" <<EOF
-      listen_addresses = '127.0.0.1'
-      port = 54320
-      unix_socket_directories = '$runtime_dir'
-      EOF
-              old_pg_host="$PGHOST"
-              export PGHOST="$init_runtime_dir"
-              pg_ctl -D "$PGDATA" -w start -o "-c unix_socket_directories=$init_runtime_dir -c listen_addresses= -p 54320"
-              psql --dbname postgres -v ON_ERROR_STOP=1 <<'SQL'
-      ALTER ROLE postgres WITH LOGIN SUPERUSER PASSWORD 'postgres';
-      CREATE DATABASE hiraeth_dev OWNER postgres;
-      CREATE DATABASE hiraeth_test OWNER postgres;
-      SQL
-              pg_ctl -D "$PGDATA" -m fast -w stop
-              export PGHOST="$old_pg_host"
-            fi
-
-            exec postgres -D "$PGDATA"
-    '';
-    ready = {
-      exec = ''
-        PGPASSWORD=postgres PGPORT=54320 pg_isready -h "$DEVENV_RUNTIME/hiraeth-postgres" -U postgres
-      '';
-      initial_delay = 2;
-      period = 2;
-      probe_timeout = 4;
-      failure_threshold = 60;
-      timeout = 120;
-    };
+  services.postgres = {
+    enable = true;
+    package = pkgs.postgresql_16;
+    port = 54320;
+    listen_addresses = "127.0.0.1";
+    # The global env block sets PGUSER=postgres, so the module's init phase
+    # connects as the `postgres` role. initdb must therefore create that
+    # superuser (default would be the OS user). Empirically verified: without
+    # --username=postgres the role does not exist and setup aborts.
+    initdbArgs = [ "--locale=C" "--encoding=UTF8" "--username=postgres" ];
+    initialDatabases = [
+      { name = "hiraeth_dev"; }
+      { name = "hiraeth_test"; }
+    ];
+    initialScript = "ALTER ROLE postgres WITH LOGIN SUPERUSER PASSWORD 'postgres';";
   };
 
   processes."scrapling-sidecar" = {
@@ -145,7 +117,7 @@ in
   tasks."test:phoenix-ready" = {
     description = "Verify the devenv-managed Phoenix endpoint returns HTTP 200 or redirect.";
     after = [
-      "devenv:processes:hiraeth-postgres"
+      "devenv:processes:postgres"
       "devenv:processes:phoenix"
     ];
     before = [ "devenv:enterTest" ];

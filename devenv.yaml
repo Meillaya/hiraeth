@@ -1,13 +1,14 @@
 inputs:
   nixpkgs:
     url: github:NixOS/nixpkgs/nixpkgs-unstable
-  # Pinned to the same rev as flake.nix (d1fb321e) for consistency.
+  # Pinned to the same rev as flake.nix (8f297eae, v2.2.1) for consistency.
+  # Includes the postgres socket-only port fix (43b5089, PR #3004, v2.2+).
   # Known issue to watch: the embedded cachix/nix fork (f33db89) has a
   # readOnlyMode use-after-free (cachix/devenv#3064), fixed upstream in
   # Nix 2.35 (NixOS/nix#15469); revisit this pin once a devenv release
   # embeds Nix >= 2.35.
   devenv:
-    url: github:cachix/devenv/d1fb321e73048d0e1e2b523580268ebb3df2ae90
+    url: github:cachix/devenv/8f297eae651cb47fb1e8f7c19b942462aa879636
     inputs:
       nixpkgs:
         follows: nixpkgs
