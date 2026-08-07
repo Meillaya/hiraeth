@@ -1,8 +1,13 @@
 inputs:
   nixpkgs:
     url: github:NixOS/nixpkgs/nixpkgs-unstable
+  # Pinned to the same rev as flake.nix (d1fb321e) for consistency.
+  # Known issue to watch: the embedded cachix/nix fork (f33db89) has a
+  # readOnlyMode use-after-free (cachix/devenv#3064), fixed upstream in
+  # Nix 2.35 (NixOS/nix#15469); revisit this pin once a devenv release
+  # embeds Nix >= 2.35.
   devenv:
-    url: github:cachix/devenv
+    url: github:cachix/devenv/d1fb321e73048d0e1e2b523580268ebb3df2ae90
     inputs:
       nixpkgs:
         follows: nixpkgs

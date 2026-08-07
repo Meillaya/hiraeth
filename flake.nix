@@ -1,6 +1,12 @@
 {
   description = "Hiraeth local development environment";
 
+  # devenv.cachix.org binary cache (devenv default) trusted for local nix use.
+  nixConfig = {
+    extra-substituters = [ "https://devenv.cachix.org" ];
+    extra-trusted-public-keys = [ "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw=" ];
+  };
+
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     devenv.url = "github:cachix/devenv/d1fb321e73048d0e1e2b523580268ebb3df2ae90";

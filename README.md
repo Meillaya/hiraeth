@@ -18,6 +18,8 @@ It is still browser-first: the stable v1 surface is the LiveView catalog, not a 
 
 devenv is the preferred local/dev/test path. It provides the pinned Elixir/OTP toolchain, PostgreSQL 16 on `127.0.0.1:54320`, Node, Python/`uv`, and browser dependencies used by Phoenix and the Scrapling sidecar. Local development is devenv-only. Docker remains the production runtime boundary reference — Railway builds the Phoenix service from the root `Dockerfile` and the sidecar from `sidecar/Dockerfile` — not a local setup path.
 
+Install the devenv CLI with `nix profile add nixpkgs#devenv` (the upstream-documented pattern; no `nix run` wrapper needed). The devenv input is rev-pinned in `devenv.yaml`/`flake.nix` (same rev, d1fb321e). Known issue to watch: the embedded cachix/nix fork (f33db89) has a readOnlyMode use-after-free (cachix/devenv#3064, fixed upstream in Nix 2.35) — revisit the pin once a devenv release embeds Nix >= 2.35. `flake.nix` also trusts the devenv.cachix.org binary cache (`devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw=`) for local nix use.
+
 Use a `devenv shell` for ad hoc Mix commands and the devenv process runner for managed local PostgreSQL, Phoenix, and sidecar processes:
 
 ```sh
