@@ -34,7 +34,6 @@ Hiraeth is an Elixir-first Phoenix application for browsing carefully curated in
 The app keeps product behavior in Phoenix/Ash boundaries and groups local tooling by operator intent:
 
 - `scripts/catalog/` contains explicit catalog-source maintenance scripts for checked-in corpus refreshes. These scripts are not runtime product dependencies.
-- `scripts/qa/browser/` contains implementation helpers used by the stable `scripts/browser_qa.sh` and `make test-browser` entrypoints.
 - `scripts/qa/ingestion/` contains production-ingestion drill scripts, their ExUnit drill tests, and private sidecar host probes.
 - `test/support/catalog/` and `test/support/ingestion/` keep test helpers close to their domain instead of using broad root-level support modules.
 - Shared public catalog filter parsing belongs in the focused Phoenix helper boundary, while Ash resources/actions continue to own domain rules.

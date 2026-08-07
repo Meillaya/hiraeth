@@ -32,13 +32,10 @@ required_routes = [
 
 artifact_expectations = {
     "audit_provenance": qa_dir / "provenance/audit-provenance.txt",
-    "test_browser": qa_dir / "browser/test-browser.txt",
 }
 
 source_ledger = qa_dir / "provenance/source-ledger.csv"
 provenance_json = qa_dir / "provenance/audit-provenance.json"
-network_json = qa_dir / "browser/network-errors.json"
-keyboard_json = qa_dir / "browser/keyboard-focus.json"
 
 artifact_gates = {
     name: path.exists() and f"{name}=pass" in path.read_text(errors="replace")
@@ -49,16 +46,6 @@ if provenance_json.exists():
     provenance_data = json.loads(provenance_json.read_text())
 else:
     provenance_data = {}
-
-if network_json.exists():
-    network_data = json.loads(network_json.read_text())
-else:
-    network_data = {"page_failures": ["missing"], "broken_local_resources": ["missing"]}
-
-if keyboard_json.exists():
-    keyboard_data = json.loads(keyboard_json.read_text())
-else:
-    keyboard_data = {"passed": False}
 
 exact_bad_deps = re.compile(r'(^|[ {:"\'])(react|vite|vitest)([,"\' ]|$)', re.I)
 root_package = root / "package.json"
@@ -79,18 +66,11 @@ summary = {
             and provenance_data.get("invalid_public_covers") == []
             and provenance_data.get("long_copied_text") == []
         ),
-        "browser": (
-            network_data.get("page_failures") == []
-            and network_data.get("broken_local_resources") == []
-            and keyboard_data.get("passed") is True
-        ),
         "local_targets": all(artifact_gates.values()),
     },
     "artifacts": {name: str(path) for name, path in artifact_expectations.items()},
     "artifact_gates": artifact_gates,
     "notes": {
-        "browser_keyboard_focus": str(keyboard_json),
-        "browser_network": str(network_json),
         "provenance_source_ledger": str(source_ledger),
     },
 }

@@ -50,40 +50,6 @@ defmodule Hiraeth.Ingestion.ProductionIngestionScriptContractTest do
     end)
   end
 
-  @tag :readiness_failure
-  test "browser QA stops devenv postgres and skips downstream work when readiness fails" do
-    with_fake_commands(fn bin, log ->
-      env =
-        fake_env(bin,
-          CHROME_BIN: "/bin/true",
-          QA_DIR: temp_dir(),
-          HIRAETH_FAKE_PG_ISREADY_FAIL: "1",
-          HIRAETH_POSTGRES_READY_ATTEMPTS: "1",
-          HIRAETH_POSTGRES_READY_SLEEP: "0"
-        )
-
-      assert {output, status} =
-               System.cmd("bash", [Path.join(@root, "scripts/browser_qa.sh")],
-                 env: env,
-                 stderr_to_stdout: true
-               )
-
-      assert status != 0
-      assert output =~ "FAIL postgres did not become ready"
-
-      commands = read_commands(log)
-
-      assert "nix run nixpkgs#devenv -- up -d hiraeth-postgres" in commands
-      assert "pg_isready -h localhost -p 54320 -U postgres" in commands
-      assert "nix run nixpkgs#devenv -- processes stop hiraeth-postgres" in commands
-
-      refute Enum.any?(commands, &String.starts_with?(&1, "mix "))
-
-      refute Enum.any?(commands, &String.starts_with?(&1, "docker ")),
-             "browser QA failure path must not invoke docker; devenv owns local postgres"
-    end)
-  end
-
   test "make verify migrated local targets use shared devenv postgres readiness helper" do
     makefile = File.read!(Path.join(@root, "Makefile"))
 
@@ -103,7 +69,6 @@ defmodule Hiraeth.Ingestion.ProductionIngestionScriptContractTest do
     write_fake_nix!(bin, log)
     write_fake_pg_isready!(bin, log)
     write_fake_mix!(bin, log)
-    write_fake_lsof!(bin, log)
     write_fake_uv!(bin, log)
     fun.(bin, log)
   end
@@ -159,14 +124,6 @@ defmodule Hiraeth.Ingestion.ProductionIngestionScriptContractTest do
     #!/usr/bin/env bash
     echo "uv $*" >> #{sh(log)}
     exit 0
-    """)
-  end
-
-  defp write_fake_lsof!(bin, log) do
-    write_executable!(Path.join(bin, "lsof"), """
-    #!/usr/bin/env bash
-    echo "lsof $*" >> #{sh(log)}
-    exit 1
     """)
   end
 

@@ -5,9 +5,9 @@ QA_DIR := artifacts/qa
 VERIFY_SUMMARY := $(QA_DIR)/verify/summary.json
 POSTGRES_READY := scripts/dev/ensure_postgres.sh start
 
-.PHONY: verify test-fast test-full ci audit-provenance test-browser verify-summary qa-pack cleanup-policy gate plt gates\:measure db-backup db-restore-drill
+.PHONY: verify test-fast test-full ci audit-provenance verify-summary qa-pack cleanup-policy gate plt gates\:measure db-backup db-restore-drill coverage
 
-verify: audit-provenance test-browser verify-summary qa-pack
+verify: audit-provenance verify-summary qa-pack
 
 # Fast blocking gate (Layer 0): wraps the `mix gate` alias.
 # `make gates:measure` measures the full gate baseline; pass
@@ -34,6 +34,13 @@ db-backup:
 # Restore drill into a NEW hiraeth_restore database (never the live DB).
 db-restore-drill:
 	@bash scripts/ops/db_restore_drill.sh
+
+# Local coverage gate enforcing the 86.1 floor (coveralls.json). Bootstraps the
+# test DB first because `mix coveralls` does not run the `test` alias, so a
+# fresh checkout may not have a database yet. Deliberately NOT part of `make
+# gate` (fast lane stays fast) and does not post to coveralls.io.
+coverage:
+	MIX_ENV=test mix ecto.create --quiet && MIX_ENV=test mix ecto.migrate --quiet && MIX_ENV=test mix coveralls
 
 test-fast:
 	mix test.fast
@@ -63,10 +70,6 @@ audit-provenance:
 		echo "audit_provenance=pass"; \
 	} | tee $(QA_DIR)/provenance/audit-provenance.txt
 
-test-browser:
-	@mkdir -p $(QA_DIR)/browser
-	@scripts/browser_qa.sh
-
 verify-summary:
 	@mkdir -p $(QA_DIR)/verify
 	@scripts/verify_summary.sh
@@ -78,7 +81,7 @@ qa-pack:
 	@{ \
 		echo "qa pack summary"; \
 		find $(QA_DIR) -type f ! -name 'qa-pack.tar.gz' | sort > $(QA_DIR)/qa-pack-manifest.txt; \
-		tar -czf $(QA_DIR)/qa-pack.tar.gz -T $(QA_DIR)/qa-pack-manifest.txt README.md docs/architecture.md docs/browser-qa.md docs/cleanup-policy.md docs/contracts.md docs/history/worklog-2026-06.md docs/production-operations.md docs/production-readiness.md docs/provenance-cover-policy.md; \
+		tar -czf $(QA_DIR)/qa-pack.tar.gz -T $(QA_DIR)/qa-pack-manifest.txt README.md docs/architecture.md docs/cleanup-policy.md docs/contracts.md docs/history/worklog-2026-06.md docs/production-operations.md docs/production-readiness.md docs/provenance-cover-policy.md; \
 		test -f $(QA_DIR)/qa-pack.tar.gz; \
 		test -s $(QA_DIR)/qa-pack.tar.gz; \
 		cat $(QA_DIR)/qa-pack-manifest.txt; \

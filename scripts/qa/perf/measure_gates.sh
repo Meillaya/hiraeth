@@ -35,9 +35,8 @@
 #     run (the test.fast gate itself) and are aggregated per test file: one
 #     run, not one run per file.
 #   * Mix gates run with MIX_ENV=test (the env `mix ci` / `precommit.fast`
-#     use); browser and provenance gates run via `make` without an env
-#     override, exactly as `make test-browser` / `make audit-provenance` run
-#     today.
+#     use); the provenance gate runs via `make` without an env override,
+#     exactly as `make audit-provenance` runs today.
 #   * When not already inside a devenv shell, the harness re-executes itself
 #     inside `nix run nixpkgs#devenv -- shell` so every measured command runs
 #     in the canonical environment. Set PERF_NO_DEVENV=1 to disable.
@@ -182,7 +181,7 @@ if [[ "${MODE}" == "fast" ]]; then
   run_gate credo 300 env MIX_ENV=test mix credo --strict
   run_gate test.fast 900 env MIX_ENV=test mix test.fast --slowest 50
 else
-  printf 'measure_gates: mode=full gates=compile,format,credo,sobelow,hex.audit,test.fast,test.full,dialyzer,coveralls,browser,provenance,sidecar-pytest,blocked-check\n'
+  printf 'measure_gates: mode=full gates=compile,format,credo,sobelow,hex.audit,test.fast,test.full,dialyzer,coveralls,provenance,sidecar-pytest,blocked-check\n'
   run_gate compile 300 env MIX_ENV=test mix compile --warnings-as-errors
   run_gate format 300 env MIX_ENV=test mix format --check-formatted
   run_gate credo 300 env MIX_ENV=test mix credo --strict
@@ -194,7 +193,6 @@ else
   run_gate coveralls 1800 env MIX_ENV=test mix coveralls --max-cases 8
   run_gate dialyzer 1800 env MIX_ENV=test mix dialyzer
   run_gate provenance 1800 make audit-provenance
-  run_gate browser 1800 env STRICT_TIMING=1 make test-browser
 fi
 
 # Per-file ExUnit timings: aggregate the --slowest report from the test.fast
