@@ -100,17 +100,188 @@ jobs:
         run: mix dialyzer
 
   full-suite:
-    name: Full suite + coverage (coveralls, floor 86.1)
+    name: Full suite (3 partitions)
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
-    # Single full-suite run for the deep lane. The steps below mirror the
-    # `mix ci` alias in mix.exs verbatim, with `mix coveralls` replacing the
-    # alias's final `test.full` step, so the full ExUnit suite runs ONCE with
-    # coverage and enforces the ExCoveralls minimum_coverage floor from
-    # coveralls.json (86.1). Keep this sequence in lockstep with the ci alias
-    # so the job and the alias cannot silently drift. Asset-build verification
-    # stays preserved at full depth here, not on the fast path.
+    # Merge-path full-suite run (push to main + manual dispatch, never the
+    # nightly cron), split across 3 shards. `MIX_TEST_PARTITION` alone only
+    # renames the test DB (config/test.exs:13); `--partitions 3` is what
+    # actually shards the suite (Elixir 1.15+), so each cell runs a disjoint
+    # third of the tests against its own hiraeth_test<N> DB. The `test.full`
+    # alias expands to the `test` alias, whose `ecto.create --quiet` /
+    # `ecto.migrate --quiet` auto-create the per-partition DBs; Mix forwards
+    # the trailing args (`--exclude nightly --max-cases 8 --partitions 3`) to
+    # the last task in the alias chain. `--exclude nightly` keeps the 30-min
+    # corpus monsters off the merge path — they run nightly in the `coverage`
+    # job instead, which owns the ExCoveralls floor (86.1). No coveralls on
+    # this path. The static gates the old single full-suite job carried moved
+    # to the `merge-gates` job.
+    strategy:
+      fail-fast: false
+      matrix:
+        partition: [1, 2, 3]
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      MIX_ENV: test
+      DATABASE_HOST: localhost
+      DATABASE_PORT: "5432"
+      MIX_TEST_PARTITION: ${{ matrix.partition }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up BEAM
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27"
+          elixir-version: "1.18"
+
+      - name: Cache Mix dependencies (deps)
+        id: mix-deps-cache
+        uses: actions/cache@v4
+        with:
+          path: deps
+          key: ${{ runner.os }}-deps-27-1.18-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-27-1.18-
+
+      - name: Cache Mix build (_build/test)
+        id: mix-build-cache
+        uses: actions/cache@v4
+        with:
+          path: _build/test
+          key: ${{ runner.os }}-build-test-27-1.18-${{ hashFiles('**/mix.lock') }}-${{ hashFiles('**/*.ex', '**/*.exs') }}-${{ hashFiles('mix.exs') }}
+          restore-keys: |
+            ${{ runner.os }}-build-test-27-1.18-${{ hashFiles('**/mix.lock') }}-
+
+      - name: Remove stale deps on partial cache hit
+        if: steps.mix-deps-cache.outputs.cache-hit != 'true'
+        run: rm -rf deps
+
+      - name: Touch cached deps and build files
+        if: steps.mix-deps-cache.outputs.cache-hit == 'true' || steps.mix-build-cache.outputs.cache-hit == 'true'
+        run: find deps _build/test -type f -exec touch {} + 2>/dev/null || true
+
+      - name: Install Mix dependencies
+        run: mix deps.get
+
+      - name: Run full suite (partition ${{ matrix.partition }} of 3)
+        run: mix test.full --exclude nightly --max-cases 8 --partitions 3
+
+  merge-gates:
+    name: Static gates + assets (merge-gates)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # Static-gates home for the deep lane. The full-suite matrix above is
+    # test-only, so the code gates and asset-build verification the old
+    # single full-suite run carried move here, preserved at full depth.
+    # Runs unconditionally (push to main, nightly schedule, manual dispatch)
+    # — it is cheap and idempotent, and unconditional gating keeps the
+    # warnings-as-errors and asset checks continuous under every trigger.
+    # Fresh-VM `mix cmd mix ...` form mirrors the ci alias: `mix credo`
+    # starts the credo application, so running it in-chain makes later app
+    # startup fail with "application credo ... already started", and Mix
+    # purges archive tasks (hex.audit) once `compile` runs in the same VM.
+    env:
+      MIX_ENV: test
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up BEAM
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27"
+          elixir-version: "1.18"
+
+      - name: Cache Mix dependencies (deps)
+        id: mix-deps-cache
+        uses: actions/cache@v4
+        with:
+          path: deps
+          key: ${{ runner.os }}-deps-27-1.18-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-27-1.18-
+
+      - name: Cache Mix build (_build/test)
+        id: mix-build-cache
+        uses: actions/cache@v4
+        with:
+          path: _build/test
+          key: ${{ runner.os }}-build-test-27-1.18-${{ hashFiles('**/mix.lock') }}-${{ hashFiles('**/*.ex', '**/*.exs') }}-${{ hashFiles('mix.exs') }}
+          restore-keys: |
+            ${{ runner.os }}-build-test-27-1.18-${{ hashFiles('**/mix.lock') }}-
+
+      - name: Remove stale deps on partial cache hit
+        if: steps.mix-deps-cache.outputs.cache-hit != 'true'
+        run: rm -rf deps
+
+      - name: Touch cached deps and build files
+        if: steps.mix-deps-cache.outputs.cache-hit == 'true' || steps.mix-build-cache.outputs.cache-hit == 'true'
+        run: find deps _build/test -type f -exec touch {} + 2>/dev/null || true
+
+      - name: Install Mix dependencies
+        run: mix deps.get
+
+      - name: Compile (warnings as errors)
+        run: mix compile --warnings-as-errors
+
+      - name: Check for unused dependencies
+        run: mix deps.unlock --unused
+
+      - name: Check formatting
+        run: mix format --check-formatted
+
+      - name: Run Credo (strict)
+        run: mix cmd mix credo --strict
+
+      - name: Run Sobelow (exit Low)
+        run: mix cmd mix sobelow --config .sobelow-conf --exit Low
+
+      - name: Audit Hex dependencies
+        run: mix cmd mix hex.audit
+
+      - name: Set up assets
+        run: mix assets.setup
+
+      - name: Build assets
+        run: mix assets.build
+
+  coverage:
+    name: Nightly coverage (coveralls, floor 86.1)
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+
+    # Nightly coverage run (schedule + manual dispatch, never merge-to-main
+    # pushes or PRs). Runs the FULL suite with no nightly exclusion, so the
+    # `:nightly` corpus monsters (30-min `@tag timeout` envelopes) execute
+    # here every night, and the ExCoveralls minimum_coverage floor from
+    # coveralls.json (86.1) stays calibrated on the full suite. `mix
+    # coveralls` runs the built-in test task, NOT the `test` alias, so the
+    # DB is created/migrated explicitly below. `timeout-minutes: 75` covers
+    # the monster envelope (observed 193-870s each) plus the full suite and
+    # coveralls overhead on a 2-core runner.
     services:
       postgres:
         image: postgres:16
@@ -170,46 +341,20 @@ jobs:
       - name: Install Mix dependencies
         run: mix deps.get
 
-      - name: Compile (warnings as errors)
-        run: mix compile --warnings-as-errors
-
-      - name: Check for unused dependencies
-        run: mix deps.unlock --unused
-
-      - name: Check formatting
-        run: mix format --check-formatted
-
-      # Fresh-VM static gates, mirroring the ci alias's `cmd mix ...` form:
-      # `mix credo` starts the credo application, so running it in-chain makes
-      # the later suite boot fail with "application credo ... already
-      # started", and Mix purges archive tasks (hex.audit) once `compile`
-      # runs in the same VM.
-      - name: Run Credo (strict)
-        run: mix cmd mix credo --strict
-
-      - name: Run Sobelow (exit Low)
-        run: mix cmd mix sobelow --config .sobelow-conf --exit Low
-
-      - name: Audit Hex dependencies
-        run: mix cmd mix hex.audit
-
-      - name: Set up assets
-        run: mix assets.setup
-
-      - name: Build assets
-        run: mix assets.build
-
-      # The ci alias's `test.full` expands to the `test` alias, which runs
-      # `ecto.create --quiet` + `ecto.migrate --quiet` before the suite;
-      # coveralls replaces the suite run itself, so the DB is prepared here.
+      # `mix coveralls` runs the built-in test task, not the `test` alias,
+      # so the DB is NOT auto-created — bootstrap it explicitly.
       - name: Create and migrate test database
         run: mix ecto.create --quiet && mix ecto.migrate --quiet
 
-      # Single full-suite run with coverage (replaces the alias's test.full).
-      # ExCoveralls fails the run when total coverage drops below the
-      # minimum_coverage floor in coveralls.json (86.1). `--max-cases 8`
-      # forwards to the underlying test run, tuning parallelism for the
-      # 2-core GitHub runner.
+      # Single full-suite run with coverage (no nightly exclusion — the
+      # `:nightly` corpus monsters run here). ExCoveralls fails the run when
+      # total coverage drops below the minimum_coverage floor in
+      # coveralls.json (86.1). `--max-cases 8` forwards to the underlying
+      # test run, tuning parallelism for the 2-core GitHub runner. The step
+      # stays token-free (COVERALLS_REPO_TOKEN is a repo secret we do not
+      # inject), so the 86.1 floor is always enforced via exit code; the
+      # coveralls.io post happens only when the token is present in the
+      # environment.
       - name: Run full suite with coverage
         run: mix coveralls --max-cases 8
 
