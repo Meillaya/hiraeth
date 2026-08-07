@@ -6,7 +6,7 @@ Phoenix LiveView browser boundary for public discovery pages.
 ## STRUCTURE
 | Area | Owns |
 |---|---|
-| `router.ex` | browser scopes, pipelines, `live_session` boundaries |
+| `router.ex` | browser scope with hard CSP (self-contained pages), `:ops` JSON pipeline (/health, /ready), `live_session` boundaries |
 | `live/` | public LiveViews: home, browse, search, book, edition, publishers, series, contributors (role filter) |
 | `components/` | layouts, core components, catalog UI components |
 | `public_catalog.ex` | public read facade: raw `Repo.query` SQL projected into PublicProjection structs + `:persistent_term` TTL cache (`clear_cache/0`, `:public_catalog_cache_ttl_ms`) |

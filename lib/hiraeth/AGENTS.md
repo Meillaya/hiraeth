@@ -1,7 +1,7 @@
 # DOMAIN KNOWLEDGE BASE
 
 ## OVERVIEW
-Ash domain layer for catalog data, ingestion, provenance, covers, real-publisher corpus, audit, and search.
+Ash domain layer for catalog data, ingestion, provenance, covers, real-publisher corpus, and audit.
 
 ## STRUCTURE
 | Area | Owns |
@@ -9,12 +9,11 @@ Ash domain layer for catalog data, ingestion, provenance, covers, real-publisher
 | `catalog/` + `catalog.ex` | work / edition / publisher / contributor graph |
 | `sources/` + `sources.ex` | source records, ledger entries, curation overrides |
 | `ingestion/` + `ingestion.ex` | provider runs, snapshots, candidates, events, phase pipeline |
-| `imports/` + `imports.ex` | CSV/manual import staging and review |
+| `imports/` + `imports.ex` | ImportRun lineage for apply/tombstone provenance |
 | `real_catalog/` | deterministic dataset, policy, validation, importer |
 | `demo_fixtures.ex`, `real_catalog_fixtures.ex` | invented dev/test fixtures vs deterministic real-corpus seed entrypoint |
 | `covers/` + `covers.ex` | cover assets, assignments, cache safety |
 | `audit/`, `provenance_audit.ex` | operational evidence and exports |
-| `search/` | read models |
 
 ## WHERE TO LOOK
 | Task | File family |
