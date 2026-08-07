@@ -4,40 +4,19 @@ defmodule Hiraeth.DevEnvironmentCIContractTest do
   @repo_root Path.expand("../..", __DIR__)
 
   @tag :ci_devenv_contract
-  test "CI workflow has a lean Nix/devenv smoke lane backed by devenv-managed PostgreSQL" do
+  test "CI workflow defines exactly the static and test-fast jobs with no Nix/devenv smoke lane" do
     assert_contract_file(".github/workflows/ci.yml", "CI workflow")
 
     workflow = read!(".github/workflows/ci.yml")
-    devenv_job = ci_job!(workflow, "devenv-smoke")
-    devenv_steps = ci_steps(devenv_job)
 
-    assert devenv_job =~ ~r/name:\s*.*devenv.*smoke/i,
-           "devenv-smoke CI job must be clearly named as the Nix/devenv smoke lane"
+    # The de-nixed CI is a plain static + test-fast pair: no devenv-smoke job,
+    # no Nix step anywhere on the fast path. Pin the exact job list so a
+    # future re-introduction of a Nix/devenv lane fails this contract.
+    assert ci_job_names(workflow) == ["static", "test-fast"],
+           "ci.yml must define exactly the static and test-fast jobs (got #{inspect(ci_job_names(workflow))})"
 
-    assert devenv_job =~
-             ~r/nix|DeterminateSystems\/nix-installer-action|cachix\/install-nix-action/i,
-           "devenv-smoke CI job must install or provide Nix explicitly"
-
-    assert Enum.any?(devenv_steps, &devenv_postgres_readiness?/1),
-           "devenv-smoke CI job must start devenv-managed PostgreSQL and wait for readiness"
-
-    assert Enum.any?(devenv_steps, &mix_gate?/1),
-           "devenv-smoke CI job must run the fast blocking mix gate through devenv"
-
-    # The smoke lane is deliberately lean: it only proves devenv can start
-    # Postgres and run the fast blocking gate. The full readiness graph and the
-    # sidecar pytest gate moved to the deep lane (deep.yml).
-    refute devenv_job =~ ~r/example\.com/,
-           "devenv-smoke CI job must not fetch external example.com content"
-
-    refute Enum.any?(devenv_steps, &sidecar_pytest_gate?/1),
-           "devenv-smoke CI job must not run the sidecar pytest gate (moved to deep.yml)"
-
-    refute Enum.any?(devenv_steps, &devenv_test_gate?/1),
-           "devenv-smoke CI job must not run the full devenv -- test readiness graph (moved to deep.yml)"
-
-    refute devenv_job =~ ~r/^\s*services:\s*$/m,
-           "devenv-smoke CI job must use devenv-managed PostgreSQL, not a GitHub service container"
+    refute workflow =~ ~r/^  devenv-smoke:\s*$/m,
+           "ci.yml must not define a devenv-smoke job after de-nixing"
 
     assert_only_postgres_services_for_test_fast!(workflow)
 
@@ -53,19 +32,21 @@ defmodule Hiraeth.DevEnvironmentCIContractTest do
     assert_deep_lane_contract!()
   end
 
-  # The full `devenv -- test` readiness graph and the sidecar pytest gate moved
-  # to the deep lane (.github/workflows/deep.yml, created by todo:6). deep.yml
-  # does not exist yet, so these assertions are conditional on file existence:
-  # once the file lands the contract is enforced; until then the test stays
-  # green without weakening the deep-lane intent.
+  # The full `devenv -- test` readiness graph was de-nixed along with the
+  # devenv-smoke lane: deep.yml must not reference devenv at all, while the
+  # sidecar pytest gate and the merge/nightly-only trigger contract stay
+  # enforced.
   defp assert_deep_lane_contract! do
     deep_path = path(".github/workflows/deep.yml")
 
     if File.exists?(deep_path) do
       deep = File.read!(deep_path)
 
-      assert deep =~ ~r/devenv\s+test/,
-             "deep.yml must run the full devenv -- test readiness graph"
+      # deep.yml's de-nix job comments may mention devenv in prose ("no
+      # Nix/devenv needed"); the pin targets actual invocations: a `devenv
+      # test|up|shell|processes` step or a `nix run nixpkgs#devenv` wrapper.
+      refute deep =~ ~r/nix\s+run\s+nixpkgs#devenv|devenv\s+(?:--\s+)?(?:test|up|shell|processes|run)/,
+             "deep.yml must not invoke devenv after de-nixing"
 
       assert deep =~ ~r/pytest/,
              "deep.yml must run the sidecar pytest gate"
@@ -90,33 +71,24 @@ defmodule Hiraeth.DevEnvironmentCIContractTest do
 
     refute ci_job!(workflow, "static") =~ ~r/^\s*services:\s*$/m,
            "static job must not define a services: block"
-
-    refute ci_job!(workflow, "devenv-smoke") =~ ~r/^\s*services:\s*$/m,
-           "devenv-smoke job must not define a services: block"
   end
 
-  defp devenv_postgres_readiness?(step) do
-    step =~ ~r/devenv\s+--\s+up\s+-d\s+hiraeth-postgres/ and step =~ ~r/pg_isready/
-  end
+  # Top-level job names under the `jobs:` key, in file order. Any two-space
+  # indented `name:` line inside the jobs section is a job header.
+  defp ci_job_names(workflow) do
+    lines = String.split(workflow, "\n", trim: true)
 
-  defp mix_gate?(step) do
-    step =~
-      ~r/nix\s+run\s+nixpkgs#devenv\s+--\s+shell\s+--\s+bash\s+-lc\s+['"]mix\s+gate['"]/
-  end
+    case Enum.find_index(lines, &(&1 == "jobs:")) do
+      nil ->
+        []
 
-  defp devenv_test_gate?(step),
-    do: step =~ ~r/nix\s+run\s+nixpkgs#devenv\s+--\s+test|devenv\s+test/
-
-  defp sidecar_pytest_gate?(step) do
-    step =~
-      ~r/nix\s+run\s+nixpkgs#devenv\s+--\s+(?:shell\s+--\s+)?bash\s+-lc\s+['"]cd sidecar && uv run --extra dev pytest -q['"]|devenv\s+(?:shell\s+--\s+)?bash\s+-lc\s+['"]cd sidecar && uv run --extra dev pytest -q['"]/
-  end
-
-  defp ci_steps(job) do
-    job
-    |> String.split(~r/^      - name:/m, trim: true)
-    |> Enum.drop(1)
-    |> Enum.map(&("      - name:" <> &1))
+      jobs_start ->
+        lines
+        |> Enum.drop(jobs_start + 1)
+        |> Enum.take_while(&Regex.match?(~r/^\s/, &1))
+        |> Enum.filter(&Regex.match?(~r/^  [^\s][^:]*:\s*$/, &1))
+        |> Enum.map(&(&1 |> String.trim() |> String.replace_suffix(":", "")))
+    end
   end
 
   defp ci_job!(workflow, job_name) do
