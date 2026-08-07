@@ -104,7 +104,7 @@ if [[ -z "${DEVENV_PROFILE:-}" && "${PERF_NO_DEVENV:-}" != "1" ]]; then
     exit 2
   fi
   # shellcheck disable=SC2016
-  exec nix run nixpkgs#devenv -- shell -- bash -lc 'exec bash "$0" "$@"' "${HARNESS}" "${ORIG_ARGS[@]}"
+  exec nix run nixpkgs#devenv -- shell --no-reload -- bash -lc 'exec bash "$0" "$@"' "${HARNESS}" "${ORIG_ARGS[@]}"
 fi
 
 OUT_FILE="${PERF_OUT:-${ROOT}/artifacts/qa/perf/baseline.json}"

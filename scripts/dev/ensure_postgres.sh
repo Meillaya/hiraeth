@@ -48,8 +48,8 @@ wait_for_postgres() {
 case "${1:-start}" in
   start)
     if [[ "${DEVENV_POSTGRES}" == "1" ]]; then
-      echo "ENSURE postgres :: nix run nixpkgs#devenv -- up -d ${POSTGRES_PROCESS}"
-      run_devenv up -d "${POSTGRES_PROCESS}"
+      echo "ENSURE postgres :: nix run nixpkgs#devenv -- up -d ${POSTGRES_PROCESS} (log: ${TMPDIR:-/tmp}/devenv-up-${POSTGRES_PROCESS}.log)"
+      run_devenv up -d "${POSTGRES_PROCESS}" > "${TMPDIR:-/tmp}/devenv-up-${POSTGRES_PROCESS}.log" 2>&1
     else
       echo "SKIP devenv postgres boot :: DATABASE_PORT=${POSTGRES_PORT} is provided externally"
     fi
