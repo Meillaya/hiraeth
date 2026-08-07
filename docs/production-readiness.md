@@ -37,7 +37,8 @@ Run the gates below on the final integrated worktree before making any productio
 
 ## Dialyzer PLT persistence
 
-The dialyzer PLT is built once and reused for fast re-runs. The local first build via `make plt` (or `mix dialyzer --plt`) takes ~10-15 min once; every subsequent `mix gate`/`mix dialyzer` reuses the persisted PLT (dialyxir 1.4 stores it under `_build/<env>/`; under devenv, `MIX_BUILD_ROOT` places it at `.devenv/mix-build/<env>/`). The deep-lane CI dialyzer job caches `_build` + `priv/plts` with an OTP/Elixir-pinned key (`${{ runner.os }}-plt-27-1.18-${{ hashFiles('mix.lock') }}`) and tolerates a cold cache: a cache miss simply rebuilds the PLT once.
+The dialyzer PLT is built once and reused for fast re-runs. The local first build via `make plt` (or `mix dialyzer --plt`) takes ~10-15 min once; every subsequent `mix gate`/`mix dialyzer` reuses the persisted PLT. Dialyxir 1.4 writes the project PLT to `_build/<env>/dialyxir_erlang-<otp>_elixir-<ver>_deps-<env>.plt` (plus a `.hash` sibling); under devenv, `MIX_BUILD_ROOT` places it at `.devenv/mix-build/<env>/`.
+The deep-lane CI dialyzer job keeps the `-plt-` cache scoped to the repo's gitignored `priv/plts` convention directory, keyed with the OTP/Elixir-pinned `${{ runner.os }}-plt-27-1.18-${{ hashFiles('mix.lock') }}`, so the `-plt-` and `-build-` cache paths stay disjoint and cannot clobber each other. It tolerates a cold cache: a cache miss simply rebuilds the PLT once.
 
 ## Warm re-run protocol
 

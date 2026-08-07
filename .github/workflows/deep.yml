@@ -52,26 +52,43 @@ jobs:
           otp-version: "27"
           elixir-version: "1.18"
 
-      - name: Cache Mix dependencies and build
+      - name: Cache Mix dependencies (deps)
+        id: mix-deps-cache
         uses: actions/cache@v4
         with:
-          path: |
-            deps
-            _build
-            ~/.mix
-          key: ${{ runner.os }}-mix-deep-dialyzer-${{ hashFiles('mix.lock') }}
+          path: deps
+          key: ${{ runner.os }}-deps-27-1.18-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-mix-
+            ${{ runner.os }}-deps-27-1.18-
 
-      # Dialyxir 1.4 stores the project PLT under `_build/<env>/`; `priv/plts`
-      # is the legacy-agnostic fallback. Key pins OTP/Elixir because PLT
-      # filenames embed erts/elixir versions (see docs/production-readiness.md).
+      - name: Cache Mix build (_build/test)
+        id: mix-build-cache
+        uses: actions/cache@v4
+        with:
+          path: _build/test
+          key: ${{ runner.os }}-build-test-27-1.18-${{ hashFiles('**/mix.lock') }}-${{ hashFiles('**/*.ex', '**/*.exs') }}-${{ hashFiles('mix.exs') }}
+          restore-keys: |
+            ${{ runner.os }}-build-test-27-1.18-${{ hashFiles('**/mix.lock') }}-
+
+      - name: Remove stale deps on partial cache hit
+        if: steps.mix-deps-cache.outputs.cache-hit != 'true'
+        run: rm -rf deps
+
+      - name: Touch cached deps and build files
+        if: steps.mix-deps-cache.outputs.cache-hit == 'true' || steps.mix-build-cache.outputs.cache-hit == 'true'
+        run: find deps _build/test -type f -exec touch {} + 2>/dev/null || true
+
+      # Verified: `mix dialyzer --plt` writes the project PLT (and its .hash)
+      # to `_build/<env>/dialyxir_erlang-<otp>_elixir-<ver>_deps-<env>.plt`
+      # (dialyxir 1.4, Mix.Project.build_path/compile path). The -plt- cache
+      # is scoped to the repo's gitignored priv/plts convention dir so it never
+      # overlaps the -build- cache on _build/test - two caches writing the same
+      # paths clobber each other. Key pins OTP/Elixir because PLT filenames
+      # embed erts/elixir versions (see docs/production-readiness.md).
       - name: Cache Dialyzer PLT
         uses: actions/cache@v4
         with:
-          path: |
-            _build
-            priv/plts
+          path: priv/plts
           key: ${{ runner.os }}-plt-27-1.18-${{ hashFiles('mix.lock') }}
           restore-keys: |
             ${{ runner.os }}-plt-27-1.18-
@@ -124,16 +141,31 @@ jobs:
           otp-version: "27"
           elixir-version: "1.18"
 
-      - name: Cache Mix dependencies and build
+      - name: Cache Mix dependencies (deps)
+        id: mix-deps-cache
         uses: actions/cache@v4
         with:
-          path: |
-            deps
-            _build
-            ~/.mix
-          key: ${{ runner.os }}-mix-deep-full-${{ hashFiles('mix.lock') }}
+          path: deps
+          key: ${{ runner.os }}-deps-27-1.18-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-mix-
+            ${{ runner.os }}-deps-27-1.18-
+
+      - name: Cache Mix build (_build/test)
+        id: mix-build-cache
+        uses: actions/cache@v4
+        with:
+          path: _build/test
+          key: ${{ runner.os }}-build-test-27-1.18-${{ hashFiles('**/mix.lock') }}-${{ hashFiles('**/*.ex', '**/*.exs') }}-${{ hashFiles('mix.exs') }}
+          restore-keys: |
+            ${{ runner.os }}-build-test-27-1.18-${{ hashFiles('**/mix.lock') }}-
+
+      - name: Remove stale deps on partial cache hit
+        if: steps.mix-deps-cache.outputs.cache-hit != 'true'
+        run: rm -rf deps
+
+      - name: Touch cached deps and build files
+        if: steps.mix-deps-cache.outputs.cache-hit == 'true' || steps.mix-build-cache.outputs.cache-hit == 'true'
+        run: find deps _build/test -type f -exec touch {} + 2>/dev/null || true
 
       - name: Install Mix dependencies
         run: mix deps.get
@@ -220,16 +252,31 @@ jobs:
           otp-version: "27"
           elixir-version: "1.18"
 
-      - name: Cache Mix dependencies and build
+      - name: Cache Mix dependencies (deps)
+        id: mix-deps-cache
         uses: actions/cache@v4
         with:
-          path: |
-            deps
-            _build
-            ~/.mix
-          key: ${{ runner.os }}-mix-deep-prov-${{ hashFiles('mix.lock') }}
+          path: deps
+          key: ${{ runner.os }}-deps-27-1.18-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-mix-
+            ${{ runner.os }}-deps-27-1.18-
+
+      - name: Cache Mix build (_build/test)
+        id: mix-build-cache
+        uses: actions/cache@v4
+        with:
+          path: _build/test
+          key: ${{ runner.os }}-build-test-27-1.18-${{ hashFiles('**/mix.lock') }}-${{ hashFiles('**/*.ex', '**/*.exs') }}-${{ hashFiles('mix.exs') }}
+          restore-keys: |
+            ${{ runner.os }}-build-test-27-1.18-${{ hashFiles('**/mix.lock') }}-
+
+      - name: Remove stale deps on partial cache hit
+        if: steps.mix-deps-cache.outputs.cache-hit != 'true'
+        run: rm -rf deps
+
+      - name: Touch cached deps and build files
+        if: steps.mix-deps-cache.outputs.cache-hit == 'true' || steps.mix-build-cache.outputs.cache-hit == 'true'
+        run: find deps _build/test -type f -exec touch {} + 2>/dev/null || true
 
       - name: Install Mix dependencies
         run: mix deps.get
@@ -277,16 +324,31 @@ jobs:
           otp-version: "27"
           elixir-version: "1.18"
 
-      - name: Cache Mix dependencies and build
+      - name: Cache Mix dependencies (deps)
+        id: mix-deps-cache
         uses: actions/cache@v4
         with:
-          path: |
-            deps
-            _build
-            ~/.mix
-          key: ${{ runner.os }}-mix-deep-browser-${{ hashFiles('mix.lock') }}
+          path: deps
+          key: ${{ runner.os }}-deps-27-1.18-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-mix-
+            ${{ runner.os }}-deps-27-1.18-
+
+      - name: Cache Mix build (_build/test)
+        id: mix-build-cache
+        uses: actions/cache@v4
+        with:
+          path: _build/test
+          key: ${{ runner.os }}-build-test-27-1.18-${{ hashFiles('**/mix.lock') }}-${{ hashFiles('**/*.ex', '**/*.exs') }}-${{ hashFiles('mix.exs') }}
+          restore-keys: |
+            ${{ runner.os }}-build-test-27-1.18-${{ hashFiles('**/mix.lock') }}-
+
+      - name: Remove stale deps on partial cache hit
+        if: steps.mix-deps-cache.outputs.cache-hit != 'true'
+        run: rm -rf deps
+
+      - name: Touch cached deps and build files
+        if: steps.mix-deps-cache.outputs.cache-hit == 'true' || steps.mix-build-cache.outputs.cache-hit == 'true'
+        run: find deps _build/test -type f -exec touch {} + 2>/dev/null || true
 
       - name: Install Chromium
         uses: browser-actions/setup-chrome@v1
@@ -336,16 +398,31 @@ jobs:
           otp-version: "27"
           elixir-version: "1.18"
 
-      - name: Cache Mix dependencies and build
+      - name: Cache Mix dependencies (deps)
+        id: mix-deps-cache
         uses: actions/cache@v4
         with:
-          path: |
-            deps
-            _build
-            ~/.mix
-          key: ${{ runner.os }}-mix-deep-drills-${{ hashFiles('mix.lock') }}
+          path: deps
+          key: ${{ runner.os }}-deps-27-1.18-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-mix-
+            ${{ runner.os }}-deps-27-1.18-
+
+      - name: Cache Mix build (_build/test)
+        id: mix-build-cache
+        uses: actions/cache@v4
+        with:
+          path: _build/test
+          key: ${{ runner.os }}-build-test-27-1.18-${{ hashFiles('**/mix.lock') }}-${{ hashFiles('**/*.ex', '**/*.exs') }}-${{ hashFiles('mix.exs') }}
+          restore-keys: |
+            ${{ runner.os }}-build-test-27-1.18-${{ hashFiles('**/mix.lock') }}-
+
+      - name: Remove stale deps on partial cache hit
+        if: steps.mix-deps-cache.outputs.cache-hit != 'true'
+        run: rm -rf deps
+
+      - name: Touch cached deps and build files
+        if: steps.mix-deps-cache.outputs.cache-hit == 'true' || steps.mix-build-cache.outputs.cache-hit == 'true'
+        run: find deps _build/test -type f -exec touch {} + 2>/dev/null || true
 
       - name: Set up Python
         uses: actions/setup-python@v5
