@@ -76,6 +76,7 @@
       "original": {
         "owner": "cachix",
         "repo": "devenv",
+        "rev": "d1fb321e73048d0e1e2b523580268ebb3df2ae90",
         "type": "github"
       }
     },
