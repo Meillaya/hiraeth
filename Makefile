@@ -50,6 +50,9 @@ test-full:
 ci:
 	mix ci
 
+# long_copied_text is an informational audit dimension (payload strings > 280
+# chars, including legitimate official descriptions); the audit's failed?/1 gate
+# excludes it, so an empty array is not a gate invariant here and is not grepped.
 audit-provenance:
 	@mkdir -p $(QA_DIR)/provenance
 	@{ \
@@ -65,7 +68,6 @@ audit-provenance:
 		grep -q '"missing_provenance": \[\]' $(QA_DIR)/provenance/audit-provenance.json; \
 		grep -q '"source_ledger_missing": \[\]' $(QA_DIR)/provenance/audit-provenance.json; \
 		grep -q '"invalid_public_covers": \[\]' $(QA_DIR)/provenance/audit-provenance.json; \
-		grep -q '"long_copied_text": \[\]' $(QA_DIR)/provenance/audit-provenance.json; \
 		echo "audit_provenance=pass"; \
 	} | tee $(QA_DIR)/provenance/audit-provenance.txt
 
