@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 
 - Self-hosted OFL fonts (Newsreader, Space Grotesk, Space Mono) with `@font-face` rules and license/provenance documentation under `priv/static/fonts/`.
-- Three full-site design prototypes built from real catalog data under `artifacts/design-prototypes/` as the sanctioned UI exploration artifact; `docs/architecture.md` documents the fallback when the `agy` CLI produces no output.
+- Three full-site design prototypes built from real catalog data under `artifacts/design-prototypes/` as the sanctioned UI exploration artifact.
 - Per-provider `cadence_hours` on provider manifests and `ProviderSource` (default 24h) with manifest validation and backfill.
 - Weekly scheduled cover cache refresh and provenance audit workers on the idle `:covers` and `:audit` Oban queues.
 - README pointer to the "Autonomous catalog updates" ops runbook section for what runs when, the kill-switch, and rollout order.
@@ -27,6 +27,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Unrouted page scaffold, Swoosh/Mailer, and the dev-only mailbox route.
 - `Hiraeth.Search` domain, the Imports CSV workflow (including its tables via a drop migration), and the never-enqueued `SourceSnapshotReplayWorker`.
 - `compose.yaml` and every Compose reference; devenv owns local, Dockerfiles own production.
+- The dead `scripts-tests` CI lane (`deep.yml`) and the root `pyproject.toml` that drove it; the catalog-generator pytest suite under `tests/scripts` is retired.
+- The `docs/` directory and every dangling `docs/*.md` reference (tests, Makefile, README, AGENTS.md, CI comments, covers guide); the deleted dev/qa/ops scripts are recreated from scratch as part of the devenv-end-to-end restore.
 
 ## [1.0.0] - 2026-08-05
 

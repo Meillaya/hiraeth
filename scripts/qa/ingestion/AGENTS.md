@@ -25,7 +25,7 @@ Production-grade ingestion drill lane. Two deterministic shell entries replay th
 | Shell command ordering contract | `test/hiraeth/ingestion/production_ingestion_script_contract_test.exs` |
 
 ## CONVENTIONS
-- Drill and adversarial shells invoke `${POSTGRES_HELPER:-scripts/dev/ensure_postgres.sh} start` before any `mix test`, then run `mix test ... --only <tag> --seed 0 --trace`.
+- Drill and adversarial shells invoke `${POSTGRES_HELPER:-scripts/dev/ensure_postgres.sh} start` before any `mix test`, then run `mix test ... --only <tag> --seed 0 --trace`. The helper boots devenv postgres (`nix run nixpkgs#devenv -- up -d postgres`) and waits with `pg_isready -h localhost -p 54320 -U postgres`; the mix test lines are byte-exact pins enforced by the contract test.
 - Both shells emit deterministic `RUN <scenario> ::` and `PASS <scenario>` lines so contract tests can grep for ordered command sequences and `set -euo pipefail` fails fast.
 - ExUnit `setup` creates per-test scratch under `System.tmp_dir!()` as `hiraeth-t25-{drill,...}-<unique_integer>`, points `:source_snapshot_retention_root` at it, and registers an `on_exit` that `File.rm_rf!`s the root and restores the prior config.
 - Cleanup receipts always include `cleanup_timestamp`, `cleanup_scope`, and `leftover_t25_tmp_roots=$(find "${TMPDIR:-/tmp}" -maxdepth 1 -type d -name 'hiraeth-t25-*' ...)` so leftover scratch paths surface immediately.
@@ -34,7 +34,7 @@ Production-grade ingestion drill lane. Two deterministic shell entries replay th
 
 ## ANTI-PATTERNS
 - Swapping `ensure_postgres.sh` for any docker-managed postgres. `production_ingestion_script_contract_test.exs` refutes every `docker` invocation in the recorded command log; devenv owns local postgres.
-- Reordering `pg_isready` ahead of `devenv up -d hiraeth-postgres`, or running `mix test` before readiness succeeds. The contract test enforces strict command order.
+- Reordering `pg_isready` ahead of `devenv up -d postgres`, or running `mix test` before readiness succeeds. The contract test enforces strict command order.
 - Returning 200, returning any code other than `invalid_host`, or executing the sentinel adapter inside `sidecar_private_host_probe.py`; any of these makes the probe non-zero and the adversarial shell fails closed.
 - Allowing `127.0.0.1`, `probe-user`, `SECRET_TOKEN`, `SECRET_PASSWORD`, full probe URLs, or query strings like `password=`/`token=` to leak into the response body; the probe denies every substring in its `DENYLIST`.
 - Skipping the `on_exit` retention-root cleanup so `System.tmp_dir!/hiraeth-t25-*` paths linger; the cleanup receipt's `leftover_t25_tmp_roots` counter must read `0` on success.

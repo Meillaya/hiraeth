@@ -56,7 +56,7 @@ defmodule Hiraeth.NoScopeCreepTest do
     makefile = read!("Makefile")
 
     refute makefile =~ ~r/\bpsql\b/i,
-           "Makefile wrappers must not shell out to host psql; devenv manages the local database"
+           "Makefile wrappers must not shell out to host psql; standalone postgres runs via scripts/dev/ensure_postgres.sh"
   end
 
   test "sidecar crawler scope remains Scrapling-only at top-level dependencies and app imports" do
@@ -88,14 +88,14 @@ defmodule Hiraeth.NoScopeCreepTest do
   # test itself stays clean of the repo-wide orchestration-filename grep gate.
   @retired_local_orchestration_file "com" <> "pose.yaml"
 
-  test "local dev is devenv-only and the retired orchestration file stays gone" do
+  test "local dev is standalone-postgres + nix-profile toolchain; devenv config is dormant" do
     refute File.exists?(Path.join(@root, @retired_local_orchestration_file)),
-           "the retired local-orchestration file must stay gone; devenv owns local dev and Dockerfiles own the production boundary"
+           "the retired local-orchestration file must stay gone; standalone postgres + the nix-profile toolchain own local dev and Dockerfiles own the production boundary"
 
     devenv_nix = read!("devenv.nix")
 
-    assert devenv_nix =~ "processes.\"hiraeth-postgres\"",
-           "devenv.nix must keep the managed local PostgreSQL process"
+    assert devenv_nix =~ "services.postgres",
+           "devenv.nix must keep the managed local PostgreSQL service"
 
     assert devenv_nix =~ "processes.\"scrapling-sidecar\"",
            "devenv.nix must keep the managed local sidecar process"
@@ -115,7 +115,6 @@ defmodule Hiraeth.NoScopeCreepTest do
       |> devenv_sidecar_process?()
 
     docs = %{
-      "docs/contracts.md" => read!("docs/contracts.md"),
       "sidecar/README.md" => read!("sidecar/README.md")
     }
 

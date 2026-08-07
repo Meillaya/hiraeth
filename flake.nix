@@ -9,7 +9,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    devenv.url = "github:cachix/devenv/d1fb321e73048d0e1e2b523580268ebb3df2ae90";
+    devenv.url = "github:cachix/devenv/8f297eae651cb47fb1e8f7c19b942462aa879636";
     devenv.inputs.nixpkgs.follows = "nixpkgs";
   };
 

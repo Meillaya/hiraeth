@@ -1,6 +1,8 @@
 defmodule Hiraeth.DevEnvironmentContractTest do
   use ExUnit.Case, async: true
 
+  # devenv.nix is preserved-but-dormant per the 2026-08-07 scope change (local dev = nix-profile toolchain + standalone postgres); these pins lock the dormant config as-is.
+
   @repo_root Path.expand("../..", __DIR__)
   @expected_devenv_lock_policy :flake_and_devenv_locks
 
@@ -74,28 +76,29 @@ defmodule Hiraeth.DevEnvironmentContractTest do
     assert test_database.hostname in ["localhost", "127.0.0.1"]
     assert test_database.port == dev_database.port
 
-    assert devenv_nix =~ ~r/processes\."hiraeth-postgres"\s*=\s*\{/,
-           "devenv.nix must configure a managed PostgreSQL process, not only PostgreSQL client packages"
+    assert devenv_nix =~ ~r/services\.postgres\s*=\s*\{/,
+           "devenv.nix must configure the managed PostgreSQL service, not only PostgreSQL client packages"
 
-    assert devenv_nix =~ ~r/exec postgres -D "\$PGDATA"/,
-           "devenv PostgreSQL process must run PostgreSQL directly so it owns the readiness port"
-
-    assert devenv_nix =~ ~r/listen_addresses = '127\.0\.0\.1'/,
-           "devenv PostgreSQL process must bind loopback explicitly"
+    assert devenv_nix =~ ~r/listen_addresses\s*=\s*"127\.0\.0\.1"/,
+           "devenv PostgreSQL service must bind loopback explicitly"
 
     assert devenv_nix =~ ~r/port\s*=\s*#{dev_database.port};?/,
            "devenv PostgreSQL port must match config/dev.exs and config/test.exs"
 
     assert devenv_nix =~
-             ~r/CREATE DATABASE #{dev_database.database} OWNER #{dev_database.username};/,
-           "devenv PostgreSQL process must create the configured development database"
+             ~r/initialDatabases\s*=\s*\[[\s\S]*name\s*=\s*"#{dev_database.database}";[\s\S]*\]/,
+           "devenv PostgreSQL service must create the configured development database"
 
-    assert devenv_nix =~ ~r/CREATE DATABASE hiraeth_test OWNER #{dev_database.username};/,
-           "devenv PostgreSQL process must create the unpartitioned test database used by MIX_ENV=test"
+    assert devenv_nix =~ ~r/initialDatabases\s*=\s*\[[\s\S]*name\s*=\s*"hiraeth_test";[\s\S]*\]/,
+           "devenv PostgreSQL service must create the unpartitioned test database used by MIX_ENV=test"
+
+    assert devenv_nix =~
+             ~r/initdbArgs\s*=\s*\[[^\]]*--username=postgres/,
+           "devenv PostgreSQL service must create the postgres superuser at initdb so the PGUSER=postgres init phase can connect"
 
     assert devenv_nix =~
              ~r/ALTER ROLE #{dev_database.username} WITH LOGIN SUPERUSER PASSWORD '#{dev_database.password}';/,
-           "devenv PostgreSQL process must set the configured database user password"
+           "devenv PostgreSQL service must set the configured database user password"
 
     assert devenv_nix =~ ~r/DATABASE_HOST\s*=\s*"#{dev_database.hostname}";/
     assert devenv_nix =~ ~r/DATABASE_PORT\s*=\s*"#{dev_database.port}";/
@@ -117,17 +120,11 @@ defmodule Hiraeth.DevEnvironmentContractTest do
     assert devenv_nix =~ ~r/mix\s+phx\.server/,
            "managed Phoenix process must run the existing Phoenix endpoint with mix phx.server"
 
-    assert devenv_nix =~ ~r/processes\."hiraeth-postgres"\s*=\s*\{/,
-           "devenv.nix must declare the managed Hiraeth PostgreSQL process used by Phoenix readiness"
-
-    refute devenv_nix =~ ~r/services\.postgres\s*=\s*\{/,
-           "devenv.nix must not declare services.postgres because devenv 2.1.2 socket-activates that service port before PostgreSQL can own it"
+    assert devenv_nix =~ ~r/services\.postgres\s*=\s*\{/,
+           "devenv.nix must declare the managed PostgreSQL service used by Phoenix readiness (socket-only port allocation was fixed upstream by commit 43b5089, PR #3004, in devenv v2.2.1, pin 8f297eae)"
 
     assert devenv_nix =~ ~r/pg_isready\s+-h\s+127\.0\.0\.1\s+-p\s*54320\s+-U\s*postgres/,
-           "managed Phoenix process must coordinate with the devenv PostgreSQL process before migrations/server start"
-
-    assert devenv_nix =~ ~r/PGPORT=54320 pg_isready -h "\$DEVENV_RUNTIME\/hiraeth-postgres"/,
-           "managed PostgreSQL readiness must probe its own Unix socket instead of a TCP wrapper that can mask port ownership"
+           "managed Phoenix process must coordinate with the devenv PostgreSQL service before migrations/server start"
 
     assert devenv_nix =~ ~r/ready\s*=\s*\{[\s\S]*http\.get\s*=\s*\{[\s\S]*port\s*=\s*4000;/,
            "managed Phoenix process must expose an HTTP readiness probe on port 4000"
@@ -136,7 +133,7 @@ defmodule Hiraeth.DevEnvironmentContractTest do
            "devenv 2.1.2 does not support positional devenv test names, so devenv.nix must declare an executable test:phoenix-ready task wired into devenv test"
 
     assert devenv_nix =~
-             ~r/after\s*=\s*\[[\s\S]*"devenv:processes:hiraeth-postgres"[\s\S]*"devenv:processes:phoenix"[\s\S]*\]/,
+             ~r/after\s*=\s*\[[\s\S]*"devenv:processes:postgres"[\s\S]*"devenv:processes:phoenix"[\s\S]*\]/,
            "phoenix-ready task must start PostgreSQL and Phoenix as sibling roots while Phoenix performs its own bounded pg_isready coordination"
 
     assert devenv_nix =~ ~r/before\s*=\s*\[\s*"devenv:enterTest"\s*\]/,
