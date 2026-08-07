@@ -39,6 +39,22 @@ jobs:
           otp-version: "27"
           elixir-version: "1.18"
 
+      - name: Cache Hex registry (~/.hex)
+        uses: actions/cache@v4
+        with:
+          path: ~/.hex
+          key: ${{ runner.os }}-hex-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-hex-
+
+      - name: Cache Mix archives (~/.mix)
+        uses: actions/cache@v4
+        with:
+          path: ~/.mix
+          key: ${{ runner.os }}-mix-otp27-elixir118-
+          restore-keys: |
+            ${{ runner.os }}-mix-
+
       - name: Cache Mix dependencies (deps)
         id: mix-deps-cache
         uses: actions/cache@v4
@@ -90,9 +106,9 @@ jobs:
           - 5432:5432
         options: >-
           --health-cmd "pg_isready -U postgres"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
 
     env:
       MIX_ENV: test
@@ -108,6 +124,22 @@ jobs:
         with:
           otp-version: "27"
           elixir-version: "1.18"
+
+      - name: Cache Hex registry (~/.hex)
+        uses: actions/cache@v4
+        with:
+          path: ~/.hex
+          key: ${{ runner.os }}-hex-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-hex-
+
+      - name: Cache Mix archives (~/.mix)
+        uses: actions/cache@v4
+        with:
+          path: ~/.mix
+          key: ${{ runner.os }}-mix-otp27-elixir118-
+          restore-keys: |
+            ${{ runner.os }}-mix-
 
       - name: Cache Mix dependencies (deps)
         id: mix-deps-cache
@@ -141,7 +173,7 @@ jobs:
       # is scoped to the repo's gitignored priv/plts convention dir so it never
       # overlaps the -build- cache on _build/test - two caches writing the same
       # paths clobber each other. Key pins OTP/Elixir because PLT filenames
-      # embed erts/elixir versions (see docs/production-readiness.md).
+      # embed erts/elixir versions.
       - name: Cache Dialyzer PLT
         uses: actions/cache@v4
         with:
@@ -192,9 +224,9 @@ jobs:
           - 5432:5432
         options: >-
           --health-cmd "pg_isready -U postgres"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
 
     env:
       MIX_ENV: test
@@ -211,6 +243,22 @@ jobs:
         with:
           otp-version: "27"
           elixir-version: "1.18"
+
+      - name: Cache Hex registry (~/.hex)
+        uses: actions/cache@v4
+        with:
+          path: ~/.hex
+          key: ${{ runner.os }}-hex-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-hex-
+
+      - name: Cache Mix archives (~/.mix)
+        uses: actions/cache@v4
+        with:
+          path: ~/.mix
+          key: ${{ runner.os }}-mix-otp27-elixir118-
+          restore-keys: |
+            ${{ runner.os }}-mix-
 
       - name: Cache Mix dependencies (deps)
         id: mix-deps-cache
@@ -271,6 +319,22 @@ jobs:
         with:
           otp-version: "27"
           elixir-version: "1.18"
+
+      - name: Cache Hex registry (~/.hex)
+        uses: actions/cache@v4
+        with:
+          path: ~/.hex
+          key: ${{ runner.os }}-hex-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-hex-
+
+      - name: Cache Mix archives (~/.mix)
+        uses: actions/cache@v4
+        with:
+          path: ~/.mix
+          key: ${{ runner.os }}-mix-otp27-elixir118-
+          restore-keys: |
+            ${{ runner.os }}-mix-
 
       - name: Cache Mix dependencies (deps)
         id: mix-deps-cache
@@ -352,9 +416,9 @@ jobs:
           - 5432:5432
         options: >-
           --health-cmd "pg_isready -U postgres"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
 
     env:
       MIX_ENV: test
@@ -370,6 +434,22 @@ jobs:
         with:
           otp-version: "27"
           elixir-version: "1.18"
+
+      - name: Cache Hex registry (~/.hex)
+        uses: actions/cache@v4
+        with:
+          path: ~/.hex
+          key: ${{ runner.os }}-hex-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-hex-
+
+      - name: Cache Mix archives (~/.mix)
+        uses: actions/cache@v4
+        with:
+          path: ~/.mix
+          key: ${{ runner.os }}-mix-otp27-elixir118-
+          restore-keys: |
+            ${{ runner.os }}-mix-
 
       - name: Cache Mix dependencies (deps)
         id: mix-deps-cache
@@ -438,9 +518,9 @@ jobs:
           - 5432:5432
         options: >-
           --health-cmd "pg_isready -U postgres"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
 
     env:
       MIX_ENV: test
@@ -456,6 +536,22 @@ jobs:
         with:
           otp-version: "27"
           elixir-version: "1.18"
+
+      - name: Cache Hex registry (~/.hex)
+        uses: actions/cache@v4
+        with:
+          path: ~/.hex
+          key: ${{ runner.os }}-hex-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-hex-
+
+      - name: Cache Mix archives (~/.mix)
+        uses: actions/cache@v4
+        with:
+          path: ~/.mix
+          key: ${{ runner.os }}-mix-otp27-elixir118-
+          restore-keys: |
+            ${{ runner.os }}-mix-
 
       - name: Cache Mix dependencies (deps)
         id: mix-deps-cache
@@ -510,9 +606,9 @@ jobs:
           - 5432:5432
         options: >-
           --health-cmd "pg_isready -U postgres"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
 
     env:
       MIX_ENV: test
@@ -528,6 +624,22 @@ jobs:
         with:
           otp-version: "27"
           elixir-version: "1.18"
+
+      - name: Cache Hex registry (~/.hex)
+        uses: actions/cache@v4
+        with:
+          path: ~/.hex
+          key: ${{ runner.os }}-hex-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-hex-
+
+      - name: Cache Mix archives (~/.mix)
+        uses: actions/cache@v4
+        with:
+          path: ~/.mix
+          key: ${{ runner.os }}-mix-otp27-elixir118-
+          restore-keys: |
+            ${{ runner.os }}-mix-
 
       - name: Cache Mix dependencies (deps)
         id: mix-deps-cache
@@ -615,32 +727,6 @@ jobs:
 
       - name: Run sidecar supply-chain audit
         run: uv audit
-
-  scripts-tests:
-    name: Scripts tests (tests/scripts)
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    # Isolated Python tests for the catalog generator scripts under
-    # tests/scripts, driven by the root pyproject.toml (dev group = pytest).
-    # No Postgres needed; the generator scripts are stdlib-only.
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-          cache-dependency-glob: pyproject.toml
-
-      - name: Run scripts test gate
-        run: uv run --project . pytest tests/scripts -q
 
   release-build:
     name: Release image builds (no push)

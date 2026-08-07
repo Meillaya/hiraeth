@@ -34,6 +34,25 @@ jobs:
           otp-version: "27"
           elixir-version: "1.18"
 
+      # Hex registry + Mix archives caches: avoid re-downloading the hex
+      # registry/tarballs and archives on lockfile changes or cold restores.
+      # Separate blocks so a hex cache miss never invalidates the deps cache.
+      - name: Cache Hex registry (~/.hex)
+        uses: actions/cache@v4
+        with:
+          path: ~/.hex
+          key: ${{ runner.os }}-hex-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-hex-
+
+      - name: Cache Mix archives (~/.mix)
+        uses: actions/cache@v4
+        with:
+          path: ~/.mix
+          key: ${{ runner.os }}-mix-otp27-elixir118-
+          restore-keys: |
+            ${{ runner.os }}-mix-
+
       # Intility deps/_build cache recipe: separate caches for deps and
       # _build/test (paths never overlap); the deps key pins OTP/Elixir +
       # mix.lock; the _build key also hashes sources plus an explicit root
@@ -102,9 +121,9 @@ jobs:
           - 5432:5432
         options: >-
           --health-cmd "pg_isready -U postgres"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
 
     env:
       MIX_ENV: test
@@ -120,6 +139,22 @@ jobs:
         with:
           otp-version: "27"
           elixir-version: "1.18"
+
+      - name: Cache Hex registry (~/.hex)
+        uses: actions/cache@v4
+        with:
+          path: ~/.hex
+          key: ${{ runner.os }}-hex-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-hex-
+
+      - name: Cache Mix archives (~/.mix)
+        uses: actions/cache@v4
+        with:
+          path: ~/.mix
+          key: ${{ runner.os }}-mix-otp27-elixir118-
+          restore-keys: |
+            ${{ runner.os }}-mix-
 
       - name: Cache Mix dependencies (deps)
         id: mix-deps-cache
