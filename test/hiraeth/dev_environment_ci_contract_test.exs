@@ -45,7 +45,8 @@ defmodule Hiraeth.DevEnvironmentCIContractTest do
       # deep.yml's de-nix job comments may mention devenv in prose ("no
       # Nix/devenv needed"); the pin targets actual invocations: a `devenv
       # test|up|shell|processes` step or a `nix run nixpkgs#devenv` wrapper.
-      refute deep =~ ~r/nix\s+run\s+nixpkgs#devenv|devenv\s+(?:--\s+)?(?:test|up|shell|processes|run)/,
+      refute deep =~
+               ~r/nix\s+run\s+nixpkgs#devenv|devenv\s+(?:--\s+)?(?:test|up|shell|processes|run)/,
              "deep.yml must not invoke devenv after de-nixing"
 
       assert deep =~ ~r/pytest/,
