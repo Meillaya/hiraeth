@@ -15,8 +15,65 @@ permissions:
   contents: read
 
 jobs:
+  # Compile-once fan-out: this job compiles the test build a single time and
+  # saves it under the SHARED cache key template (identical hash terms: OTP/
+  # Elixir + mix.lock + .ex/.exs glob + mix.exs). Every dependent job
+  # (`needs: build-test`) restores that byte-identical key — an exact match,
+  # never a prefix-restore — and runs its check against the cached _build
+  # without recompiling. Compilation needs no DB, so no postgres service here.
+  build-test:
+    name: Build once (test env, warnings as errors)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      MIX_ENV: test
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up BEAM
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27"
+          elixir-version: "1.18"
+
+      - name: Cache Mix dependencies (deps)
+        id: mix-deps-cache
+        uses: actions/cache@v4
+        with:
+          path: deps
+          key: ${{ runner.os }}-deps-27-1.18-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-27-1.18-
+
+      - name: Cache Mix build (_build/test)
+        id: mix-build-cache
+        uses: actions/cache@v4
+        with:
+          path: _build/test
+          key: ${{ runner.os }}-build-test-27-1.18-${{ hashFiles('**/mix.lock') }}-${{ hashFiles('**/*.ex', '**/*.exs') }}-${{ hashFiles('mix.exs') }}
+          restore-keys: |
+            ${{ runner.os }}-build-test-27-1.18-${{ hashFiles('**/mix.lock') }}-
+
+      - name: Remove stale deps on partial cache hit
+        if: steps.mix-deps-cache.outputs.cache-hit != 'true'
+        run: rm -rf deps
+
+      - name: Touch cached deps and build files
+        if: steps.mix-deps-cache.outputs.cache-hit == 'true' || steps.mix-build-cache.outputs.cache-hit == 'true'
+        run: find deps _build/test -type f -exec touch {} + 2>/dev/null || true
+
+      - name: Install Mix dependencies
+        run: mix deps.get
+
+      - name: Compile (warnings as errors)
+        run: mix compile --warnings-as-errors
+
   dialyzer:
     name: Dialyzer (type analysis)
+    needs: build-test
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -101,6 +158,7 @@ jobs:
 
   full-suite:
     name: Full suite (3 partitions)
+    needs: build-test
     if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -269,6 +327,7 @@ jobs:
 
   coverage:
     name: Nightly coverage (coveralls, floor 86.1)
+    needs: build-test
     if: github.event_name != 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 75
@@ -360,6 +419,7 @@ jobs:
 
   provenance:
     name: Provenance audit (make audit-provenance)
+    needs: build-test
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -506,6 +566,7 @@ jobs:
 
   ingestion-drills:
     name: Ingestion drills (production + adversarial)
+    needs: build-test
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
