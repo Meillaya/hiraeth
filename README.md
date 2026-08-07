@@ -53,7 +53,9 @@ Verification is tiered so the fast developer loop stays under five minutes while
 
 - **Layer 0 — local blocking gate (`mix gate`, ≤5 min):** `make gate` wraps the `mix gate` alias (compile with warnings-as-errors, unused-deps check, format check, strict Credo, and the fast ExUnit lane). It is the single blocking local preflight for every change.
 - **Layer 1 — parallel CI (`static` + `test-fast`):** `.github/workflows/ci.yml` runs the static gates (format/Credo/Sobelow/hex.audit) and the fast test suite (postgres:16 service container) in parallel on every PR and push to `main`.
-- **Layer 2 — deep lane (`deep.yml`):** `.github/workflows/deep.yml` runs dialyzer, the full suite as a 3-partition test matrix on merge to `main` and manual dispatch, a nightly coverage job enforcing the 86.1 floor, plus assets, provenance audit, browser QA, ingestion drills, sidecar pytest/ruff/pyright/uv-audit, scripts tests, and release image builds.
+- **Layer 2 — deep lane (`deep.yml`):** `.github/workflows/deep.yml` runs dialyzer, the full suite as a 3-partition test matrix on merge to `main` and manual dispatch, a nightly coverage job enforcing the 86.1 floor, plus assets, provenance audit, ingestion drills, sidecar pytest/ruff/pyright/uv-audit, scripts tests, and release image builds.
+
+Frontend correctness is verified by the LiveView and route logic test suites under `test/hiraeth_web/live/` (and the route/controller tests under `test/hiraeth_web/`), which run as part of the ExUnit lanes above; there is no separate browser-level QA lane.
 
 Fast local preflight targets the under-60s developer loop:
 
@@ -67,19 +69,18 @@ Full local, CI, and release assurance stays separate and should not be expected 
 ```sh
 mix test.full        # complete ExUnit suite
 mix ci               # full Phoenix CI/release assurance
-make verify          # provenance audit, browser QA, verify summary, QA pack
+make verify          # provenance audit, verify summary, QA pack
 ```
 
 Adjacent release/full-verification lanes remain outside the fast gate:
 
 ```sh
 cd sidecar && uv run --extra dev pytest -q
-STRICT_TIMING=1 make test-browser
 bash scripts/qa/ingestion/production_ingestion_drill.sh
 bash scripts/qa/ingestion/production_ingestion_adversarial.sh
 ```
 
-Stable operator entrypoints stay at the root or top-level task names (`make test-browser`, `make verify`, Mix tasks, and `scripts/browser_qa.sh`). Implementation helpers are grouped by purpose: catalog maintenance scripts live in `scripts/catalog/`, browser QA helpers in `scripts/qa/browser/`, and production-ingestion drills in `scripts/qa/ingestion/`.
+Stable operator entrypoints stay at the root or top-level task names (`make verify`, Mix tasks). Implementation helpers are grouped by purpose: catalog maintenance scripts live in `scripts/catalog/`, and production-ingestion drills in `scripts/qa/ingestion/`.
 
 ## Cleanup safety
 

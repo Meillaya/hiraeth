@@ -44,9 +44,11 @@ Docker remains the current production runtime boundary reference: Railway builds
 
 Verification is tiered so the fast developer loop stays under five minutes while full release assurance runs at depth:
 
-- **Layer 0 — local blocking gate:** `mix gate` (wrapped by `make gate`) is the ≤5-min blocking local preflight: compile with warnings-as-errors, unused-deps check, format check, strict Credo, and the fast ExUnit lane. It deliberately omits sobelow/hex.audit (network-dependent), dialyzer, coverage, assets, provenance, browser QA, ingestion drills, sidecar pytest, scripts tests, and release image builds.
+- **Layer 0 — local blocking gate:** `mix gate` (wrapped by `make gate`) is the ≤5-min blocking local preflight: compile with warnings-as-errors, unused-deps check, format check, strict Credo, and the fast ExUnit lane. It deliberately omits sobelow/hex.audit (network-dependent), dialyzer, coverage, assets, provenance, ingestion drills, sidecar pytest, scripts tests, and release image builds.
 - **Layer 1 — parallel CI:** `.github/workflows/ci.yml` runs the `static` (format/Credo/Sobelow/hex.audit) and `test-fast` (postgres:16 service container) jobs in parallel on every PR and push to `main`.
-- **Layer 2 — deep lane:** `.github/workflows/deep.yml` runs dialyzer, the full suite as a 3-partition test matrix on merge to `main` and manual dispatch, a nightly coverage job enforcing the 86.1 floor, plus assets, provenance audit, browser QA, ingestion drills, sidecar pytest, scripts tests, and release image builds.
+- **Layer 2 — deep lane:** `.github/workflows/deep.yml` runs dialyzer, the full suite as a 3-partition test matrix on merge to `main` and manual dispatch, a nightly coverage job enforcing the 86.1 floor, plus assets, provenance audit, ingestion drills, sidecar pytest, scripts tests, and release image builds.
+
+Frontend correctness is verified by the LiveView and route logic tests under `test/hiraeth_web/live/` and `test/hiraeth_web/`; they run inside the ExUnit lanes above, so there is no separate browser-QA gate in any tier.
 
 `mix gate` is not a substitute for the deep lane: the fast blocking gate is a local preflight, not release assurance. The deep lane must pass before any production-ready claim.
 
@@ -81,7 +83,7 @@ Stability promise:
 
 Stable entrypoints after repository consolidation:
 - Ingestion and catalog operator tasks are the `mix hiraeth.*` Mix tasks: `hiraeth.providers.backfill`, `hiraeth.ingest`, `hiraeth.cache_covers`, `hiraeth.audit_provenance`, `hiraeth.real_catalog.source_artifacts`, `hiraeth.real_catalog.coverage_report`, and the scrape staging flow `hiraeth.scrape`/`hiraeth.review_scrape`/`hiraeth.apply_scrape`. See the operator entrypoints table in `docs/production-readiness.md` for the full map.
-- Browser QA operators should use `make test-browser` or `scripts/browser_qa.sh`; direct Node diagnostics live under `scripts/qa/browser/`.
+- Frontend behavior is verified by the LiveView and route logic test suites under `test/hiraeth_web/`; there is no browser-level QA entrypoint.
 - Production ingestion drills live under `scripts/qa/ingestion/` and should be invoked by their shell scripts, not by reaching into moved test helpers.
 - Catalog source maintenance scripts live under `scripts/catalog/`; they are explicit maintenance tools for checked-in source corpus refreshes, not background app runtime dependencies.
 - Cleanup-policy smoke checks use `make cleanup-policy`, backed by `docs/cleanup-policy.md` and `scripts/qa/cover_cache_sandbox.sh`.

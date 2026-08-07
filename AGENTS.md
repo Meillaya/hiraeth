@@ -19,7 +19,6 @@ test/                    # ExUnit, LiveView, fixture, and contract suites
 test/support             # data_case, factories, contract fixtures
 sidecar/                 # private FastAPI + Scrapling sidecar service
 scripts/                 # QA/dev/catalog operational scripts
-scripts/qa/browser       # Playwright/Chromium browser evidence gates
 scripts/qa/ingestion     # production ingestion drills + adversarial drill
 scripts/qa/perf          # perf baseline measurement harness (measure_gates.sh)
 scripts/ops              # DB backup + restore-drill scripts (restore into separate DB only)
@@ -31,7 +30,7 @@ priv/resource_snapshots  # governed snapshot/replay evidence (incl. repo)
 priv/static/covers       # hashed local cover cache (sandboxed writes only)
 docs/                    # contracts, cleanup policy, production ops/readiness, provenance policy
 tests/scripts            # Python pytest for scripts/catalog generators (not Elixir test/)
-artifacts/qa             # QA evidence outputs (make verify, browser gates, provenance audits)
+artifacts/qa             # QA evidence outputs (make verify, provenance audits)
 ```
 
 ## WHERE TO LOOK
@@ -43,7 +42,7 @@ artifacts/qa             # QA evidence outputs (make verify, browser gates, prov
 | Operator Mix tasks | `lib/mix/tasks` | ingest, scrape, covers, audits |
 | External fetch/scrape | `sidecar/app`, `sidecar/tests` | private sidecar, Scrapling only |
 | Dev/test orchestration | `devenv.nix`, `Makefile` | devenv path is canonical |
-| Browser QA | `scripts/browser_qa.sh`, `scripts/qa/browser` | Playwright/Chromium evidence gates |
+| Frontend verification | `test/hiraeth_web/live`, `test/hiraeth_web` | LiveView/route logic tests (no browser-QA lane) |
 | Ingestion QA drills | `scripts/qa/ingestion` | production drill + adversarial drill |
 | Test support harnesses | `test/support` | data_case, factories, contract fixtures |
 | Migrations | `priv/repo/migrations` | Ash + custom migration history |
@@ -76,7 +75,6 @@ artifacts/qa             # QA evidence outputs (make verify, browser gates, prov
 | `Hiraeth.Oban.CoverRefreshWorker` | Oban worker | `lib/hiraeth/oban/cover_refresh_worker.ex` | weekly scheduled cover cache refresh |
 | `Hiraeth.Oban.ProvenanceAuditWorker` | Oban worker | `lib/hiraeth/oban/provenance_audit_worker.ex` | weekly scheduled provenance audit export |
 | `app.main` | FastAPI app | `sidecar/app/main.py` | sidecar routers + CORS/security posture |
-| `scripts/browser_qa.sh` | QA entry | `scripts/browser_qa.sh` | browser evidence sweep |
 
 ## CONVENTIONS
 - LiveView owns browser UI. No React, no Vite SPA, no separate frontend app in v1.
@@ -114,7 +112,6 @@ mix gate                 # Layer 0 blocking gate (compile warnings-as-errors + f
 mix test.fast
 mix test.full
 make verify
-make test-browser
 make db-backup           # scripts/ops/db_backup.sh
 make db-restore-drill    # scripts/ops/db_restore_drill.sh (separate DB only)
 cd sidecar && uv run --extra dev pytest -q
@@ -125,7 +122,7 @@ uv run --project . pytest tests/scripts -q   # root pyproject: catalog-generator
 ## NOTES
 - `mix gate` checks compile with warnings-as-errors, unused deps, formatting (checks it, does not rewrite), strict Credo, and the fast test lane; sobelow/hex.audit are network-dependent and run only in `mix ci`/CI.
 - `mix test.fast` excludes `slow`, `full_catalog`, `integration`, `performance`, `browser`, `public_catalog_full`.
-- CI splits: `ci.yml` runs static + test-fast (postgres:16 service) on PRs and pushes to `main`; `deep.yml` runs dialyzer, the full suite as a 3-partition matrix on merge to `main` and manual dispatch, a nightly coverage job enforcing the 86.1 floor, browser QA, ingestion drills, sidecar pytest/ruff/pyright/uv-audit, scripts tests, and release image builds. The legacy Compose lane was removed; contract tests pin the lane split above.
+- CI splits: `ci.yml` runs static + test-fast (postgres:16 service) on PRs and pushes to `main`; `deep.yml` runs dialyzer, the full suite as a 3-partition matrix on merge to `main` and manual dispatch, a nightly coverage job enforcing the 86.1 floor, ingestion drills, sidecar pytest/ruff/pyright/uv-audit, scripts tests, and release image builds. The legacy Compose lane was removed; contract tests pin the lane split above. Frontend correctness is verified by the LiveView/route logic tests in `test/hiraeth_web/live` and `test/hiraeth_web`, which run inside the ExUnit lanes; there is no browser-QA lane.
 - devenv is the local dev/test environment only; CI lanes do not invoke devenv.
 - `.omx`, `.omo`, `.omc`, `_build`, `deps`, `.devenv`, `.direnv`, caches, and artifacts are workspace/tool state unless a task explicitly targets them.
 - Custom Mix aliases (`gate`, `ci`, `test.fast`, `test.full`) auto-run under `MIX_ENV=test` via `preferred_envs`; `mix test` auto-creates and migrates the DB first.

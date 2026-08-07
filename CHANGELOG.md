@@ -17,7 +17,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 - CI consolidated: the deep lane runs the full suite as a 3-partition test matrix on merge to `main` and manual dispatch, with the coveralls 86.1 coverage floor enforced by a nightly-only coverage job; devenv is the local dev/test environment only and no CI lane invokes it.
-- Mix aliases collapsed to `gate` (single fast blocking gate), `ci` (full lane), `test.fast`, and `test.full`; the Makefile `verify` chain slimmed to `audit-provenance test-browser verify-summary qa-pack`.
+- Mix aliases collapsed to `gate` (single fast blocking gate), `ci` (full lane), `test.fast`, and `test.full`; the Makefile `verify` chain slimmed to `audit-provenance verify-summary qa-pack`.
+- Frontend correctness is verified by the LiveView and route logic test suites under `test/hiraeth_web/`; the browser-QA lane was removed.
 - Local development is devenv-only; the root and `sidecar/Dockerfile` remain the production runtime boundary.
 - Sidecar `base_url` config de-duplicated: the default lives in `config/config.exs`, dev/test inherit it, and `config/runtime.exs` reads `SCRAPLING_SIDECAR_URL`.
 
@@ -31,7 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
-- Tiered verification gates: fast local blocking gate (`mix gate`), parallel CI static + fast-test jobs, and a deep verification lane (dialyzer, coverage, full suite, browser QA, ingestion drills, sidecar pytest, release image builds).
+- Tiered verification gates: fast local blocking gate (`mix gate`), parallel CI static + fast-test jobs, and a deep verification lane (dialyzer, coverage, full suite, LiveView/route logic tests, ingestion drills, sidecar pytest, release image builds).
 - Static analysis and coverage tooling: Credo strict, Dialyzer (with persisted PLT), Sobelow, ExCoveralls with a coverage floor, and `mix quality` / `mix ci` aliases.
 - Dependency security gates: `hex.audit` in CI and `uv audit` for the sidecar; patched vulnerable Elixir dependencies.
 - Python quality gates for the sidecar: ruff (lint + format), pyright basic check, and wiring of the orphaned `tests/scripts` suite into CI.
