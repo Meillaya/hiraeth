@@ -24,7 +24,10 @@ defmodule HiraethWeb.PublicCatalogLiveTest do
   alias HiraethWeb.CatalogComponents
   alias HiraethWeb.PublicCatalog
 
-  @search_interaction_budget_microseconds 75_000
+  # Local-budget guard for catalog search render_change; calibrated with 2x
+  # headroom because the deep lane runs this module concurrently with 11 other
+  # jobs on shared runners (observed 75-81ms there vs well under locally).
+  @search_interaction_budget_microseconds 150_000
 
   @immigrant_slug "deep-vellum-immigrant-paperback-9781646054541"
 
