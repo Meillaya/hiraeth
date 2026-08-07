@@ -9,7 +9,12 @@ defmodule Hiraeth.Ingestion.ProductionIngestionScriptContractTest do
         fake_env(bin,
           ARTIFACT_DIR: temp_dir(),
           HIRAETH_PGDATA: initialized_pgdata(),
-          HIRAETH_FAKE_PG_ISREADY_FAIL_FIRST: "1"
+          HIRAETH_FAKE_PG_ISREADY_FAIL_FIRST: "1",
+          # Hermetic: System.cmd merges its env over the ambient environment, so
+          # CI jobs (which export DATABASE_PORT=5432) would flip the drill into
+          # the external-wait branch and the fail-first pg_isready marker would
+          # kill the only readiness probe. Pin the standalone-port branch.
+          DATABASE_PORT: "54320"
         )
 
       assert {_, 0} =
