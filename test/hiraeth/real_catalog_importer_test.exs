@@ -26,6 +26,7 @@ defmodule Hiraeth.RealCatalogImporterTest do
 
   @tag :full_catalog
   @tag :slow
+  @tag :nightly
   # Two full corpus seed!/1 passes (7k+ records each); observed envelope on
   # the CI/devenv lane is 193s-870s, so keep a generous wall-clock budget.
   @tag timeout: 1_800_000
