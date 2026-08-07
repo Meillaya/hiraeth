@@ -43,3 +43,7 @@ config :hiraeth, Oban, testing: :manual
 config :hiraeth,
        :source_snapshot_retention_root,
        Path.expand("../tmp/source_snapshots/test", __DIR__)
+
+# Required for transactional AshPostgres tests
+config :ash, :disable_async?, true
+config :ash, :missed_notifications, :ignore
