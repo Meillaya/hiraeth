@@ -155,8 +155,6 @@ defmodule Hiraeth.RealCatalogImporterTest do
   # regressions, multi-edition work slugs, transitive cover-asset reuse
   # across many providers). Excluded from default `mix test.full` via
   # @tag :nightly; opt in with `--include nightly` on the nightly lane.
-  @tag :full_catalog
-  @tag :slow
   @tag :nightly
   @tag timeout: 1_800_000
   test "real catalog importer handles the full real_publishers corpus end-to-end" do

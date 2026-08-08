@@ -339,3 +339,49 @@ in the test.full run with length(editions) == 8779 (full corpus 8776 + 3) — cr
 contamination in the shared DB, exposed by this run's random seed. Standalone run of the file:
 4 tests, 0 failures. Unrelated to this change (no DB/ordering semantics touched; test set in
 test.full identical before/after). Left in place; orchestration decision for a later todo.
+=== AMENDMENT RE-VERIFICATION (post tag-strip) ===
+=== a. bare mix test on the two monster files (monsters must be EXCLUDED) ===
+Finished in 27.3 seconds (27.3s async, 0.00s sync)
+19 tests, 0 failures, 2 excluded
+ran monster1=0 monster2=0 | excluded monster1=1 monster2=1 | exit=0
+=== b. mix test --only nightly --trace (exactly 2 must RUN) ===
+exit=0
+Finished in 570.2 seconds (570.2s async, 0.00s sync)
+516 tests, 0 failures, 514 excluded
+ran monster1=1 monster2=1
+=== c. test.full lane simulation: --include full_catalog --include slow on the two monster files ===
+exit=0
+Finished in 28.1 seconds (28.1s async, 0.00s sync)
+19 tests, 0 failures, 2 excluded
+ran monster1=0 monster2=0 | excluded monster1=1 monster2=1
+=== d. contract tests (expect 15 tests, 2 failures = deep.yml d/e only) ===
+Finished in 0.03 seconds (0.03s async, 0.00s sync)
+15 tests, 2 failures
+exit=2
+=== e. mix gate (test.fast lane; expect only the 2 todo-6-pending deep.yml failures) ===
+GATE_EXIT=2
+  1) test deep lane coverage job opts into the nightly lane explicitly (Hiraeth.DevEnvironmentCIContractTest)
+  2) test deep lane full-suite job does not exclude the nightly lane ad hoc (Hiraeth.DevEnvironmentCIContractTest)
+516 tests, 2 failures, 107 excluded
+
+=== AMENDMENT SUMMARY (monster tags restricted to :nightly) ===
+Edits: real_catalog_importer_test.exs:158-159 and importer_provider_test.exs:203-204 — removed
+@tag :full_catalog + @tag :slow; kept @tag :nightly + @tag timeout: 1_800_000. Surrounding comments
+unchanged (no longer-tag references; "Excluded from default mix test.full via @tag :nightly" now
+TRUE). Anchored @tag :nightly count still exactly 2. mix format clean.
+
+Membership re-verification (duration-anchored greps: "name (Nms)" = ran, "name (excluded)" = skipped):
+  a. bare mix test on the two monster files: 19 tests, 0 failures, 2 excluded; ran monster1=0
+     monster2=0, excluded monster1=1 monster2=1. PASS
+  b. mix test --only nightly --trace: exit 0; exactly the 2 monsters ran (summary line 516 tests,
+     0 failures, 514 excluded). PASS
+  c. test.full lane simulation (--include full_catalog --include slow on the two files): 19 tests,
+     0 failures, 2 excluded; ran monster1=0 monster2=0, excluded monster1=1 monster2=1. The full
+     lane's include set no longer matches the monsters (they carry only :nightly), so the helper
+     exclude applies — test.full now excludes both. PASS
+  d. Contract: 15 tests, 2 failures, exit 2 — exactly the todo-6-pending deep.yml (d)/(e); mix_alias
+     12/12 green. PASS
+  e. mix gate: GATE_EXIT=2 — 516 tests, 2 failures (d)/(e), 107 excluded; compile/format/credo
+     pass; all fast-lane tests green. PASS
+FINAL MEMBERSHIP: bare mix test = 0 nightly; test.fast = 0 nightly; test.full = 0 nightly (proven
+via include-set simulation); --only nightly = exactly 2. Amendment goal achieved.
