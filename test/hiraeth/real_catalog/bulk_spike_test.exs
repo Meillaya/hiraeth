@@ -1,16 +1,21 @@
 defmodule Hiraeth.RealCatalog.BulkSpikeTest do
-  # Time-boxed mechanism spike (plan todo 9): validate `Ash.bulk_create`
-  # bulk-upsert semantics on the two trickiest resources (Edition with FK
-  # parents, immutable SourceRecord) plus the Contribution nil-key hazard.
-  # Scratch test — the importer rewrite (todo 10) is gated on this GO/NO-GO.
+  # Permanent bulk contract suite (plan todos 9 + 12): locks the
+  # `Ash.bulk_create` bulk-upsert semantics the importer pipeline relies on —
+  # batch boundaries (101 rows spanning two 100-row batches, small batch_size
+  # opt), intra-dataset dedupe first-wins, upsert idempotency at a batch edge
+  # with curation preservation, immutable SourceRecord upserts, the
+  # Contribution non-nil identity-key hazard (nil keys rejected), nested
+  # transaction rollback, and the bulk-vs-per-row timing floor.
   use Hiraeth.DataCase, async: false
 
   @moduletag :slow
   @moduletag timeout: 300_000
 
   alias Ash.Resource.Info
-  alias Hiraeth.Catalog.{Contribution, Contributor, Edition, Publisher, Work}
+  alias Hiraeth.Catalog.{Contribution, Contributor, Edition, Identifier, Publisher, Work}
   alias Hiraeth.CatalogCleanup
+  alias Hiraeth.Imports.ImportRun
+  alias Hiraeth.RealCatalog.{Dataset, Importer}
   alias Hiraeth.Sources.SourceRecord
 
   @agent :bulk_spike_measurements
@@ -333,6 +338,278 @@ defmodule Hiraeth.RealCatalog.BulkSpikeTest do
     })
 
     record(:c5_ran, true)
+  end
+
+  # -- (a) batch boundary -------------------------------------------------
+
+  test "101-row dataset spans multiple batches without dropping rows" do
+    tmp = batch_dataset_dir!(101)
+    on_exit(fn -> File.rm_rf!(tmp) end)
+
+    # Default batch_size 100: 101 rows land across two batches.
+    assert {:ok, summary} =
+             CatalogCleanup.with_full_corpus_seed_lock(fn -> Importer.seed!(tmp) end)
+
+    assert summary.editions == 101
+    assert length(Ash.read!(Edition, authorize?: false)) == 101
+    assert length(Ash.read!(Identifier, authorize?: false)) == 101
+    assert length(Ash.read!(SourceRecord, authorize?: false)) == 101
+
+    clear_catalog!()
+
+    # Explicit small batch_size (7): the same 101 rows still all land.
+    assert {:ok, _summary} =
+             CatalogCleanup.with_full_corpus_seed_lock(fn ->
+               Importer.seed!(tmp, batch_size: 7)
+             end)
+
+    assert length(Ash.read!(Edition, authorize?: false)) == 101
+    assert length(Ash.read!(SourceRecord, authorize?: false)) == 101
+
+    # The batch_size opt is a private test lever: invalid values are rejected
+    # by Ash's bulk validation (surfaced through assert_bulk_success!), never
+    # silently ignored.
+    assert_raise RuntimeError, ~r/batch_size/, fn ->
+      CatalogCleanup.with_full_corpus_seed_lock(fn -> Importer.seed!(tmp, batch_size: 0) end)
+    end
+
+    assert length(Ash.read!(Edition, authorize?: false)) == 101
+  end
+
+  # -- (b) intra-dataset duplicate natural keys ----------------------------
+
+  test "duplicate natural keys inside one dataset collapse to one edition, first record wins" do
+    # seed!'s validator rejects duplicate ISBNs up front, so this locks the
+    # pipeline's per-dataset dedupe (the PG 21000 guard) through the trusted
+    # ingestion entry point — seed_provider!, where validation already ran.
+    isbn = valid_isbn(1)
+
+    tmp =
+      Path.join(
+        System.tmp_dir!(),
+        "hiraeth-bulk-dupe-#{System.unique_integer([:positive])}.json"
+      )
+
+    on_exit(fn -> File.rm_rf!(tmp) end)
+
+    File.write!(
+      tmp,
+      Jason.encode!(
+        batch_payload([
+          batch_record!(1,
+            title: "Dupe Contract",
+            isbn: isbn,
+            description: "First wins synopsis."
+          ),
+          batch_record!(2,
+            title: "Dupe Contract",
+            isbn: isbn,
+            description: "Second would overwrite."
+          )
+        ]),
+        pretty: true
+      )
+    )
+
+    {:ok, dataset} = Dataset.load_file(tmp)
+
+    import_run =
+      ImportRun
+      |> Ash.Changeset.for_create(:create, %{
+        provider: dataset.provider,
+        status: "applied",
+        row_limit: length(dataset.records || [])
+      })
+      |> Ash.create!(authorize?: false)
+
+    assert {:ok, summary} = Importer.seed_provider!(dataset, import_run)
+
+    assert summary.editions == 1
+    assert summary.identifiers == 1
+    assert summary.source_records == 2
+    assert length(Ash.read!(Work, authorize?: false)) == 1
+    assert length(Ash.read!(Edition, authorize?: false)) == 1
+    assert length(Ash.read!(Contribution, authorize?: false)) == 1
+
+    work = Ash.read!(Work, authorize?: false) |> hd()
+    assert work.description == "First wins synopsis."
+  end
+
+  # -- (c) reseed idempotency at a batch edge + curation preservation ------
+
+  test "reseed at a batch edge is idempotent and curated descriptions survive" do
+    first = batch_record!(1, description: "Original sourced synopsis.")
+    tmp = batch_dataset_dir!([first | Enum.map(2..101, &batch_record!(&1))])
+    on_exit(fn -> File.rm_rf!(tmp) end)
+
+    assert {:ok, summary} =
+             CatalogCleanup.with_full_corpus_seed_lock(fn -> Importer.seed!(tmp) end)
+
+    assert summary.editions == 101
+
+    work = Ash.read!(Work, authorize?: false) |> Enum.find(&(&1.title == "Batch Contract 1"))
+    assert work.description == "Original sourced synopsis."
+
+    # Byte-identical reseed: every count stays put (no new rows, no new runs).
+    assert {:ok, _summary} =
+             CatalogCleanup.with_full_corpus_seed_lock(fn -> Importer.seed!(tmp) end)
+
+    assert length(Ash.read!(Edition, authorize?: false)) == 101
+    assert length(Ash.read!(Identifier, authorize?: false)) == 101
+    assert length(Ash.read!(SourceRecord, authorize?: false)) == 101
+
+    # Curate the work description, then feed a changed corpus whose record 1
+    # carries a newer description: curation must survive (source_safe_work_update?).
+    work
+    |> Ash.Changeset.for_update(:update, %{description: "Curated nonblank synopsis."})
+    |> Ash.update!(authorize?: false)
+
+    changed_first = Map.put(first, :description, "A newer source should not overwrite curation.")
+    changed = [changed_first | Enum.map(2..101, &batch_record!(&1))]
+    write_batch_payload!(tmp, changed)
+
+    assert {:ok, third_summary} =
+             CatalogCleanup.with_full_corpus_seed_lock(fn -> Importer.seed!(tmp) end)
+
+    assert third_summary.editions == 101
+    assert third_summary.source_records == 202
+
+    preserved =
+      Ash.read!(Work, authorize?: false) |> Enum.find(&(&1.title == "Batch Contract 1"))
+
+    assert preserved.description == "Curated nonblank synopsis."
+  end
+
+  # -- (e) nil-keyed identity rows are rejected ----------------------------
+
+  test "contribution rows with nil identity keys are rejected by the precompute" do
+    nil_role = %{name: "Nil Role Author", role: nil}
+
+    tmp =
+      batch_dataset_dir!([
+        batch_record!(1, contributors: [nil_role]),
+        batch_record!(2),
+        batch_record!(3)
+      ])
+
+    on_exit(fn -> File.rm_rf!(tmp) end)
+
+    assert_raise RuntimeError, ~r/nil role/, fn ->
+      CatalogCleanup.with_full_corpus_seed_lock(fn -> Importer.seed!(tmp) end)
+    end
+
+    assert [] = Ash.read!(Edition, authorize?: false)
+  end
+
+  defp clear_catalog!, do: CatalogCleanup.clear_catalog_in_sandbox!()
+
+  defp valid_isbn(index) do
+    body = "97819398" <> String.pad_leading(Integer.to_string(1000 + index), 4, "0")
+
+    sum =
+      body
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.reduce(0, fn {digit, position}, acc ->
+        weight = if rem(position, 2) == 0, do: 1, else: 3
+        acc + String.to_integer(digit) * weight
+      end)
+
+    body <> Integer.to_string(rem(10 - rem(sum, 10), 10))
+  end
+
+  defp batch_record!(index, opts \\ []) do
+    title = Keyword.get(opts, :title, "Batch Contract #{index}")
+    isbn = Keyword.get(opts, :isbn, valid_isbn(index))
+    description = Keyword.get(opts, :description)
+    contributors = Keyword.get(opts, :contributors, [%{name: "Batch Author", role: "author"}])
+    source_uri = "https://archipelagobooks.org/book/batch-contract-#{index}/"
+
+    field_source = %{
+      provider: "archipelago_books_official_store",
+      source_uri: source_uri,
+      source_type: "publisher_dataset",
+      rights_basis: "Deterministic bulk contract fixture for test-only public metadata."
+    }
+
+    base_displayed = ["title", "contributors", "publisher", "format", "published_on", "isbn_13"]
+    base_field_sources = Map.new(base_displayed, &{&1, field_source})
+
+    {displayed_fields, field_sources} =
+      if description do
+        {base_displayed ++ ["description"],
+         Map.put(base_field_sources, "description", field_source)}
+      else
+        {base_displayed, base_field_sources}
+      end
+
+    %{
+      source_uri: source_uri,
+      source_product_id: "batch-contract-#{index}-#{isbn}",
+      source_sku: isbn,
+      publisher: "Archipelago Books",
+      imprint: nil,
+      work: %{title: title, subtitle: nil, publication_state: "published"},
+      edition: %{
+        title: title,
+        subtitle: nil,
+        format: "paperback",
+        published_on: "2026-07-02",
+        isbn_13: isbn
+      },
+      contributors: contributors,
+      displayed_fields: displayed_fields,
+      curation: %{status: "approved", notes: "Deterministic bulk contract fixture."},
+      no_cover_reason: "Bulk contract fixture intentionally omits covers.",
+      field_sources: field_sources
+    }
+    |> maybe_put_description(description)
+  end
+
+  defp maybe_put_description(record, nil), do: record
+  defp maybe_put_description(record, description), do: Map.put(record, :description, description)
+
+  defp batch_dataset_dir!(count) when is_integer(count) do
+    batch_dataset_dir!(Enum.map(1..count, &batch_record!(&1)))
+  end
+
+  defp batch_dataset_dir!(records) do
+    tmp =
+      Path.join(
+        System.tmp_dir!(),
+        "hiraeth-bulk-contract-#{System.unique_integer([:positive])}"
+      )
+
+    File.mkdir_p!(tmp)
+    write_batch_payload!(tmp, records)
+    tmp
+  end
+
+  defp write_batch_payload!(dir, records) do
+    File.write!(
+      Path.join(dir, "archipelago_books.json"),
+      Jason.encode!(batch_payload(records), pretty: true)
+    )
+  end
+
+  defp batch_payload(records) do
+    %{
+      provider: "archipelago_books_official_store",
+      retrieved_at: "2026-07-02T00:00:00Z",
+      license_note: "Deterministic bulk contract fixture for test-only public metadata.",
+      provider_permissions: %{
+        provider: "archipelago_books_official_store",
+        source_urls: ["https://archipelagobooks.org/book/tiny-contract/"],
+        source_hosts: ["archipelagobooks.org"],
+        cover_hosts: ["archipelagobooks.org"],
+        permission_basis: "Deterministic bulk contract fixture for test-only public metadata.",
+        cover_cache_policy: "cache_allowed",
+        excluded_content: ["cart_checkout_account", "inventory_state", "user_reviews"],
+        takedown_contact: "https://archipelagobooks.org/contact/",
+        not_legal_advice: "Test fixture metadata only; not legal advice."
+      },
+      records: records
+    }
   end
 
   # -- evidence writer -----------------------------------------------------

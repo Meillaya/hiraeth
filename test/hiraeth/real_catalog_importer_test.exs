@@ -171,6 +171,36 @@ defmodule Hiraeth.RealCatalogImporterTest do
     assert summary.publishers == length(datasets)
   end
 
+  # Nightly perf envelope (WI2 hard gate): the full-corpus bulk seed must
+  # finish well inside 300s on a CI-box-class host. The :global seed lock is
+  # acquired BEFORE timing so wait time for concurrent corpus seeds never
+  # pollutes the assert (the coverage job runs --max-cases 8).
+  @tag :full_catalog
+  @tag :slow
+  @tag :nightly
+  @tag timeout: 600_000
+  test "bulk full-corpus seed completes within the 300s perf envelope" do
+    seed_lock = Hiraeth.CatalogCleanup.acquire_full_corpus_seed_lock!()
+    on_exit(fn -> Hiraeth.CatalogCleanup.release_full_corpus_seed_lock(seed_lock) end)
+
+    clear_catalog!()
+
+    started_at = System.monotonic_time()
+    assert {:ok, summary} = Importer.seed!()
+
+    elapsed_ms =
+      System.convert_time_unit(System.monotonic_time() - started_at, :native, :millisecond)
+
+    {:ok, datasets} = Dataset.load_dir()
+    expected_total = Enum.sum(Enum.map(datasets, &length(&1.records)))
+
+    assert elapsed_ms < 300_000,
+           "full-corpus bulk seed took #{elapsed_ms}ms (hard envelope is <300_000ms)"
+
+    assert summary.editions == expected_total
+    assert summary.publishers == length(datasets)
+  end
+
   test "real catalog importer keeps seed!/1 public contract on a tiny deterministic fixture dir" do
     clear_catalog!()
     tmp = tiny_dataset_dir!()

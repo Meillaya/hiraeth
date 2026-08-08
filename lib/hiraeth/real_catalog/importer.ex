@@ -93,7 +93,8 @@ defmodule Hiraeth.RealCatalog.Importer do
     SourceRecord
   ]
 
-  def seed!(dir \\ Dataset.default_dir()) do
+  def seed!(dir \\ Dataset.default_dir(), opts \\ []) do
+    batch_size = Keyword.get(opts, :batch_size, 100)
     Process.put(@import_cache_key, %{})
 
     try do
@@ -101,7 +102,7 @@ defmodule Hiraeth.RealCatalog.Importer do
            {:ok, _summary} <- Validator.validate_datasets(datasets) do
         prune_stale? = Path.expand(dir) == Path.expand(Dataset.default_dir())
 
-        Enum.each(datasets, &import_dataset!(&1, prune_stale?))
+        Enum.each(datasets, &import_dataset!(&1, prune_stale?, batch_size))
         {:ok, summary()}
       end
     after
@@ -114,13 +115,14 @@ defmodule Hiraeth.RealCatalog.Importer do
     Process.put(@import_cache_key, %{})
     transaction_timeout = Keyword.get(opts, :transaction_timeout, @provider_transaction_timeout)
     prune_stale? = Keyword.get(opts, :prune_stale?, true)
+    batch_size = Keyword.get(opts, :batch_size, 100)
 
     try do
       Ash.transact(
         @provider_transaction_resources,
         fn ->
           rows = build_dataset_rows!(dataset)
-          write_bulk_dataset!(rows, dataset, import_run)
+          write_bulk_dataset!(rows, dataset, import_run, batch_size)
 
           if prune_stale? do
             prune_stale_source_records!(dataset.provider, dataset.file_checksum)
@@ -143,10 +145,10 @@ defmodule Hiraeth.RealCatalog.Importer do
     end
   end
 
-  defp import_dataset!(dataset, prune_stale?) do
+  defp import_dataset!(dataset, prune_stale?, batch_size) do
     case Ash.transact(
            @provider_transaction_resources,
-           fn -> transact_import!(dataset, prune_stale?) end,
+           fn -> transact_import!(dataset, prune_stale?, batch_size) end,
            timeout: @provider_transaction_timeout
          ) do
       {:ok, result} -> result
@@ -154,10 +156,10 @@ defmodule Hiraeth.RealCatalog.Importer do
     end
   end
 
-  defp transact_import!(dataset, prune_stale?) do
+  defp transact_import!(dataset, prune_stale?, batch_size) do
     import_run = ensure_import_run!(dataset)
     rows = build_dataset_rows!(dataset)
-    write_bulk_dataset!(rows, dataset, import_run)
+    write_bulk_dataset!(rows, dataset, import_run, batch_size)
 
     if prune_stale? do
       prune_stale_source_records!(dataset.provider, dataset.file_checksum)
@@ -464,51 +466,59 @@ defmodule Hiraeth.RealCatalog.Importer do
 
   # --- Phase 2: bulk writes in FK order (inside the dataset transaction) ----
 
-  defp write_bulk_dataset!(rows, dataset, import_run) do
-    publishers_by_slug = write_publishers!(rows.publishers)
-    imprints_by_key = write_imprints!(rows.imprints, publishers_by_slug)
-    contributors_by_slug = write_contributors!(rows.contributors)
-    series_by_slug = write_series!(rows.series, publishers_by_slug)
-    works_by_slug = write_works!(rows.works, dataset)
+  defp write_bulk_dataset!(rows, dataset, import_run, batch_size) do
+    publishers_by_slug = write_publishers!(rows.publishers, batch_size)
+    imprints_by_key = write_imprints!(rows.imprints, publishers_by_slug, batch_size)
+    contributors_by_slug = write_contributors!(rows.contributors, batch_size)
+    series_by_slug = write_series!(rows.series, publishers_by_slug, batch_size)
+    works_by_slug = write_works!(rows.works, dataset, batch_size)
 
     editions_by_slug =
-      write_editions!(rows.editions, publishers_by_slug, imprints_by_key, works_by_slug)
+      write_editions!(
+        rows.editions,
+        publishers_by_slug,
+        imprints_by_key,
+        works_by_slug,
+        batch_size
+      )
 
-    write_identifiers!(rows.identifiers, editions_by_slug)
+    write_identifiers!(rows.identifiers, editions_by_slug, batch_size)
 
     write_contributions!(
       rows.contributions,
       rows.contribution_desired,
       contributors_by_slug,
       works_by_slug,
-      editions_by_slug
+      editions_by_slug,
+      batch_size
     )
 
-    write_series_memberships!(rows.series_memberships, series_by_slug, works_by_slug)
-    assets_by_url = write_cover_assets!(rows.cover_assets)
+    write_series_memberships!(rows.series_memberships, series_by_slug, works_by_slug, batch_size)
+    assets_by_url = write_cover_assets!(rows.cover_assets, batch_size)
 
     write_cover_assignments!(
       rows.cover_assignments,
       rows.cover_state,
       editions_by_slug,
-      assets_by_url
+      assets_by_url,
+      batch_size
     )
 
-    write_source_records!(rows.source_records, import_run, editions_by_slug)
+    write_source_records!(rows.source_records, import_run, editions_by_slug, batch_size)
   end
 
-  defp write_publishers!(publisher_rows) do
-    bulk_upsert!(Publisher, Map.values(publisher_rows), :unique_slug, [:slug])
+  defp write_publishers!(publisher_rows, batch_size) do
+    bulk_upsert!(Publisher, Map.values(publisher_rows), :unique_slug, [:slug], batch_size)
     id_map(Publisher, & &1.slug)
   end
 
-  defp write_imprints!(imprint_rows, publishers_by_slug) do
+  defp write_imprints!(imprint_rows, publishers_by_slug, batch_size) do
     inputs =
       Enum.map(imprint_rows, fn {{publisher_slug, _slug}, row} ->
         Map.merge(row, %{publisher_id: Map.fetch!(publishers_by_slug, publisher_slug).id})
       end)
 
-    bulk_upsert!(Imprint, inputs, :unique_publisher_slug, [:publisher_id, :slug])
+    bulk_upsert!(Imprint, inputs, :unique_publisher_slug, [:publisher_id, :slug], batch_size)
 
     publisher_slug_by_id =
       Map.new(publishers_by_slug, fn {slug, publisher} -> {publisher.id, slug} end)
@@ -520,12 +530,12 @@ defmodule Hiraeth.RealCatalog.Importer do
     end)
   end
 
-  defp write_contributors!(contributor_rows) do
-    bulk_upsert!(Contributor, Map.values(contributor_rows), :unique_slug, [:slug])
+  defp write_contributors!(contributor_rows, batch_size) do
+    bulk_upsert!(Contributor, Map.values(contributor_rows), :unique_slug, [:slug], batch_size)
     id_map(Contributor, & &1.slug)
   end
 
-  defp write_series!(series_rows, publishers_by_slug) do
+  defp write_series!(series_rows, publishers_by_slug, batch_size) do
     inputs =
       Enum.map(series_rows, fn {_slug, row} ->
         row
@@ -533,13 +543,13 @@ defmodule Hiraeth.RealCatalog.Importer do
         |> Map.drop([:publisher_slug])
       end)
 
-    bulk_upsert!(Series, inputs, :unique_slug, [:slug])
+    bulk_upsert!(Series, inputs, :unique_slug, [:slug], batch_size)
     id_map(Series, & &1.slug)
   end
 
-  defp write_works!(work_entries, dataset) do
+  defp write_works!(work_entries, dataset, batch_size) do
     inputs = Enum.map(work_entries, fn {_slug, %{attrs: attrs}} -> attrs end)
-    bulk_upsert!(Work, inputs, :unique_slug, [:slug])
+    bulk_upsert!(Work, inputs, :unique_slug, [:slug], batch_size)
     works_by_slug = id_map(Work, & &1.slug)
 
     Enum.reduce(work_entries, works_by_slug, fn {slug, %{records: records}}, acc ->
@@ -551,7 +561,13 @@ defmodule Hiraeth.RealCatalog.Importer do
     end)
   end
 
-  defp write_editions!(edition_entries, publishers_by_slug, imprints_by_key, works_by_slug) do
+  defp write_editions!(
+         edition_entries,
+         publishers_by_slug,
+         imprints_by_key,
+         works_by_slug,
+         batch_size
+       ) do
     inputs =
       Enum.map(edition_entries, fn {_slug, %{attrs: attrs}} ->
         %{
@@ -571,7 +587,7 @@ defmodule Hiraeth.RealCatalog.Importer do
         }
       end)
 
-    bulk_upsert!(Edition, inputs, :unique_slug, [:slug])
+    bulk_upsert!(Edition, inputs, :unique_slug, [:slug], batch_size)
     editions_by_slug = id_map(Edition, & &1.slug)
 
     Enum.reduce(edition_entries, editions_by_slug, fn {slug, %{records: records}}, acc ->
@@ -622,7 +638,7 @@ defmodule Hiraeth.RealCatalog.Importer do
     end
   end
 
-  defp write_identifiers!(identifier_rows, editions_by_slug) do
+  defp write_identifiers!(identifier_rows, editions_by_slug, batch_size) do
     inputs =
       Enum.map(identifier_rows, fn {{_type, _value}, row} ->
         %{
@@ -632,7 +648,7 @@ defmodule Hiraeth.RealCatalog.Importer do
         }
       end)
 
-    bulk_upsert!(Identifier, inputs, :unique_identifier, [:identifier_type, :value])
+    bulk_upsert!(Identifier, inputs, :unique_identifier, [:identifier_type, :value], batch_size)
   end
 
   defp write_contributions!(
@@ -640,7 +656,8 @@ defmodule Hiraeth.RealCatalog.Importer do
          desired_by_edition,
          contributors_by_slug,
          works_by_slug,
-         editions_by_slug
+         editions_by_slug,
+         batch_size
        ) do
     resolved =
       Enum.map(contribution_rows, fn {{contributor_slug, role, work_slug, edition_slug}, row} ->
@@ -661,12 +678,18 @@ defmodule Hiraeth.RealCatalog.Importer do
         &Map.take(&1, [:contributor_id, :role, :work_id, :edition_id, :position])
       )
 
-    bulk_upsert!(Contribution, inputs, :unique_contribution_slot, [
-      :contributor_id,
-      :role,
-      :work_id,
-      :edition_id
-    ])
+    bulk_upsert!(
+      Contribution,
+      inputs,
+      :unique_contribution_slot,
+      [
+        :contributor_id,
+        :role,
+        :work_id,
+        :edition_id
+      ],
+      batch_size
+    )
 
     prune_stale_contributions!(desired_by_edition, contributors_by_slug, editions_by_slug)
 
@@ -701,7 +724,7 @@ defmodule Hiraeth.RealCatalog.Importer do
     end)
   end
 
-  defp write_series_memberships!(membership_rows, series_by_slug, works_by_slug) do
+  defp write_series_memberships!(membership_rows, series_by_slug, works_by_slug, batch_size) do
     inputs =
       Enum.map(membership_rows, fn {{series_slug, work_slug}, row} ->
         %{
@@ -712,12 +735,18 @@ defmodule Hiraeth.RealCatalog.Importer do
         }
       end)
 
-    bulk_upsert!(SeriesMembership, inputs, :unique_series_work, [:series_id, :work_id])
+    bulk_upsert!(
+      SeriesMembership,
+      inputs,
+      :unique_series_work,
+      [:series_id, :work_id],
+      batch_size
+    )
   end
 
-  defp write_cover_assets!(asset_entries) do
+  defp write_cover_assets!(asset_entries, batch_size) do
     inputs = Enum.map(asset_entries, fn {_url, %{attrs: attrs}} -> attrs end)
-    bulk_upsert!(CoverAsset, inputs, :unique_source_url, [:source_url])
+    bulk_upsert!(CoverAsset, inputs, :unique_source_url, [:source_url], batch_size)
     assets_by_url = id_map(CoverAsset, & &1.source_url)
 
     Enum.reduce(asset_entries, assets_by_url, fn {url, %{covers: covers}}, acc ->
@@ -729,7 +758,13 @@ defmodule Hiraeth.RealCatalog.Importer do
     end)
   end
 
-  defp write_cover_assignments!(assignment_rows, cover_state, editions_by_slug, assets_by_url) do
+  defp write_cover_assignments!(
+         assignment_rows,
+         cover_state,
+         editions_by_slug,
+         assets_by_url,
+         batch_size
+       ) do
     inputs =
       Enum.map(assignment_rows, fn {{edition_slug, source_url}, _row} ->
         %{
@@ -740,11 +775,18 @@ defmodule Hiraeth.RealCatalog.Importer do
         }
       end)
 
-    bulk_upsert!(CoverAssignment, inputs, :unique_edition_cover, [:edition_id, :cover_asset_id])
+    bulk_upsert!(
+      CoverAssignment,
+      inputs,
+      :unique_edition_cover,
+      [:edition_id, :cover_asset_id],
+      batch_size
+    )
+
     prune_stale_cover_assignments!(cover_state, editions_by_slug, assets_by_url)
   end
 
-  defp write_source_records!(source_record_rows, import_run, editions_by_slug) do
+  defp write_source_records!(source_record_rows, import_run, editions_by_slug, batch_size) do
     existing_keys =
       SourceRecord
       |> cached_read()
@@ -766,12 +808,18 @@ defmodule Hiraeth.RealCatalog.Importer do
         }
       end)
 
-    bulk_upsert!(SourceRecord, inputs, :unique_source_record, [
-      :provider,
-      :source_type,
-      :source_uri,
-      :file_checksum
-    ])
+    bulk_upsert!(
+      SourceRecord,
+      inputs,
+      :unique_source_record,
+      [
+        :provider,
+        :source_type,
+        :source_uri,
+        :file_checksum
+      ],
+      batch_size
+    )
 
     source_records_by_key =
       id_map(SourceRecord, &{&1.provider, &1.source_type, &1.source_uri, &1.file_checksum})
@@ -794,12 +842,12 @@ defmodule Hiraeth.RealCatalog.Importer do
         }
       end)
 
-    bulk_create!(SourceLedgerEntry, ledger_inputs)
+    bulk_create!(SourceLedgerEntry, ledger_inputs, batch_size)
   end
 
   # --- Bulk write primitives and id maps ------------------------------------
 
-  defp bulk_upsert!(resource, inputs, identity, identity_keys) do
+  defp bulk_upsert!(resource, inputs, identity, identity_keys, batch_size) do
     if inputs == [] do
       :ok
     else
@@ -809,7 +857,7 @@ defmodule Hiraeth.RealCatalog.Importer do
           upsert_identity: identity,
           upsert_fields: {:replace, identity_keys},
           transaction: false,
-          batch_size: 100,
+          batch_size: batch_size,
           notify?: false,
           return_records?: false,
           return_errors?: true,
@@ -821,14 +869,14 @@ defmodule Hiraeth.RealCatalog.Importer do
     end
   end
 
-  defp bulk_create!(resource, inputs) do
+  defp bulk_create!(resource, inputs, batch_size) do
     if inputs == [] do
       :ok
     else
       result =
         Ash.bulk_create(inputs, resource, :create,
           transaction: false,
-          batch_size: 100,
+          batch_size: batch_size,
           notify?: false,
           return_records?: false,
           return_errors?: true,
