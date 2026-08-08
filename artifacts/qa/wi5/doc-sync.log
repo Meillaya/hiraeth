@@ -1,0 +1,43 @@
+=== Todo 13 doc-sync evidence 2026-08-08T17:35:19Z ===
+
+--- (a) stale-claim sweep (live files only; excludes .omo/ planning docs, artifacts/ evidence, _build, deps, .git) ---
+pattern: 193s-870s | 200s-900s | ~4 min | 30-min corpus | does not run the test alias | observed envelope | observed 193
+EXIT=1 (1 = zero matches, PASS)
+
+--- (b) contract-locked strings still present ---
+6
+57:## Verify/build
+61:- **Layer 0 — local blocking gate (`mix gate`, ≤5 min):** `make gate` wraps the `mix gate` alias (compile with warnings-as-errors, unused-deps check, format check, strict Credo, and the fast ExUnit lane). It is the single blocking local preflight for every change.
+70:mix gate             # single fast blocking gate
+71:mix test.fast        # fast ExUnit lane, excluding explicit cost tags
+79:make verify          # provenance audit, verify summary, QA pack
+90:Stable operator entrypoints stay at the root or top-level task names (`make verify`, Mix tasks). Implementation helpers are grouped by purpose: catalog maintenance scripts live in `scripts/catalog/`, and production-ingestion drills in `scripts/qa/ingestion/`.
+--- (c) docs_qa_pack + no_scope_creep contract tests ---
+Running ExUnit with seed: 748202, max_cases: 32
+Excluding tags: [:nightly]
+
+...........
+Finished in 0.09 seconds (0.09s async, 0.00s sync)
+11 tests, 0 failures
+CONTRACT_EXIT=0
+--- (d) mix gate ---
+.Ingestion started for provider: test_publisher_api
+Provider run ID: d7b1dc18-e484-47c2-bf85-02897fd71135
+Job ID: 1596
+Ingestion completed for provider: test_publisher_api
+provider_run_id=d7b1dc18-e484-47c2-bf85-02897fd71135
+source_records=0
+editions=0
+covers=0
+.............................13:35:38.859 [warning] sidecar detail enrichment failed for https://publisher.example/books/detail-needed: {:parse_failed, "detail failed"}
+..............................................
+Finished in 12.5 seconds (4.3s async, 8.2s sync)
+525 tests, 0 failures, 116 excluded
+GATE_EXIT=0
+--- (e) final changed-file inventory ---
+ M .github/workflows/deep.yml
+ M CHANGELOG.md
+ M Makefile
+ M lib/hiraeth/real_catalog/AGENTS.md
+ M test/hiraeth/real_catalog/importer_provider_test.exs
+ M test/hiraeth/real_catalog_importer_test.exs

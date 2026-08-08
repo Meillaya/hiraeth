@@ -2,8 +2,8 @@ defmodule Hiraeth.RealCatalogImporterTest do
   use Hiraeth.DataCase, async: true
 
   # Corpus-dataset seeds serialize on the full-corpus lock and can wait for
-  # the committed reseed (~4 min), so the default 60s test timeout would kill
-  # them mid-wait.
+  # the committed reseed (~60s post-bulk, measured 59.8s), so the default 60s
+  # test timeout would kill them mid-wait.
   @moduletag timeout: 600_000
 
   alias Hiraeth.Catalog.{

@@ -403,10 +403,14 @@ jobs:
     # explicitly: the `:nightly` corpus monsters execute
     # here every night, and the ExCoveralls minimum_coverage floor
     # from coveralls.json (86.1) stays calibrated on the full suite. `mix
-    # coveralls` runs the built-in test task, NOT the `test` alias, so the
-    # DB is created/migrated explicitly below. `timeout-minutes: 75` covers
-    # the monster envelope (observed 193-870s each) plus the full suite and
-    # coveralls overhead on a 2-core runner.
+    # coveralls` resolves the `test` alias (`mix.exs` aliases run through
+    # Mix.Task.run/2), so the DB would auto-create/migrate — the explicit
+    # bootstrap below is kept as belt-and-suspenders for fresh checkouts.
+    # `timeout-minutes: 75` covers the post-bulk envelope — measured locally:
+    # per-seed full-corpus seed ~50-160s (nightly monsters 102.7s + 50.2s,
+    # the perf-envelope test 162.3s against its <300s hard assert),
+    # lock-serialized lane wall ~316s — plus the full suite and coveralls
+    # overhead on a 2-core runner.
     services:
       postgres:
         image: postgres:16
@@ -482,8 +486,9 @@ jobs:
       - name: Install Mix dependencies
         run: mix deps.get
 
-      # `mix coveralls` runs the built-in test task, not the `test` alias,
-      # so the DB is NOT auto-created — bootstrap it explicitly.
+      # `mix coveralls` resolves the `test` alias (Mix.Task.run/2), which
+      # auto-creates/migrates the DB — the explicit bootstrap below is kept
+      # as belt-and-suspenders for fresh checkouts.
       - name: Create and migrate test database
         run: mix ecto.create --quiet && mix ecto.migrate --quiet
 

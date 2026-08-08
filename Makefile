@@ -35,9 +35,11 @@ db-restore-drill:
 	@bash scripts/ops/db_restore_drill.sh
 
 # Local coverage gate enforcing the 86.1 floor (coveralls.json). Bootstraps the
-# test DB first because `mix coveralls` does not run the `test` alias, so a
-# fresh checkout may not have a database yet. Deliberately NOT part of `make
-# gate` (fast lane stays fast) and does not post to coveralls.io.
+# test DB first as belt-and-suspenders for fresh checkouts (`mix coveralls`
+# resolves the `test` alias via Mix.Task.run/2, which auto-creates/migrates,
+# but the explicit ecto steps are harmless and deterministic). Deliberately
+# NOT part of `make gate` (fast lane stays fast) and does not post to
+# coveralls.io.
 coverage:
 	MIX_ENV=test mix ecto.create --quiet && MIX_ENV=test mix ecto.migrate --quiet && MIX_ENV=test mix coveralls --include nightly
 

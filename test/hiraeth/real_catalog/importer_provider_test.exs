@@ -201,8 +201,9 @@ defmodule Hiraeth.RealCatalogImporterProviderTest do
   end
 
   @tag :nightly
-  # Full corpus seed!/1 pass; observed envelope on the CI/devenv lane is
-  # 193s-870s, so keep a generous wall-clock budget.
+  # Full corpus seed!/1 pass; post-bulk per-seed envelope measured ~50-160s
+  # locally (nightly monsters 102.7s + 50.2s; the perf-envelope test 162.3s
+  # vs its <300s hard assert), so keep a generous wall-clock budget.
   @tag timeout: 1_800_000
   test "existing seed!/1 still works after adding seed_provider!/2" do
     seed_lock = Hiraeth.CatalogCleanup.acquire_full_corpus_seed_lock!()
