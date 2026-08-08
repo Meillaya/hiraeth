@@ -9,7 +9,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 
 - `mix hiraeth.real_catalog.seed_provider --provider <slug>` as the per-provider recovery path. Loads `priv/catalog_sources/real_publishers/<slug>.json`, validates against the provider manifest when one is checked in, creates an `ImportRun`, and delegates to `Hiraeth.RealCatalog.Importer.seed_provider!/3`. Each provider runs in its own `Ash.transact`, so a single failure does not poison the rest of the corpus. Use this when the whole-corpus `priv/repo/seeds.exs` aborts midway through one provider.
+- `config/dev.exs` now honors `DATABASE_URL` when set, so `railway run -- mix ...` from a developer machine reaches the Railway Postgres without needing to override `DATABASE_HOST`/`DATABASE_PORT`/`DATABASE_USER`/`DATABASE_PASSWORD` individually. Standalone localhost defaults are preserved when `DATABASE_URL` is unset.
 - `priv/test_lanes.exs` is the single source of truth for the slow/full_catalog/integration/performance/browser/public_catalog_full cost-tag list. `mix test.fast`, `mix test.full`, and `mix ci` all derive their `--exclude` / `--include` flags from this file. Contract test: `test/hiraeth/mix_alias_contract_test.exs`.
+- `test/hiraeth/dev_database_url_override_test.exs` now uses `Config.Reader.read!/2` to evaluate `config/dev.exs` for the `:dev` env, so the three config-eval assertions run in ~30 ms instead of spawning a `mix run` subprocess per case.
 - Self-hosted OFL fonts (Newsreader, Space Grotesk, Space Mono) with `@font-face` rules and license/provenance documentation under `priv/static/fonts/`.
 - Three full-site design prototypes built from real catalog data under `artifacts/design-prototypes/` as the sanctioned UI exploration artifact.
 - Per-provider `cadence_hours` on provider manifests and `ProviderSource` (default 24h) with manifest validation and backfill.

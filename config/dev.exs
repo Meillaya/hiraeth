@@ -1,15 +1,27 @@
 import Config
 
-# Configure your database
-config :hiraeth, Hiraeth.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: System.get_env("DATABASE_HOST", "localhost"),
-  port: String.to_integer(System.get_env("DATABASE_PORT", "54320")),
-  database: "hiraeth_dev",
-  stacktrace: true,
-  show_sensitive_data_on_connection_error: true,
-  pool_size: 10
+# Configure your database. DATABASE_URL wins when set so `railway run -- mix ...`
+# on a developer machine reaches the Railway Postgres without each call having to
+# override DATABASE_HOST/PORT/USER/PASSWORD individually. The standalone localhost
+# defaults are preserved when DATABASE_URL is unset (the contract test in
+# test/hiraeth/dev_environment_contract_test.exs pins those).
+if db_url = System.get_env("DATABASE_URL") do
+  config :hiraeth, Hiraeth.Repo,
+    url: db_url,
+    stacktrace: true,
+    show_sensitive_data_on_connection_error: true,
+    pool_size: 10
+else
+  config :hiraeth, Hiraeth.Repo,
+    username: "postgres",
+    password: "postgres",
+    hostname: System.get_env("DATABASE_HOST", "localhost"),
+    port: String.to_integer(System.get_env("DATABASE_PORT", "54320")),
+    database: "hiraeth_dev",
+    stacktrace: true,
+    show_sensitive_data_on_connection_error: true,
+    pool_size: 10
+end
 
 # For development, we disable any cache and enable
 # debugging and code reloading.
