@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- `priv/test_lanes.exs` is the single source of truth for the slow/full_catalog/integration/performance/browser/public_catalog_full cost-tag list. `mix test.fast`, `mix test.full`, and `mix ci` all derive their `--exclude` / `--include` flags from this file. Contract test: `test/hiraeth/mix_alias_contract_test.exs`.
 - Self-hosted OFL fonts (Newsreader, Space Grotesk, Space Mono) with `@font-face` rules and license/provenance documentation under `priv/static/fonts/`.
 - Three full-site design prototypes built from real catalog data under `artifacts/design-prototypes/` as the sanctioned UI exploration artifact.
 - Per-provider `cadence_hours` on provider manifests and `ProviderSource` (default 24h) with manifest validation and backfill.

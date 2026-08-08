@@ -69,6 +69,34 @@ defmodule Hiraeth.MixAliasContractTest do
     end
   end
 
+  test "fast test gate tags match priv/test_lanes.exs slow_tags" do
+    # priv/test_lanes.exs is the single source of truth; mix.exs assembles its
+    # contract here will only pass if the mix.exs alias generation follows.
+    lanes = Code.eval_file(test_lanes_path()) |> elem(0)
+    expected = lanes.slow_tags |> Enum.map(&Atom.to_string/1) |> Enum.sort()
+    fast_command = alias_commands!(:"test.fast") |> Enum.join(" ")
+    actual = extract_excluded_tags(fast_command) |> Enum.sort()
+
+    assert actual == expected,
+           "mix.exs test.fast is out of sync with priv/test_lanes.exs.\n" <>
+             "expected: #{inspect(expected)}\nactual:   #{inspect(actual)}"
+  end
+
+  defp test_lanes_path do
+    Path.expand("../../priv/test_lanes.exs", __DIR__)
+  end
+
+  defp extract_excluded_tags(command) do
+    command
+    |> String.split(" ")
+    |> Enum.drop_while(&(&1 != "--exclude" and &1 != "--include"))
+    |> Enum.chunk_every(2, 2, :discard)
+    |> Enum.flat_map(fn
+      [flag, tag] when flag in ["--exclude", "--include"] -> [tag]
+      _ -> []
+    end)
+  end
+
   test "gate and CI gates check formatting without mutating files" do
     for gate <- @format_checked_gates do
       gate_commands = alias_commands!(gate)

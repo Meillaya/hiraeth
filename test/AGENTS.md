@@ -26,6 +26,8 @@ Fixture-driven, contract-heavy ExUnit and pytest-adjacent validation for Hiraeth
 | `:reset_committed_ingestion` | DataCase resets ingestion control-plane fixtures |
 | `:ci_devenv_contract` | descriptive: marks the devenv-only CI lane contract (never excluded) |
 
+The slow/full_catalog/integration/performance/browser/public_catalog_full list lives in **`priv/test_lanes.exs`** and is the single source of truth for `mix.exs` alias composition. `mix test.fast`, `mix test.full`, and `mix ci` all derive their `--exclude` / `--include` flags from it. The contract test `test/hiraeth/mix_alias_contract_test.exs` asserts `priv/test_lanes.exs` and `mix.exs` stay in sync — add a tag there once, and every lane picks it up.
+
 ## CONVENTIONS
 - Choose base case by boundary: `DataCase` for DB/Ash; `ConnCase` for conn/LiveView; plain `ExUnit.Case` for file/command/docs contracts.
 - Prefer `async: false` when touching shared DB state, committed corpus, browser flows, or global filesystem artifacts.

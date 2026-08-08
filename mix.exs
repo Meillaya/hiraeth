@@ -124,10 +124,8 @@ defmodule Hiraeth.MixProject do
         "cmd mix credo --strict",
         "test.fast"
       ],
-      "test.fast": [
-        "test --exclude slow --exclude full_catalog --exclude integration --exclude performance --exclude browser --exclude public_catalog_full"
-      ],
-      "test.full": ["test"],
+      "test.fast": ["test #{exclude_args()}"],
+      "test.full": ["test #{include_args()}"],
       ci: [
         "compile --warnings-as-errors",
         "deps.unlock --unused",
@@ -147,4 +145,11 @@ defmodule Hiraeth.MixProject do
       ]
     ]
   end
+
+  # The fast/full/ci test lanes exclude or include the same set of cost tags.
+  # Tags are defined once in priv/test_lanes.exs and the assembled flag lists
+  # are locked by test/hiraeth/mix_alias_contract_test.exs.
+  defp test_lanes, do: Code.eval_file("priv/test_lanes.exs") |> elem(0)
+  defp exclude_args, do: Enum.map_join(test_lanes().slow_tags, " ", &"--exclude #{&1}")
+  defp include_args, do: Enum.map_join(test_lanes().slow_tags, " ", &"--include #{&1}")
 end
