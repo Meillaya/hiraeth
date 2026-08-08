@@ -82,8 +82,46 @@ defmodule Hiraeth.MixAliasContractTest do
              "expected: #{inspect(expected)}\nactual:   #{inspect(actual)}"
   end
 
+  test "test lanes declare the opt-in nightly lane tags" do
+    # The nightly lane is opt-in: default-excluded by test_helper.exs and
+    # re-enabled with `--include nightly`. priv/test_lanes.exs is the single
+    # source of truth for the lane declaration.
+    lanes = Code.eval_file(test_lanes_path()) |> elem(0)
+
+    assert lanes.nightly_tags == [:nightly],
+           "expected priv/test_lanes.exs to declare nightly_tags == [:nightly]"
+  end
+
+  test "test helper default-excludes the nightly lane from every run" do
+    # test_helper.exs must load the lane tags via Code.eval_file and pass
+    # them to ExUnit.start; without the exclude, bare mix test and test.full
+    # run the nightly corpus monsters implicitly.
+    helper = File.read!(test_helper_path())
+
+    assert helper =~ "Code.eval_file(Path.expand(\"../priv/test_lanes.exs\", __DIR__))",
+           "expected test_helper.exs to eval priv/test_lanes.exs"
+
+    assert helper =~ "ExUnit.start(exclude: lanes.nightly_tags)",
+           "expected test_helper.exs to default-exclude the nightly lane"
+  end
+
+  test "the default ExUnit configuration excludes the nightly lane" do
+    # ExUnit.Filters checks includes before excludes, so `--include nightly`
+    # opts the lane back in from any default; without that flag, :nightly
+    # must never run. This holds in bare mix test, test.fast, test.full,
+    # and coveralls alike.
+    exclude = ExUnit.configuration()[:exclude] || []
+
+    assert :nightly in exclude,
+           "expected :nightly to be default-excluded via ExUnit.start(exclude: ...)"
+  end
+
   defp test_lanes_path do
     Path.expand("../../priv/test_lanes.exs", __DIR__)
+  end
+
+  defp test_helper_path do
+    Path.expand("../test_helper.exs", __DIR__)
   end
 
   defp extract_excluded_tags(command) do

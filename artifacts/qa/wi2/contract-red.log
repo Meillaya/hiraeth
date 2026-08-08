@@ -1,0 +1,67 @@
+Running ExUnit with seed: 139193, max_cases: 1
+
+
+Hiraeth.DevEnvironmentCIContractTest [test/hiraeth/dev_environment_ci_contract_test.exs]
+  * test CI workflow defines exactly the static and test-fast jobs with no Nix/devenv smoke lane [L#7]  * test CI workflow defines exactly the static and test-fast jobs with no Nix/devenv smoke lane (4.0ms) [L#7]
+  * test deep lane full-suite job does not exclude the nightly lane ad hoc [L#48]  * test deep lane full-suite job does not exclude the nightly lane ad hoc (2.7ms) [L#48]
+
+  1) test deep lane full-suite job does not exclude the nightly lane ad hoc (Hiraeth.DevEnvironmentCIContractTest)
+     test/hiraeth/dev_environment_ci_contract_test.exs:48
+     expected the full-suite job to rely on the test_helper default exclusion
+     code: refute full_suite_job =~ ~r/--exclude nightly/,
+     stacktrace:
+       test/hiraeth/dev_environment_ci_contract_test.exs:54: (test)
+
+  * test deep lane coverage job opts into the nightly lane explicitly [L#36]  * test deep lane coverage job opts into the nightly lane explicitly (0.3ms) [L#36]
+
+  2) test deep lane coverage job opts into the nightly lane explicitly (Hiraeth.DevEnvironmentCIContractTest)
+     test/hiraeth/dev_environment_ci_contract_test.exs:36
+     expected the deep coverage job to run `mix coveralls --include nightly`
+     code: assert coverage_job =~ "mix coveralls --include nightly",
+     stacktrace:
+       test/hiraeth/dev_environment_ci_contract_test.exs:43: (test)
+
+
+Hiraeth.MixAliasContractTest [test/hiraeth/mix_alias_contract_test.exs]
+  * test gate alias runs the fast blocking checks [L#177]  * test gate alias runs the fast blocking checks (0.01ms) [L#177]
+  * test fast, full, and CI gate aliases exist [L#47]  * test fast, full, and CI gate aliases exist (0.02ms) [L#47]
+  * test gate and CI gates check formatting without mutating files [L#138]  * test gate and CI gates check formatting without mutating files (0.00ms) [L#138]
+  * test fast test gate excludes explicit cost tags [L#62]  * test fast test gate excludes explicit cost tags (0.00ms) [L#62]
+  * test new gate aliases default to the test environment [L#150]  * test new gate aliases default to the test environment (0.00ms) [L#150]
+  * test test lanes declare the opt-in nightly lane tags [L#85]  * test test lanes declare the opt-in nightly lane tags (6.0ms) [L#85]
+
+  3) test test lanes declare the opt-in nightly lane tags (Hiraeth.MixAliasContractTest)
+     test/hiraeth/mix_alias_contract_test.exs:85
+     ** (KeyError) key :nightly_tags not found in: %{
+       slow_tags: [:slow, :full_catalog, :integration, :performance, :browser,
+        :public_catalog_full]
+     }
+     code: assert lanes.nightly_tags == [:nightly],
+     stacktrace:
+       test/hiraeth/mix_alias_contract_test.exs:91: (test)
+
+  * test CI gate runs the static analysis gates before assets and tests [L#157]  * test CI gate runs the static analysis gates before assets and tests (0.02ms) [L#157]
+  * test gate alias stays free of network-dependent and slow gates [L#185]  * test gate alias stays free of network-dependent and slow gates (0.02ms) [L#185]
+  * test fast and full test gates are separate aliases [L#53]  * test fast and full test gates are separate aliases (0.01ms) [L#53]
+  * test test helper default-excludes the nightly lane from every run [L#95]  * test test helper default-excludes the nightly lane from every run (0.03ms) [L#95]
+
+  4) test test helper default-excludes the nightly lane from every run (Hiraeth.MixAliasContractTest)
+     test/hiraeth/mix_alias_contract_test.exs:95
+     expected test_helper.exs to eval priv/test_lanes.exs
+     code: assert helper =~ "Code.eval_file(Path.expand(\"../priv/test_lanes.exs\", __DIR__))",
+     stacktrace:
+       test/hiraeth/mix_alias_contract_test.exs:101: (test)
+
+  * test the default ExUnit configuration excludes the nightly lane [L#108]  * test the default ExUnit configuration excludes the nightly lane (0.03ms) [L#108]
+
+  5) test the default ExUnit configuration excludes the nightly lane (Hiraeth.MixAliasContractTest)
+     test/hiraeth/mix_alias_contract_test.exs:108
+     expected :nightly to be default-excluded via ExUnit.start(exclude: ...)
+     code: assert :nightly in exclude,
+     stacktrace:
+       test/hiraeth/mix_alias_contract_test.exs:115: (test)
+
+  * test fast test gate tags match priv/test_lanes.exs slow_tags [L#72]  * test fast test gate tags match priv/test_lanes.exs slow_tags (3.5ms) [L#72]
+
+Finished in 0.04 seconds (0.04s async, 0.00s sync)
+15 tests, 5 failures

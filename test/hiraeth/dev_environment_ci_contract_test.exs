@@ -32,6 +32,29 @@ defmodule Hiraeth.DevEnvironmentCIContractTest do
     assert_deep_lane_contract!()
   end
 
+  @tag :ci_devenv_contract
+  test "deep lane coverage job opts into the nightly lane explicitly" do
+    # The coverage job owns the nightly lane (the ExCoveralls floor is
+    # calibrated on the full suite); with test_helper default-excluding
+    # :nightly, the job must opt back in explicitly via `--include nightly`.
+    deep = read!(".github/workflows/deep.yml")
+    coverage_job = ci_job!(deep, "coverage")
+
+    assert coverage_job =~ "mix coveralls --include nightly",
+           "expected the deep coverage job to run `mix coveralls --include nightly`"
+  end
+
+  @tag :ci_devenv_contract
+  test "deep lane full-suite job does not exclude the nightly lane ad hoc" do
+    # The nightly exclusion is owned by test_helper.exs via priv/test_lanes.exs;
+    # an ad-hoc `--exclude nightly` flag here would drift from that contract.
+    deep = read!(".github/workflows/deep.yml")
+    full_suite_job = ci_job!(deep, "full-suite")
+
+    refute full_suite_job =~ ~r/--exclude nightly/,
+           "expected the full-suite job to rely on the test_helper default exclusion"
+  end
+
   # The full `devenv -- test` readiness graph was de-nixed along with the
   # devenv-smoke lane: deep.yml must not reference devenv at all, while the
   # sidecar pytest gate and the merge/nightly-only trigger contract stay
