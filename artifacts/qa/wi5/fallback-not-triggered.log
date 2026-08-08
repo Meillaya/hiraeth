@@ -1,0 +1,50 @@
+Todo 15 — Conditional fallback: NOT TRIGGERED
+=============================================
+Plan: .omo/plans/test-full-and-bulk-nightly-seed.md, Todo 15
+Date: 2026-08-08
+Commit (HEAD during measurement): bfca6e3
+
+TRIGGER CONDITION (per plan todo 15)
+------------------------------------
+"ONLY if todo 14's test_full_ms > 300_000; otherwise record NOT TRIGGERED."
+  - Trigger fires when: test_full_ms > 300_000
+  - NOT triggered when: test_full_ms <= 300_000
+
+MEASURED VALUE
+--------------
+Source: artifacts/qa/perf/lanes-final.json (todo 14 final measurement)
+  gates.test.full = 243911  (test_full_ms = 243,911 ms)
+  gates.test.nightly = 151039
+  totals: gates_run 5, gates_failed 0, error null
+  coverage-final.json: TOTAL 87.1% vs 86.1 floor (not breached)
+
+COMPARISON
+----------
+  243,911 ms  <=  300,000 ms  -> condition FAILS -> fallback NOT TRIGGERED
+
+CONCLUSION: NOT TRIGGERED
+-------------------------
+The `mix test.full` budget (<= 5 min / 300,000 ms) is MET without the
+fallback. The test committed fixture stays at the FULL corpus; NO config
+change is made. The QA-failure probe (revert the config -> time budget
+fails again) is N/A because there is no config to revert.
+
+NO-CODE-CHANGE CONFIRMATION
+---------------------------
+config/test.exs has NO `committed_catalog_fixture_dir` override (the env
+override at test/support/catalog/cleanup.ex:180-182 falls back to the
+default full corpus). Verified:
+  $ grep -n "committed_catalog_fixture_dir" config/test.exs
+  -> (no output, exit 1)
+
+The affected-test enumeration from the plan (public_catalog_live_test.exs,
+route_shell_live_test.exs, public_catalog_performance_test.exs,
+public_projection_contract_test.exs, cleanup_test.exs) is NOT exercised:
+no fixture is changed, so no content assertions are adapted and no
+cleanup_test.exs put_env is added. The nightly reseed-contract test at
+cleanup_test.exs:32 continues to verify the full corpus unchanged.
+
+QA failure probe: N/A (the fallback's "revert the config" probe only
+applies to the triggered path; nothing was added, so nothing to revert).
+
+WORKING TREE: no source/config/test changes made (evidence log only).
