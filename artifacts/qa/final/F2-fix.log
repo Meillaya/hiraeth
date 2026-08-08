@@ -1,0 +1,31 @@
+F2 fix + re-verification evidence (2026-08-08)
+Fix: test/hiraeth/real_catalog_importer_test.exs:178-181 -> drop @tag :full_catalog + @tag :slow from the perf envelope (keep :nightly + timeout 600_000); comment updated to document the include-wins trap.
+
+=== [1] membership: MIX_ENV=test mix test --include full_catalog --include slow test/hiraeth/real_catalog_importer_test.exs --trace ===
+  * test bulk full-corpus seed completes within the 300s perf envelope [L#184]  * test bulk full-corpus seed completes within the 300s perf envelope (excluded) [L#184]
+duration-anchored matches (must be 0):
+0
+Finished in 19.1 seconds (19.1s async, 0.00s sync)
+13 tests, 0 failures, 2 excluded
+
+=== [2] nightly lane: MIX_ENV=test mix test --only nightly --trace ===
+127:  * test existing seed!/1 still works after adding seed_provider!/2 (182959.2ms) [L#208]
+483:  * test bulk full-corpus seed completes within the 300s perf envelope [L#184]  * test bulk full-corpus seed completes within the 300s perf envelope (178485.2ms) [L#184]
+484:  * test real catalog importer handles the full real_publishers corpus end-to-end [L#160]  * test real catalog importer handles the full real_publishers corpus end-to-end (178935.2ms) [L#160]
+525 tests, 0 failures, 522 excluded
+NIGHTLY_EXIT=0
+
+=== [3] mix gate ===
+GATE2_EXIT=0
+525 tests, 0 failures, 116 excluded
+
+=== [4] mix format ===
+FORMAT_OK (mix format + mix format --check-formatted)
+
+=== [5] contract tests ===
+mix_alias_contract_test + dev_environment_ci_contract_test: 15 tests, 0 failures
+
+=== [6] @tag :nightly membership (anchored) ===
+test/hiraeth/real_catalog/importer_provider_test.exs:203:  @tag :nightly
+test/hiraeth/real_catalog_importer_test.exs:158:  @tag :nightly
+test/hiraeth/real_catalog_importer_test.exs:182:  @tag :nightly

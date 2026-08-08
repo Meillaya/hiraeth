@@ -171,12 +171,14 @@ defmodule Hiraeth.RealCatalogImporterTest do
     assert summary.publishers == length(datasets)
   end
 
-  # Nightly perf envelope (WI2 hard gate): the full-corpus bulk seed must
-  # finish well inside 300s on a CI-box-class host. The :global seed lock is
-  # acquired BEFORE timing so wait time for concurrent corpus seeds never
-  # pollutes the assert (the coverage job runs --max-cases 8).
-  @tag :full_catalog
-  @tag :slow
+  # Nightly-only perf envelope (WI2 hard gate): the full-corpus bulk seed
+  # must finish well inside 300s on a CI-box-class host. The :global seed
+  # lock is acquired BEFORE timing so wait time for concurrent corpus seeds
+  # never pollutes the assert (the coverage job runs --max-cases 8).
+  # `:nightly`-only, like the corpus monsters above: test.full's
+  # `--include full_catalog --include slow` would re-admit this test if it
+  # carried those tags (ExUnit include beats the default exclude), breaking
+  # the "ZERO nightly-tagged tests in test.full" membership contract.
   @tag :nightly
   @tag timeout: 600_000
   test "bulk full-corpus seed completes within the 300s perf envelope" do
