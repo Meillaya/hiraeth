@@ -1,0 +1,11 @@
+# shape-check isolation transcript — build_manifest wall-time (todo 3)
+# generated_at: 2026-08-08T14:59:51Z
+# git HEAD: dfdac03
+# function: Hiraeth.RealCatalog.SourceArtifacts.build_manifest/1 (dir = Dataset.default_dir(), full 23-dataset corpus)
+# same entry the hidden committed reseed uses: test/support/catalog/cleanup.ex:185 (expected_committed_catalog_shape)
+# measurement: System.monotonic_time() deltas, native -> ms (plan's Process.monotonic_time() does not exist in Elixir 1.18.4)
+# command: MIX_ENV=test mix run -e 'Enum.each(1..3, fn i -> ... System.monotonic_time() ... build_manifest(default_dir()) ... end)'
+#
+build_manifest run 1: 858ms
+build_manifest run 2: 538ms
+build_manifest run 3: 720ms

@@ -1,0 +1,18 @@
+{
+  "top5": {
+    "test/hiraeth/real_catalog_importer_test.exs": 410650,
+    "test/hiraeth/real_catalog/importer_provider_test.exs": 190896,
+    "test/hiraeth/real_catalog_dataset_test.exs": 21218,
+    "test/hiraeth_web/live/public_catalog_live_test.exs": 11879,
+    "test/hiraeth/ingestion/auto_ingest_e2e_test.exs": 8933
+  },
+  "test_full_ms": 1138814,
+  "test_nightly_ms": 186779,
+  "shape_check_ms": [
+    858,
+    538,
+    720
+  ],
+  "shape_check_isolated": true,
+  "derived_from": "baseline-lanes.json"
+}
