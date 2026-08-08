@@ -16,5 +16,9 @@
     :performance,
     :browser,
     :public_catalog_full
-  ]
+  ],
+  # Opt-in lane: excluded by default everywhere (test_helper.exs passes this
+  # to ExUnit.start); run with `--include nightly`; the deep-lane coverage job
+  # owns it.
+  nightly_tags: [:nightly]
 }

@@ -1,0 +1,341 @@
+=== Todo 5: nightly opt-in mechanism (green) ===
+=== 3a. Contract tests (mix_alias + dev_environment_ci) ===
+Running ExUnit with seed: 989759, max_cases: 1
+Excluding tags: [:nightly]
+
+
+Hiraeth.DevEnvironmentCIContractTest [test/hiraeth/dev_environment_ci_contract_test.exs]
+  * test deep lane coverage job opts into the nightly lane explicitly [L#36]  * test deep lane coverage job opts into the nightly lane explicitly (2.0ms) [L#36]
+
+  1) test deep lane coverage job opts into the nightly lane explicitly (Hiraeth.DevEnvironmentCIContractTest)
+     test/hiraeth/dev_environment_ci_contract_test.exs:36
+     expected the deep coverage job to run `mix coveralls --include nightly`
+     code: assert coverage_job =~ "mix coveralls --include nightly",
+     stacktrace:
+       test/hiraeth/dev_environment_ci_contract_test.exs:43: (test)
+
+  * test CI workflow defines exactly the static and test-fast jobs with no Nix/devenv smoke lane [L#7]  * test CI workflow defines exactly the static and test-fast jobs with no Nix/devenv smoke lane (7.4ms) [L#7]
+  * test deep lane full-suite job does not exclude the nightly lane ad hoc [L#48]  * test deep lane full-suite job does not exclude the nightly lane ad hoc (0.3ms) [L#48]
+
+  2) test deep lane full-suite job does not exclude the nightly lane ad hoc (Hiraeth.DevEnvironmentCIContractTest)
+     test/hiraeth/dev_environment_ci_contract_test.exs:48
+     expected the full-suite job to rely on the test_helper default exclusion
+     code: refute full_suite_job =~ ~r/--exclude nightly/,
+     stacktrace:
+       test/hiraeth/dev_environment_ci_contract_test.exs:54: (test)
+
+
+Hiraeth.MixAliasContractTest [test/hiraeth/mix_alias_contract_test.exs]
+  * test fast test gate tags match priv/test_lanes.exs slow_tags [L#72]  * test fast test gate tags match priv/test_lanes.exs slow_tags (3.8ms) [L#72]
+  * test fast and full test gates are separate aliases [L#53]  * test fast and full test gates are separate aliases (0.03ms) [L#53]
+  * test fast, full, and CI gate aliases exist [L#47]  * test fast, full, and CI gate aliases exist (0.03ms) [L#47]
+  * test gate alias stays free of network-dependent and slow gates [L#185]  * test gate alias stays free of network-dependent and slow gates (0.02ms) [L#185]
+  * test new gate aliases default to the test environment [L#150]  * test new gate aliases default to the test environment (0.00ms) [L#150]
+  * test fast test gate excludes explicit cost tags [L#62]  * test fast test gate excludes explicit cost tags (0.01ms) [L#62]
+  * test test lanes declare the opt-in nightly lane tags [L#85]  * test test lanes declare the opt-in nightly lane tags (0.1ms) [L#85]
+  * test gate alias runs the fast blocking checks [L#177]  * test gate alias runs the fast blocking checks (0.00ms) [L#177]
+  * test CI gate runs the static analysis gates before assets and tests [L#157]  * test CI gate runs the static analysis gates before assets and tests (0.00ms) [L#157]
+  * test test helper default-excludes the nightly lane from every run [L#95]  * test test helper default-excludes the nightly lane from every run (0.03ms) [L#95]
+  * test the default ExUnit configuration excludes the nightly lane [L#108]  * test the default ExUnit configuration excludes the nightly lane (0.03ms) [L#108]
+  * test gate and CI gates check formatting without mutating files [L#138]  * test gate and CI gates check formatting without mutating files (0.01ms) [L#138]
+
+Finished in 0.04 seconds (0.04s async, 0.00s sync)
+15 tests, 2 failures
+=== 3b. mix gate ===
+Checking 214 source files (this might take a while) ...
+
+Please report incorrect results: https://github.com/rrrene/credo/issues
+
+Analysis took 1.2 seconds (0.07s to load, 1.2s running 69 checks on 214 files)
+2321 mods/funs, found no issues.
+
+Use `mix credo explain` to explain issues, `mix credo --help` for options.
+Running ExUnit with seed: 202883, max_cases: 32
+Excluding tags: [:slow, :full_catalog, :integration, :performance, :browser, :public_catalog_full, :nightly]
+
+.......warning: setting `adapter` to a function is deprecated in favour of setting it to a module
+  (req 0.7.2) lib/req/request.ex:1069: Req.Request.adapter/1
+  (req 0.7.2) lib/req/request.ex:1053: Req.Request.run_request/2
+  (req 0.7.2) lib/req/request.ex:997: Req.Request.run/1
+  (req 0.7.2) lib/req.ex:1154: Req.request!/2
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:640: Hiraeth.Covers.req_fetch!/4
+  (hiraeth 1.0.0) lib/hiraeth/ingestion/cover_pipeline.ex:217: Hiraeth.Ingestion.CoverPipeline.fetch_cover/3
+  (hiraeth 1.0.0) lib/hiraeth/ingestion/cover_pipeline.ex:176: Hiraeth.Ingestion.CoverPipeline.process_cover/5
+  (elixir 1.18.4) lib/task/supervised.ex:101: Task.Supervised.invoke_mfa/2
+  (elixir 1.18.4) lib/task/supervised.ex:36: Task.Supervised.reply/4
+
+.............................................     warning: function provider_record_count/2 is unused
+     │
+ 899 │   defp provider_record_count(datasets, provider) do
+     │        ~
+     │
+     └─ test/hiraeth/real_catalog_importer_test.exs:899:8: Hiraeth.RealCatalogImporterTest (module)
+
+    warning: unused alias SourceLedgerEntry
+    │
+ 10 │   alias Hiraeth.Sources.{SourceLedgerEntry, SourceRecord}
+    │   ~
+    │
+    └─ test/hiraeth/ingestion/e2e_ingestion_stealthy_test.exs:10:3
+
+.......................................................
+
+  1) test deep lane full-suite job does not exclude the nightly lane ad hoc (Hiraeth.DevEnvironmentCIContractTest)
+     test/hiraeth/dev_environment_ci_contract_test.exs:48
+     expected the full-suite job to rely on the test_helper default exclusion
+     code: refute full_suite_job =~ ~r/--exclude nightly/,
+     stacktrace:
+       test/hiraeth/dev_environment_ci_contract_test.exs:54: (test)
+
+
+
+  2) test deep lane coverage job opts into the nightly lane explicitly (Hiraeth.DevEnvironmentCIContractTest)
+     test/hiraeth/dev_environment_ci_contract_test.exs:36
+     expected the deep coverage job to run `mix coveralls --include nightly`
+     code: assert coverage_job =~ "mix coveralls --include nightly",
+     stacktrace:
+       test/hiraeth/dev_environment_ci_contract_test.exs:43: (test)
+
+........................................    warning: unused alias Contribution
+    │
+  9 │   alias Hiraeth.Catalog.{
+    │   ~
+    │
+    └─ test/hiraeth/real_catalog_importer_test.exs:9:3
+
+    warning: unused alias Imprint
+    │
+  9 │   alias Hiraeth.Catalog.{
+    │   ~
+    │
+    └─ test/hiraeth/real_catalog_importer_test.exs:9:3
+
+    warning: unused alias Repo
+    │
+ 24 │   alias Hiraeth.Repo
+    │   ~
+    │
+    └─ test/hiraeth/real_catalog_importer_test.exs:24:3
+
+    warning: unused alias Series
+    │
+  9 │   alias Hiraeth.Catalog.{
+    │   ~
+    │
+    └─ test/hiraeth/real_catalog_importer_test.exs:9:3
+
+    warning: unused alias SeriesMembership
+    │
+  9 │   alias Hiraeth.Catalog.{
+    │   ~
+    │
+    └─ test/hiraeth/real_catalog_importer_test.exs:9:3
+
+    warning: unused alias SourceLedgerEntry
+    │
+ 25 │   alias Hiraeth.Sources.{SourceLedgerEntry, SourceRecord}
+    │   ~
+    │
+    └─ test/hiraeth/real_catalog_importer_test.exs:25:3
+
+.........................warning: setting `adapter` to a function is deprecated in favour of setting it to a module
+  (req 0.7.2) lib/req/request.ex:1069: Req.Request.adapter/1
+  (req 0.7.2) lib/req/request.ex:1053: Req.Request.run_request/2
+  (req 0.7.2) lib/req/request.ex:997: Req.Request.run/1
+  (req 0.7.2) lib/req.ex:1154: Req.request!/2
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:640: Hiraeth.Covers.req_fetch!/4
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:319: Hiraeth.Covers.fetch_into_cache/5
+  (elixir 1.18.4) lib/task/supervised.ex:101: Task.Supervised.invoke_mfa/2
+  (elixir 1.18.4) lib/task/supervised.ex:36: Task.Supervised.reply/4
+
+warning: setting `adapter` to a function is deprecated in favour of setting it to a module
+  (req 0.7.2) lib/req/request.ex:1069: Req.Request.adapter/1
+  (req 0.7.2) lib/req/request.ex:1053: Req.Request.run_request/2
+  (req 0.7.2) lib/req/request.ex:997: Req.Request.run/1
+  (req 0.7.2) lib/req.ex:1154: Req.request!/2
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:696: Hiraeth.Covers.follow_safe_cover_redirects/5
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:641: Hiraeth.Covers.req_fetch!/4
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:319: Hiraeth.Covers.fetch_into_cache/5
+  (elixir 1.18.4) lib/task/supervised.ex:101: Task.Supervised.invoke_mfa/2
+  (elixir 1.18.4) lib/task/supervised.ex:36: Task.Supervised.reply/4
+
+....................................................................11:06:51.349 [warning] enriched detail for 1 records
+......warning: setting `adapter` to a function is deprecated in favour of setting it to a module
+  (req 0.7.2) lib/req/request.ex:1069: Req.Request.adapter/1
+  (req 0.7.2) lib/req/request.ex:1053: Req.Request.run_request/2
+  (req 0.7.2) lib/req/request.ex:997: Req.Request.run/1
+  (req 0.7.2) lib/req.ex:1154: Req.request!/2
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:640: Hiraeth.Covers.req_fetch!/4
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:319: Hiraeth.Covers.fetch_into_cache/5
+  (elixir 1.18.4) lib/task/supervised.ex:101: Task.Supervised.invoke_mfa/2
+  (elixir 1.18.4) lib/task/supervised.ex:36: Task.Supervised.reply/4
+
+warning: setting `adapter` to a function is deprecated in favour of setting it to a module
+  (req 0.7.2) lib/req/request.ex:1069: Req.Request.adapter/1
+  (req 0.7.2) lib/req/request.ex:1053: Req.Request.run_request/2
+  (req 0.7.2) lib/req/request.ex:997: Req.Request.run/1
+  (req 0.7.2) lib/req.ex:1154: Req.request!/2
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:696: Hiraeth.Covers.follow_safe_cover_redirects/5
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:641: Hiraeth.Covers.req_fetch!/4
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:319: Hiraeth.Covers.fetch_into_cache/5
+  (elixir 1.18.4) lib/task/supervised.ex:101: Task.Supervised.invoke_mfa/2
+  (elixir 1.18.4) lib/task/supervised.ex:36: Task.Supervised.reply/4
+
+...................warning: setting `adapter` to a function is deprecated in favour of setting it to a module
+  (req 0.7.2) lib/req/request.ex:1069: Req.Request.adapter/1
+  (req 0.7.2) lib/req/request.ex:1053: Req.Request.run_request/2
+  (req 0.7.2) lib/req/request.ex:997: Req.Request.run/1
+  (req 0.7.2) lib/req.ex:1154: Req.request!/2
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:640: Hiraeth.Covers.req_fetch!/4
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:319: Hiraeth.Covers.fetch_into_cache/5
+  (elixir 1.18.4) lib/task/supervised.ex:101: Task.Supervised.invoke_mfa/2
+  (elixir 1.18.4) lib/task/supervised.ex:36: Task.Supervised.reply/4
+
+.........................................................................................11:06:57.047 [warning] sidecar detail enrichment failed for https://publisher.example/books/detail-needed: {:parse_failed, "detail failed"}
+.......................................{"action":"ingest","oban_job_id":1164,"provider":"test_publisher_api","run_id":"1f71765c-b972-44a3-9255-93dcd40e8d9e","status":"started","wait":false}
+.Usage: mix hiraeth.ingest --provider <slug> [--manifest <path>] [--dry-run] [--json] [--wait] [--replay RUN_ID] [--cancel RUN_ID]
+.Ingestion started for provider: test_publisher_api
+Provider run ID: 3e2011f1-cae0-40c1-8521-d987bc16573d
+Job ID: 1165
+Ingestion completed for provider: test_publisher_api
+provider_run_id=3e2011f1-cae0-40c1-8521-d987bc16573d
+source_records=0
+editions=0
+covers=0
+.Ingestion started for provider: test_publisher_api
+Provider run ID: 39df1866-393e-428e-b069-9947c06c9df7
+Job ID: 1166
+Ingestion completed for provider: test_publisher_api
+provider_run_id=39df1866-393e-428e-b069-9947c06c9df7
+source_records=0
+editions=0
+covers=0
+.manifest load failed: manifest validation failed for /home/mei/projects/hiraeth/test/support/fixtures/provider_manifests/invalid_missing_fields.json:
+  - source_mode is required
+  - not_legal_advice is required
+  - cover_cache_policy is required
+  - excluded_content is required
+  - takedown_contact is required
+  - permission_basis is required
+  - cover_hosts is required
+  - source_hosts is required
+  - source_urls is required
+..........
+Finished in 13.5 seconds (4.9s async, 8.5s sync)
+516 tests, 2 failures, 107 excluded
+=== 3c-i. mix test.full --trace (membership: nightly names must be ABSENT) ===
+FULL_EXIT=2
+--- summary ---
+
+Finished in 569.2 seconds (266.3s async, 302.9s sync)
+516 tests, 4 failures
+--- nightly-name greps (expect 0,0) ---
+monster1 occurrences=1
+monster2 occurrences=1
+=== seed_provider standalone (contamination isolation proof) ===
+Running ExUnit with seed: 154548, max_cases: 1
+Excluding tags: [:nightly]
+
+
+Hiraeth.RealCatalog.SeedProviderTaskTest [test/hiraeth/real_catalog/seed_provider_task_test.exs]
+  * test idempotency re-running the same provider does not duplicate editions [L#85]  * test idempotency re-running the same provider does not duplicate editions (260.6ms) [L#85]
+  * test argument validation missing dataset file exits 1 with message [L#72]  * test argument validation missing dataset file exits 1 with message (0.4ms) [L#72]
+  * test happy path seeds a single provider dataset from priv/catalog_sources/real_publishers [L#33]  * test happy path seeds a single provider dataset from priv/catalog_sources/real_publishers (29.9ms) [L#33]
+  * test argument validation missing --provider exits 1 with usage [L#63]  * test argument validation missing --provider exits 1 with usage (0.3ms) [L#63]
+
+Finished in 0.3 seconds (0.00s async, 0.3s sync)
+4 tests, 0 failures
+=== 3c-ii. bare mix test on the two monster files (membership: nightly names ABSENT) ===
+BARE_EXIT=0
+
+Finished in 27.4 seconds (27.4s async, 0.00s sync)
+19 tests, 0 failures, 2 excluded
+monster1 occurrences=1, monster2 occurrences=1
+=== 3c-iii. mix test --only nightly --trace (membership: BOTH nightly names RUN, exactly 2) ===
+NIGHTLY_EXIT=0
+
+Finished in 421.4 seconds (421.4s async, 0.00s sync)
+516 tests, 0 failures, 514 excluded
+ran monster1=1 monster2=1
+=== QA probe: reverted helper, contract must go RED ===
+Running ExUnit with seed: 832913, max_cases: 1
+
+
+Hiraeth.MixAliasContractTest [test/hiraeth/mix_alias_contract_test.exs]
+  * test new gate aliases default to the test environment [L#150]  * test new gate aliases default to the test environment (0.00ms) [L#150]
+  * test fast and full test gates are separate aliases [L#53]  * test fast and full test gates are separate aliases (0.03ms) [L#53]
+  * test test lanes declare the opt-in nightly lane tags [L#85]  * test test lanes declare the opt-in nightly lane tags (0.2ms) [L#85]
+  * test test helper default-excludes the nightly lane from every run [L#95]  * test test helper default-excludes the nightly lane from every run (2.7ms) [L#95]
+
+  1) test test helper default-excludes the nightly lane from every run (Hiraeth.MixAliasContractTest)
+     test/hiraeth/mix_alias_contract_test.exs:95
+     expected test_helper.exs to eval priv/test_lanes.exs
+     code: assert helper =~ "Code.eval_file(Path.expand(\"../priv/test_lanes.exs\", __DIR__))",
+     stacktrace:
+       test/hiraeth/mix_alias_contract_test.exs:101: (test)
+
+  * test gate alias stays free of network-dependent and slow gates [L#185]  * test gate alias stays free of network-dependent and slow gates (0.03ms) [L#185]
+  * test gate and CI gates check formatting without mutating files [L#138]  * test gate and CI gates check formatting without mutating files (0.01ms) [L#138]
+  * test fast test gate tags match priv/test_lanes.exs slow_tags [L#72]  * test fast test gate tags match priv/test_lanes.exs slow_tags (1.2ms) [L#72]
+  * test fast test gate excludes explicit cost tags [L#62]  * test fast test gate excludes explicit cost tags (0.02ms) [L#62]
+  * test the default ExUnit configuration excludes the nightly lane [L#108]  * test the default ExUnit configuration excludes the nightly lane (0.04ms) [L#108]
+
+  2) test the default ExUnit configuration excludes the nightly lane (Hiraeth.MixAliasContractTest)
+     test/hiraeth/mix_alias_contract_test.exs:108
+     expected :nightly to be default-excluded via ExUnit.start(exclude: ...)
+     code: assert :nightly in exclude,
+     stacktrace:
+       test/hiraeth/mix_alias_contract_test.exs:115: (test)
+
+  * test gate alias runs the fast blocking checks [L#177]  * test gate alias runs the fast blocking checks (0.00ms) [L#177]
+  * test CI gate runs the static analysis gates before assets and tests [L#157]  * test CI gate runs the static analysis gates before assets and tests (0.00ms) [L#157]
+  * test fast, full, and CI gate aliases exist [L#47]  * test fast, full, and CI gate aliases exist (0.02ms) [L#47]
+
+Finished in 0.04 seconds (0.04s async, 0.00s sync)
+12 tests, 2 failures
+
+=== SUMMARY (Todo 5: nightly opt-in mechanism) ===
+Wiring (pinned strings, byte-exact): test/test_helper.exs lines 1-2 = lanes eval + ExUnit.start(exclude: lanes.nightly_tags); lines 3-37 byte-identical. priv/test_lanes.exs gains nightly_tags: [:nightly] + opt-in comment; slow_tags unchanged.
+
+3a. Contract tests (mix_alias + dev_environment_ci): 15 tests, 2 failures, exit 2.
+  - mix_alias_contract_test.exs: 12/12 GREEN. Mechanism assertions (a) nightly_tags, (b) helper
+    static-content strings, (c) :nightly in ExUnit exclude — all pass.
+  - dev_environment_ci_contract_test.exs: 1/3 green; the 2 failures are (d) coverage job
+    "mix coveralls --include nightly" and (e) full-suite "no --exclude nightly" — deep.yml flag
+    locks, todo-6-pending by design (task MUST NOT: deep.yml untouched). NOT wiring deviations.
+3b. mix gate: GATE_EXIT=2. compile --warnings-as-errors / deps.unlock / format / credo --strict all
+  pass. test.fast: 516 tests, 2 failures, 107 excluded; "Excluding tags: [..., :nightly]" proves
+  additive helper merge. The only 2 failures = the same todo-6-pending deep.yml assertions (d)/(e).
+3c. Membership (duration-anchored grep "name (Nms)"; note --trace prints excluded tests as "(excluded)"):
+  - bare mix test on the two monster files: 19 tests, 0 failures, 2 excluded; monsters NOT run. OK
+  - mix test.full --trace: 516 tests, 4 failures, exit 2. BOTH MONSTERS RAN (95.9s + 105.8s).
+    FAILURE of the task's test.full membership expectation — see FINDING 1.
+    (4 failures = 2 todo-6-pending deep.yml + 2 SeedProviderTaskTest corpus-contamination flakes, FINDING 2.)
+  - mix test --only nightly --trace: 516 tests, 0 failures, 514 excluded, exit 0; exactly the 2
+    monsters ran (277.2s + 143.6s). OK
+QA-failure probe (plan-mandated lock proof): reverted test_helper.exs to bare ExUnit.start() ->
+  mix_alias contract: 12 tests, 2 failures (assertions b and c red). Restored byte-identical
+  (sha256 aa76cfcd...).
+
+FINDING 1 (plan-premise error, critical): ExUnit.Filters.eval/4 (Elixir 1.18.4,
+/home/mei/.nix-profile/lib/elixir/lib/ex_unit/lib/ex_unit/filters.ex) gives an include match
+ABSOLUTE priority: cond first clause "Enum.any?(include, &has_tag(&1, tags, collection)) ->
+maybe_skipped(...)" returns :ok before the exclude is ever consulted. mix test.full passes
+--include slow --include full_catalog ... (slow_tags) and the two monsters carry @tag :full_catalog
++ @tag :slow + @tag :nightly, so they match test.full's include and RUN despite the helper's
+exclude: [:nightly]. The plan's premise "test.full excludes nightly via the helper" is false; the
+task's membership proof "test.full output does NOT contain the two nightly names" is therefore
+unreachable with the pinned 2-file wiring (no ExUnit wiring can beat include-wins). Consequence:
+deep.yml:293's existing "--exclude nightly" on the full-suite job is likewise ineffective for these
+monsters (same eval path) — the "30-min corpus monsters" comment at deep.yml:205-206 describes an
+intent the flag never delivered. RECOMMENDED AMENDMENT (orchestrator decision, outside this todo's
+2-file scope): drop @tag :full_catalog and @tag :slow from the two monsters (real_catalog_importer
+_test.exs:158-161 and importer_provider_test.exs:205-208), keeping @tag :nightly + timeout — their
+own comment already claims "Excluded from default mix test.full via @tag :nightly". Then test.full's
+include no longer matches them and the helper exclude applies. Membership for bare mix test,
+test.fast, and --only nightly is otherwise fully proven.
+FINDING 2 (pre-existing, order-dependent): SeedProviderTaskTest "happy path" + "idempotency" failed
+in the test.full run with length(editions) == 8779 (full corpus 8776 + 3) — cross-test corpus
+contamination in the shared DB, exposed by this run's random seed. Standalone run of the file:
+4 tests, 0 failures. Unrelated to this change (no DB/ordering semantics touched; test set in
+test.full identical before/after). Left in place; orchestration decision for a later todo.
