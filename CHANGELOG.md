@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- `:nightly` is now a first-class opt-in test lane: `priv/test_lanes.exs` owns `nightly_tags`, and `test/test_helper.exs` default-excludes `:nightly` from every lane (bare `mix test`, `mix test.fast`, `mix test.full`, `mix ci`). Re-enable it with `--include nightly` (`mix test --only nightly` for the nightly sweep). The deep-lane nightly coverage job opts in explicitly (`mix coveralls --include nightly`, 86.1 floor unchanged), and the full-suite job's ad-hoc `--exclude nightly` flag is gone.
 - CI consolidated: the deep lane runs the full suite as a 3-partition test matrix on merge to `main` and manual dispatch, with the coveralls 86.1 coverage floor enforced by a nightly-only coverage job; devenv is the local dev/test environment only and no CI lane invokes it.
 - Mix aliases collapsed to `gate` (single fast blocking gate), `ci` (full lane), `test.fast`, and `test.full`; the Makefile `verify` chain slimmed to `audit-provenance verify-summary qa-pack`.
 - Frontend correctness is verified by the LiveView and route logic test suites under `test/hiraeth_web/`; the browser-QA lane was removed.

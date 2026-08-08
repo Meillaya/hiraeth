@@ -60,7 +60,7 @@ Verification is tiered so the fast developer loop stays under five minutes while
 
 - **Layer 0 — local blocking gate (`mix gate`, ≤5 min):** `make gate` wraps the `mix gate` alias (compile with warnings-as-errors, unused-deps check, format check, strict Credo, and the fast ExUnit lane). It is the single blocking local preflight for every change.
 - **Layer 1 — parallel CI (`static` + `test-fast`):** `.github/workflows/ci.yml` runs the static gates (format/Credo/Sobelow/hex.audit) and the fast test suite (postgres:16 service container) in parallel on every PR and push to `main`.
-- **Layer 2 — deep lane (`deep.yml`):** `.github/workflows/deep.yml` runs dialyzer, the full suite as a 3-partition test matrix on merge to `main` and manual dispatch, a nightly coverage job enforcing the 86.1 floor, plus assets, provenance audit, ingestion drills, sidecar pytest/ruff/pyright/uv-audit, and release image builds.
+- **Layer 2 — deep lane (`deep.yml`):** `.github/workflows/deep.yml` runs dialyzer, the full suite as a 3-partition test matrix on merge to `main` and manual dispatch, a nightly coverage job (the explicit `:nightly` opt-in) enforcing the 86.1 floor, plus assets, provenance audit, ingestion drills, sidecar pytest/ruff/pyright/uv-audit, and release image builds.
 
 Frontend correctness is verified by the LiveView and route logic test suites under `test/hiraeth_web/live/` (and the route/controller tests under `test/hiraeth_web/`), which run as part of the ExUnit lanes above; there is no separate browser-level QA lane.
 
@@ -74,7 +74,7 @@ mix test.fast        # fast ExUnit lane, excluding explicit cost tags
 Full local, CI, and release assurance stays separate and should not be expected to fit the fast-loop budget:
 
 ```sh
-mix test.full        # complete ExUnit suite
+mix test.full        # complete ExUnit suite minus the opt-in :nightly lane (mix test --only nightly for the nightly sweep)
 mix ci               # full Phoenix CI/release assurance
 make verify          # provenance audit, verify summary, QA pack
 ```
