@@ -1,0 +1,73 @@
+{
+  "contribution": {
+    "pass": true,
+    "rerun_rows": 5,
+    "no_nil_keys": true
+  },
+  "criteria": {
+    "c1_upsert_fields_no_argument_error": {
+      "pass": true,
+      "evidence": "250-row bulk upsert ran without ArgumentError (upsert_fields present)"
+    },
+    "c2_rerun_zero_duplicates": {
+      "pass": true,
+      "rows": 250,
+      "rerun_rows": 250
+    },
+    "c3_minimal_conflict_update": {
+      "pass": true,
+      "evidence": "10/10 changed-title reruns kept original title + stable id (no PK rewrite, no metadata steamroll)"
+    },
+    "c4_transaction_false_rollback": {
+      "pass": true,
+      "evidence": "Repo.transaction returned {:error, :forced_spike_failure}; 0/50 rows persisted after forced mid-batch rollback"
+    },
+    "c5_sandbox_ownership": {
+      "pass": true,
+      "evidence": "ran under MIX_ENV=test mix test manual sandbox mode, zero ownership errors"
+    },
+    "c6_bulk_vs_create_10x": {
+      "pass": true,
+      "rounds": [
+        {
+          "round": 1,
+          "ratio": 4.0,
+          "bulk_ms": 74,
+          "create_ms": 295
+        },
+        {
+          "round": 2,
+          "ratio": 6.4,
+          "bulk_ms": 46,
+          "create_ms": 293
+        },
+        {
+          "round": 3,
+          "ratio": 6.5,
+          "bulk_ms": 45,
+          "create_ms": 292
+        }
+      ],
+      "batch_size": 100,
+      "median_ratio": 6.4,
+      "ratio_10x_met": false,
+      "n_rows_per_round": 1000
+    }
+  },
+  "date": "2026-08-08",
+  "head": "17d47dc",
+  "mechanism": {
+    "ash": "3.31.0",
+    "ash_postgres": "2.11.0",
+    "call": "Ash.bulk_create(inputs, Resource, :create, upsert?: true, upsert_identity: <identity>, upsert_fields: {:replace, [keys]}, transaction: false, batch_size: 100, notify?: false, return_records?: false, authorize?: false)",
+    "pg17_merge?": "PG16 -> ON CONFLICT path (merge_upsert? requires >= 17 and :upsert_with_merge? != false)"
+  },
+  "postgres_server_version_num": "160014",
+  "source_record": {
+    "pass": true,
+    "rerun_rows": 100,
+    "immutable": true
+  },
+  "spike": "bulk-upsert-mechanism",
+  "verdict": "GO"
+}

@@ -19,7 +19,7 @@ defmodule Hiraeth.RealCatalog.BulkSpikeTest do
   alias Hiraeth.Sources.SourceRecord
 
   @agent :bulk_spike_measurements
-  @json_path Path.expand("../../../artifacts/qa/wi2/bulk-spike.json", __DIR__)
+  @json_path Path.expand("../../../artifacts/qa/wi4/bulk-contract-timings.json", __DIR__)
 
   setup_all do
     Agent.start_link(fn -> %{} end, name: @agent)
