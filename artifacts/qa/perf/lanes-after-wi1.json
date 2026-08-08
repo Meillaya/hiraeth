@@ -1,0 +1,186 @@
+{
+  "env": {
+    "cpus": "16",
+    "devenv_root": "none",
+    "elixir": "Elixir 1.18.4 (compiled with Erlang/OTP 28)",
+    "generated_at": "2026-08-08T16:21:24Z",
+    "git_commit": "db613c4",
+    "host": "entropyos-nix",
+    "kernel": "Linux 7.1.6-1-cachyos x86_64 GNU/Linux",
+    "mix_gates_env": "test",
+    "python": "Python 3.13.13"
+  },
+  "gates": {
+    "blocked-check": 6,
+    "compile": 470,
+    "error": null,
+    "test.fast": 15872,
+    "test.full": 344874,
+    "test.nightly": 537497
+  },
+  "generated_at": "2026-08-08T16:21:24Z",
+  "mode": "lanes",
+  "test_files": {
+    "test/hiraeth/ash_postgres_migration_test.exs": {
+      "count": 1,
+      "max_ms": 34,
+      "sum_ms": 34
+    },
+    "test/hiraeth/catalog/cleanup_test.exs": {
+      "count": 3,
+      "max_ms": 926,
+      "sum_ms": 1995
+    },
+    "test/hiraeth/covers_resource_test.exs": {
+      "count": 3,
+      "max_ms": 237,
+      "sum_ms": 377
+    },
+    "test/hiraeth/demo_fixtures_test.exs": {
+      "count": 2,
+      "max_ms": 1147,
+      "sum_ms": 1194
+    },
+    "test/hiraeth/ingestion/apply_phase_regression_test.exs": {
+      "count": 1,
+      "max_ms": 29,
+      "sum_ms": 29
+    },
+    "test/hiraeth/ingestion/auto_ingest_e2e_test.exs": {
+      "count": 2,
+      "max_ms": 4606,
+      "sum_ms": 9207
+    },
+    "test/hiraeth/ingestion/control_plane_resources_test.exs": {
+      "count": 1,
+      "max_ms": 47,
+      "sum_ms": 47
+    },
+    "test/hiraeth/ingestion/cover_pipeline_test.exs": {
+      "count": 2,
+      "max_ms": 113,
+      "sum_ms": 217
+    },
+    "test/hiraeth/ingestion/e2e_ingestion_test.exs": {
+      "count": 2,
+      "max_ms": 2510,
+      "sum_ms": 3123
+    },
+    "test/hiraeth/ingestion/mix_task_control_test.exs": {
+      "count": 2,
+      "max_ms": 2009,
+      "sum_ms": 4015
+    },
+    "test/hiraeth/ingestion/mix_task_test.exs": {
+      "count": 4,
+      "max_ms": 2008,
+      "sum_ms": 8029
+    },
+    "test/hiraeth/ingestion/production_ingestion_script_contract_test.exs": {
+      "count": 1,
+      "max_ms": 58,
+      "sum_ms": 58
+    },
+    "test/hiraeth/ingestion/provider_backfill_test.exs": {
+      "count": 6,
+      "max_ms": 839,
+      "sum_ms": 3596
+    },
+    "test/hiraeth/ingestion/scheduled_apply_test.exs": {
+      "count": 1,
+      "max_ms": 620,
+      "sum_ms": 620
+    },
+    "test/hiraeth/ingestion/sidecar_client_test.exs": {
+      "count": 1,
+      "max_ms": 101,
+      "sum_ms": 101
+    },
+    "test/hiraeth/oban/provider_ingestion_worker_cover_candidate_test.exs": {
+      "count": 2,
+      "max_ms": 1347,
+      "sum_ms": 1381
+    },
+    "test/hiraeth/oban/provider_ingestion_worker_enrichment_test.exs": {
+      "count": 6,
+      "max_ms": 1456,
+      "sum_ms": 3501
+    },
+    "test/hiraeth/oban/provider_ingestion_worker_test.exs": {
+      "count": 9,
+      "max_ms": 70,
+      "sum_ms": 323
+    },
+    "test/hiraeth/oban_config_test.exs": {
+      "count": 2,
+      "max_ms": 37,
+      "sum_ms": 70
+    },
+    "test/hiraeth/provenance_audit_test.exs": {
+      "count": 1,
+      "max_ms": 46,
+      "sum_ms": 46
+    },
+    "test/hiraeth/real_catalog/importer_provider_test.exs": {
+      "count": 7,
+      "max_ms": 264703,
+      "sum_ms": 264909
+    },
+    "test/hiraeth/real_catalog/seed_provider_task_test.exs": {
+      "count": 1,
+      "max_ms": 40,
+      "sum_ms": 40
+    },
+    "test/hiraeth/real_catalog_coverage_report_test.exs": {
+      "count": 3,
+      "max_ms": 2008,
+      "sum_ms": 4432
+    },
+    "test/hiraeth/real_catalog_dataset_test.exs": {
+      "count": 14,
+      "max_ms": 10420,
+      "sum_ms": 21687
+    },
+    "test/hiraeth/real_catalog_importer_test.exs": {
+      "count": 11,
+      "max_ms": 271094,
+      "sum_ms": 304887
+    },
+    "test/hiraeth/real_catalog_source_artifacts_test.exs": {
+      "count": 2,
+      "max_ms": 2425,
+      "sum_ms": 3405
+    },
+    "test/hiraeth/sources_resource_test.exs": {
+      "count": 1,
+      "max_ms": 29,
+      "sum_ms": 29
+    },
+    "test/hiraeth_web/live/public_catalog_live_test.exs": {
+      "count": 4,
+      "max_ms": 4065,
+      "sum_ms": 10583
+    },
+    "test/hiraeth_web/live/route_shell_live_test.exs": {
+      "count": 1,
+      "max_ms": 1933,
+      "sum_ms": 1933
+    },
+    "test/hiraeth_web/live/ui_states_live_test.exs": {
+      "count": 3,
+      "max_ms": 123,
+      "sum_ms": 219
+    },
+    "test/hiraeth_web/public_catalog_performance_test.exs": {
+      "count": 3,
+      "max_ms": 4143,
+      "sum_ms": 7386
+    }
+  },
+  "totals": {
+    "elapsed_ms": 898934,
+    "failed_gates": [],
+    "gates_failed": 0,
+    "gates_run": 5
+  }
+}
