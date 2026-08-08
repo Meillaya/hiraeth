@@ -1,6 +1,8 @@
 defmodule Hiraeth.RealCatalog.SeedProviderTaskTest do
   use Hiraeth.DataCase, async: false
 
+  @moduletag :reset_committed_catalog
+
   alias Hiraeth.Catalog.{Edition, Publisher}
   alias Hiraeth.CatalogCleanup
   alias Hiraeth.Imports.ImportRun

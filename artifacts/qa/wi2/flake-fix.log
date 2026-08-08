@@ -1,0 +1,41 @@
+=== (a) standalone: MIX_ENV=test mix test test/hiraeth/real_catalog/seed_provider_task_test.exs ===
+Running ExUnit with seed: 114120, max_cases: 32
+Excluding tags: [:nightly]
+
+....
+Finished in 0.3 seconds (0.00s async, 0.3s sync)
+4 tests, 0 failures
+exit=0
+
+=== (b) full-lane repro: MIX_ENV=test mix test --include full_catalog --include slow test/hiraeth/real_catalog/seed_provider_task_test.exs test/hiraeth_web/live/public_catalog_live_test.exs --trace --max-cases 1 ===
+Running ExUnit with seed: 505397, max_cases: 1
+Excluding tags: [:nightly]
+Including tags: [:full_catalog, :slow]
+
+
+Hiraeth.RealCatalog.SeedProviderTaskTest [test/hiraeth/real_catalog/seed_provider_task_test.exs]
+  * test happy path seeds a single provider dataset from priv/catalog_sources/real_publishers [L#35]  * test happy path seeds a single provider dataset from priv/catalog_sources/real_publishers (236.6ms) [L#35]
+  * test idempotency re-running the same provider does not duplicate editions [L#87]  * test idempotency re-running the same provider does not duplicate editions (28.2ms) [L#87]
+  * test argument validation missing dataset file exits 1 with message [L#74]  * test argument validation missing dataset file exits 1 with message (5.1ms) [L#74]
+  * test argument validation missing --provider exits 1 with usage [L#65]  * test argument validation missing --provider exits 1 with usage (4.8ms) [L#65]
+
+HiraethWeb.PublicCatalogLiveTest [test/hiraeth_web/live/public_catalog_live_test.exs]
+  * test book, publisher, and series pages render sourced rich metadata [L#565]  * test book, publisher, and series pages render sourced rich metadata (223.9ms) [L#565]
+  * test publisher index/detail routes render real publishers [L#310]  * test publisher index/detail routes render real publishers (4348.6ms) [L#310]
+  * test book detail displays sourced prose, editorial praise, review links, and publisher storefront CTA [L#489]  * test book detail displays sourced prose, editorial praise, review links, and publisher storefront CTA (3400.9ms) [L#489]
+  * test home and browse render real publisher catalog with pagination and filtering [L#39]  * test home and browse render real publisher catalog with pagination and filtering (1270.6ms) [L#39]
+  * test book detail renders source-backed no-ISBN routes and metadata gaps [L#532]  * test book detail renders source-backed no-ISBN routes and metadata gaps (636.5ms) [L#532]
+  * test search interaction stays within local render_change budget [L#289]  * test search interaction stays within local render_change budget (174.9ms) [L#289]
+  * test search route accepts indexed catalog filter params from the URL [L#193]  * test search route accepts indexed catalog filter params from the URL (148.9ms) [L#193]
+  * test public publisher projection exposes bounded editorial groupings [L#400]  * test public publisher projection exposes bounded editorial groupings (166.1ms) [L#400]
+  * test book cover component prefers optimized card derivatives and keeps hero originals [L#641]  * test book cover component prefers optimized card derivatives and keeps hero originals (0.4ms) [L#641]
+  * test series detail groups multiple formats under one sourced book [L#589]  * test series detail groups multiple formats under one sourced book (12.9ms) [L#589]
+  * test contributor index/detail routes render author and translator discovery [L#420]  * test contributor index/detail routes render author and translator discovery (2216.1ms) [L#420]
+  * test search filters real catalog without crashing on malformed text [L#155]  * test search filters real catalog without crashing on malformed text (280.6ms) [L#155]
+  * test public catalog groups multiple formats under one logical book entry [L#91]  * test public catalog groups multiple formats under one logical book entry (227.6ms) [L#91]
+  * test browse and search expose shareable filters and sorting controls [L#207]  * test browse and search expose shareable filters and sorting controls (117.3ms) [L#207]
+  * test edition route redirects to canonical book detail without public provenance panels [L#441]  * test edition route redirects to canonical book detail without public provenance panels (120.5ms) [L#441]
+
+Finished in 225.1 seconds (0.00s async, 225.1s sync)
+19 tests, 0 failures
+exit=0
