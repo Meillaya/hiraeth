@@ -39,7 +39,7 @@ db-restore-drill:
 # fresh checkout may not have a database yet. Deliberately NOT part of `make
 # gate` (fast lane stays fast) and does not post to coveralls.io.
 coverage:
-	MIX_ENV=test mix ecto.create --quiet && MIX_ENV=test mix ecto.migrate --quiet && MIX_ENV=test mix coveralls
+	MIX_ENV=test mix ecto.create --quiet && MIX_ENV=test mix ecto.migrate --quiet && MIX_ENV=test mix coveralls --include nightly
 
 test-fast:
 	mix test.fast
