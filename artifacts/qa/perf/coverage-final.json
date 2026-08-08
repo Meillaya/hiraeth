@@ -1,0 +1,16 @@
+{
+  "command": "MIX_ENV=test mix coveralls --include nightly --max-cases 8",
+  "coverage_pct": 87.1,
+  "exit": 0,
+  "floor": 86.1,
+  "floor_passed": true,
+  "generated_at": "2026-08-08T20:25:00Z",
+  "git_commit": "bfca6e3",
+  "notes": "Pre-merge floor check (Finding 12). Full suite INCLUDING the :nightly monsters + envelope test (Including tags: [:nightly] honored; 0 excluded; all 525 tests ran). Coverage instrumentation slows the suite: wall 348.9s vs 243.9s un-instrumented test.full gate.",
+  "tests": {
+    "excluded": 0,
+    "failures": 0,
+    "total_collected": 525,
+    "wall_ms": 348900
+  }
+}

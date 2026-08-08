@@ -28,34 +28,34 @@
     },
     "c6_bulk_vs_create_10x": {
       "pass": true,
+      "batch_size": 100,
       "rounds": [
         {
           "round": 1,
-          "ratio": 4.0,
-          "bulk_ms": 74,
-          "create_ms": 295
+          "ratio": 6.4,
+          "bulk_ms": 49,
+          "create_ms": 312
         },
         {
           "round": 2,
-          "ratio": 6.4,
+          "ratio": 6.6,
           "bulk_ms": 46,
-          "create_ms": 293
+          "create_ms": 305
         },
         {
           "round": 3,
-          "ratio": 6.5,
-          "bulk_ms": 45,
-          "create_ms": 292
+          "ratio": 6.4,
+          "bulk_ms": 47,
+          "create_ms": 301
         }
       ],
-      "batch_size": 100,
       "median_ratio": 6.4,
       "ratio_10x_met": false,
       "n_rows_per_round": 1000
     }
   },
   "date": "2026-08-08",
-  "head": "17d47dc",
+  "head": "bfca6e3",
   "mechanism": {
     "ash": "3.31.0",
     "ash_postgres": "2.11.0",
