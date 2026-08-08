@@ -1,6 +1,56 @@
 defmodule Hiraeth.RealCatalog.Importer do
   @moduledoc """
   Idempotently imports the tracked real-publisher catalog dataset into Ash resources.
+
+  ## Trusted writer confinement
+
+  This module is the only trusted writer for the deterministic real-publisher
+  corpus: every write runs with `authorize?: false`, so callers MUST pass
+  datasets through `Hiraeth.RealCatalog.Validator` first (any finding blocks
+  seeding). Callers are `priv/repo/seeds.exs`, Mix tasks, and ingestion phases
+  that already validated.
+
+  ## Two-phase bulk pipeline
+
+  Each dataset import runs inside one `Ash.transact` (30-minute timeout) and is
+  split into two phases:
+
+  1. **Phase 1 (pure precompute):** every record is normalized into row maps
+     keyed by natural identity per table (`publishers` slug, `imprints`
+     `{publisher_slug, slug}`, `contributors`/`series`/`works`/`editions` slug,
+     `identifiers` `{type, value}`, `contributions`
+     `{contributor_slug, role, work_slug, edition_slug}`, `series_memberships`
+     `{series_slug, work_slug}`, `cover_assets` `source_url`,
+     `cover_assignments` `{edition_slug, source_url}`, `source_records`
+     `{provider, source_type, source_uri, file_checksum}`). Rows never carry
+     `:id` (Ash generates it; the attribute is not writable). Duplicate
+     identity keys are deduped FIRST-WINS per dataset — this is load-bearing:
+     intra-batch duplicates raise PG 21000 ("ON CONFLICT DO UPDATE command
+     cannot affect row a second time") on PG16.
+
+  2. **Phase 2 (bulk writes):** tables are upserted in FK order via
+     `Ash.bulk_create` with `upsert?: true`, the per-resource `upsert_identity`,
+     and `upsert_fields: {:replace, identity_keys}` — NEVER `:replace_all`,
+     which would expand to `:id` and rewrite primary keys. AshPostgres executes
+     this as true multi-row `insert_all ... ON CONFLICT` (PG16). The minimal
+     conflict update leaves non-key metadata untouched; metadata mutation still
+     flows through the per-row `Ash.update!`/`Ash.destroy!` sync/prune paths
+     (`sync_work_metadata!` guarded by `source_safe_work_update?`,
+     `sync_edition_metadata!`, cover-asset sync, contribution positions, stale
+     prunes) but ONLY for rows that actually changed — zero per-row writes on a
+     cold seed and on an unchanged reseed. After each parent upsert the
+     process-dict cache entry is dropped and the id map is rebuilt from ONE
+     `cached_read`. `import_runs` (identity includes `:id`) and
+     `source_ledger_entries` are handled with Elixir-side diffs: the run is
+     find-or-created on `provider` + `status == "applied"`, and ledger entries
+     are bulk-created only for NEW source records.
+
+  ## PG16 semantics note
+
+  The corpus runs PostgreSQL 16, so upserts take the `ON CONFLICT DO UPDATE`
+  path. PostgreSQL 17+ would route through `MERGE` when AshPostgres
+  `:upsert_with_merge?` is enabled — do not assume the two are interchangeable;
+  the pipeline was validated against PG16 (`server_version_num` 160014).
   """
 
   alias Hiraeth.Catalog.{
@@ -24,8 +74,6 @@ defmodule Hiraeth.RealCatalog.Importer do
   require Ash.Query
 
   @import_cache_key {__MODULE__, :import_cache}
-  @contributions_by_edition_cache_key {__MODULE__, :contributions_by_edition_cache}
-  @contribution_key_cache_key {__MODULE__, :contribution_key_cache}
   @previous_source_work_cache_key {__MODULE__, :previous_source_work_cache}
   @provider_transaction_timeout :timer.minutes(30)
   @provider_transaction_resources [
@@ -58,8 +106,6 @@ defmodule Hiraeth.RealCatalog.Importer do
       end
     after
       Process.delete(@import_cache_key)
-      Process.delete(@contributions_by_edition_cache_key)
-      Process.delete(@contribution_key_cache_key)
       Process.delete(@previous_source_work_cache_key)
     end
   end
@@ -73,7 +119,8 @@ defmodule Hiraeth.RealCatalog.Importer do
       Ash.transact(
         @provider_transaction_resources,
         fn ->
-          Enum.each(dataset.records, &import_record!(dataset, &1, import_run))
+          rows = build_dataset_rows!(dataset)
+          write_bulk_dataset!(rows, dataset, import_run)
 
           if prune_stale? do
             prune_stale_source_records!(dataset.provider, dataset.file_checksum)
@@ -92,69 +139,772 @@ defmodule Hiraeth.RealCatalog.Importer do
         {:error, e}
     after
       Process.delete(@import_cache_key)
-      Process.delete(@contributions_by_edition_cache_key)
-      Process.delete(@contribution_key_cache_key)
       Process.delete(@previous_source_work_cache_key)
     end
   end
 
   defp import_dataset!(dataset, prune_stale?) do
-    import_run = ensure_import_run!(dataset)
+    case Ash.transact(
+           @provider_transaction_resources,
+           fn -> transact_import!(dataset, prune_stale?) end,
+           timeout: @provider_transaction_timeout
+         ) do
+      {:ok, result} -> result
+      {:error, reason} -> raise reason
+    end
+  end
 
-    Enum.each(dataset.records, &import_record!(dataset, &1, import_run))
+  defp transact_import!(dataset, prune_stale?) do
+    import_run = ensure_import_run!(dataset)
+    rows = build_dataset_rows!(dataset)
+    write_bulk_dataset!(rows, dataset, import_run)
 
     if prune_stale? do
       prune_stale_source_records!(dataset.provider, dataset.file_checksum)
     end
+
+    :ok
   end
 
-  defp import_record!(dataset, record, import_run) do
+  # --- Phase 1: pure precompute of per-table row maps -----------------------
+
+  defp build_dataset_rows!(dataset) do
+    initial = %{
+      publishers: %{},
+      imprints: %{},
+      contributors: %{},
+      series: %{},
+      works: %{},
+      editions: %{},
+      identifiers: %{},
+      contributions: %{},
+      contribution_desired: %{},
+      series_memberships: %{},
+      cover_assets: %{},
+      cover_assignments: %{},
+      cover_state: %{},
+      source_records: %{}
+    }
+
+    Enum.reduce(dataset.records, initial, fn record, acc ->
+      accumulate_record_rows!(dataset, record, acc)
+    end)
+  end
+
+  defp accumulate_record_rows!(dataset, record, acc) do
     publisher_slug = Slug.slugify(record.publisher)
 
-    publisher =
-      find_or_create!(
-        Publisher,
-        :slug,
-        publisher_slug,
-        %{name: record.publisher, slug: publisher_slug},
-        trusted_write_opts()
+    acc
+    |> put_publisher_row(record, publisher_slug)
+    |> put_imprint_row(record, publisher_slug)
+    |> put_contributor_rows(record)
+    |> put_series_rows(record, publisher_slug)
+    |> put_work_row(record, publisher_slug)
+    |> put_edition_row(record, publisher_slug)
+    |> put_identifier_row(dataset, record)
+    |> put_contribution_rows(record, publisher_slug)
+    |> put_series_membership_rows(record, publisher_slug)
+    |> put_cover_rows(record)
+    |> put_source_record_row(dataset, record)
+  end
+
+  defp put_publisher_row(acc, record, publisher_slug) do
+    update_in(
+      acc.publishers,
+      &Map.put_new(&1, publisher_slug, %{
+        name: record.publisher,
+        slug: publisher_slug
+      })
+    )
+  end
+
+  defp put_imprint_row(acc, record, publisher_slug) do
+    if present?(record.imprint) do
+      imprint_slug = Slug.slugify(record.imprint)
+
+      update_in(
+        acc.imprints,
+        &Map.put_new(&1, {publisher_slug, imprint_slug}, %{
+          name: record.imprint,
+          slug: imprint_slug
+        })
       )
+    else
+      acc
+    end
+  end
 
-    imprint =
-      if present?(record.imprint) do
-        imprint_slug = Slug.slugify(record.imprint)
+  defp put_contributor_rows(acc, record) do
+    record.contributors
+    |> Enum.uniq_by(fn contributor_data ->
+      {Slug.slugify(contributor_data.name), contributor_data.role}
+    end)
+    |> Enum.reduce(acc, fn contributor_data, acc ->
+      contributor_slug = Slug.slugify(contributor_data.name)
 
-        find_or_create_by!(
-          Imprint,
-          &(&1.publisher_id == publisher.id and &1.slug == imprint_slug),
-          %{name: record.imprint, slug: imprint_slug, publisher_id: publisher.id},
-          trusted_write_opts()
-        )
+      update_in(
+        acc.contributors,
+        &Map.put_new(&1, contributor_slug, %{
+          display_name: contributor_data.name,
+          sort_name: contributor_data.name,
+          slug: contributor_slug
+        })
+      )
+    end)
+  end
+
+  defp put_series_rows(acc, record, publisher_slug) do
+    record
+    |> Map.get(:series, [])
+    |> List.wrap()
+    |> Enum.filter(&(present?(map_value(&1, :title)) and present?(map_value(&1, :slug))))
+    |> Enum.reduce(acc, fn series_data, acc ->
+      series_slug = map_value(series_data, :slug)
+
+      update_in(
+        acc.series,
+        &Map.put_new(&1, series_slug, %{
+          title: map_value(series_data, :title),
+          slug: series_slug,
+          publisher_slug: publisher_slug
+        })
+      )
+    end)
+  end
+
+  defp put_work_row(acc, record, publisher_slug) do
+    slug = work_slug(record, publisher_slug)
+
+    update_in(acc.works, fn works ->
+      case Map.fetch(works, slug) do
+        {:ok, entry} ->
+          Map.put(works, slug, %{entry | records: [record | entry.records]})
+
+        :error ->
+          Map.put(works, slug, %{attrs: work_attrs(record, slug), records: [record]})
       end
+    end)
+  end
 
+  defp put_edition_row(acc, record, publisher_slug) do
+    slug = edition_slug(record)
+
+    update_in(acc.editions, fn editions ->
+      case Map.fetch(editions, slug) do
+        {:ok, entry} ->
+          Map.put(editions, slug, %{entry | records: [record | entry.records]})
+
+        :error ->
+          Map.put(editions, slug, %{
+            attrs: edition_create_attrs(record, publisher_slug),
+            records: [record]
+          })
+      end
+    end)
+  end
+
+  defp put_identifier_row(acc, dataset, record) do
+    edition_slug = edition_slug(record)
+
+    case normalized_isbn(record) do
+      nil ->
+        update_in(
+          acc.identifiers,
+          &Map.put_new(&1, {"source_record", source_identity(dataset, record)}, %{
+            identifier_type: "source_record",
+            value: source_identity(dataset, record),
+            edition_slug: edition_slug
+          })
+        )
+
+      isbn ->
+        update_in(
+          acc.identifiers,
+          &Map.put_new(&1, {"isbn_13", isbn}, %{
+            identifier_type: "isbn_13",
+            value: isbn,
+            edition_slug: edition_slug
+          })
+        )
+    end
+  end
+
+  defp put_contribution_rows(acc, record, publisher_slug) do
+    work_slug = work_slug(record, publisher_slug)
+    edition_slug = edition_slug(record)
+
+    desired =
+      record.contributors
+      |> Enum.uniq_by(fn contributor_data ->
+        {Slug.slugify(contributor_data.name), contributor_data.role}
+      end)
+      |> Enum.with_index(1)
+      |> Enum.map(fn {contributor_data, position} ->
+        %{
+          contributor_slug: Slug.slugify(contributor_data.name),
+          role: contributor_data.role,
+          work_slug: work_slug,
+          edition_slug: edition_slug,
+          position: position
+        }
+      end)
+
+    acc =
+      Enum.reduce(desired, acc, fn row, acc ->
+        key = {row.contributor_slug, row.role, row.work_slug, row.edition_slug}
+
+        update_in(acc.contributions, &Map.put_new(&1, key, row))
+      end)
+
+    # The last record of an edition owns the desired contributor set (the
+    # per-record prune in the old pipeline ran last-wins too).
+    desired_keys = Enum.map(desired, &{&1.contributor_slug, &1.role})
+
+    update_in(acc.contribution_desired, &Map.put(&1, edition_slug, desired_keys))
+  end
+
+  defp put_series_membership_rows(acc, record, publisher_slug) do
     work_slug = work_slug(record, publisher_slug)
 
-    work =
-      find_or_create!(
-        Work,
-        :slug,
-        work_slug,
-        work_attrs(record, work_slug),
-        trusted_write_opts()
+    record
+    |> Map.get(:series, [])
+    |> List.wrap()
+    |> Enum.filter(&(present?(map_value(&1, :title)) and present?(map_value(&1, :slug))))
+    |> Enum.reduce(acc, fn series_data, acc ->
+      series_slug = map_value(series_data, :slug)
+
+      update_in(
+        acc.series_memberships,
+        &Map.put_new(&1, {series_slug, work_slug}, %{
+          position: map_value(series_data, :position),
+          label: map_value(series_data, :label),
+          series_slug: series_slug,
+          work_slug: work_slug
+        })
       )
-      |> sync_work_metadata!(record, dataset.file_checksum, trusted_write_opts())
-
-    edition =
-      record
-      |> find_or_create_edition!(publisher, imprint, work)
-      |> sync_edition_metadata!(record, work, publisher, imprint, trusted_write_opts())
-
-    ensure_identifier!(edition, dataset, record, trusted_write_opts())
-    ensure_contributions!(record, work, edition, trusted_write_opts())
-    ensure_series_memberships!(record, publisher, work, trusted_write_opts())
-    ensure_cover!(record, edition, trusted_write_opts())
-    ensure_source_record!(dataset, record, edition, import_run, trusted_write_opts())
+    end)
   end
+
+  defp put_cover_rows(acc, record) do
+    edition_slug = edition_slug(record)
+
+    if cover_source_url_present?(record) do
+      put_cover_row(acc, edition_slug, Map.fetch!(record, :cover))
+    else
+      update_in(acc.cover_state, &Map.put(&1, edition_slug, nil))
+    end
+  end
+
+  defp put_cover_row(acc, edition_slug, cover) do
+    source_url = Map.fetch!(cover, :source_url)
+
+    acc
+    |> update_in([:cover_assets], fn assets ->
+      case Map.fetch(assets, source_url) do
+        {:ok, entry} ->
+          Map.put(assets, source_url, %{entry | covers: [cover | entry.covers]})
+
+        :error ->
+          Map.put(assets, source_url, %{
+            attrs: cover_asset_attrs(cover),
+            covers: [cover]
+          })
+      end
+    end)
+    |> update_in(
+      [:cover_assignments],
+      &Map.put_new(&1, {edition_slug, source_url}, %{
+        edition_slug: edition_slug,
+        source_url: source_url
+      })
+    )
+    # Last record of an edition owns its cover state (nil = no cover).
+    |> update_in([:cover_state], &Map.put(&1, edition_slug, source_url))
+  end
+
+  defp put_source_record_row(acc, dataset, record) do
+    checksum = dataset.file_checksum
+    source_uri = edition_source_uri(record)
+    key = {dataset.provider, "publisher_dataset", source_uri, checksum}
+
+    update_in(
+      acc.source_records,
+      &Map.put_new(&1, key, %{
+        provider: dataset.provider,
+        source_type: "publisher_dataset",
+        source_uri: source_uri,
+        file_checksum: checksum,
+        license_note: dataset.license_note,
+        source_identity: source_identity(dataset, record),
+        raw_payload: raw_payload(dataset, record),
+        edition_slug: edition_slug(record),
+        ledger_message:
+          "Seeded public catalog metadata for #{record.edition.title} from #{dataset.provider}; raw payload is checksum-versioned and immutable."
+      })
+    )
+  end
+
+  defp edition_create_attrs(record, publisher_slug) do
+    %{
+      title: display_title(record, :edition),
+      subtitle: record.edition.subtitle,
+      slug: edition_slug(record),
+      format: record.edition.format,
+      language_code: Map.get(record.edition, :language_code),
+      page_count: Map.get(record.edition, :page_count),
+      height_mm: dimension_value(record, :height_mm),
+      width_mm: dimension_value(record, :width_mm),
+      depth_mm: dimension_value(record, :depth_mm),
+      published_on: parse_date(Map.get(record.edition, :published_on)),
+      work_slug: work_slug(record, publisher_slug),
+      publisher_slug: publisher_slug,
+      imprint_slug: if(present?(record.imprint), do: Slug.slugify(record.imprint), else: nil)
+    }
+  end
+
+  # --- Phase 2: bulk writes in FK order (inside the dataset transaction) ----
+
+  defp write_bulk_dataset!(rows, dataset, import_run) do
+    publishers_by_slug = write_publishers!(rows.publishers)
+    imprints_by_key = write_imprints!(rows.imprints, publishers_by_slug)
+    contributors_by_slug = write_contributors!(rows.contributors)
+    series_by_slug = write_series!(rows.series, publishers_by_slug)
+    works_by_slug = write_works!(rows.works, dataset)
+
+    editions_by_slug =
+      write_editions!(rows.editions, publishers_by_slug, imprints_by_key, works_by_slug)
+
+    write_identifiers!(rows.identifiers, editions_by_slug)
+
+    write_contributions!(
+      rows.contributions,
+      rows.contribution_desired,
+      contributors_by_slug,
+      works_by_slug,
+      editions_by_slug
+    )
+
+    write_series_memberships!(rows.series_memberships, series_by_slug, works_by_slug)
+    assets_by_url = write_cover_assets!(rows.cover_assets)
+
+    write_cover_assignments!(
+      rows.cover_assignments,
+      rows.cover_state,
+      editions_by_slug,
+      assets_by_url
+    )
+
+    write_source_records!(rows.source_records, import_run, editions_by_slug)
+  end
+
+  defp write_publishers!(publisher_rows) do
+    bulk_upsert!(Publisher, Map.values(publisher_rows), :unique_slug, [:slug])
+    id_map(Publisher, & &1.slug)
+  end
+
+  defp write_imprints!(imprint_rows, publishers_by_slug) do
+    inputs =
+      Enum.map(imprint_rows, fn {{publisher_slug, _slug}, row} ->
+        Map.merge(row, %{publisher_id: Map.fetch!(publishers_by_slug, publisher_slug).id})
+      end)
+
+    bulk_upsert!(Imprint, inputs, :unique_publisher_slug, [:publisher_id, :slug])
+
+    publisher_slug_by_id =
+      Map.new(publishers_by_slug, fn {slug, publisher} -> {publisher.id, slug} end)
+
+    Imprint
+    |> refresh_cached_read()
+    |> Map.new(fn imprint ->
+      {{Map.fetch!(publisher_slug_by_id, imprint.publisher_id), imprint.slug}, imprint}
+    end)
+  end
+
+  defp write_contributors!(contributor_rows) do
+    bulk_upsert!(Contributor, Map.values(contributor_rows), :unique_slug, [:slug])
+    id_map(Contributor, & &1.slug)
+  end
+
+  defp write_series!(series_rows, publishers_by_slug) do
+    inputs =
+      Enum.map(series_rows, fn {_slug, row} ->
+        row
+        |> Map.put(:publisher_id, Map.fetch!(publishers_by_slug, row.publisher_slug).id)
+        |> Map.drop([:publisher_slug])
+      end)
+
+    bulk_upsert!(Series, inputs, :unique_slug, [:slug])
+    id_map(Series, & &1.slug)
+  end
+
+  defp write_works!(work_entries, dataset) do
+    inputs = Enum.map(work_entries, fn {_slug, %{attrs: attrs}} -> attrs end)
+    bulk_upsert!(Work, inputs, :unique_slug, [:slug])
+    works_by_slug = id_map(Work, & &1.slug)
+
+    Enum.reduce(work_entries, works_by_slug, fn {slug, %{records: records}}, acc ->
+      Enum.reduce(Enum.reverse(records), acc, fn record, acc ->
+        work = Map.fetch!(acc, slug)
+        updated = sync_work_metadata!(work, record, dataset.file_checksum, trusted_write_opts())
+        Map.put(acc, slug, updated)
+      end)
+    end)
+  end
+
+  defp write_editions!(edition_entries, publishers_by_slug, imprints_by_key, works_by_slug) do
+    inputs =
+      Enum.map(edition_entries, fn {_slug, %{attrs: attrs}} ->
+        %{
+          title: attrs.title,
+          subtitle: attrs.subtitle,
+          slug: attrs.slug,
+          format: attrs.format,
+          language_code: attrs.language_code,
+          page_count: attrs.page_count,
+          height_mm: attrs.height_mm,
+          width_mm: attrs.width_mm,
+          depth_mm: attrs.depth_mm,
+          published_on: attrs.published_on,
+          work_id: Map.fetch!(works_by_slug, attrs.work_slug).id,
+          publisher_id: Map.fetch!(publishers_by_slug, attrs.publisher_slug).id,
+          imprint_id: resolve_imprint_id(attrs, imprints_by_key)
+        }
+      end)
+
+    bulk_upsert!(Edition, inputs, :unique_slug, [:slug])
+    editions_by_slug = id_map(Edition, & &1.slug)
+
+    Enum.reduce(edition_entries, editions_by_slug, fn {slug, %{records: records}}, acc ->
+      Enum.reduce(Enum.reverse(records), acc, fn record, acc ->
+        sync_edition_for_record!(
+          record,
+          slug,
+          acc,
+          publishers_by_slug,
+          imprints_by_key,
+          works_by_slug
+        )
+      end)
+    end)
+  end
+
+  defp sync_edition_for_record!(
+         record,
+         slug,
+         editions_by_slug,
+         publishers_by_slug,
+         imprints_by_key,
+         works_by_slug
+       ) do
+    edition = Map.fetch!(editions_by_slug, slug)
+    publisher_slug = Slug.slugify(record.publisher)
+    publisher = Map.fetch!(publishers_by_slug, publisher_slug)
+    imprint = imprint_for_record(record, publisher_slug, imprints_by_key)
+    work = Map.fetch!(works_by_slug, work_slug(record, publisher_slug))
+
+    updated =
+      sync_edition_metadata!(edition, record, work, publisher, imprint, trusted_write_opts())
+
+    Map.put(editions_by_slug, slug, updated)
+  end
+
+  defp imprint_for_record(record, publisher_slug, imprints_by_key) do
+    if present?(record.imprint) do
+      Map.fetch!(imprints_by_key, {publisher_slug, Slug.slugify(record.imprint)})
+    end
+  end
+
+  defp resolve_imprint_id(attrs, imprints_by_key) do
+    if attrs.imprint_slug do
+      Map.fetch!(imprints_by_key, {attrs.publisher_slug, attrs.imprint_slug}).id
+    else
+      nil
+    end
+  end
+
+  defp write_identifiers!(identifier_rows, editions_by_slug) do
+    inputs =
+      Enum.map(identifier_rows, fn {{_type, _value}, row} ->
+        %{
+          identifier_type: row.identifier_type,
+          value: row.value,
+          edition_id: Map.fetch!(editions_by_slug, row.edition_slug).id
+        }
+      end)
+
+    bulk_upsert!(Identifier, inputs, :unique_identifier, [:identifier_type, :value])
+  end
+
+  defp write_contributions!(
+         contribution_rows,
+         desired_by_edition,
+         contributors_by_slug,
+         works_by_slug,
+         editions_by_slug
+       ) do
+    resolved =
+      Enum.map(contribution_rows, fn {{contributor_slug, role, work_slug, edition_slug}, row} ->
+        %{
+          contributor_id: Map.fetch!(contributors_by_slug, contributor_slug).id,
+          role: role,
+          work_id: Map.fetch!(works_by_slug, work_slug).id,
+          edition_id: Map.fetch!(editions_by_slug, edition_slug).id,
+          position: row.position
+        }
+      end)
+
+    Enum.each(resolved, &assert_contribution_identity_keys!/1)
+
+    inputs =
+      Enum.map(
+        resolved,
+        &Map.take(&1, [:contributor_id, :role, :work_id, :edition_id, :position])
+      )
+
+    bulk_upsert!(Contribution, inputs, :unique_contribution_slot, [
+      :contributor_id,
+      :role,
+      :work_id,
+      :edition_id
+    ])
+
+    prune_stale_contributions!(desired_by_edition, contributors_by_slug, editions_by_slug)
+
+    contributions_by_key =
+      Contribution
+      |> cached_read()
+      |> Map.new(fn contribution ->
+        {{contribution.contributor_id, contribution.role, contribution.work_id,
+          contribution.edition_id}, contribution}
+      end)
+
+    Enum.each(resolved, fn row ->
+      case Map.get(
+             contributions_by_key,
+             {row.contributor_id, row.role, row.work_id, row.edition_id}
+           ) do
+        nil ->
+          :ok
+
+        contribution ->
+          sync_contribution_position!(contribution, row.position, trusted_write_opts())
+      end
+    end)
+  end
+
+  defp assert_contribution_identity_keys!(row) do
+    Enum.each([:contributor_id, :role, :work_id, :edition_id], fn key ->
+      if is_nil(Map.get(row, key)) do
+        raise "bulk import rejected a contribution row with nil #{key} " <>
+                "(NULL identity keys are distinct on PG16 and would duplicate on reseed)"
+      end
+    end)
+  end
+
+  defp write_series_memberships!(membership_rows, series_by_slug, works_by_slug) do
+    inputs =
+      Enum.map(membership_rows, fn {{series_slug, work_slug}, row} ->
+        %{
+          series_id: Map.fetch!(series_by_slug, series_slug).id,
+          work_id: Map.fetch!(works_by_slug, work_slug).id,
+          position: row.position,
+          label: row.label
+        }
+      end)
+
+    bulk_upsert!(SeriesMembership, inputs, :unique_series_work, [:series_id, :work_id])
+  end
+
+  defp write_cover_assets!(asset_entries) do
+    inputs = Enum.map(asset_entries, fn {_url, %{attrs: attrs}} -> attrs end)
+    bulk_upsert!(CoverAsset, inputs, :unique_source_url, [:source_url])
+    assets_by_url = id_map(CoverAsset, & &1.source_url)
+
+    Enum.reduce(asset_entries, assets_by_url, fn {url, %{covers: covers}}, acc ->
+      Enum.reduce(Enum.reverse(covers), acc, fn cover, acc ->
+        asset = Map.fetch!(acc, url)
+        updated = sync_cover_asset!(asset, cover, trusted_write_opts())
+        Map.put(acc, url, updated)
+      end)
+    end)
+  end
+
+  defp write_cover_assignments!(assignment_rows, cover_state, editions_by_slug, assets_by_url) do
+    inputs =
+      Enum.map(assignment_rows, fn {{edition_slug, source_url}, _row} ->
+        %{
+          edition_id: Map.fetch!(editions_by_slug, edition_slug).id,
+          cover_asset_id: Map.fetch!(assets_by_url, source_url).id,
+          position: 1,
+          visible?: true
+        }
+      end)
+
+    bulk_upsert!(CoverAssignment, inputs, :unique_edition_cover, [:edition_id, :cover_asset_id])
+    prune_stale_cover_assignments!(cover_state, editions_by_slug, assets_by_url)
+  end
+
+  defp write_source_records!(source_record_rows, import_run, editions_by_slug) do
+    existing_keys =
+      SourceRecord
+      |> cached_read()
+      |> MapSet.new(&{&1.provider, &1.source_type, &1.source_uri, &1.file_checksum})
+
+    inputs =
+      Enum.map(source_record_rows, fn {_key, row} ->
+        %{
+          provider: row.provider,
+          source_type: row.source_type,
+          source_uri: row.source_uri,
+          file_checksum: row.file_checksum,
+          license_note: row.license_note,
+          source_identity: row.source_identity,
+          raw_payload: row.raw_payload,
+          imported_at: DateTime.utc_now(:second),
+          import_run_id: import_run.id,
+          edition_id: Map.fetch!(editions_by_slug, row.edition_slug).id
+        }
+      end)
+
+    bulk_upsert!(SourceRecord, inputs, :unique_source_record, [
+      :provider,
+      :source_type,
+      :source_uri,
+      :file_checksum
+    ])
+
+    source_records_by_key =
+      id_map(SourceRecord, &{&1.provider, &1.source_type, &1.source_uri, &1.file_checksum})
+
+    # Ledger entries are Elixir-side diffs: only NEW source records (identity
+    # keys absent before this dataset's upsert) get an entry, bulk-created
+    # without upsert (the identity includes occurred_at and rows are never
+    # re-created).
+    new_rows =
+      source_record_rows
+      |> Enum.reject(fn {key, _row} -> MapSet.member?(existing_keys, key) end)
+
+    ledger_inputs =
+      Enum.map(new_rows, fn {key, row} ->
+        %{
+          source_record_id: Map.fetch!(source_records_by_key, key).id,
+          event_type: "real_catalog_seeded",
+          message: row.ledger_message,
+          occurred_at: DateTime.utc_now(:second)
+        }
+      end)
+
+    bulk_create!(SourceLedgerEntry, ledger_inputs)
+  end
+
+  # --- Bulk write primitives and id maps ------------------------------------
+
+  defp bulk_upsert!(resource, inputs, identity, identity_keys) do
+    if inputs == [] do
+      :ok
+    else
+      result =
+        Ash.bulk_create(inputs, resource, :create,
+          upsert?: true,
+          upsert_identity: identity,
+          upsert_fields: {:replace, identity_keys},
+          transaction: false,
+          batch_size: 100,
+          notify?: false,
+          return_records?: false,
+          return_errors?: true,
+          stop_on_error?: false,
+          authorize?: false
+        )
+
+      assert_bulk_success!(result, resource, "bulk upsert")
+    end
+  end
+
+  defp bulk_create!(resource, inputs) do
+    if inputs == [] do
+      :ok
+    else
+      result =
+        Ash.bulk_create(inputs, resource, :create,
+          transaction: false,
+          batch_size: 100,
+          notify?: false,
+          return_records?: false,
+          return_errors?: true,
+          stop_on_error?: false,
+          authorize?: false
+        )
+
+      assert_bulk_success!(result, resource, "bulk create")
+    end
+  end
+
+  defp assert_bulk_success!(%Ash.BulkResult{status: :success, error_count: 0}, _resource, _label) do
+    :ok
+  end
+
+  defp assert_bulk_success!(%Ash.BulkResult{status: :error} = result, resource, label) do
+    raise "#{label} failed for #{inspect(resource)}: #{inspect(result.errors, limit: 10)}"
+  end
+
+  defp id_map(resource, key_fun) do
+    resource
+    |> refresh_cached_read()
+    |> Map.new(fn record -> {key_fun.(record), record} end)
+  end
+
+  defp refresh_cached_read(resource) do
+    cache = Process.get(@import_cache_key, %{})
+    Process.put(@import_cache_key, Map.delete(cache, resource))
+    cached_read(resource)
+  end
+
+  # --- Per-row sync/prune (only for rows that actually changed) -------------
+
+  defp prune_stale_contributions!(desired_by_edition, contributors_by_slug, editions_by_slug) do
+    contributions = refresh_cached_read(Contribution)
+
+    Enum.each(desired_by_edition, fn {edition_slug, desired_slug_keys} ->
+      edition_id = Map.fetch!(editions_by_slug, edition_slug).id
+
+      desired_ids =
+        MapSet.new(desired_slug_keys, fn {contributor_slug, role} ->
+          {Map.fetch!(contributors_by_slug, contributor_slug).id, role}
+        end)
+
+      contributions
+      |> Enum.filter(&(&1.edition_id == edition_id))
+      |> Enum.reject(&MapSet.member?(desired_ids, {&1.contributor_id, &1.role}))
+      |> Enum.each(fn contribution ->
+        Ash.destroy!(contribution, trusted_write_opts())
+        uncache_record(contribution, Contribution)
+      end)
+    end)
+  end
+
+  defp prune_stale_cover_assignments!(cover_state, editions_by_slug, assets_by_url) do
+    assignments = refresh_cached_read(CoverAssignment)
+
+    Enum.each(cover_state, fn {edition_slug, desired_source_url} ->
+      edition_id = Map.fetch!(editions_by_slug, edition_slug).id
+
+      desired_cover_asset_id =
+        if desired_source_url,
+          do: Map.fetch!(assets_by_url, desired_source_url).id,
+          else: nil
+
+      assignments
+      |> Enum.filter(&(&1.edition_id == edition_id))
+      |> Enum.reject(&(&1.cover_asset_id == desired_cover_asset_id))
+      |> Enum.each(fn assignment ->
+        Ash.destroy!(assignment, trusted_write_opts())
+        uncache_record(assignment, CoverAssignment)
+      end)
+    end)
+  end
+
+  # --- Kept helpers ----------------------------------------------------------
 
   defp work_attrs(record, work_slug) do
     %{
@@ -360,59 +1110,6 @@ defmodule Hiraeth.RealCatalog.Importer do
 
   defp blank_metadata?(value), do: value in [nil, "", []]
 
-  defp find_or_create_edition!(record, publisher, imprint, work) do
-    slug = edition_slug(record)
-
-    existing =
-      case normalized_isbn(record) do
-        nil ->
-          nil
-
-        isbn ->
-          Identifier
-          |> cached_read()
-          |> Enum.find(&(&1.identifier_type == "isbn_13" and &1.value == isbn))
-      end
-
-    cond do
-      existing ->
-        Edition
-        |> cached_read()
-        |> Enum.find(&(&1.id == existing.edition_id))
-
-      edition = existing_edition_by_slug(slug) ->
-        edition
-
-      true ->
-        attrs = %{
-          title: display_title(record, :edition),
-          subtitle: record.edition.subtitle,
-          slug: slug,
-          format: record.edition.format,
-          language_code: Map.get(record.edition, :language_code),
-          page_count: Map.get(record.edition, :page_count),
-          height_mm: dimension_value(record, :height_mm),
-          width_mm: dimension_value(record, :width_mm),
-          depth_mm: dimension_value(record, :depth_mm),
-          published_on: parse_date(Map.get(record.edition, :published_on)),
-          work_id: work.id,
-          publisher_id: publisher.id,
-          imprint_id: if(imprint, do: imprint.id, else: nil)
-        }
-
-        Edition
-        |> Ash.Changeset.for_create(:create, attrs)
-        |> Ash.create!(trusted_write_opts())
-        |> cache_record(Edition)
-    end
-  end
-
-  defp existing_edition_by_slug(slug) do
-    Edition
-    |> cached_read()
-    |> Enum.find(&(&1.slug == slug))
-  end
-
   defp sync_edition_metadata!(edition, record, work, publisher, imprint, write_opts) do
     updates =
       record
@@ -452,161 +1149,6 @@ defmodule Hiraeth.RealCatalog.Importer do
     map_value(dimensions, key)
   end
 
-  defp ensure_identifier!(edition, dataset, record, write_opts) do
-    case normalized_isbn(record) do
-      nil ->
-        find_or_create_by!(
-          Identifier,
-          &(&1.identifier_type == "source_record" and &1.value == source_identity(dataset, record)),
-          %{
-            identifier_type: "source_record",
-            value: source_identity(dataset, record),
-            edition_id: edition.id
-          },
-          write_opts
-        )
-
-      isbn ->
-        find_or_create_by!(
-          Identifier,
-          &(&1.identifier_type == "isbn_13" and &1.value == isbn),
-          %{identifier_type: "isbn_13", value: isbn, edition_id: edition.id},
-          write_opts
-        )
-    end
-  end
-
-  defp ensure_contributions!(record, work, edition, write_opts) do
-    desired_contributions =
-      record.contributors
-      |> Enum.uniq_by(fn contributor_data ->
-        {Slug.slugify(contributor_data.name), contributor_data.role}
-      end)
-      |> Enum.with_index(1)
-      |> Enum.map(fn {contributor_data, position} ->
-        contributor_slug = Slug.slugify(contributor_data.name)
-
-        contributor =
-          find_or_create!(
-            Contributor,
-            :slug,
-            contributor_slug,
-            %{
-              display_name: contributor_data.name,
-              sort_name: contributor_data.name,
-              slug: contributor_slug
-            },
-            write_opts
-          )
-
-        %{contributor: contributor, data: contributor_data, position: position}
-      end)
-
-    prune_stale_contributions!(desired_contributions, edition, write_opts)
-
-    Enum.each(desired_contributions, fn %{
-                                          contributor: contributor,
-                                          data: contributor_data,
-                                          position: position
-                                        } ->
-      contribution =
-        find_or_create_contribution!(
-          %{
-            contributor_id: contributor.id,
-            edition_id: edition.id,
-            work_id: work.id,
-            role: contributor_data.role,
-            position: position
-          },
-          write_opts
-        )
-
-      sync_contribution_position!(contribution, position, write_opts)
-    end)
-  end
-
-  defp prune_stale_contributions!(desired_contributions, edition, write_opts) do
-    desired_keys =
-      desired_contributions
-      |> MapSet.new(fn %{contributor: contributor, data: contributor_data} ->
-        {contributor.id, contributor_data.role}
-      end)
-
-    edition.id
-    |> cached_contributions_for_edition()
-    |> Enum.reject(&MapSet.member?(desired_keys, {&1.contributor_id, &1.role}))
-    |> Enum.each(fn contribution ->
-      Ash.destroy!(contribution, write_opts)
-      uncache_record(contribution, Contribution)
-    end)
-  end
-
-  defp find_or_create_contribution!(attrs, write_opts) do
-    key = {attrs.edition_id, attrs.contributor_id, attrs.role}
-
-    case cached_contribution_by_key(key) do
-      nil ->
-        contribution =
-          Contribution
-          |> Ash.Changeset.for_create(:create, attrs)
-          |> Ash.create!(write_opts)
-          |> cache_record(Contribution)
-
-        remember_contribution_by_key(key, contribution)
-        contribution
-
-      contribution ->
-        contribution
-    end
-  end
-
-  defp cached_contribution_by_key(key) do
-    contribution_by_key =
-      case Process.get(@contribution_key_cache_key) do
-        nil ->
-          keyed =
-            Contribution
-            |> cached_read()
-            |> Map.new(fn contribution ->
-              {{contribution.edition_id, contribution.contributor_id, contribution.role},
-               contribution}
-            end)
-
-          Process.put(@contribution_key_cache_key, keyed)
-          keyed
-
-        keyed ->
-          keyed
-      end
-
-    Map.get(contribution_by_key, key)
-  end
-
-  defp remember_contribution_by_key(key, contribution) do
-    contribution_by_key = Process.get(@contribution_key_cache_key, %{})
-    Process.put(@contribution_key_cache_key, Map.put(contribution_by_key, key, contribution))
-    contribution
-  end
-
-  defp cached_contributions_for_edition(edition_id) do
-    contributions_by_edition =
-      case Process.get(@contributions_by_edition_cache_key) do
-        nil ->
-          grouped =
-            Contribution
-            |> cached_read()
-            |> Enum.group_by(& &1.edition_id)
-
-          Process.put(@contributions_by_edition_cache_key, grouped)
-          grouped
-
-        grouped ->
-          grouped
-      end
-
-    Map.get(contributions_by_edition, edition_id, [])
-  end
-
   defp sync_contribution_position!(contribution, position, write_opts) do
     if contribution.position == position do
       contribution
@@ -618,75 +1160,45 @@ defmodule Hiraeth.RealCatalog.Importer do
     end
   end
 
-  defp ensure_series_memberships!(record, publisher, work, write_opts) do
-    record
-    |> Map.get(:series, [])
-    |> List.wrap()
-    |> Enum.filter(&(present?(map_value(&1, :title)) and present?(map_value(&1, :slug))))
-    |> Enum.each(fn series_data ->
-      series =
-        find_or_create!(
-          Series,
-          :slug,
-          map_value(series_data, :slug),
-          %{
-            title: map_value(series_data, :title),
-            slug: map_value(series_data, :slug),
-            publisher_id: publisher.id
-          },
-          write_opts
-        )
+  defp prune_stale_source_records!(provider, file_checksum) do
+    Hiraeth.Repo.query!(
+      """
+      delete from source_ledger_entries ledger
+      using source_records source
+      where ledger.source_record_id = source.id
+        and source.provider = $1
+        and source.source_type = 'publisher_dataset'
+        and coalesce(source.file_checksum, '') <> $2
+      """,
+      [provider, file_checksum],
+      timeout: @provider_transaction_timeout
+    )
 
-      find_or_create_by!(
-        SeriesMembership,
-        &(&1.series_id == series.id and &1.work_id == work.id),
-        %{
-          series_id: series.id,
-          work_id: work.id,
-          position: map_value(series_data, :position),
-          label: map_value(series_data, :label)
-        },
-        write_opts
-      )
-    end)
-  end
+    Hiraeth.Repo.query!(
+      """
+      delete from curation_overrides override
+      using source_records source
+      where override.source_record_id = source.id
+        and source.provider = $1
+        and source.source_type = 'publisher_dataset'
+        and coalesce(source.file_checksum, '') <> $2
+      """,
+      [provider, file_checksum],
+      timeout: @provider_transaction_timeout
+    )
 
-  defp ensure_cover!(record, edition, write_opts) do
-    if cover_source_url_present?(record) do
-      cover = record.cover
+    Hiraeth.Repo.query!(
+      """
+      delete from source_records
+      where provider = $1
+        and source_type = 'publisher_dataset'
+        and coalesce(file_checksum, '') <> $2
+      """,
+      [provider, file_checksum],
+      timeout: @provider_transaction_timeout
+    )
 
-      asset =
-        find_or_create!(
-          CoverAsset,
-          :source_url,
-          cover.source_url,
-          cover_asset_attrs(cover),
-          write_opts
-        )
-        |> sync_cover_asset!(cover, write_opts)
-
-      find_or_create_by!(
-        CoverAssignment,
-        &(&1.edition_id == edition.id and &1.cover_asset_id == asset.id),
-        %{edition_id: edition.id, cover_asset_id: asset.id, position: 1, visible?: true},
-        write_opts
-      )
-
-      prune_stale_cover_assignments!(edition, asset.id, write_opts)
-    else
-      prune_stale_cover_assignments!(edition, nil, write_opts)
-    end
-  end
-
-  defp prune_stale_cover_assignments!(edition, desired_cover_asset_id, write_opts) do
-    CoverAssignment
-    |> cached_read()
-    |> Enum.filter(&(&1.edition_id == edition.id))
-    |> Enum.reject(&(&1.cover_asset_id == desired_cover_asset_id))
-    |> Enum.each(fn assignment ->
-      Ash.destroy!(assignment, write_opts)
-      uncache_record(assignment, CoverAssignment)
-    end)
+    :ok
   end
 
   defp cover_asset_attrs(cover) do
@@ -771,98 +1283,6 @@ defmodule Hiraeth.RealCatalog.Importer do
       {:cached_at, _cached_at} -> not is_nil(asset.cached_at)
     end)
     |> Map.new()
-  end
-
-  defp ensure_source_record!(dataset, record, edition, import_run, write_opts) do
-    checksum = dataset.file_checksum
-    source_uri = edition_source_uri(record)
-
-    source_record =
-      find_source_record(dataset.provider, "publisher_dataset", source_uri, checksum) ||
-        SourceRecord
-        |> Ash.Changeset.for_create(:create, %{
-          provider: dataset.provider,
-          source_type: "publisher_dataset",
-          source_uri: source_uri,
-          file_checksum: checksum,
-          license_note: dataset.license_note,
-          source_identity: source_identity(dataset, record),
-          raw_payload: raw_payload(dataset, record),
-          imported_at: DateTime.utc_now(:second),
-          import_run_id: import_run.id,
-          edition_id: edition.id
-        })
-        |> Ash.create!(write_opts)
-        |> cache_record(SourceRecord)
-
-    ensure_source_ledger_entry!(source_record, record, write_opts)
-
-    source_record
-  end
-
-  defp prune_stale_source_records!(provider, file_checksum) do
-    Hiraeth.Repo.query!(
-      """
-      delete from source_ledger_entries ledger
-      using source_records source
-      where ledger.source_record_id = source.id
-        and source.provider = $1
-        and source.source_type = 'publisher_dataset'
-        and coalesce(source.file_checksum, '') <> $2
-      """,
-      [provider, file_checksum],
-      timeout: @provider_transaction_timeout
-    )
-
-    Hiraeth.Repo.query!(
-      """
-      delete from curation_overrides override
-      using source_records source
-      where override.source_record_id = source.id
-        and source.provider = $1
-        and source.source_type = 'publisher_dataset'
-        and coalesce(source.file_checksum, '') <> $2
-      """,
-      [provider, file_checksum],
-      timeout: @provider_transaction_timeout
-    )
-
-    Hiraeth.Repo.query!(
-      """
-      delete from source_records
-      where provider = $1
-        and source_type = 'publisher_dataset'
-        and coalesce(file_checksum, '') <> $2
-      """,
-      [provider, file_checksum],
-      timeout: @provider_transaction_timeout
-    )
-
-    :ok
-  end
-
-  defp find_source_record(provider, source_type, source_uri, file_checksum) do
-    SourceRecord
-    |> cached_read()
-    |> Enum.find(
-      &(&1.provider == provider and &1.source_type == source_type and &1.source_uri == source_uri and
-          &1.file_checksum == file_checksum)
-    )
-  end
-
-  defp ensure_source_ledger_entry!(source_record, record, write_opts) do
-    find_or_create_by!(
-      SourceLedgerEntry,
-      &(&1.source_record_id == source_record.id and &1.event_type == "real_catalog_seeded"),
-      %{
-        source_record_id: source_record.id,
-        event_type: "real_catalog_seeded",
-        message:
-          "Seeded public catalog metadata for #{record.edition.title} from #{source_record.provider}; raw payload is checksum-versioned and immutable.",
-        occurred_at: DateTime.utc_now(:second)
-      },
-      write_opts
-    )
   end
 
   defp raw_payload(dataset, record) do
@@ -969,10 +1389,6 @@ defmodule Hiraeth.RealCatalog.Importer do
 
   defp map_value(map, key) when is_map(map), do: Map.get(map, key) || Map.get(map, to_string(key))
   defp map_value(_value, _key), do: nil
-
-  defp find_or_create!(resource, key, value, attrs, write_opts) do
-    find_or_create_by!(resource, &(Map.get(&1, key) == value), attrs, write_opts)
-  end
 
   defp find_or_create_by!(resource, predicate, attrs, write_opts) do
     resource

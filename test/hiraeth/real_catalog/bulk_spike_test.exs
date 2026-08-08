@@ -8,6 +8,7 @@ defmodule Hiraeth.RealCatalog.BulkSpikeTest do
   @moduletag :slow
   @moduletag timeout: 300_000
 
+  alias Ash.Resource.Info
   alias Hiraeth.Catalog.{Contribution, Contributor, Edition, Publisher, Work}
   alias Hiraeth.CatalogCleanup
   alias Hiraeth.Sources.SourceRecord
@@ -205,7 +206,7 @@ defmodule Hiraeth.RealCatalog.BulkSpikeTest do
     # Bulk upsert never routes through an update action (raw insert_all +
     # ON CONFLICT), so it must work here and the rerun must be a stable
     # near-no-op that leaves immutable columns untouched.
-    assert :update not in (SourceRecord |> Ash.Resource.Info.actions() |> Enum.map(& &1.type))
+    assert :update not in (SourceRecord |> Info.actions() |> Enum.map(& &1.type))
 
     source_inputs =
       for i <- 1..100 do

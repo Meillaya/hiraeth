@@ -1,0 +1,82 @@
+FORMAT_OK
+Compiling 2 files (.ex)
+     warning: variable "dataset" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     │
+ 718 │   defp write_source_records!(source_record_rows, dataset, import_run, editions_by_slug) do
+     │                                                  ~~~~~~~
+     │
+     └─ lib/hiraeth/real_catalog/importer.ex:718:50: Hiraeth.RealCatalog.Importer.write_source_records!/4
+
+Compilation failed due to warnings while using the --warnings-as-errors option
+Compiling 1 file (.ex)
+Generated hiraeth app
+       (ash 3.31.0) lib/ash/data_layer/data_layer.ex:589: anonymous fn/3 in Ash.DataLayer.transaction/5
+       (ash 3.31.0) lib/ash/data_layer/data_layer.ex:600: Ash.DataLayer.transaction/5
+       (ash 3.31.0) lib/ash/data_layer/data_layer.ex:566: anonymous fn/6 in Ash.DataLayer.transaction/5
+       (ash 3.31.0) lib/ash/data_layer/data_layer.ex:589: anonymous fn/3 in Ash.DataLayer.transaction/5
+       (ash 3.31.0) lib/ash/data_layer/data_layer.ex:600: Ash.DataLayer.transaction/5
+       (ash 3.31.0) lib/ash/data_layer/data_layer.ex:566: anonymous fn/6 in Ash.DataLayer.transaction/5
+       (ash 3.31.0) lib/ash/data_layer/data_layer.ex:589: anonymous fn/3 in Ash.DataLayer.transaction/5
+       (ash 3.31.0) lib/ash/data_layer/data_layer.ex:600: Ash.DataLayer.transaction/5
+       (ash 3.31.0) lib/ash/data_layer/data_layer.ex:566: anonymous fn/6 in Ash.DataLayer.transaction/5
+       (ash 3.31.0) lib/ash/data_layer/data_layer.ex:589: anonymous fn/3 in Ash.DataLayer.transaction/5
+       (ash 3.31.0) lib/ash/data_layer/data_layer.ex:600: Ash.DataLayer.transaction/5
+
+....
+Finished in 18.3 seconds (18.3s async, 0.00s sync)
+19 tests, 7 failures, 2 excluded
+
+...............
+Finished in 18.9 seconds (18.9s async, 0.00s sync)
+19 tests, 0 failures, 2 excluded
+** (exit) 10
+    (mix 1.18.4) lib/mix/tasks/cmd.ex:74: Mix.Tasks.Cmd.run/1
+    (mix 1.18.4) lib/mix/task.ex:495: anonymous fn/3 in Mix.Task.run_task/5
+    (mix 1.18.4) lib/mix/task.ex:561: Mix.Task.run_alias/6
+    (mix 1.18.4) lib/mix/cli.ex:107: Mix.CLI.run_task/2
+    /home/mei/.nix-profile/bin/mix:2: (file)
+covers=0
+.Usage: mix hiraeth.ingest --provider <slug> [--manifest <path>] [--dry-run] [--json] [--wait] [--replay RUN_ID] [--cancel RUN_ID]
+.....12:49:29.551 [warning] sidecar detail enrichment failed for https://publisher.example/books/detail-needed: {:parse_failed, "detail failed"}
+........
+Finished in 12.6 seconds (4.4s async, 8.1s sync)
+520 tests, 0 failures, 111 excluded
+covers=5
+....
+Finished in 4.4 seconds (1.3s async, 3.1s sync)
+520 tests, 0 failures, 504 excluded
+  * test book cover component prefers optimized card derivatives and keeps hero originals [L#641]  * test book cover component prefers optimized card derivatives and keeps hero originals (excluded) [L#641]
+  * test public catalog groups multiple formats under one logical book entry [L#91]  * test public catalog groups multiple formats under one logical book entry (excluded) [L#91]
+  * test contributor index/detail routes render author and translator discovery [L#420]  * test contributor index/detail routes render author and translator discovery (excluded) [L#420]
+  * test search interaction stays within local render_change budget [L#289]  * test search interaction stays within local render_change budget (excluded) [L#289]
+  * test book detail renders source-backed no-ISBN routes and metadata gaps [L#532]  * test book detail renders source-backed no-ISBN routes and metadata gaps (excluded) [L#532]
+  * test home and browse render real publisher catalog with pagination and filtering [L#39]  * test home and browse render real publisher catalog with pagination and filtering (excluded) [L#39]
+  * test public publisher projection exposes bounded editorial groupings [L#400]  * test public publisher projection exposes bounded editorial groupings (excluded) [L#400]
+  * test book detail displays sourced prose, editorial praise, review links, and publisher storefront CTA [L#489]  * test book detail displays sourced prose, editorial praise, review links, and publisher storefront CTA (excluded) [L#489]
+  * test publisher index/detail routes render real publishers [L#310]  * test publisher index/detail routes render real publishers (excluded) [L#310]
+
+Finished in 32.2 seconds (32.2s async, 0.00s sync)
+520 tests, 2 failures, 518 excluded
+
+..
+Finished in 255.7 seconds (255.7s async, 0.00s sync)
+520 tests, 0 failures, 518 excluded
+Compiling 1 file (.ex)
+Generated hiraeth app
+  * test existing seed!/1 still works after adding seed_provider!/2 [L#207]     warning: function provider_record_count/2 is unused
+  * test existing seed!/1 still works after adding seed_provider!/2 (67789.8ms) [L#207]
+  * test real catalog importer handles the full real_publishers corpus end-to-end [L#160]  * test real catalog importer handles the full real_publishers corpus end-to-end (90126.3ms) [L#160]
+Finished in 158.4 seconds (158.4s async, 0.00s sync)
+520 tests, 0 failures, 518 excluded
+
+...............
+Finished in 72.6 seconds (0.00s async, 72.6s sync)
+15 tests, 0 failures
+covers=0
+..................
+Finished in 12.9 seconds (4.4s async, 8.5s sync)
+520 tests, 0 failures, 111 excluded
+
+..............
+Finished in 18.7 seconds (18.7s async, 0.00s sync)
+19 tests, 0 failures, 2 excluded
