@@ -6,6 +6,7 @@
 # Usage:
 #   bash scripts/qa/perf/measure_gates.sh                 # full gate baseline
 #   bash scripts/qa/perf/measure_gates.sh --only fast     # fast blocking set
+#   bash scripts/qa/perf/measure_gates.sh --only lanes    # lane timings (test.fast + test.full + test.nightly)
 #   bash scripts/qa/perf/measure_gates.sh --gate-now      # + warm/cold compile
 #   bash scripts/qa/perf/measure_gates.sh --help
 #
@@ -19,6 +20,7 @@
 # Gate sets:
 #   fast: blocked-check, compile, format, credo, hex.audit, sidecar-pytest, test.fast
 #   full: fast + test.full, coveralls, dialyzer, provenance
+#   lanes: blocked-check, compile, test.fast, test.full, test.nightly
 #
 # Design notes:
 #   * Every gate runs under `timeout` inside its own process group (`setsid`),
@@ -30,8 +32,9 @@
 #   * The `blocked-check` gate is a no-op unless /tmp/blocked-check exists, in
 #     which case it fails - a deterministic failure-injection lever mirroring
 #     the historical devenv-hang class.
-#   * Per-file ExUnit timings come from a single `mix test.fast --slowest 50`
-#     run (the test.fast gate itself) and are aggregated per test file.
+#   * Per-file ExUnit timings come from the `--slowest 50` reports of the
+#     test.fast and test.full gates (plus test.nightly when it ran) and are
+#     merged per test file.
 #   * When not already inside a devenv shell, the harness re-executes itself
 #     inside `nix run nixpkgs#devenv -- shell --no-reload` with stdout/stderr
 #     redirected to a FILE (never a pipe - a pipe inherited by devenv children
@@ -61,11 +64,12 @@ measure_gates.sh - wall-time baseline for the Hiraeth verification gates
 Usage:
   bash scripts/qa/perf/measure_gates.sh                 # full gate baseline
   bash scripts/qa/perf/measure_gates.sh --only fast     # fast blocking set
+  bash scripts/qa/perf/measure_gates.sh --only lanes    # lane timings (test.fast + test.full + test.nightly)
   bash scripts/qa/perf/measure_gates.sh --gate-now      # also measure warm/cold compile
   bash scripts/qa/perf/measure_gates.sh --help
 
 Options:
-  --only fast|full   restrict the gate set (default: full)
+  --only fast|lanes|full   restrict the gate set (default: full)
   --gate-now         additionally write gate-now.json (warm + cold compile ms)
   -h, --help         show this help
 
@@ -81,13 +85,13 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --only)
       if [[ $# -lt 2 ]]; then
-        printf 'measure_gates: --only requires a mode (fast|full)\n' >&2
+        printf 'measure_gates: --only requires a mode (fast|lanes|full)\n' >&2
         exit 2
       fi
       case "$2" in
-        fast|full) MODE="$2" ;;
+        fast|lanes|full) MODE="$2" ;;
         *)
-          printf "measure_gates: unknown mode '%s' (expected fast|full)\n" "$2" >&2
+          printf "measure_gates: unknown mode '%s' (expected fast|lanes|full)\n" "$2" >&2
           exit 2
           ;;
       esac
@@ -214,42 +218,58 @@ run_gate blocked-check 10 bash -c '
 '
 
 run_gate compile 600 env MIX_ENV=test mix compile --warnings-as-errors
-run_gate format 300 env MIX_ENV=test mix format --check-formatted
-run_gate credo 300 env MIX_ENV=test mix credo --strict
-run_gate hex.audit 300 env MIX_ENV=test mix hex.audit
-run_gate sidecar-pytest 600 bash -c 'cd sidecar && uv run --extra dev pytest -q'
+
+if [[ "${MODE}" == "fast" || "${MODE}" == "full" ]]; then
+  run_gate format 300 env MIX_ENV=test mix format --check-formatted
+  run_gate credo 300 env MIX_ENV=test mix credo --strict
+  run_gate hex.audit 300 env MIX_ENV=test mix hex.audit
+  run_gate sidecar-pytest 600 bash -c 'cd sidecar && uv run --extra dev pytest -q'
+fi
+
 run_gate test.fast 600 env MIX_ENV=test mix test.fast --slowest 50
 
+if [[ "${MODE}" == "full" || "${MODE}" == "lanes" ]]; then
+  run_gate test.full 1800 env MIX_ENV=test mix test.full --slowest 50
+fi
+
 if [[ "${MODE}" == "full" ]]; then
-  run_gate test.full 1800 env MIX_ENV=test mix test.full
-  run_gate coveralls 1800 env MIX_ENV=test mix coveralls --max-cases 8
+  run_gate coveralls 1800 env MIX_ENV=test mix coveralls --include nightly --max-cases 8
   run_gate dialyzer 1800 env MIX_ENV=test mix dialyzer
   run_gate provenance 1800 make audit-provenance
+elif [[ "${MODE}" == "lanes" ]]; then
+  run_gate test.nightly 1800 env MIX_ENV=test mix test --only nightly --slowest 50
 fi
 
 # ---------------------------------------------------------------------------
-# Per-file ExUnit timings: aggregate the --slowest report from the test.fast
-# gate run (one run feeds both the gate timing and the per-file map). The
-# log may be absent when test.fast itself failed to produce it.
+# Per-file ExUnit timings: aggregate the --slowest report from every lane
+# gate that ran (test.fast, test.full, and test.nightly when in mode lanes),
+# merging per test file. Logs may be absent when their gate failed early.
 # ---------------------------------------------------------------------------
 TEST_FILES_JSON="${TMP_DIR}/test_files.json"
-if [[ -f "${LOG_DIR}/test.fast.log" ]]; then
-  python3 - "${LOG_DIR}/test.fast.log" > "${TEST_FILES_JSON}" <<'PY'
+TEST_LOGS=()
+for f in "${LOG_DIR}/test.fast.log" "${LOG_DIR}/test.full.log" "${LOG_DIR}/test.nightly.log"; do
+  if [[ -f "${f}" ]]; then
+    TEST_LOGS+=("${f}")
+  fi
+done
+if [[ ${#TEST_LOGS[@]} -gt 0 ]]; then
+  python3 - "${TEST_LOGS[@]}" > "${TEST_FILES_JSON}" <<'PY'
 import json, re, sys
-log = open(sys.argv[1], encoding="utf-8", errors="replace").read()
 pat = re.compile(r"\(\s*([0-9]+(?:\.[0-9]+)?)\s*(ms|s)\)\s*\[([^\]]+\.exs):([0-9]+)\]\s*$")
 agg = {}
-for line in log.splitlines():
-    m = pat.search(line.rstrip())
-    if not m:
-        continue
-    value, unit, path, _line = m.groups()
-    ms = float(value) * (1000.0 if unit == "s" else 1.0)
-    entry = agg.setdefault(path, {"sum_ms": 0.0, "count": 0, "max_ms": 0.0})
-    entry["sum_ms"] += ms
-    entry["count"] += 1
-    if ms > entry["max_ms"]:
-        entry["max_ms"] = ms
+for log_path in sys.argv[1:]:
+    log = open(log_path, encoding="utf-8", errors="replace").read()
+    for line in log.splitlines():
+        m = pat.search(line.rstrip())
+        if not m:
+            continue
+        value, unit, path, _line = m.groups()
+        ms = float(value) * (1000.0 if unit == "s" else 1.0)
+        entry = agg.setdefault(path, {"sum_ms": 0.0, "count": 0, "max_ms": 0.0})
+        entry["sum_ms"] += ms
+        entry["count"] += 1
+        if ms > entry["max_ms"]:
+            entry["max_ms"] = ms
 out = {
     path: {"sum_ms": round(v["sum_ms"]), "count": v["count"], "max_ms": round(v["max_ms"])}
     for path, v in sorted(agg.items())
@@ -259,8 +279,9 @@ PY
 else
   printf '{}\n' > "${TEST_FILES_JSON}"
 fi
-printf 'test_files: %s files aggregated from test.fast --slowest 50\n' \
-  "$(python3 -c 'import json,sys; print(len(json.load(open(sys.argv[1]))))' "${TEST_FILES_JSON}")"
+printf 'test_files: %s files aggregated from %s lane --slowest 50 logs\n' \
+  "$(python3 -c 'import json,sys; print(len(json.load(open(sys.argv[1]))))' "${TEST_FILES_JSON}")" \
+  "${#TEST_LOGS[@]}"
 
 # ---------------------------------------------------------------------------
 # Environment snapshot for the baseline.
