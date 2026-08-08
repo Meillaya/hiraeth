@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- `mix hiraeth.real_catalog.seed_provider --provider <slug>` as the per-provider recovery path. Loads `priv/catalog_sources/real_publishers/<slug>.json`, validates against the provider manifest when one is checked in, creates an `ImportRun`, and delegates to `Hiraeth.RealCatalog.Importer.seed_provider!/3`. Each provider runs in its own `Ash.transact`, so a single failure does not poison the rest of the corpus. Use this when the whole-corpus `priv/repo/seeds.exs` aborts midway through one provider.
 - `priv/test_lanes.exs` is the single source of truth for the slow/full_catalog/integration/performance/browser/public_catalog_full cost-tag list. `mix test.fast`, `mix test.full`, and `mix ci` all derive their `--exclude` / `--include` flags from this file. Contract test: `test/hiraeth/mix_alias_contract_test.exs`.
 - Self-hosted OFL fonts (Newsreader, Space Grotesk, Space Mono) with `@font-face` rules and license/provenance documentation under `priv/static/fonts/`.
 - Three full-site design prototypes built from real catalog data under `artifacts/design-prototypes/` as the sanctioned UI exploration artifact.

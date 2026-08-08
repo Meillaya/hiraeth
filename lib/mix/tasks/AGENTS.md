@@ -12,6 +12,7 @@ Nine `Mix.Tasks` modules under `lib/mix/tasks/` that wrap Ash domains and the Sc
 | `mix hiraeth.ingest` | `Mix.Tasks.Hiraeth.Ingest` | delegates `do_run/1` to `Hiraeth.Ingestion.OperatorCLI.run_args/1` |
 | `mix hiraeth.providers.backfill` | `Mix.Tasks.Hiraeth.Providers.Backfill` | `Hiraeth.Sources` (provider plan + record backfill) |
 | `mix hiraeth.real_catalog.coverage_report` | `Mix.Tasks.Hiraeth.RealCatalog.CoverageReport` | `Hiraeth.RealCatalog` coverage/cap report |
+| `mix hiraeth.real_catalog.seed_provider` | `Mix.Tasks.Hiraeth.RealCatalog.SeedProvider` | `Hiraeth.RealCatalog.Importer.seed_provider!` (per-provider recovery path) |
 | `mix hiraeth.real_catalog.source_artifacts` | `Mix.Tasks.Hiraeth.RealCatalog.SourceArtifacts` | `Hiraeth.RealCatalog.SourceArtifacts` (artifact audit/export) |
 | `mix hiraeth.review_scrape` | `Mix.Tasks.Hiraeth.ReviewScrape` | `Hiraeth.Ingestion` (review/approve staged dataset) |
 | `mix hiraeth.scrape` | `Mix.Tasks.Hiraeth.Scrape` | `Hiraeth.Ingestion.ProviderManifest`, `SidecarClient`, `RealCatalog.{Dataset,SourcePolicy,Validator}` |
@@ -25,7 +26,8 @@ Nine `Mix.Tasks` modules under `lib/mix/tasks/` that wrap Ash domains and the Sc
 | Sidecar boundary + health/contract posture | `Hiraeth.Ingestion.SidecarClient` and `../../sidecar/AGENTS.md` |
 | Cover cache write/read safety | `Hiraeth.Covers`, `priv/static/covers` sandbox contract (root AGENTS) |
 | Mock swap pattern for tests | `test/support/ingestion/mix_task_mocks/` (`Hiraeth.TestSupport.MixTaskMocks.*`) |
-| Task seam tests | `test/hiraeth/ingestion/mix_task_test.exs`, `mix_task_dry_run_test.exs`, `mix_task_control_test.exs` |
+| Per-provider seed recovery path | `mix hiraeth.real_catalog.seed_provider --provider <slug>` (delegates to `Hiraeth.RealCatalog.Importer.seed_provider!/3`; same per-provider transaction posture as `seed!`) |
+| Task seam tests | `test/hiraeth/ingestion/mix_task_test.exs`, `mix_task_dry_run_test.exs`, `mix_task_control_test.exs`, `test/hiraeth/real_catalog/seed_provider_task_test.exs` |
 
 ## CONVENTIONS
 - Module shape: `use Mix.Task`, `@shortdoc "..."`, and a usage `@moduledoc` describing the flags (flags live in `@moduledoc`, not here).
