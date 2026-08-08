@@ -1,0 +1,15 @@
+=== fresh-tree smoke: Sat 08 Aug 2026 10:27:45 AM EDT ===
+--- step 1: git stash -u (tree after the 4 product commits; artifacts/qa/wi1 is gitignored so NOT stashed) ---
+No local changes to save
+stash_exit=0
+stash_list:
+--- step 2: mix help on the committed tree (proves mix.exs + priv/test_lanes.exs load) ---
+mix_help_exit=0
+180
+mix                                       # Runs the default task (current: "mix run")
+mix app.config                            # Configures all registered apps
+mix app.start                             # Starts all registered apps
+--- step 3: restore any stash (nothing should exist) ---
+no stash created (tree was clean except gitignored leftovers) — nothing to pop
+--- final status ---
+(empty = clean)

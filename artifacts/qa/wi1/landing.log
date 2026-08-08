@@ -1,0 +1,110 @@
+================================================================================
+landing.log — Todo 1: land prior-turn uncommitted layer (lane files + importer
+test split + seed_provider task + DATABASE_URL override), resolve the red
+ImportRun assertion and the tag contradiction.
+Date: 2026-08-08
+Plan: .omo/plans/test-full-and-bulk-nightly-seed.md todo 1
+================================================================================
+
+--- [1] BASELINE (pre-fix) ---
+git status --porcelain=v1 -uall:
+ M CHANGELOG.md
+ M config/dev.exs
+ M lib/mix/tasks/AGENTS.md
+ M mix.exs
+ M test/AGENTS.md
+ M test/hiraeth/catalog/cleanup_test.exs
+ M test/hiraeth/mix_alias_contract_test.exs
+ M test/hiraeth/real_catalog_importer_test.exs
+?? lib/mix/tasks/hiraeth.real_catalog.seed_provider.ex
+?? priv/test_lanes.exs
+?? test/fixtures/committed_corpus_seed/astra_house.json
+?? test/fixtures/committed_corpus_seed/mcnally_editions.json
+?? test/hiraeth/dev_database_url_override_test.exs
+?? test/hiraeth/real_catalog/seed_provider_task_test.exs
+
+Membership BEFORE (@tag :nightly):
+  actual tags (lines that ARE @tag directives, ^\s*@tag :nightly):
+test/hiraeth/catalog/cleanup_test.exs:24:  @tag :nightly
+test/hiraeth/real_catalog/importer_provider_test.exs:205:  @tag :nightly
+test/hiraeth/real_catalog_importer_test.exs:160:  @tag :nightly
+  -> count: 3 (cleanup_test.exs:24, importer_provider_test.exs:205, real_catalog_importer_test.exs:160)
+  raw grep -rn "@tag :nightly" count: 5 (includes 2 comment mentions at
+  real_catalog_importer_test.exs:157 and :914 — not tags)
+  expected after fix: 2 (cleanup_test.exs drops its tag)
+
+Toolchain: mix 1.18.4 / elixir 1.18.4 (nix-profile PATH); postgres 16.14 nix-store
+binary running on 127.0.0.1:54320 (pg_isready OK, psql SELECT 1 OK).
+
+--- [2] FAILING-FIRST PROOF (pre-fix) ---
+Command: MIX_ENV=test mix test test/hiraeth/real_catalog_importer_test.exs:127 --trace
+Result: exit 2, 12 tests, 1 failure, 11 excluded. The red assertion reproduced:
+  Assertion with == failed
+  code:  assert length(Ash.read!(ImportRun, authorize?: false)) == first_import_runs + 1
+  left:  2
+  right: 3
+  (test/hiraeth/real_catalog_importer_test.exs:149)
+This matches the plan's premise exactly (2 != 3): the second seed! pass reuses
+the provider's existing applied ImportRun (ensure_import_run! find-or-create
+on provider+status=="applied", fresh per-call cache), so the count stays at
+first_import_runs and the working-tree `+ 1` assertion is red. The seed_provider
+TASK's always-create behavior is separate (its own test asserts 2 runs after 2
+invocations) and stays untouched.
+NOTE: the line-127 run also surfaced unused-alias warnings in this file
+(Series, SeriesMembership, SourceLedgerEntry) — introduced by the working-tree
+monster split; assessed below for gate/credo impact.
+
+--- [3] FIXES APPLIED ---
+a) real_catalog_importer_test.exs: ImportRun assertion == first_import_runs
+   (was + 1); comment now states the second pass reuses the provider's
+   existing applied run. Duplicate @tag :full_catalog removed from the
+   committed-corpus smoke test.
+b) cleanup_test.exs: dropped @tag :nightly; comment rewritten to the truth
+   (TinyCommittedFixture, 1 record — fast); timeout 1_800_000 -> 120_000.
+c) seed_provider task: File.cwd!()-based paths (manifest + dataset) replaced
+   with Application.app_dir convention (mirrors Dataset.default_dir/0); the
+   dataset dir gains the :seed_provider_dataset_dir app-env test seam
+   (same pattern as cleanup.ex :committed_catalog_fixture_dir). Task docs
+   describe the priv path, not File.cwd!() — no doc change needed.
+d) seed_provider_task_test.exs: dataset now written to a unique per-run
+   System.tmp_dir!() dir (on_exit rm_rf + app-env restore); the governed
+   priv/catalog_sources/real_publishers/ dir is never written (priv/AGENTS.md
+   anti-pattern).
+
+--- [4] MIX GATE (post-fix) ---
+Command: mix gate   (compile --warnings-as-errors + deps.unlock --unused +
+format --check-formatted + cmd mix credo --strict + test.fast)
+Result: EXIT 0, wall 16s. 511 tests, 0 failures, 107 excluded.
+
+--- [5] POST-FIX TEST PROOF ---
+MIX_ENV=test mix test test/hiraeth/real_catalog_importer_test.exs:127 --trace
+  -> EXIT 0 (12 tests, 0 failures, 11 excluded) — idempotency green
+MIX_ENV=test mix test test/hiraeth/real_catalog_importer_test.exs:34 --trace
+  -> EXIT 0 (12 tests, 0 failures, 11 excluded) — committed-corpus smoke green
+Membership AFTER (^\s*@tag :nightly in test/): 2
+  test/hiraeth/real_catalog/importer_provider_test.exs:205
+  test/hiraeth/real_catalog_importer_test.exs:160
+  (cleanup_test.exs dropped its :nightly tag) -> 3 -> 2 proof complete.
+
+--- [6] FRESH-TREE SMOKE (post-commits) ---
+See fresh-tree-smoke.log: git stash -u -> "No local changes to save"
+(gitignored leftovers only); mix help -> EXIT 0 (180 tasks listed), proving
+mix.exs + priv/test_lanes.exs load from the committed state; no stash was
+created, nothing to pop. Final git status: clean.
+
+--- [7] COMMITS LANDED ---
+9f5fd80 chore(test): land lane-layer working tree
+        (priv/test_lanes.exs + mix.exs + mix_alias_contract_test.exs +
+         real_catalog_importer_test.exs split + committed_corpus_seed/
+         fixtures + test/AGENTS.md + CHANGELOG lane hunk)
+b1a9599 chore(test): land seed_provider task + tests
+        (task + task test + lib/mix/tasks/AGENTS.md + CHANGELOG task hunk)
+7d913f8 chore(config): land DATABASE_URL dev override
+        (config/dev.exs + override test + CHANGELOG db hunks)
+ce2eebf chore(test): drop stale :nightly tag from fast cleanup reseed test
+        (cleanup_test.exs tag/comment/timeout hygiene — plan decision (b),
+         folded into todo 1; separate single-concern commit because
+         amend/force-push is prohibited)
+CHANGELOG.md hunks were split across commits 1-3 via crafted git apply
+patches (no wholesale add). git show HEAD:mix.exs contains the test_lanes
+assembly AND HEAD:priv/test_lanes.exs exists (atomic pair verified).
