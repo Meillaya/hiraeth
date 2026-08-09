@@ -1,0 +1,81 @@
+dockerfile-fix2: preserve priv/ dir when copying test_lanes.exs
+==================================================================
+Date: 2026-08-09
+Commit: fix(docker): preserve priv/ dir when copying test_lanes.exs
+Related: cb59b9b (wrong first fix), Railway deployment a71aedf2 (failed build)
+
+ROOT CAUSE
+----------
+mix.exs:152 runs `Code.eval_file("priv/test_lanes.exs")` at project-config
+load time (from WORKDIR /app in the builder stage). The file must therefore
+exist at `/app/priv/test_lanes.exs` BEFORE `mix deps.get` runs (step 6/17),
+because the mix aliases (`test_lanes`) are evaluated while the Mix project
+is loading.
+
+The previous fix (cb59b9b) changed the COPY instruction to:
+
+    COPY mix.exs mix.lock priv/test_lanes.exs ./
+
+Per the Dockerfile reference semantics, when a COPY has MULTIPLE sources,
+each source's BASENAME is used as the path in the destination:
+`priv/test_lanes.exs` was therefore copied to `/app/test_lanes.exs` (basename
+`test_lanes.exs`), NOT `/app/priv/test_lanes.exs`. The directory component of
+the source path (`priv/`) is NOT preserved by a multi-source COPY.
+
+Result: `mix deps.get` step failed with
+`** (Code.LoadError) could not load /app/priv/test_lanes.exs. Reason: enoent`
+exactly as seen in the a71aedf2 build log (step 5/17 COPY ok, step 6/17 deps.get failed).
+
+THE FIX (exact diff)
+--------------------
+@@ -40,10 +40,14 @@ ENV MIX_ENV="prod"
+
+ # install mix dependencies
+ # mix.exs aliases read priv/test_lanes.exs at project-config load (via
+-# Code.eval_file), so that single compile-time file must be present before
+-# mix deps.get. Only the one file is copied here (not the whole 62MB priv/
++# Code.eval_file, resolved relative to /app), so that single compile-time file
++# must be present at /app/priv/test_lanes.exs before mix deps.get. A multi-
++# source COPY (mix.exs mix.lock priv/test_lanes.exs ./) would drop the file's
++# basename into /app, losing the priv/ path component; copy it explicitly into
++# priv/ instead. Only the one file is copied here (not the whole 62MB priv/
+ # corpus, which lands later via `COPY priv priv`).
+-COPY mix.exs mix.lock priv/test_lanes.exs ./
++COPY mix.exs mix.lock ./
++COPY priv/test_lanes.exs priv/
+ RUN mix deps.get --only $MIX_ENV
+ RUN mkdir config
+
+No other line changed. The later `COPY priv priv` (full 62MB corpus) and the
+release copy remain untouched.
+
+COPY SEMANTICS REASONING (Dockerfile reference, docs.docker.com/reference/dockerfile/#copy)
+-------------------------------------------------------------------------------------------
+1. `COPY priv/test_lanes.exs priv/`
+   Single source file, destination ENDS WITH A TRAILING SLASH => dest is a
+   DIRECTORY. The source's basename (`test_lanes.exs`) is placed INSIDE it,
+   producing `/app/priv/test_lanes.exs`. Correct path for `Code.eval_file`.
+
+2. `COPY mix.exs mix.lock ./`
+   Both basenames (`mix.exs`, `mix.lock`) land in WORKDIR `/app`. Correct.
+
+Why the old single line failed: with multiple `<src>` and dest `./`, Docker
+takes each source's basename and concatenates it onto the dest. There is NO
+directory-component preservation for the third source; `priv/` is dropped.
+This is the classic `COPY subdir/file.txt ./` => `basename-in-cwd` behavior.
+
+VERIFICATION APPROACH
+---------------------
+- No docker daemon on this box (`docker version` Server section absent;
+  "cannot connect"). `docker buildx` is installed (v0.31.1) but a build
+  requires a reachable daemon, which is not available; per instructions we
+  did NOT attempt to start dockerd.
+- Verification therefore rests on Docker reference semantics (cited above)
+  plus the observed failure mode in the a71aedf2 build log, which is fully
+  consistent with the basename-in-dest explanation (file present at /app
+  but Code.load fails on /app/priv/test_lanes.exs).
+- A local `mkdir priv && cp` repro would have hidden the bug (the cp would
+  place the file at the right path locally); it was deliberately NOT used.
+
+Status: semantics verified by Docker reference reasoning; build to be
+confirmed by the next Railway deployment triggered by this push.

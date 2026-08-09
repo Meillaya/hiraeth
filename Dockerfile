@@ -40,10 +40,14 @@ ENV MIX_ENV="prod"
 
 # install mix dependencies
 # mix.exs aliases read priv/test_lanes.exs at project-config load (via
-# Code.eval_file), so that single compile-time file must be present before
-# mix deps.get. Only the one file is copied here (not the whole 62MB priv/
+# Code.eval_file, resolved relative to /app), so that single compile-time file
+# must be present at /app/priv/test_lanes.exs before mix deps.get. A multi-
+# source COPY (mix.exs mix.lock priv/test_lanes.exs ./) would drop the file's
+# basename into /app, losing the priv/ path component; copy it explicitly into
+# priv/ instead. Only the one file is copied here (not the whole 62MB priv/
 # corpus, which lands later via `COPY priv priv`).
-COPY mix.exs mix.lock priv/test_lanes.exs ./
+COPY mix.exs mix.lock ./
+COPY priv/test_lanes.exs priv/
 RUN mix deps.get --only $MIX_ENV
 RUN mkdir config
 
