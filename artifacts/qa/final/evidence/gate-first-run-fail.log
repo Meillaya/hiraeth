@@ -1,0 +1,193 @@
+Checking 215 source files (this might take a while) ...
+
+Please report incorrect results: https://github.com/rrrene/credo/issues
+
+Analysis took 1.2 seconds (0.07s to load, 1.2s running 69 checks on 215 files)
+2364 mods/funs, found no issues.
+
+Use `mix credo explain` to explain issues, `mix credo --help` for options.
+Running ExUnit with seed: 562635, max_cases: 32
+Excluding tags: [:slow, :full_catalog, :integration, :performance, :browser, :public_catalog_full, :nightly]
+
+.....................................    warning: unused alias SourceLedgerEntry
+    │
+ 10 │   alias Hiraeth.Sources.{SourceLedgerEntry, SourceRecord}
+    │   ~
+    │
+    └─ test/hiraeth/ingestion/e2e_ingestion_stealthy_test.exs:10:3
+
+.
+
+  1) test ingestion drills start the standalone postgres and wait for readiness before test execution (Hiraeth.Ingestion.ProductionIngestionScriptContractTest)
+     test/hiraeth/ingestion/production_ingestion_script_contract_test.exs:6
+     Expected truthy, got false
+     code: assert contains_ordered?(commands, "pg_ctl ", "pg_isready -h localhost -p 54320 -U postgres")
+     arguments:
+
+         # 1
+         ["pg_isready -h localhost -p 54320 -U postgres",
+          "pg_isready -h localhost -p 54320 -U postgres",
+          "mix test scripts/qa/ingestion/production_ingestion_drill_test.exs --only provider_replay --seed 0 --trace",
+          "mix test scripts/qa/ingestion/production_ingestion_drill_test.exs --only replay_load_idempotency --seed 0 --trace",
+          "pg_isready -h localhost -p 54320 -U postgres",
+          "pg_isready -h localhost -p 54320 -U postgres",
+          "mix test scripts/qa/ingestion/production_ingestion_adversarial_test.exs --only destructive_diff --seed 0 --trace",
+          "mix test scripts/qa/ingestion/production_ingestion_adversarial_test.exs --only cover_host_rejection --seed 0 --trace",
+          "mix test scripts/qa/ingestion/production_ingestion_adversarial_test.exs --only scheduler_duplicate_prevention --seed 0 --trace",
+          "uv run --extra dev python ../scripts/qa/ingestion/sidecar_private_host_probe.py"]
+
+         # 2
+         "pg_ctl "
+
+         # 3
+         "pg_isready -h localhost -p 54320 -U postgres"
+
+     stacktrace:
+       test/hiraeth/ingestion/production_ingestion_script_contract_test.exs:39: anonymous fn/2 in Hiraeth.Ingestion.ProductionIngestionScriptContractTest."test ingestion drills start the standalone postgres and wait for readiness before test execution"/1
+       test/hiraeth/ingestion/production_ingestion_script_contract_test.exs:7: (test)
+
+...................warning: setting `adapter` to a function is deprecated in favour of setting it to a module
+  (req 0.7.2) lib/req/request.ex:1069: Req.Request.adapter/1
+  (req 0.7.2) lib/req/request.ex:1053: Req.Request.run_request/2
+  (req 0.7.2) lib/req/request.ex:997: Req.Request.run/1
+  (req 0.7.2) lib/req.ex:1154: Req.request!/2
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:640: Hiraeth.Covers.req_fetch!/4
+  (hiraeth 1.0.0) lib/hiraeth/ingestion/cover_pipeline.ex:217: Hiraeth.Ingestion.CoverPipeline.fetch_cover/3
+  (hiraeth 1.0.0) lib/hiraeth/ingestion/cover_pipeline.ex:176: Hiraeth.Ingestion.CoverPipeline.process_cover/5
+  (elixir 1.18.4) lib/task/supervised.ex:101: Task.Supervised.invoke_mfa/2
+  (elixir 1.18.4) lib/task/supervised.ex:36: Task.Supervised.reply/4
+
+........................................................................     warning: function provider_record_count/2 is unused
+     │
+ 927 │   defp provider_record_count(datasets, provider) do
+     │        ~
+     │
+     └─ test/hiraeth/real_catalog_importer_test.exs:927:8: Hiraeth.RealCatalogImporterTest (module)
+
+..................................................    warning: unused alias Contribution
+    │
+  9 │   alias Hiraeth.Catalog.{
+    │   ~
+    │
+    └─ test/hiraeth/real_catalog_importer_test.exs:9:3
+
+    warning: unused alias Imprint
+    │
+  9 │   alias Hiraeth.Catalog.{
+    │   ~
+    │
+    └─ test/hiraeth/real_catalog_importer_test.exs:9:3
+
+    warning: unused alias Repo
+    │
+ 24 │   alias Hiraeth.Repo
+    │   ~
+    │
+    └─ test/hiraeth/real_catalog_importer_test.exs:24:3
+
+    warning: unused alias Series
+    │
+  9 │   alias Hiraeth.Catalog.{
+    │   ~
+    │
+    └─ test/hiraeth/real_catalog_importer_test.exs:9:3
+
+    warning: unused alias SeriesMembership
+    │
+  9 │   alias Hiraeth.Catalog.{
+    │   ~
+    │
+    └─ test/hiraeth/real_catalog_importer_test.exs:9:3
+
+    warning: unused alias SourceLedgerEntry
+    │
+ 25 │   alias Hiraeth.Sources.{SourceLedgerEntry, SourceRecord}
+    │   ~
+    │
+    └─ test/hiraeth/real_catalog_importer_test.exs:25:3
+
+..........................................................................................................warning: setting `adapter` to a function is deprecated in favour of setting it to a module
+  (req 0.7.2) lib/req/request.ex:1069: Req.Request.adapter/1
+  (req 0.7.2) lib/req/request.ex:1053: Req.Request.run_request/2
+  (req 0.7.2) lib/req/request.ex:997: Req.Request.run/1
+  (req 0.7.2) lib/req.ex:1154: Req.request!/2
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:640: Hiraeth.Covers.req_fetch!/4
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:319: Hiraeth.Covers.fetch_into_cache/5
+  (elixir 1.18.4) lib/task/supervised.ex:101: Task.Supervised.invoke_mfa/2
+  (elixir 1.18.4) lib/task/supervised.ex:36: Task.Supervised.reply/4
+
+warning: setting `adapter` to a function is deprecated in favour of setting it to a module
+  (req 0.7.2) lib/req/request.ex:1069: Req.Request.adapter/1
+  (req 0.7.2) lib/req/request.ex:1053: Req.Request.run_request/2
+  (req 0.7.2) lib/req/request.ex:997: Req.Request.run/1
+  (req 0.7.2) lib/req.ex:1154: Req.request!/2
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:696: Hiraeth.Covers.follow_safe_cover_redirects/5
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:641: Hiraeth.Covers.req_fetch!/4
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:319: Hiraeth.Covers.fetch_into_cache/5
+  (elixir 1.18.4) lib/task/supervised.ex:101: Task.Supervised.invoke_mfa/2
+  (elixir 1.18.4) lib/task/supervised.ex:36: Task.Supervised.reply/4
+
+.warning: setting `adapter` to a function is deprecated in favour of setting it to a module
+  (req 0.7.2) lib/req/request.ex:1069: Req.Request.adapter/1
+  (req 0.7.2) lib/req/request.ex:1053: Req.Request.run_request/2
+  (req 0.7.2) lib/req/request.ex:997: Req.Request.run/1
+  (req 0.7.2) lib/req.ex:1154: Req.request!/2
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:640: Hiraeth.Covers.req_fetch!/4
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:319: Hiraeth.Covers.fetch_into_cache/5
+  (elixir 1.18.4) lib/task/supervised.ex:101: Task.Supervised.invoke_mfa/2
+  (elixir 1.18.4) lib/task/supervised.ex:36: Task.Supervised.reply/4
+
+.13:56:33.888 [warning] enriched detail for 1 records
+..........warning: setting `adapter` to a function is deprecated in favour of setting it to a module
+  (req 0.7.2) lib/req/request.ex:1069: Req.Request.adapter/1
+  (req 0.7.2) lib/req/request.ex:1053: Req.Request.run_request/2
+  (req 0.7.2) lib/req/request.ex:997: Req.Request.run/1
+  (req 0.7.2) lib/req.ex:1154: Req.request!/2
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:640: Hiraeth.Covers.req_fetch!/4
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:319: Hiraeth.Covers.fetch_into_cache/5
+  (elixir 1.18.4) lib/task/supervised.ex:101: Task.Supervised.invoke_mfa/2
+  (elixir 1.18.4) lib/task/supervised.ex:36: Task.Supervised.reply/4
+
+.warning: setting `adapter` to a function is deprecated in favour of setting it to a module
+  (req 0.7.2) lib/req/request.ex:1069: Req.Request.adapter/1
+  (req 0.7.2) lib/req/request.ex:1053: Req.Request.run_request/2
+  (req 0.7.2) lib/req/request.ex:997: Req.Request.run/1
+  (req 0.7.2) lib/req.ex:1154: Req.request!/2
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:696: Hiraeth.Covers.follow_safe_cover_redirects/5
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:641: Hiraeth.Covers.req_fetch!/4
+  (hiraeth 1.0.0) lib/hiraeth/covers.ex:319: Hiraeth.Covers.fetch_into_cache/5
+  (elixir 1.18.4) lib/task/supervised.ex:101: Task.Supervised.invoke_mfa/2
+  (elixir 1.18.4) lib/task/supervised.ex:36: Task.Supervised.reply/4
+
+.....................................Usage: mix hiraeth.ingest --provider <slug> [--manifest <path>] [--dry-run] [--json] [--wait] [--replay RUN_ID] [--cancel RUN_ID]
+.{"action":"ingest","oban_job_id":1714,"provider":"test_publisher_api","run_id":"9adab5b6-2a1a-4198-b6f6-a07da62dd53c","status":"started","wait":false}
+..Ingestion started for provider: test_publisher_api
+Provider run ID: 163cbf57-40c4-400b-9460-b928ed335f64
+Job ID: 1715
+Ingestion completed for provider: test_publisher_api
+provider_run_id=163cbf57-40c4-400b-9460-b928ed335f64
+source_records=0
+editions=0
+covers=0
+.manifest load failed: manifest validation failed for /home/mei/projects/hiraeth/test/support/fixtures/provider_manifests/invalid_missing_fields.json:
+  - source_mode is required
+  - not_legal_advice is required
+  - cover_cache_policy is required
+  - excluded_content is required
+  - takedown_contact is required
+  - permission_basis is required
+  - cover_hosts is required
+  - source_hosts is required
+  - source_urls is required
+.Ingestion started for provider: test_publisher_api
+Provider run ID: 6ca0e597-6399-4c76-95be-590a366d024f
+Job ID: 1716
+Ingestion completed for provider: test_publisher_api
+provider_run_id=6ca0e597-6399-4c76-95be-590a366d024f
+source_records=0
+editions=0
+covers=0
+...........................................................13:56:44.268 [warning] sidecar detail enrichment failed for https://publisher.example/books/detail-needed: {:parse_failed, "detail failed"}
+.........
+Finished in 12.7 seconds (4.5s async, 8.2s sync)
+525 tests, 1 failure, 116 excluded

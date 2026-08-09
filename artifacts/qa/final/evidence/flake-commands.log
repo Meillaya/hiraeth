@@ -1,0 +1,10 @@
+nix run nixpkgs#devenv -- up -d postgres
+pg_isready -h localhost -p 54320 -U postgres
+mix test scripts/qa/ingestion/production_ingestion_drill_test.exs --only provider_replay --seed 0 --trace
+mix test scripts/qa/ingestion/production_ingestion_drill_test.exs --only replay_load_idempotency --seed 0 --trace
+nix run nixpkgs#devenv -- up -d postgres
+pg_isready -h localhost -p 54320 -U postgres
+mix test scripts/qa/ingestion/production_ingestion_adversarial_test.exs --only destructive_diff --seed 0 --trace
+mix test scripts/qa/ingestion/production_ingestion_adversarial_test.exs --only cover_host_rejection --seed 0 --trace
+mix test scripts/qa/ingestion/production_ingestion_adversarial_test.exs --only scheduler_duplicate_prevention --seed 0 --trace
+uv run --extra dev python ../scripts/qa/ingestion/sidecar_private_host_probe.py
