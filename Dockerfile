@@ -39,7 +39,11 @@ RUN mix local.hex --force \
 ENV MIX_ENV="prod"
 
 # install mix dependencies
-COPY mix.exs mix.lock ./
+# mix.exs aliases read priv/test_lanes.exs at project-config load (via
+# Code.eval_file), so that single compile-time file must be present before
+# mix deps.get. Only the one file is copied here (not the whole 62MB priv/
+# corpus, which lands later via `COPY priv priv`).
+COPY mix.exs mix.lock priv/test_lanes.exs ./
 RUN mix deps.get --only $MIX_ENV
 RUN mkdir config
 
