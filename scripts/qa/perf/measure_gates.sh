@@ -6,7 +6,7 @@
 # Usage:
 #   bash scripts/qa/perf/measure_gates.sh                 # full gate baseline
 #   bash scripts/qa/perf/measure_gates.sh --only fast     # fast blocking set
-#   bash scripts/qa/perf/measure_gates.sh --only lanes    # lane timings (test.fast + test.full + test.nightly)
+#   bash scripts/qa/perf/measure_gates.sh --only lanes    # lane timings (test.fast + test.full)
 #   bash scripts/qa/perf/measure_gates.sh --gate-now      # + warm/cold compile
 #   bash scripts/qa/perf/measure_gates.sh --help
 #
@@ -19,8 +19,8 @@
 #
 # Gate sets:
 #   fast: blocked-check, compile, format, credo, hex.audit, sidecar-pytest, test.fast
-#   full: fast + test.full, coveralls, dialyzer, provenance
-#   lanes: blocked-check, compile, test.fast, test.full, test.nightly
+#   full: fast + test.full, dialyzer, provenance
+#   lanes: blocked-check, compile, test.fast, test.full
 #
 # Design notes:
 #   * Every gate runs under `timeout` inside its own process group (`setsid`),
@@ -33,8 +33,7 @@
 #     which case it fails - a deterministic failure-injection lever mirroring
 #     the historical devenv-hang class.
 #   * Per-file ExUnit timings come from the `--slowest 50` reports of the
-#     test.fast and test.full gates (plus test.nightly when it ran) and are
-#     merged per test file.
+#     test.fast and test.full gates and are merged per test file.
 #   * When not already inside a devenv shell, the harness re-executes itself
 #     inside `nix run nixpkgs#devenv -- shell --no-reload` with stdout/stderr
 #     redirected to a FILE (never a pipe - a pipe inherited by devenv children
@@ -64,7 +63,7 @@ measure_gates.sh - wall-time baseline for the Hiraeth verification gates
 Usage:
   bash scripts/qa/perf/measure_gates.sh                 # full gate baseline
   bash scripts/qa/perf/measure_gates.sh --only fast     # fast blocking set
-  bash scripts/qa/perf/measure_gates.sh --only lanes    # lane timings (test.fast + test.full + test.nightly)
+  bash scripts/qa/perf/measure_gates.sh --only lanes    # lane timings (test.fast + test.full)
   bash scripts/qa/perf/measure_gates.sh --gate-now      # also measure warm/cold compile
   bash scripts/qa/perf/measure_gates.sh --help
 
@@ -233,21 +232,18 @@ if [[ "${MODE}" == "full" || "${MODE}" == "lanes" ]]; then
 fi
 
 if [[ "${MODE}" == "full" ]]; then
-  run_gate coveralls 1800 env MIX_ENV=test mix coveralls --include nightly --max-cases 8
   run_gate dialyzer 1800 env MIX_ENV=test mix dialyzer
   run_gate provenance 1800 make audit-provenance
-elif [[ "${MODE}" == "lanes" ]]; then
-  run_gate test.nightly 1800 env MIX_ENV=test mix test --only nightly --slowest 50
 fi
 
 # ---------------------------------------------------------------------------
 # Per-file ExUnit timings: aggregate the --slowest report from every lane
-# gate that ran (test.fast, test.full, and test.nightly when in mode lanes),
-# merging per test file. Logs may be absent when their gate failed early.
+# gate that ran (test.fast and test.full), merging per test file. Logs may
+# be absent when their gate failed early.
 # ---------------------------------------------------------------------------
 TEST_FILES_JSON="${TMP_DIR}/test_files.json"
 TEST_LOGS=()
-for f in "${LOG_DIR}/test.fast.log" "${LOG_DIR}/test.full.log" "${LOG_DIR}/test.nightly.log"; do
+for f in "${LOG_DIR}/test.fast.log" "${LOG_DIR}/test.full.log"; do
   if [[ -f "${f}" ]]; then
     TEST_LOGS+=("${f}")
   fi

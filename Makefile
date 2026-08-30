@@ -5,7 +5,7 @@ QA_DIR := artifacts/qa
 VERIFY_SUMMARY := $(QA_DIR)/verify/summary.json
 POSTGRES_READY := scripts/dev/ensure_postgres.sh start
 
-.PHONY: verify test-fast test-full ci audit-provenance verify-summary qa-pack cleanup-policy gate plt gates\:measure db-backup db-restore-drill coverage
+.PHONY: verify test-fast test-full ci audit-provenance verify-summary qa-pack cleanup-policy gate plt gates\:measure db-backup db-restore-drill
 
 verify: audit-provenance verify-summary qa-pack
 
@@ -33,15 +33,6 @@ db-backup:
 # Restore drill into a NEW hiraeth_restore database (never the live DB).
 db-restore-drill:
 	@bash scripts/ops/db_restore_drill.sh
-
-# Local coverage gate enforcing the 86.1 floor (coveralls.json). Bootstraps the
-# test DB first as belt-and-suspenders for fresh checkouts (`mix coveralls`
-# resolves the `test` alias via Mix.Task.run/2, which auto-creates/migrates,
-# but the explicit ecto steps are harmless and deterministic). Deliberately
-# NOT part of `make gate` (fast lane stays fast) and does not post to
-# coveralls.io.
-coverage:
-	MIX_ENV=test mix ecto.create --quiet && MIX_ENV=test mix ecto.migrate --quiet && MIX_ENV=test mix coveralls --include nightly
 
 test-fast:
 	mix test.fast

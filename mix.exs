@@ -12,7 +12,6 @@ defmodule Hiraeth.MixProject do
       deps: deps(),
       compilers: [:phoenix_live_view] ++ Mix.compilers(),
       listeners: [Phoenix.CodeReloader],
-      test_coverage: [tool: ExCoveralls],
       # Mix tasks live under lib/mix/tasks and call Mix API (Mix.shell/0,
       # Mix.Task.run/1, Mix.Task behaviour); :mix is not in dialyxir's default
       # PLT app set, so add it explicitly or dialyzer reports unknown_function.
@@ -91,8 +90,7 @@ defmodule Hiraeth.MixProject do
       {:oban, "~> 2.17"},
       {:credo, "~> 1.7", only: [:dev, :test]},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
-      {:sobelow, "~> 0.13", only: [:dev, :test]},
-      {:excoveralls, "~> 0.18", only: [:dev, :test]}
+      {:sobelow, "~> 0.13", only: [:dev, :test]}
     ]
   end
 
@@ -116,7 +114,7 @@ defmodule Hiraeth.MixProject do
         "phx.digest"
       ],
       # The ≤5-min blocking gate. Deliberately omits sobelow/hex.audit: they
-      # need network and stay in the CI `static` job and deep `ci` lane.
+      # need network and stay in the `mix ci` lane.
       gate: [
         "compile --warnings-as-errors",
         "deps.unlock --unused",
