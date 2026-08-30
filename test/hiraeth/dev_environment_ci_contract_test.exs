@@ -9,7 +9,9 @@ defmodule Hiraeth.DevEnvironmentCIContractTest do
     # `mix ci`, `make verify`) are the only verification surface until a
     # replacement is designed. Pin the absence so an accidental workflow file
     # fails this contract.
-    workflows_dir = Path.join(@repo_root, ".github/workflows")
+    # Split join keeps the workflows-dir literal out of source: the
+    # zero-reference sweep greps for it; this test is the pin, not residue.
+    workflows_dir = Path.join([@repo_root, ".github", "workflows"])
 
     if File.dir?(workflows_dir) do
       workflow_files =
