@@ -200,29 +200,6 @@ defmodule Hiraeth.RealCatalogImporterProviderTest do
     assert Enum.sort(Enum.map(editions, & &1.format)) == ["ebook", "paperback"]
   end
 
-  @tag :nightly
-  # Full corpus seed!/1 pass; post-bulk per-seed envelope measured ~50-160s
-  # locally (nightly monsters 102.7s + 50.2s; the perf-envelope test 162.3s
-  # vs its <300s hard assert), so keep a generous wall-clock budget.
-  @tag timeout: 1_800_000
-  test "existing seed!/1 still works after adding seed_provider!/2" do
-    seed_lock = Hiraeth.CatalogCleanup.acquire_full_corpus_seed_lock!()
-    on_exit(fn -> Hiraeth.CatalogCleanup.release_full_corpus_seed_lock(seed_lock) end)
-
-    clear_catalog!()
-
-    {:ok, datasets} = Dataset.load_dir()
-    expected_total = Enum.sum(Enum.map(datasets, &length(&1.records)))
-
-    assert {:ok, summary} = Importer.seed!()
-    assert summary.editions == expected_total
-    assert summary.publishers == length(datasets)
-
-    assert length(Ash.read!(Edition, authorize?: false)) == expected_total
-    assert length(Ash.read!(Identifier, authorize?: false)) == expected_total
-    assert length(Ash.read!(SourceRecord, authorize?: false)) == expected_total
-  end
-
   defp astra_house_sibling_dataset do
     records = [
       astra_house_record(

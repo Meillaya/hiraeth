@@ -1,5 +1,4 @@
-lanes = Code.eval_file(Path.expand("../priv/test_lanes.exs", __DIR__)) |> elem(0)
-ExUnit.start(exclude: lanes.nightly_tags)
+ExUnit.start()
 Ecto.Adapters.SQL.Sandbox.mode(Hiraeth.Repo, :manual)
 
 # Delete any committed corpus persisted from a previous run BEFORE any test

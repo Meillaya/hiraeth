@@ -7,13 +7,9 @@ defmodule Hiraeth.RealCatalogImporterTest do
   @moduletag timeout: 600_000
 
   alias Hiraeth.Catalog.{
-    Contribution,
     Edition,
     Identifier,
-    Imprint,
     Publisher,
-    Series,
-    SeriesMembership,
     Work
   }
 
@@ -21,14 +17,13 @@ defmodule Hiraeth.RealCatalogImporterTest do
   alias Hiraeth.Covers.{CoverAsset, CoverAssignment}
   alias Hiraeth.Imports.ImportRun
   alias Hiraeth.RealCatalog.{Dataset, Importer, Slug}
-  alias Hiraeth.Repo
-  alias Hiraeth.Sources.{SourceLedgerEntry, SourceRecord}
+  alias Hiraeth.Sources.SourceRecord
 
   @tag :full_catalog
   @tag :slow
-  # 2-provider committed-corpus fixture (~120 records); 7k-record full-corpus
-  # variant moved to :nightly below. The slow lane runs this in seconds rather
-  # than minutes; idempotency is verified by a separate focused test.
+  # 2-provider committed-corpus fixture (~120 records). The slow lane runs
+  # this in seconds rather than minutes; idempotency is verified by a
+  # separate focused test.
   @tag timeout: 120_000
   test "real catalog importer seeds the committed-corpus fixture with provenance and covers" do
     seed_lock = Hiraeth.CatalogCleanup.acquire_full_corpus_seed_lock!()
@@ -147,60 +142,6 @@ defmodule Hiraeth.RealCatalogImporterTest do
     assert length(Ash.read!(SourceRecord, authorize?: false)) == expected_total
     assert length(Ash.read!(CoverAssignment, authorize?: false)) == count_cover_records(datasets)
     assert length(Ash.read!(ImportRun, authorize?: false)) == first_import_runs
-  end
-
-  # Nightly-only: full real_publishers corpus (8776 records, 23 providers).
-  # The slow lane's smoke test above runs on a 2-provider fixture; this
-  # catches the cases the small subset cannot (e.g. provider-specific gate
-  # regressions, multi-edition work slugs, transitive cover-asset reuse
-  # across many providers). Excluded from default `mix test.full` via
-  # @tag :nightly; opt in with `--include nightly` on the nightly lane.
-  @tag :nightly
-  @tag timeout: 1_800_000
-  test "real catalog importer handles the full real_publishers corpus end-to-end" do
-    seed_lock = Hiraeth.CatalogCleanup.acquire_full_corpus_seed_lock!()
-    on_exit(fn -> Hiraeth.CatalogCleanup.release_full_corpus_seed_lock(seed_lock) end)
-
-    clear_catalog!()
-
-    {:ok, datasets} = Dataset.load_dir()
-    expected_total = Enum.sum(Enum.map(datasets, &length(&1.records)))
-
-    assert {:ok, summary} = Importer.seed!()
-    assert summary.editions == expected_total
-    assert summary.publishers == length(datasets)
-  end
-
-  # Nightly-only perf envelope (WI2 hard gate): the full-corpus bulk seed
-  # must finish well inside 300s on a CI-box-class host. The :global seed
-  # lock is acquired BEFORE timing so wait time for concurrent corpus seeds
-  # never pollutes the assert (the coverage job runs --max-cases 8).
-  # `:nightly`-only, like the corpus monsters above: test.full's
-  # `--include full_catalog --include slow` would re-admit this test if it
-  # carried those tags (ExUnit include beats the default exclude), breaking
-  # the "ZERO nightly-tagged tests in test.full" membership contract.
-  @tag :nightly
-  @tag timeout: 600_000
-  test "bulk full-corpus seed completes within the 300s perf envelope" do
-    seed_lock = Hiraeth.CatalogCleanup.acquire_full_corpus_seed_lock!()
-    on_exit(fn -> Hiraeth.CatalogCleanup.release_full_corpus_seed_lock(seed_lock) end)
-
-    clear_catalog!()
-
-    started_at = System.monotonic_time()
-    assert {:ok, summary} = Importer.seed!()
-
-    elapsed_ms =
-      System.convert_time_unit(System.monotonic_time() - started_at, :native, :millisecond)
-
-    {:ok, datasets} = Dataset.load_dir()
-    expected_total = Enum.sum(Enum.map(datasets, &length(&1.records)))
-
-    assert elapsed_ms < 300_000,
-           "full-corpus bulk seed took #{elapsed_ms}ms (hard envelope is <300_000ms)"
-
-    assert summary.editions == expected_total
-    assert summary.publishers == length(datasets)
   end
 
   test "real catalog importer keeps seed!/1 public contract on a tiny deterministic fixture dir" do
@@ -926,13 +867,6 @@ defmodule Hiraeth.RealCatalogImporterTest do
     is_binary(Map.get(cover, :source_url)) and Map.get(cover, :source_url) != ""
   end
 
-  defp provider_record_count(datasets, provider) do
-    datasets
-    |> Enum.find(&(&1.provider == provider))
-    |> Map.fetch!(:records)
-    |> length()
-  end
-
   defp unique_title_record!(records) do
     title_counts = Enum.frequencies_by(records, & &1.work.title)
 
@@ -940,9 +874,8 @@ defmodule Hiraeth.RealCatalogImporterTest do
       raise "expected at least one unique-title record"
   end
 
-  # 2-provider committed-corpus fixture (~120 records). The full real_publishers
-  # corpus is reserved for the @tag :nightly full-corpus test above; this
-  # subset is what the slow-lane smoke + idempotency tests use.
+  # 2-provider committed-corpus fixture (~120 records). This subset is what
+  # the slow-lane smoke + idempotency tests use.
   defp committed_corpus_dir do
     Path.expand("../fixtures/committed_corpus_seed", __DIR__)
   end

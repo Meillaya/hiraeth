@@ -23,8 +23,8 @@ defmodule Hiraeth.CatalogCleanupTest do
   @tag :slow
   # Fast reseed contract: the body seeds the TINY TinyCommittedFixture (1
   # record) via use_tiny_committed_catalog_fixture!, so this runs in seconds.
-  # The 8776-record full-corpus reseed is exercised only by the :nightly lane
-  # (real_catalog_importer_test.exs) — opt in with `--include nightly`.
+  # The slow-lane importer tests (real_catalog_importer_test.exs) cover the
+  # committed-corpus reseed path.
   @tag timeout: 120_000
   test "ensure_committed_catalog_fixtures! reseeds partial state and reuses a real importer fixture equivalent" do
     use_tiny_committed_catalog_fixture!()
