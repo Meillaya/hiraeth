@@ -1,6 +1,26 @@
-# GitHub language stats: everything except Elixir is vendored/support.
-# Only *.ex and *.exs count toward the language bar.
+# GitHub language statistics: count hand-written app code; exclude governed
+# data corpora, generated snapshots, lockfiles, and vendored JS.
+#
+# linguist semantics (github-linguist/linguist docs/overrides.md):
+# linguist-vendored / linguist-generated / linguist-documentation EXCLUDE a file
+# from stats; linguist-language only re-classifies and does NOT re-include.
 
-* linguist-vendored
-*.ex linguist-language=Elixir
-*.exs linguist-language=Elixir
+# Vendored third-party JS
+assets/vendor/*.js linguist-vendored
+
+# Governed provider corpus, manifests, schema, and reports (data evidence)
+priv/catalog_sources/**/*.json linguist-generated
+
+# Ash generator resource snapshots (generated)
+priv/resource_snapshots/**/*.json linguist-generated
+
+# Test fixture data
+test/fixtures/**/*.json linguist-generated
+test/support/fixtures/**/*.json linguist-generated
+
+# Generated lockfiles
+mix.lock linguist-generated
+sidecar/uv.lock linguist-generated
+
+# Deterministic classification for Phoenix templates
+*.heex linguist-language=HTML
