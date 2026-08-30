@@ -20,13 +20,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
-- `:nightly` is now a first-class opt-in test lane: `priv/test_lanes.exs` owns `nightly_tags`, and `test/test_helper.exs` default-excludes `:nightly` from every lane (bare `mix test`, `mix test.fast`, `mix test.full`, `mix ci`). Re-enable it with `--include nightly` (`mix test --only nightly` for the nightly sweep). The deep-lane nightly coverage job opts in explicitly (`mix coveralls --include nightly`, 86.1 floor unchanged), and the full-suite job's ad-hoc `--exclude nightly` flag is gone.
-- The real-corpus importer (`Hiraeth.RealCatalog.Importer`) was rewritten from per-record `Ash.create!` round-trips to a two-phase bulk pipeline: per-dataset row precompute keyed by natural identity (first-wins dedupe, no precomputed ids), then per-table `Ash.bulk_create` upserts (per-resource `upsert_identity` + minimal `upsert_fields {:replace, identity_keys}`, never `:replace_all`) inside one transaction per dataset, with per-row `Ash.update!`/`destroy!` only for actual sync/prune diffs. Measured post-bulk: per-seed full-corpus seed ~50-160s locally (nightly monsters 102.7s + 50.2s, down from multi-minute per-record seeds), the `:nightly` perf-envelope test asserts <300s (measured 162.3s), and the lock-serialized nightly lane wall is ~316s (was 410-537s).
-- CI consolidated: the deep lane runs the full suite as a 3-partition test matrix on merge to `main` and manual dispatch, with the coveralls 86.1 coverage floor enforced by a nightly-only coverage job; devenv is the local dev/test environment only and no CI lane invokes it.
+- The real-corpus importer (`Hiraeth.RealCatalog.Importer`) was rewritten from per-record `Ash.create!` round-trips to a two-phase bulk pipeline: per-dataset row precompute keyed by natural identity (first-wins dedupe, no precomputed ids), then per-table `Ash.bulk_create` upserts (per-resource `upsert_identity` + minimal `upsert_fields {:replace, identity_keys}`, never `:replace_all`) inside one transaction per dataset, with per-row `Ash.update!`/`destroy!` only for actual sync/prune diffs. Measured post-bulk: per-seed full-corpus seed ~50-160s locally (102.7s + 50.2s per dataset pass, down from multi-minute per-record seeds), 162.3s end-to-end, well under a 300s envelope.
 - Mix aliases collapsed to `gate` (single fast blocking gate), `ci` (full lane), `test.fast`, and `test.full`; the Makefile `verify` chain slimmed to `audit-provenance verify-summary qa-pack`.
 - Frontend correctness is verified by the LiveView and route logic test suites under `test/hiraeth_web/`; the browser-QA lane was removed.
 - Local development is devenv-only; the root and `sidecar/Dockerfile` remain the production runtime boundary.
 - Sidecar `base_url` config de-duplicated: the default lives in `config/config.exs`, dev/test inherit it, and `config/runtime.exs` reads `SCRAPLING_SIDECAR_URL`.
+- `.gitattributes` language classification refreshed: the language bar now reflects app code; governed corpora, resource snapshots, fixture data, lockfiles, and vendored JS are excluded via linguist attributes.
 
 ### Removed
 
@@ -35,6 +34,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `compose.yaml` and every Compose reference; devenv owns local, Dockerfiles own production.
 - The dead `scripts-tests` CI lane (`deep.yml`) and the root `pyproject.toml` that drove it; the catalog-generator pytest suite under `tests/scripts` is retired.
 - The `docs/` directory and every dangling `docs/*.md` reference (tests, Makefile, README, AGENTS.md, CI comments, covers guide); the deleted dev/qa/ops scripts are recreated from scratch as part of the devenv-end-to-end restore.
+- GitHub Actions: deleted `.github/workflows/ci.yml` and `.github/workflows/deep.yml` and disabled Actions on the repository; verification is local-only (`mix gate`, `mix ci`, `make verify`) until a replacement is designed.
+- ExCoveralls and the 86.1 coverage floor: `coveralls.json`, the `excoveralls` dependency, the `test_coverage` project config, the Makefile `coverage` target, and the coveralls gate in `scripts/qa/perf/measure_gates.sh`.
+- The opt-in `:nightly` test lane: `nightly_tags` in `priv/test_lanes.exs`, the `test_helper.exs` default exclusion, the nightly contract assertions in `mix_alias_contract_test.exs`, and the three full-corpus `@tag :nightly` tests.
 
 ## [1.0.0] - 2026-08-05
 

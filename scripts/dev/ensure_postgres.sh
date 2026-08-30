@@ -7,10 +7,8 @@ cd "${ROOT}"
 # Standalone postgres management: local dev runs the nix-profile toolchain on
 # bare PATH plus a standalone PostgreSQL 16 on 127.0.0.1:54320 managed here.
 # DATABASE_PORT unset or 54320 means the local standalone postgres is expected
-# and is managed here. Any other DATABASE_PORT (CI=5432, the GitHub
-# postgres:16 service container) is provided externally and must never be
-# touched locally — the CI skip branch is load-bearing for deep.yml provenance
-# + ingestion-drills jobs.
+# and is managed here. Any other DATABASE_PORT (an externally provisioned
+# database) is provided externally and must never be touched locally.
 PGDATA="${HIRAETH_PGDATA:-$HOME/.local/share/hiraeth/pgdata}"
 PGLOG="${HIRAETH_PGLOG:-$HOME/.local/share/hiraeth/postgres.log}"
 SOCKET_DIR="$HOME/.local/share/hiraeth"

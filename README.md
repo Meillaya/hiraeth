@@ -56,11 +56,9 @@ Autonomous scheduled ingestion runs on its own per-provider cadence; see the "Au
 
 ## Verify/build
 
-Verification is tiered so the fast developer loop stays under five minutes while full release assurance runs at depth:
+Verification is local-only: there is no GitHub Actions CI (workflows removed August 2026, pinned by `test/hiraeth/dev_environment_ci_contract_test.exs`). The local surface is `mix gate` (≤5 min blocking gate), `mix test.fast`, `mix test.full`, `mix ci`, `mix dialyzer`, and `make verify`.
 
 - **Layer 0 — local blocking gate (`mix gate`, ≤5 min):** `make gate` wraps the `mix gate` alias (compile with warnings-as-errors, unused-deps check, format check, strict Credo, and the fast ExUnit lane). It is the single blocking local preflight for every change.
-- **Layer 1 — parallel CI (`static` + `test-fast`):** `.github/workflows/ci.yml` runs the static gates (format/Credo/Sobelow/hex.audit) and the fast test suite (postgres:16 service container) in parallel on every PR and push to `main`.
-- **Layer 2 — deep lane (`deep.yml`):** `.github/workflows/deep.yml` runs dialyzer, the full suite as a 3-partition test matrix on merge to `main` and manual dispatch, a nightly coverage job (the explicit `:nightly` opt-in) enforcing the 86.1 floor, plus assets, provenance audit, ingestion drills, sidecar pytest/ruff/pyright/uv-audit, and release image builds.
 
 Frontend correctness is verified by the LiveView and route logic test suites under `test/hiraeth_web/live/` (and the route/controller tests under `test/hiraeth_web/`), which run as part of the ExUnit lanes above; there is no separate browser-level QA lane.
 
@@ -74,7 +72,7 @@ mix test.fast        # fast ExUnit lane, excluding explicit cost tags
 Full local, CI, and release assurance stays separate and should not be expected to fit the fast-loop budget:
 
 ```sh
-mix test.full        # complete ExUnit suite minus the opt-in :nightly lane (mix test --only nightly for the nightly sweep)
+mix test.full        # complete ExUnit suite
 mix ci               # full Phoenix CI/release assurance
 make verify          # provenance audit, verify summary, QA pack
 ```
@@ -98,4 +96,4 @@ is hashed before and after the sandboxed command.
 
 ## Production notes
 
-The repository includes CI in `.github/workflows/ci.yml` and environment examples in `.env.example`. The public catalog is deployed to Railway at `https://hiraeth-web-production.up.railway.app`: the Phoenix service builds from the root `Dockerfile`, the private Scrapling sidecar builds from `sidecar/Dockerfile`, and Postgres is Railway-managed. Validate deployment networking, secrets, backups, and alerts in the target environment before any further launch.
+The repository includes environment examples in `.env.example`; there is no GitHub Actions CI. The public catalog is deployed to Railway at `https://hiraeth-web-production.up.railway.app`: the Phoenix service builds from the root `Dockerfile`, the private Scrapling sidecar builds from `sidecar/Dockerfile`, and Postgres is Railway-managed. Validate deployment networking, secrets, backups, and alerts in the target environment before any further launch.

@@ -22,12 +22,11 @@ Fixture-driven, contract-heavy ExUnit and pytest-adjacent validation for Hiraeth
 | `:performance` | latency/query-count envelope |
 | `:browser` | browser QA or browser contract lane |
 | `:public_catalog_full` | expensive public catalog UI/data sweep |
-| `:nightly` | opt-in lane: excluded by default from every lane; run with `--include nightly`; owned by the deep-lane nightly coverage job |
 | `:reset_committed_catalog` | DataCase resets committed catalog fixtures |
 | `:reset_committed_ingestion` | DataCase resets ingestion control-plane fixtures |
-| `:ci_devenv_contract` | descriptive: marks the devenv-only CI lane contract (never excluded) |
+| `:ci_devenv_contract` | marks the CI contract lane (pins that no GitHub Actions workflows exist; never excluded) |
 
-The slow/full_catalog/integration/performance/browser/public_catalog_full list lives in **`priv/test_lanes.exs`** and is the single source of truth for `mix.exs` alias composition. `mix test.fast`, `mix test.full`, and `mix ci` all derive their `--exclude` / `--include` flags from it. `priv/test_lanes.exs` also owns `nightly_tags` — the opt-in `:nightly` lane that `test/test_helper.exs` default-excludes from every lane and that is re-enabled with `--include nightly`. The contract test `test/hiraeth/mix_alias_contract_test.exs` asserts `priv/test_lanes.exs` and `mix.exs` stay in sync — add a tag there once, and every lane picks it up.
+The slow/full_catalog/integration/performance/browser/public_catalog_full list lives in **`priv/test_lanes.exs`** and is the single source of truth for `mix.exs` alias composition. `mix test.fast`, `mix test.full`, and `mix ci` all derive their `--exclude` / `--include` flags from it. The contract test `test/hiraeth/mix_alias_contract_test.exs` asserts `priv/test_lanes.exs` and `mix.exs` stay in sync — add a tag there once, and every lane picks it up.
 
 ## CONVENTIONS
 - Choose base case by boundary: `DataCase` for DB/Ash; `ConnCase` for conn/LiveView; plain `ExUnit.Case` for file/command/docs contracts.
@@ -37,7 +36,7 @@ The slow/full_catalog/integration/performance/browser/public_catalog_full list l
 - LiveView tests import `Phoenix.LiveViewTest` and assert with stable selectors via `has_element?/2`, `element/2`, `form`, `render_change`, `render_submit`.
 - Use helper reset tags instead of ad hoc truncation/setup in individual tests.
 - Use explicit `@tag timeout: ...` for genuinely long tests rather than sleeps.
-- Tag exclusions live in the `mix test.fast` alias (not `test_helper.exs`) and are locked by `test/hiraeth/mix_alias_contract_test.exs`; the `:nightly` opt-in lane is the sole exception — `test/test_helper.exs` default-excludes it from `priv/test_lanes.exs` `nightly_tags`; the sandbox runs in manual mode, so DataCase/ConnCase own their connections.
+- Tag exclusions live in the `mix test.fast` alias (not `test_helper.exs`) and are locked by `test/hiraeth/mix_alias_contract_test.exs`; the sandbox runs in manual mode, so DataCase/ConnCase own their connections.
 
 ## ANTI-PATTERNS
 - Raw HTML string assertions for LiveView structure when a stable selector exists.
